@@ -13,6 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/organizations/{organizationId}/people")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,7 +29,15 @@ public class PeopleResource extends AbstractResource {
     }
 
     @GET
+    @UnitOfWork
+    public List<PersonDTO> getByOrganization(@PathParam("organizationId") String organizationId) {
+        getOrganization(organizationId);
+        return dao.getByOrganization(organizationId).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
+    }
+
+    @GET
     @Path("{id}")
+    @UnitOfWork
     public PersonDTO get(@PathParam("organizationId") String organizationId, @PathParam("id") String id) {
         try {
             final Person person = dao.get(id);

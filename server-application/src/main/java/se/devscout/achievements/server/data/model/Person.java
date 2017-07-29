@@ -9,6 +9,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "person")
+@NamedQueries({
+        @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization.id = :organizationId")
+})
 public class Person extends PersonProperties {
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")

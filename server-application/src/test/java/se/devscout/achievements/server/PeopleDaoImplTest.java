@@ -10,7 +10,9 @@ import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
 import se.devscout.achievements.server.data.dao.PeopleDaoImpl;
 import se.devscout.achievements.server.data.model.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -27,12 +29,14 @@ public class PeopleDaoImplTest {
     private PeopleDaoImpl dao;
 
     private Organization testOrganization;
+    private Organization otherOrganization;
 
     @Before
     public void setUp() throws Exception {
         dao = new PeopleDaoImpl(database.getSessionFactory());
         OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
         testOrganization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
+        otherOrganization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Other Organization")));
     }
 
     @Test
@@ -45,6 +49,25 @@ public class PeopleDaoImplTest {
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
         dao.get(UUID.randomUUID().toString());
+    }
+
+    @Test
+    public void getByOrganization_happyPath() throws Exception {
+        UUID aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
+        UUID amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda"))).getId();
+        UUID bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob"))).getId();
+
+        final List<Person> actualA = dao.getByOrganization(testOrganization.getId().toString());
+        assertThat(actualA.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(aliceUuid, amandaUuid);
+
+        final List<Person> actualB = dao.getByOrganization(otherOrganization.getId().toString());
+        assertThat(actualB.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(bobUuid);
+    }
+
+    @Test
+    public void getByOrganization_incorrectId_expectEmptyList() throws Exception {
+        final List<Person> actual = dao.getByOrganization(UUID.randomUUID().toString());
+        assertThat(actual).isEmpty();
     }
 
     @Test

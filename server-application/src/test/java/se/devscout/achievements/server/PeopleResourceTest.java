@@ -15,7 +15,10 @@ import se.devscout.achievements.server.resources.PeopleResource;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +52,41 @@ public class PeopleResourceTest {
         assertThat(dto.id).isEqualTo(person.getId().toString());
 
         verify(dao).get(eq(person.getId().toString()));
+    }
+
+    @Test
+    public void getByOrganization_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+        when(dao.getByOrganization(eq(org.getId().toString()))).thenReturn(Collections.singletonList(person));
+
+        final Response response = resources
+                .target("/organizations/" + org.getId() + "/people")
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
+        });
+        assertThat(dto).hasSize(1);
+        assertThat(dto.get(0).id).isEqualTo(person.getId().toString());
+
+        verify(dao).getByOrganization(eq(org.getId().toString()));
+    }
+
+    @Test
+    public void getByOrganization_missing_expectNotFound() throws Exception {
+        when(organizationsDao.get(eq("MISSING_UUID"))).thenThrow(new NotFoundException());
+
+        final Response response = resources
+                .target("/organizations/MISSING_UUID/people")
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
+
+        verify(dao, never()).getByOrganization(anyString());
     }
 
     @Test
