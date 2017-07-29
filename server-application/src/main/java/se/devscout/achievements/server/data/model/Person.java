@@ -13,11 +13,9 @@ import java.util.UUID;
         @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization.id = :organizationId")
 })
 public class Person extends PersonProperties {
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(columnDefinition = "BINARY(16)")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private UUID id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
@@ -31,16 +29,16 @@ public class Person extends PersonProperties {
         this(null, name);
     }
 
-    public Person(UUID id, String name) {
+    public Person(Integer id, String name) {
         super(name);
         this.id = id;
     }
 
-    public UUID getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

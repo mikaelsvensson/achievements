@@ -16,7 +16,7 @@ public class PeopleDaoImpl extends DaoImpl<Person> implements PeopleDao {
 
     @Override
     public Person get(String id) throws ObjectNotFoundException {
-        return getEntity(UUID.fromString(id));
+        return getEntity(Integer.valueOf(id));
     }
 
     @Override

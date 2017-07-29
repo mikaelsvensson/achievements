@@ -41,21 +41,21 @@ public class PeopleDaoImplTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        UUID aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
+        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
         final Person actual = dao.get(aliceUuid.toString());
         assertThat(actual.getName()).isEqualTo("Alice");
     }
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
-        dao.get(UUID.randomUUID().toString());
+        dao.get("-1");
     }
 
     @Test
     public void getByOrganization_happyPath() throws Exception {
-        UUID aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
-        UUID amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda"))).getId();
-        UUID bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob"))).getId();
+        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
+        Integer amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda"))).getId();
+        Integer bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob"))).getId();
 
         final List<Person> actualA = dao.getByOrganization(testOrganization.getId().toString());
         assertThat(actualA.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(aliceUuid, amandaUuid);
@@ -72,7 +72,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        UUID id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob"))).getId();
+        Integer id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob"))).getId();
         database.inTransaction(() -> {
             try {
                 dao.delete(id.toString());
@@ -91,7 +91,7 @@ public class PeopleDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_notFound() throws Exception {
-        dao.delete(UUID.randomUUID().toString());
+        dao.delete("-1");
     }
 
     @Test
@@ -108,7 +108,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void update_personWithoutAttributes_happyPath() throws Exception {
-        UUID objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda"))).getId();
+        Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda"))).getId();
 
         database.inTransaction(() -> dao.update(objectUuid.toString(), new PersonProperties("Becky")));
 
@@ -120,7 +120,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void update_personWithAttributes_happyPath() throws Exception {
-        UUID objectUuid = database.inTransaction(() -> {
+        Integer objectUuid = database.inTransaction(() -> {
             final PersonProperties initialProperties = new PersonProperties("Dave", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")));
             return dao.create(testOrganization, initialProperties);
         }).getId();

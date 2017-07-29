@@ -19,6 +19,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -170,7 +171,7 @@ public class PeopleResourceTest {
     }
 
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
-        final UUID uuid = UUID.randomUUID();
+        final Integer uuid = new Random().nextInt();
 
         final Person person = mock(Person.class);
         when(person.getId()).thenReturn(uuid);
