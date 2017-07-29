@@ -3,11 +3,11 @@
         <h1 class="title">
             Organisation {{name}}
         </h1>
-<!--
-        <h2 class="subtitle">
-            A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
-        </h2>
--->
+        <!--
+                <h2 class="subtitle">
+                    A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
+                </h2>
+        -->
 
         {{> _breadcrumbs.handlebars}}
 
@@ -32,28 +32,21 @@
 
         </form>
 
-        <div class="columns">
-            <div class="column">
-                <h2 class="subtitle is-one-third">Lägg till en ny person</h2>
-                <form>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" type="text" name="name" placeholder="Namn"/>
-                        </div>
-                    </div>
+        <h2 class="subtitle">Personer</h2>
 
-                    <div class="control">
-                        <button class="button create-person-button" type="button">Lägg till</button>
-                    </div>
-                </form>
+        <div id="organization-people-list"></div>
+
+        <form>
+            <div class="field has-addons">
+                <div class="control">
+                    <input class="input" type="text" name="name" placeholder="Namn"/>                </div>
+                <div class="control">
+                    <a class="button is-info create-person-button">
+                        Lägg till
+                    </a>
+                </div>
             </div>
-            <div class="column is-two-thirds">
-                <h2 class="subtitle">Personer som redan finns</h2>
-
-                <div id="organization-people-list"></div>
-            </div>
-        </div>
-
+        </form>
     </div>
 </section>
 
