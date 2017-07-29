@@ -1,4 +1,7 @@
 import $ from "jquery";
+import {get, post} from "./util/api.jsx";
+import {updateView} from "./util/view.jsx";
+import {parseHash, isPathMatch} from "./util/routing.jsx";
 import styles from "bulma/css/bulma.css";
 const templateMain = require("./main.handlebars");
 const templateOrganizations = require("./organizations.handlebars");
@@ -21,14 +24,9 @@ $(function () {
     const s = styles;
 
     const render = function (appPath) {
-        console.log('Path has changed to this: ' + appPath);
-        const appPathParams = {};
-        const parts = appPath.split(/\//);
-        for (let i = 0; i < parts.length; i += 2) {
-            appPathParams[parts[i]] = parts[i + 1] || "";
-        }
-        console.log(appPathParams);
-        if (appPathParams.stats === '') {
+        // console.log('Path has changed to this: ' + appPath);
+        const appPathParams = parseHash(appPath);
+        if (isPathMatch(appPathParams, 'stats')) {
             updateView(templateLoading());
             $.getJSON("//localhost:8080/api/stats", function (data) {
                 data.breadcrumbs = [
@@ -37,7 +35,7 @@ $(function () {
                 ];
                 updateView(templateStats(data));
             });
-        } else if (appPathParams.organizations === "") {
+        } else if (isPathMatch(appPathParams, 'organizations')) {
             let data = {
                 breadcrumbs: [
                     {label: "Hem", url: '#/'},
@@ -62,9 +60,9 @@ $(function () {
                     updateView(templateOrganizationsResult({organizations: responseData}), $('#organizations-search-result'));
                 });
             });
-        } else if (typeof appPathParams.organizations !== "undefined") {
+        } else if (isPathMatch(appPathParams, 'organizations/*')) {
             updateView(templateLoading());
-            get('//localhost:8080/api/organizations/' + appPathParams.organizations, function (responseData, responseStatus, jqXHR) {
+            get('//localhost:8080/api/organizations/' + appPathParams[0].key, function (responseData, responseStatus, jqXHR) {
                 responseData.breadcrumbs = [
                     {label: "Hem", url: '#/'},
                     {label: "Organisationer", url: '#organizations/'},
@@ -75,12 +73,12 @@ $(function () {
                 $('#app').find('.create-person-button').click(function (e) {
                     const button = $(this);
                     const form = button.addClass('is-loading').closest('form');
-                    post('//localhost:8080/api/organizations/' + appPathParams.organizations + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                        button.removeClass('is-loading')
-                        get('//localhost:8080/api/organizations/' + appPathParams.organizations + "/people", function (responseData, responseStatus, jqXHR) {
+                    post('//localhost:8080/api/organizations/' + appPathParams[0].key + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                        button.removeClass('is-loading');
+                        get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
                             updateView(templateOrganizationPeopleList({
                                 people: responseData,
-                                orgId: appPathParams.organizations
+                                orgId: appPathParams[0].key
                             }), $('#organization-people-list'));
                         });
                     });
@@ -91,10 +89,10 @@ $(function () {
                     $('#' + key).val(value);
                 });
 
-                get('//localhost:8080/api/organizations/' + appPathParams.organizations + "/people", function (responseData, responseStatus, jqXHR) {
+                get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
                     updateView(templateOrganizationPeopleList({
                         people: responseData,
-                        orgId: appPathParams.organizations
+                        orgId: appPathParams[0].key
                     }), $('#organization-people-list'));
                 });
 
@@ -116,31 +114,6 @@ $(function () {
         });
 
         return indexed_array;
-    };
-
-    const post = function (url, dataObject, onSuccess) {
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: JSON.stringify(dataObject),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: onSuccess
-        });
-    };
-    const get = function (url, onSuccess) {
-        $.ajax({
-            url: url,
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: onSuccess
-        });
-    };
-
-    const updateView = function (contentNodes, container) {
-        const node = container || $('#app');
-        node.empty().append(contentNodes);
     };
 
     $(window).trigger('hashchange');
