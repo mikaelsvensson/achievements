@@ -1,0 +1,41 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">Organisationer</h1>
+        {{> _breadcrumbs.handlebars}}
+
+        <div class="columns">
+            <div class="column">
+                <h2 class="subtitle is-one-third">Skapa en ny</h2>
+                <form>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" id="name" name="name" placeholder="Namn på ny organisation"/>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button is-primary create-button" type="button">Skapa</button>
+                    </div>
+                </form>
+            </div>
+            <div class="column is-two-thirds">
+                <h2 class="subtitle">Sök efter en som redan finns</h2>
+
+                <form>
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input class="input" type="text" id="filter" name="filter" placeholder="Vad heter den?">
+                        </div>
+                        <div class="control">
+                            <a class="button is-info search-button">
+                                Sök
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="organizations-search-result"></div>
+            </div>
+        </div>
+    </div>
+</section>

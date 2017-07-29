@@ -1,0 +1,36 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Organisation {{name}}
+        </h1>
+<!--
+        <h2 class="subtitle">
+            A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
+        </h2>
+-->
+
+        {{> _breadcrumbs.handlebars}}
+
+        <form>
+            <div class="control">
+                <label class="label">Id</label>
+                <input class="input" type="text" id="id" name="id" placeholder="Disabled input" disabled>
+            </div>
+
+            <div class="field">
+                <label class="label">Namn</label>
+                <div class="control">
+                    <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                </div>
+            </div>
+
+
+            <div class="control">
+                <button class="button is-primary" type="button" class="create-update">Spara</button>
+                <button class="button is-primary is-outlined" type="button" class="create-delete">Ta bort</button>
+            </div>
+
+        </form>
+    </div>
+</section>
+
