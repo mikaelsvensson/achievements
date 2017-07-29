@@ -5,7 +5,7 @@ export function parseHash(urlHash) {
     for (let i = 0; i < parts.length; i += 2) {
         pathComponents.push({resource: parts[i], key: parts[i + 1] || ""});
     }
-    // console.log("pathComponents", pathComponents)
+    // console.log("pathComponents based on " + urlHash, pathComponents);
     return pathComponents;
 }
 
@@ -16,13 +16,12 @@ export function isPathMatch(pathComponents, pattern) {
         return false;
     }
     for (let i = 0; i < patternComponents.length; i++) {
-        if (pathComponents[i].resource != patternComponents[i].resource) {
+        if (patternComponents[i].resource != pathComponents[i].resource) {
             return false;
         }
         if (patternComponents[i].key != '*' && pathComponents[i].key != patternComponents[i].key) {
             return false;
         }
     }
-    // console.log('Match on ' + pattern);
     return true;
 }

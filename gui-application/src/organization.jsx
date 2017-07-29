@@ -13,6 +13,7 @@ export function renderOrganization(appPathParams) {
             {label: "Organisationer", url: '#organizations/'},
             {label: responseData.name}
         ];
+
         updateView(templateOrganization(responseData));
 
         $('#app').find('.create-person-button').click(function (e) {

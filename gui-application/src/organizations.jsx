@@ -25,7 +25,6 @@ export function renderOrganizations() {
         console.log(url);
         get(url, function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading')
-            console.log("Got back", responseData);
             updateView(templateOrganizationsResult({organizations: responseData}), $('#organizations-search-result'));
         });
     });

@@ -19,16 +19,21 @@ $(function () {
     const s = styles;
 
     const render = function (appPath) {
-        // console.log('Path has changed to this: ' + appPath);
         const appPathParams = parseHash(appPath);
-        if (isPathMatch(appPathParams, 'stats')) {
-            renderStats();
-        } else if (isPathMatch(appPathParams, 'organizations')) {
-            renderOrganizations();
-        } else if (isPathMatch(appPathParams, 'organizations/*')) {
-            renderOrganization(appPathParams);
-        } else {
-            renderMain();
+
+        const routes = {
+            'stats': renderStats,
+            'organizations': renderOrganizations,
+            'organizations/*': renderOrganization,
+            '': renderMain
+        };
+
+        for (let routePattern in routes) {
+            if (isPathMatch(appPathParams, routePattern)) {
+                const routeRenderer = routes[routePattern];
+                routeRenderer.call(this, appPathParams);
+                break;
+            }
         }
     };
 
