@@ -1,0 +1,32 @@
+import $ from "jquery";
+import {get, post} from "./util/api.jsx";
+import {updateView, getFormData} from "./util/view.jsx";
+const templateOrganizations = require("./organizations.handlebars");
+const templateOrganizationsResult = require("./organizations.result.handlebars");
+
+export function renderOrganizations() {
+    let data = {
+        breadcrumbs: [
+            {label: "Hem", url: '#/'},
+            {label: "Organisationer"}
+        ]
+    };
+    updateView(templateOrganizations(data));
+    $('#app .create-button').click(function (e) {
+        const form = $(this).addClass('is-loading').closest('form');
+        post('//localhost:8080/api/organizations', getFormData(form), function (responseData, responseStatus, jqXHR) {
+            window.location.hash = '#organizations/' + responseData.id;
+        });
+    });
+    $('#app .search-button').click(function (e) {
+        const button = $(this);
+        const form = button.addClass('is-loading').closest('form');
+        const url = '//localhost:8080/api/organizations?filter=' + getFormData(form).filter;
+        console.log(url);
+        get(url, function (responseData, responseStatus, jqXHR) {
+            button.removeClass('is-loading')
+            console.log("Got back", responseData);
+            updateView(templateOrganizationsResult({organizations: responseData}), $('#organizations-search-result'));
+        });
+    });
+}
