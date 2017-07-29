@@ -8,13 +8,11 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.data.dao.AchievementsDaoImpl;
 import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
 import se.devscout.achievements.server.data.dao.PeopleDaoImpl;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementStep;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.AchievementsResource;
 import se.devscout.achievements.server.resources.OrganizationsResource;
@@ -51,6 +49,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
+        environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao));
+
         initCorsHeaders(environment);
     }
 
@@ -77,4 +77,5 @@ public class AchievementsApplication extends Application<AchievementsApplication
     public static void main(String[] args) throws Exception {
         new AchievementsApplication().run(args);
     }
+
 }
