@@ -1,0 +1,12 @@
+maxOrganizationCount: 10
+
+server:
+  rootPath: /api/
+
+database:
+  driverClass: org.h2.Driver
+  url: jdbc:h2:mem:demo
+  properties:
+    hibernate.hbm2ddl.auto: create-drop
+    hibernate.archive.autodetection: class, hbm
+    hibernate.show_sql: true
