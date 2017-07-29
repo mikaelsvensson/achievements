@@ -107,6 +107,13 @@ public class PeopleDaoImplTest {
     }
 
     @Test
+    public void create_sameNameAsExistingPerson_happyPath() throws Exception {
+        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        assertThat(c1.getId()).isNotEqualTo(c2.getId());
+    }
+
+    @Test
     public void update_personWithoutAttributes_happyPath() throws Exception {
         Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda"))).getId();
 

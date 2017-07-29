@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.data.model;
 
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -11,8 +12,8 @@ import java.util.Set;
 public class PersonProperties {
 
     @Size(min = 1, max = 100)
-    @Column(unique = true, length = 100)
-    @NaturalId(mutable = true)
+    @Column(length = 100)
+    @NotEmpty
     private String name;
 
     @ElementCollection
