@@ -1,0 +1,9 @@
+{{#if people}}
+<ul>
+    {{#each people}}
+    <li><a href="#organizations/{{../orgId}}/people/{{id}}" aria-current="page">{{name}}</a></li>
+    {{/each}}
+</ul>
+{{else}}
+<p>Du har inte hunnit lägga till några personer ännu. Gör det med det lilla formuläret här till vänster.</p>
+{{/if}}

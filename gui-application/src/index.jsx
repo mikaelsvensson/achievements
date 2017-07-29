@@ -4,6 +4,7 @@ const templateMain = require("./main.handlebars");
 const templateOrganizations = require("./organizations.handlebars");
 const templateOrganizationsResult = require("./organizations.result.handlebars");
 const templateOrganization = require("./organization.handlebars");
+const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
 const templateStats = require("./stats.handlebars");
 const templateLoading = require("./loading.handlebars");
 
@@ -71,9 +72,30 @@ $(function () {
                 ];
                 updateView(templateOrganization(responseData));
 
+                $('#app').find('.create-person-button').click(function (e) {
+                    const button = $(this);
+                    const form = button.addClass('is-loading').closest('form');
+                    post('//localhost:8080/api/organizations/' + appPathParams.organizations + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                        button.removeClass('is-loading')
+                        get('//localhost:8080/api/organizations/' + appPathParams.organizations + "/people", function (responseData, responseStatus, jqXHR) {
+                            updateView(templateOrganizationPeopleList({
+                                people: responseData,
+                                orgId: appPathParams.organizations
+                            }), $('#organization-people-list'));
+                        });
+                    });
+                });
+
                 // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
                 $.each(responseData, function (key, value) {
                     $('#' + key).val(value);
+                });
+
+                get('//localhost:8080/api/organizations/' + appPathParams.organizations + "/people", function (responseData, responseStatus, jqXHR) {
+                    updateView(templateOrganizationPeopleList({
+                        people: responseData,
+                        orgId: appPathParams.organizations
+                    }), $('#organization-people-list'));
                 });
 
             });

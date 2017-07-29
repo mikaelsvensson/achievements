@@ -26,11 +26,34 @@
 
 
             <div class="control">
-                <button class="button is-primary" type="button" class="create-update">Spara</button>
-                <button class="button is-primary is-outlined" type="button" class="create-delete">Ta bort</button>
+                <button class="button is-primary" type="button">Spara</button>
+                <button class="button is-primary is-outlined" type="button">Ta bort</button>
             </div>
 
         </form>
+
+        <div class="columns">
+            <div class="column">
+                <h2 class="subtitle is-one-third">Lägg till en ny person</h2>
+                <form>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" name="name" placeholder="Namn"/>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button create-person-button" type="button">Lägg till</button>
+                    </div>
+                </form>
+            </div>
+            <div class="column is-two-thirds">
+                <h2 class="subtitle">Personer som redan finns</h2>
+
+                <div id="organization-people-list"></div>
+            </div>
+        </div>
+
     </div>
 </section>
 
