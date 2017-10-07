@@ -10,7 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "person")
 @NamedQueries({
-        @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization.id = :organizationId")
+        @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization = :organization")
 })
 public class Person extends PersonProperties {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

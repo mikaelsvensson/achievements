@@ -31,8 +31,8 @@ public class PeopleResource extends AbstractResource {
     @GET
     @UnitOfWork
     public List<PersonDTO> getByOrganization(@PathParam("organizationId") String organizationId) {
-        getOrganization(organizationId);
-        return dao.getByOrganization(organizationId).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
+        final Organization organization = getOrganization(organizationId);
+        return dao.getByParent(organization).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
     }
 
     @GET

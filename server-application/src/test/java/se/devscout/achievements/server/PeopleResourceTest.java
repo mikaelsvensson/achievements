@@ -59,7 +59,7 @@ public class PeopleResourceTest {
     public void getByOrganization_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
         final Person person = mockPerson(org, "Alice");
-        when(dao.getByOrganization(eq(org.getId().toString()))).thenReturn(Collections.singletonList(person));
+        when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
 
         final Response response = resources
                 .target("/organizations/" + org.getId() + "/people")
@@ -73,7 +73,7 @@ public class PeopleResourceTest {
         assertThat(dto).hasSize(1);
         assertThat(dto.get(0).id).isEqualTo(person.getId().toString());
 
-        verify(dao).getByOrganization(eq(org.getId().toString()));
+        verify(dao).getByParent(eq(org));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-        verify(dao, never()).getByOrganization(anyString());
+        verify(dao, never()).getByParent(any(Organization.class));
     }
 
     @Test

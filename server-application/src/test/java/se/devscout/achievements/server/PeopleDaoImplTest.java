@@ -57,16 +57,16 @@ public class PeopleDaoImplTest {
         Integer amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda"))).getId();
         Integer bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob"))).getId();
 
-        final List<Person> actualA = dao.getByOrganization(testOrganization.getId().toString());
+        final List<Person> actualA = dao.getByParent(testOrganization);
         assertThat(actualA.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(aliceUuid, amandaUuid);
 
-        final List<Person> actualB = dao.getByOrganization(otherOrganization.getId().toString());
+        final List<Person> actualB = dao.getByParent(otherOrganization);
         assertThat(actualB.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(bobUuid);
     }
 
     @Test
     public void getByOrganization_incorrectId_expectEmptyList() throws Exception {
-        final List<Person> actual = dao.getByOrganization(UUID.randomUUID().toString());
+        final List<Person> actual = dao.getByParent(null);
         assertThat(actual).isEmpty();
     }
 

@@ -40,9 +40,9 @@ public class PeopleDaoImpl extends DaoImpl<Person> implements PeopleDao {
     }
 
     @Override
-    public List<Person> getByOrganization(String organizationId) {
+    public List<Person> getByParent(Organization parent) {
         return namedQuery("Person.getByOrganization")
-                .setParameter("organizationId", UUID.fromString(organizationId))
+                .setParameter("organization", parent)
                 .getResultList();
     }
 }
