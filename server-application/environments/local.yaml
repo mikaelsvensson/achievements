@@ -2,6 +2,12 @@ maxOrganizationCount: 10
 
 server:
   rootPath: /api/
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 9001
 
 database:
   driverClass: org.h2.Driver
