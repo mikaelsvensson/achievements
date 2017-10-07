@@ -12,7 +12,9 @@ import se.devscout.achievements.server.data.model.*;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -24,8 +26,6 @@ public class AchievementsDaoImplTest {
             .setShowSql(true)
             .addEntityClass(Achievement.class)
             .addEntityClass(AchievementStep.class)
-            .addEntityClass(AchievementStandardStep.class)
-            .addEntityClass(AchievementReferenceStep.class)
             .build();
 
     private AchievementsDaoImpl dao;
@@ -40,6 +40,28 @@ public class AchievementsDaoImplTest {
         UUID aliceUuid = database.inTransaction(() -> dao.create(new AchievementProperties("Cook Pasta"))).getId();
         final Achievement actual = dao.get(aliceUuid.toString());
         assertThat(actual.getName()).isEqualTo("Cook Pasta");
+    }
+
+    @Test
+    public void find_happyPath() throws Exception {
+        UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("Make Fire"))).getId();
+        UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("Make Raft"))).getId();
+        UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("Find Treasure"))).getId();
+        final List<Achievement> actual = dao.find("Make");
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(fire, raft);
+    }
+
+    @Test
+    public void find_noCondition_expectException() throws Exception {
+        for (String name : new String[]{null, "", "\t", "     ", "\n"}) {
+            try {
+                dao.find(name);
+                fail("Expected IllegalArgumentException when using condition '" + name + "'.");
+            } catch (IllegalArgumentException e) {
+                // Expected.
+            }
+        }
     }
 
     @Test(expected = ObjectNotFoundException.class)
@@ -73,25 +95,10 @@ public class AchievementsDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Achievement result = database.inTransaction(() -> {
-            final AchievementProperties properties = new AchievementProperties("Boil Egg");
-            properties.setSteps(Arrays.asList(
-                    new AchievementReferenceStep(URI.create("http://localhost/reference/uri")),
-                    new AchievementStandardStep("Put egg in water")
-            ));
-            return dao.create(properties);
-        });
+        final Achievement result = database.inTransaction(() -> dao.create(new AchievementProperties("Boil Egg")));
         final Achievement actual = database.inTransaction(() -> dao.get(result.getId().toString()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Boil Egg");
-
-        assertThat(actual.getSteps().get(0)).isInstanceOf(AchievementReferenceStep.class);
-        AchievementReferenceStep referenceStep = (AchievementReferenceStep) actual.getSteps().get(0);
-        assertThat(referenceStep.getReference()).isEqualTo(URI.create("http://localhost/reference/uri"));
-
-        assertThat(actual.getSteps().get(1)).isInstanceOf(AchievementStandardStep.class);
-        AchievementStandardStep standardStep = (AchievementStandardStep) actual.getSteps().get(1);
-        assertThat(standardStep.getDescription()).isEqualTo("Put egg in water");
     }
 
     @Test
@@ -110,21 +117,14 @@ public class AchievementsDaoImplTest {
         UUID objectUuid = database.inTransaction(() -> {
             final AchievementProperties initialProperties = new AchievementProperties(
                     "Cook Pasta",
-                    Sets.newHashSet("italian", "simple", "tasty"),
-                    Lists.newArrayList(
-                            new AchievementStandardStep("Step 1"),
-                            new AchievementStandardStep("Step 1")
-                    ));
+                    Sets.newHashSet("italian", "simple", "tasty"));
             return dao.create(initialProperties);
         }).getId();
 
         database.inTransaction(() -> {
             final AchievementProperties updatedProperties = new AchievementProperties(
                     "Cook Spagetti",
-                    Sets.newHashSet("italian", "quick"),
-                    Lists.newArrayList(
-                            new AchievementReferenceStep(URI.create("http://localhost")))
-                    );
+                    Sets.newHashSet("italian", "quick"));
             return dao.update(objectUuid.toString(), updatedProperties);
         });
 
@@ -132,7 +132,5 @@ public class AchievementsDaoImplTest {
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Cook Spagetti");
         assertThat(actual.getTags()).containsExactlyInAnyOrder("italian", "quick");
-        assertThat(actual.getSteps()).hasSize(1);
-        assertThat(actual.getSteps().get(0)).isInstanceOf(AchievementReferenceStep.class);
     }
 }

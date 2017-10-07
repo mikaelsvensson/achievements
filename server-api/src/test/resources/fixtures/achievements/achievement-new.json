@@ -2,40 +2,31 @@
   "name": "Learn how to cook pasta",
   "steps": [
     {
-      "type": "standard",
       "description": "Pour 1 litre of water into pot."
     },
     {
-      "type": "standard",
       "description": "Turn on stove."
     },
     {
-      "type": "standard",
       "description": "Put pot on stove."
     },
     {
-      "type": "standard",
       "description": "Wait for water to start boiling."
     },
     {
-      "type": "standard",
       "description": "Put pasta in water."
     },
     {
-      "type": "standard",
       "description": "Wait the number of minutes suggested on your pasta package."
     },
     {
-      "type": "standard",
       "description": "Turn off stove."
     },
     {
-      "type": "standard",
       "description": "Pour pasta and water over colinder."
     },
     {
-      "type": "ref",
-      "achievement": "http://localhost/serve/with/parmesan"
+      "prerequisite_achievement": "63b24026-e68c-40f5-97a6-21dcde9feae2"
     }
   ]
 }

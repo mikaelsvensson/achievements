@@ -9,15 +9,10 @@ import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
-import se.devscout.achievements.server.data.dao.AchievementsDaoImpl;
-import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
-import se.devscout.achievements.server.data.dao.PeopleDaoImpl;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
-import se.devscout.achievements.server.resources.AchievementsResource;
-import se.devscout.achievements.server.resources.OrganizationsResource;
-import se.devscout.achievements.server.resources.PeopleResource;
-import se.devscout.achievements.server.resources.StatsResource;
+import se.devscout.achievements.server.resources.*;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -38,12 +33,14 @@ public class AchievementsApplication extends Application<AchievementsApplication
     public void run(AchievementsApplicationConfiguration config, Environment environment) throws Exception {
         final SessionFactory sessionFactory = hibernate.getSessionFactory();
 
-        final OrganizationsDaoImpl organizationsDao = new OrganizationsDaoImpl(sessionFactory, config.getMaxOrganizationCount());
-        final AchievementsDaoImpl achievementsDao = new AchievementsDaoImpl(sessionFactory);
-        final PeopleDaoImpl peopleDao = new PeopleDaoImpl(sessionFactory);
+        final OrganizationsDao organizationsDao = new OrganizationsDaoImpl(sessionFactory, config.getMaxOrganizationCount());
+        final AchievementsDao achievementsDao = new AchievementsDaoImpl(sessionFactory);
+        final AchievementStepsDao achievementStepsDao = new AchievementStepsDaoImpl(sessionFactory);
+        final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
 
         environment.jersey().register(new OrganizationsResource(organizationsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao));
+        environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
 

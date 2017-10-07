@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,8 +33,8 @@ public class AchievementDTOTest {
                 "Wait the number of minutes suggested on your pasta package.",
                 "Turn off stove.",
                 "Pour pasta and water over colinder."
-        ).map(AchievementStepDTO.Standard::new).collect(Collectors.toList());
-        steps.add(new AchievementStepDTO.Reference(URI.create("http://localhost/serve/with/parmesan")));
+        ).map(AchievementStepDTO::new).collect(Collectors.toList());
+        steps.add(new AchievementStepDTO(UUID.fromString("63b24026-e68c-40f5-97a6-21dcde9feae2")));
 
         final AchievementDTO org = new AchievementDTO(
                 "Learn how to cook pasta",
@@ -56,8 +57,8 @@ public class AchievementDTOTest {
                 "Wait the number of minutes suggested on your pasta package.",
                 "Turn off stove.",
                 "Pour pasta and water over colinder."
-        ).map(AchievementStepDTO.Standard::new).collect(Collectors.toList());
-        steps.add(new AchievementStepDTO.Reference(URI.create("http://localhost/serve/with/parmesan")));
+        ).map(AchievementStepDTO::new).collect(Collectors.toList());
+        steps.add(new AchievementStepDTO(UUID.fromString("63b24026-e68c-40f5-97a6-21dcde9feae2")));
 
         final AchievementDTO org = new AchievementDTO(
                 "Learn how to cook pasta",

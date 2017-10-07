@@ -30,9 +30,6 @@ public class AchievementProperties {
     @Column(length = 5_000)
     private URI image;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "achievement")
-    private List<AchievementStep> steps = new ArrayList<>();
-
     public AchievementProperties() {
     }
 
@@ -40,10 +37,9 @@ public class AchievementProperties {
         this.name = name;
     }
 
-    public AchievementProperties(String name, Set<String> tags, List<AchievementStep> steps) {
+    public AchievementProperties(String name, Set<String> tags) {
         this.name = name;
         this.tags = tags;
-        this.steps = steps;
     }
 
     public String getName() {
@@ -78,21 +74,13 @@ public class AchievementProperties {
         this.image = image;
     }
 
-    public List<AchievementStep> getSteps() {
-        return steps;
-    }
-
-    public void setSteps(List<AchievementStep> steps) {
-        this.steps = steps;
-    }
-
     public void apply(AchievementProperties that) {
         name = that.name;
         description = that.description;
         tags.clear();
         tags.addAll(that.tags);
         image = that.image;
-        steps.clear();
-        steps.addAll(that.steps);
+//        steps.clear();
+//        steps.addAll(that.steps);
     }
 }

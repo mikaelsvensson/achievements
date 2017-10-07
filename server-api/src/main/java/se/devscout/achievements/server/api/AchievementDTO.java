@@ -11,12 +11,12 @@ public class AchievementDTO {
     public String description;
     public List<String> tags;
     public URI image;
-    public List<? extends AchievementStepDTO> steps;
+    public List<AchievementStepDTO> steps;
 
     public AchievementDTO() {
     }
 
-    public AchievementDTO(@JsonProperty("name") String name, @JsonProperty("steps") List<? extends AchievementStepDTO> steps) {
+    public AchievementDTO(@JsonProperty("name") String name, @JsonProperty("steps") List<AchievementStepDTO> steps) {
         this.name = name;
         this.steps = steps;
     }

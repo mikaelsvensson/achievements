@@ -3,35 +3,25 @@ package se.devscout.achievements.server.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.net.URI;
+import java.util.UUID;
 
-@JsonTypeInfo(property = "type", include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME)
-@JsonSubTypes(value = {
-        @JsonSubTypes.Type(name = "ref", value = AchievementStepDTO.Reference.class),
-        @JsonSubTypes.Type(name = "standard", value = AchievementStepDTO.Standard.class)
-})
 public class AchievementStepDTO {
+    public UUID prerequisite_achievement;
 
-    public static class Reference extends AchievementStepDTO {
-        public URI achievement;
+    public String description;
 
-        public Reference() {
-        }
-
-        public Reference(@JsonProperty("achievement") URI achievement) {
-            this.achievement = achievement;
-        }
+    public AchievementStepDTO() {
     }
 
-    public static class Standard extends AchievementStepDTO {
-        public String description;
+    public AchievementStepDTO(UUID prerequisite_achievement) {
+        this.prerequisite_achievement = prerequisite_achievement;
+    }
 
-        public Standard() {
-        }
-
-        public Standard(@JsonProperty("description") String description) {
-            this.description = description;
-        }
+    public AchievementStepDTO(String description) {
+        this.description = description;
     }
 }

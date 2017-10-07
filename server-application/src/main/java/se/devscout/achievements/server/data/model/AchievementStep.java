@@ -1,17 +1,37 @@
 package se.devscout.achievements.server.data.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type", length = 10)
 @Table(name = "achievement_steps")
 @Entity
-public abstract class AchievementStep {
-    @Id
+@NamedQueries({
+        @NamedQuery(name = "AchievementStep.getByAchievement", query = "SELECT step FROM AchievementStep step where step.achievement = :achievement")
+})
+public class AchievementStep extends AchievementStepProperties {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Id
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "achievement_id")
+    @NotNull
     private Achievement achievement;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Achievement getAchievement() {
+        return achievement;
+    }
+
+    public void setAchievement(Achievement achievement) {
+        this.achievement = achievement;
+    }
 }
