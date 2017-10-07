@@ -4,6 +4,8 @@ import {renderMain} from "./main.jsx";
 import {renderStats} from "./stats.jsx";
 import {renderOrganization} from "./organization.jsx";
 import {renderOrganizations} from "./organizations.jsx";
+import {renderAchievement} from "./achievement.jsx";
+import {renderAchievements} from "./achievements.jsx";
 import styles from "bulma/css/bulma.css";
 
 $(function () {
@@ -25,6 +27,8 @@ $(function () {
             'stats': renderStats,
             'organizations': renderOrganizations,
             'organizations/*': renderOrganization,
+            'achievements': renderAchievements,
+            'achievements/*': renderAchievement,
             '': renderMain
         };
 

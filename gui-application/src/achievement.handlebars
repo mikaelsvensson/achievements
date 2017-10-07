@@ -1,0 +1,51 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Märke {{name}}
+        </h1>
+
+        {{> _breadcrumbs.handlebars}}
+
+        <form>
+            <div class="control">
+                <label class="label">Id</label>
+                <input class="input" type="text" id="id" name="id" placeholder="Disabled input" disabled>
+            </div>
+
+            <div class="field">
+                <label class="label">Namn</label>
+                <div class="control">
+                    <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                </div>
+            </div>
+
+
+            <div class="control">
+                <button class="button is-primary" type="button">Spara</button>
+                <button class="button is-primary is-outlined" type="button">Ta bort</button>
+            </div>
+
+        </form>
+
+        <h2 class="subtitle">Moment</h2>
+
+        <div id="achievement-steps-list"></div>
+
+        <form>
+            <div class="field has-addons">
+                <div class="control">
+                    <input class="input" type="text" name="description" placeholder="Beskrivning"/>
+                </div>
+                <div class="control">
+                    <input class="input" type="text" name="prerequisite_achievement" placeholder="Krav"/>
+                </div>
+                <div class="control">
+                    <a class="button is-info create-step-button">
+                        Lägg till
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+

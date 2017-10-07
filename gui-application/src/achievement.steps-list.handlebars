@@ -1,0 +1,9 @@
+{{#if steps}}
+<ul>
+    {{#each steps}}
+    <li><a href="#achievements/{{../achievementId}}/steps/{{id}}" aria-current="page">{{prerequisite_achievement}}</a></li>
+    {{/each}}
+</ul>
+{{else}}
+<p>Du har inte hunnit lägga till några moment ännu. Gör det med det lilla formuläret här till vänster.</p>
+{{/if}}
