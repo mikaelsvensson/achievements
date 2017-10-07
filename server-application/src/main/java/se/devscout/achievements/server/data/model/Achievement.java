@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "achievements")
+@NamedQueries({@NamedQuery(name = "Achievement.find", query = "SELECT a FROM Achievement a WHERE a.name LIKE :name")})
 public class Achievement extends AchievementProperties {
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")

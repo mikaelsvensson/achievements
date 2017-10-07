@@ -12,6 +12,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/achievements")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,12 +26,23 @@ public class AchievementsResource extends AbstractResource {
     }
 
     @GET
+    @UnitOfWork
     @Path("{id}")
     public AchievementDTO get(@PathParam("id") String id) {
         try {
             return map(dao.get(id), AchievementDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
+        }
+    }
+
+    @GET
+    @UnitOfWork
+    public List<AchievementDTO> find(@QueryParam("filter") String filter) {
+        try {
+            return dao.find(filter).stream().map(o -> map(o, AchievementDTO.class)).collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
         }
     }
 
