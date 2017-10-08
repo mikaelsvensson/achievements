@@ -1,9 +1,34 @@
 {{#if steps}}
-<ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Moment</th>
+            {{#each people}}
+                <th>{{name}}</th>
+            {{/each}}
+        </tr>
+    </thead>
+    <tbody>
     {{#each steps}}
-    <li><a href="#achievements/{{../achievementId}}/steps/{{id}}" aria-current="page">{{prerequisite_achievement}}</a></li>
+        <tr>
+            <td>
+                {{#if prerequisite_achievement}}
+                    <a href="#achievements/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
+                {{else}}
+                    {{description}}
+                {{/if}}
+            </td>
+            {{#each ../people}}
+                <td>
+                    <button class="button progress-switch" data-person-id="{{id}}" data-step-id="{{../id}}">
+                        ?
+                    </button>
+                </td>
+            {{/each}}
+        </tr>
     {{/each}}
-</ul>
+    </tbody>
+</table>
 {{else}}
 <p>Du har inte hunnit lägga till några moment ännu. Gör det med det lilla formuläret här till vänster.</p>
 {{/if}}
