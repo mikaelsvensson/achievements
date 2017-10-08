@@ -45,11 +45,12 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao));
+        environment.jersey().register(new MyResource(peopleDao, organizationsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
-        environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao));
+        environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao, achievementsDao, achievementStepsDao));
 
         initCorsHeaders(environment);
     }
