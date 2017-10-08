@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ProgressDTO {
 
+    public ProgressDTO() {
+    }
+
     public ProgressDTO(@JsonProperty("completed") boolean completed,
                        @JsonProperty("note") String note) {
         this.completed = completed;

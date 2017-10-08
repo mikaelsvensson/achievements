@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 
 public class PeopleResourceTest {
 
+    private static final int ZERO = 0;
     private final PeopleDao dao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
 
@@ -49,6 +50,8 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         final PersonDTO dto = response.readEntity(PersonDTO.class);
+        assertThat(dto.id).isNotNull();
+        assertThat(dto.id).isNotEqualTo(ZERO);
 
         verify(dao).read(eq(person.getId()));
     }
@@ -69,6 +72,8 @@ public class PeopleResourceTest {
         final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
         });
         assertThat(dto).hasSize(1);
+        assertThat(dto.get(0).id).isNotNull();
+        assertThat(dto.get(0).id).isNotEqualTo(ZERO);
 
         verify(dao).getByParent(eq(org));
     }
@@ -103,8 +108,6 @@ public class PeopleResourceTest {
 
     @Test
     public void delete_notFound() throws Exception {
-        final Organization org = mockOrganization("Org");
-
         doThrow(new NotFoundException()).when(dao).read(eq(-1));
 
         final Response response = resources
@@ -169,16 +172,20 @@ public class PeopleResourceTest {
     }
 
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
-        final Integer uuid = new Random().nextInt();
+        final Integer id = getRandomNonZeroValue();
 
         final Person person = mock(Person.class);
-        when(person.getId()).thenReturn(uuid);
+        when(person.getId()).thenReturn(id);
         when(person.getOrganization()).thenReturn(org);
         when(person.getName()).thenReturn(name);
 
-        when(dao.read(eq(uuid))).thenReturn(person);
+        when(dao.read(eq(id))).thenReturn(person);
 
         return person;
+    }
+
+    private int getRandomNonZeroValue() {
+        return new Random().nextInt(10000) + 1;
     }
 
     private Organization mockOrganization(String name) throws ObjectNotFoundException {

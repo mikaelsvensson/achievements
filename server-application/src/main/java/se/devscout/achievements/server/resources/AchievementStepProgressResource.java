@@ -3,7 +3,10 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.ProgressDTO;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.data.model.AchievementStep;
+import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
+import se.devscout.achievements.server.data.model.Person;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -28,14 +31,14 @@ public class AchievementStepProgressResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public AchievementStepProgress get(@PathParam("achievementId") UUID achievementId,
+    public ProgressDTO get(@PathParam("achievementId") UUID achievementId,
                                        @PathParam("stepId") Integer stepId,
                                        @PathParam("personId") Integer personId) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
             final Person person = peopleDao.read(personId);
-            return dao.get(step, person);
+            return map(dao.get(step, person), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
         }
@@ -43,7 +46,7 @@ public class AchievementStepProgressResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public AchievementStepProgress set(@PathParam("achievementId") UUID achievementId,
+    public ProgressDTO set(@PathParam("achievementId") UUID achievementId,
                                        @PathParam("stepId") Integer stepId,
                                        @PathParam("personId") Integer personId,
                                        ProgressDTO dto) {
@@ -51,7 +54,7 @@ public class AchievementStepProgressResource extends AbstractResource {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
             final Person person = peopleDao.read(personId);
-            return dao.set(step, person, new AchievementStepProgressProperties(dto.completed, dto.note));
+            return map(dao.set(step, person, new AchievementStepProgressProperties(dto.completed, dto.note)), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
         }
