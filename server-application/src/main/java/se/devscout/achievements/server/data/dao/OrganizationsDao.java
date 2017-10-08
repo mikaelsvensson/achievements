@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface OrganizationsDao extends CrudRootDao<Organization, OrganizationProperties, UUID> {
     List<Organization> find(String name);
+    List<Organization> all();
 }

@@ -75,4 +75,10 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements
                 .setParameter("name", "%" + name + "%")
                 .getResultList();
     }
+
+    @Override
+    public List<Organization> all() {
+        return namedQuery("Organization.all")
+                .getResultList();
+    }
 }

@@ -58,6 +58,18 @@ public class OrganizationsDaoImplTest {
     }
 
     @Test
+    public void all_happyPath() throws Exception {
+        UUID burnsUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Burns Industries"))).getId();
+        UUID buynlargeUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Buy n Large"))).getId();
+
+        //SUT
+        final List<Organization> actual = dao.all();
+
+        List<UUID> returnedUuids = actual.stream().map(Organization::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(burnsUuid, buynlargeUuid);
+    }
+
+    @Test
     public void find_noCondition_expectException() throws Exception {
         for (String name : new String[]{null, "", "\t", "     ", "\n"}) {
             try {

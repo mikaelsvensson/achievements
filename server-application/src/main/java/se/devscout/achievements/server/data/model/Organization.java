@@ -9,7 +9,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "organization")
-@NamedQueries({@NamedQuery(name = "Organization.find", query = "SELECT o FROM Organization o WHERE o.name LIKE :name")})
+@NamedQueries({
+        @NamedQuery(name = "Organization.all", query = "SELECT o FROM Organization o"),
+        @NamedQuery(name = "Organization.find", query = "SELECT o FROM Organization o WHERE o.name LIKE :name")
+})
 public class Organization extends OrganizationProperties {
     public UUID getId() {
         return id;
