@@ -7,17 +7,16 @@ import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 
 import java.util.List;
-import java.util.UUID;
 
-public class PeopleDaoImpl extends DaoImpl<Person> implements PeopleDao {
+public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao {
     public PeopleDaoImpl(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
 
     @Override
-    public Person get(String id) throws ObjectNotFoundException {
+    public Person read(Integer id) throws ObjectNotFoundException {
         try {
-            return getEntity(Integer.valueOf(id));
+            return getEntity(id);
         } catch (NumberFormatException e) {
             //TODO: Log this. Could be simple client error or hacking attempt.
             throw new ObjectNotFoundException();
@@ -32,15 +31,15 @@ public class PeopleDaoImpl extends DaoImpl<Person> implements PeopleDao {
     }
 
     @Override
-    public Person update(String id, PersonProperties properties) throws ObjectNotFoundException {
-        final Person person = get(id);
+    public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException {
+        final Person person = read(id);
         person.apply(properties);
         return super.persist(person);
     }
 
     @Override
-    public void delete(String id) throws ObjectNotFoundException {
-        final Person person = get(id);
+    public void delete(Integer id) throws ObjectNotFoundException {
+        final Person person = read(id);
         super.currentSession().delete(person);
     }
 

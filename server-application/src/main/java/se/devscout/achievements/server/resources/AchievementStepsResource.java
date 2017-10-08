@@ -12,13 +12,13 @@ import se.devscout.achievements.server.data.model.AchievementStepProperties;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("/achievements/{achievementId}/steps")
@@ -35,7 +35,7 @@ public class AchievementStepsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") String achievementId) {
+    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId) {
         final Achievement achievement = getAchievement(achievementId);
         return dao.getByParent(achievement).stream().map(p -> map(p, AchievementStepDTO.class)).collect(Collectors.toList());
     }
@@ -43,9 +43,9 @@ public class AchievementStepsResource extends AbstractResource {
     @GET
     @Path("{id}")
     @UnitOfWork
-    public AchievementStepDTO get(@PathParam("achievementId") String achievementId, @PathParam("id") String id) {
+    public AchievementStepDTO get(@PathParam("achievementId") UUID achievementId, @PathParam("id") Integer id) {
         try {
-            final AchievementStep person = dao.get(id);
+            final AchievementStep person = dao.read(id);
             verifyParent(achievementId, person);
             return map(person, AchievementStepDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -55,10 +55,10 @@ public class AchievementStepsResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(@PathParam("achievementId") String achievementId, AchievementStepDTO input) throws ObjectNotFoundException {
+    public Response create(@PathParam("achievementId") UUID achievementId, AchievementStepDTO input) throws ObjectNotFoundException {
         final AchievementStepProperties properties = map(input, AchievementStepProperties.class);
         if (input.prerequisite_achievement != null) {
-            properties.setPrerequisiteAchievement(achievementsDao.get(input.prerequisite_achievement.toString()));
+            properties.setPrerequisiteAchievement(achievementsDao.read(input.prerequisite_achievement));
         }
 
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -76,10 +76,10 @@ public class AchievementStepsResource extends AbstractResource {
                 .build();
     }
 
-    private Achievement getAchievement(@PathParam("achievementId") String achievementId) {
+    private Achievement getAchievement(@PathParam("achievementId") UUID achievementId) {
         Achievement achievement = null;
         try {
-            achievement = achievementsDao.get(achievementId);
+            achievement = achievementsDao.read(achievementId);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -89,9 +89,9 @@ public class AchievementStepsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{id}")
-    public Response delete(@PathParam("achievementId") String achievementId, @PathParam("id") String id) {
+    public Response delete(@PathParam("achievementId") UUID achievementId, @PathParam("id") Integer id) {
         try {
-            verifyParent(achievementId, dao.get(id));
+            verifyParent(achievementId, dao.read(id));
             dao.delete(id);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
@@ -99,7 +99,7 @@ public class AchievementStepsResource extends AbstractResource {
         }
     }
 
-    private void verifyParent(String achievementId, AchievementStep person) throws ObjectNotFoundException {
+    private void verifyParent(UUID achievementId, AchievementStep person) throws ObjectNotFoundException {
         Achievement achievement = getAchievement(achievementId);
         if (!person.getAchievement().getId().equals(achievement.getId())) {
             throw new NotFoundException();

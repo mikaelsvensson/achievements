@@ -29,12 +29,12 @@ public class AchievementStepProgressResource extends AbstractResource {
     @GET
     @UnitOfWork
     public AchievementStepProgress get(@PathParam("achievementId") UUID achievementId,
-                                       @PathParam("stepId") String stepId,
-                                       @PathParam("personId") String personId) {
+                                       @PathParam("stepId") Integer stepId,
+                                       @PathParam("personId") Integer personId) {
         try {
-            final AchievementStep step = stepsDao.get(stepId);
+            final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
-            final Person person = peopleDao.get(personId);
+            final Person person = peopleDao.read(personId);
             return dao.get(step, person);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
@@ -44,13 +44,13 @@ public class AchievementStepProgressResource extends AbstractResource {
     @POST
     @UnitOfWork
     public AchievementStepProgress set(@PathParam("achievementId") UUID achievementId,
-                                       @PathParam("stepId") String stepId,
-                                       @PathParam("personId") String personId,
+                                       @PathParam("stepId") Integer stepId,
+                                       @PathParam("personId") Integer personId,
                                        ProgressDTO dto) {
         try {
-            final AchievementStep step = stepsDao.get(stepId);
+            final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
-            final Person person = peopleDao.get(personId);
+            final Person person = peopleDao.read(personId);
             return dao.set(step, person, new AchievementStepProgressProperties(dto.completed, dto.note));
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
@@ -60,12 +60,12 @@ public class AchievementStepProgressResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     public Response unset(@PathParam("achievementId") UUID achievementId,
-                                        @PathParam("stepId") String stepId,
-                                        @PathParam("personId") String personId) {
+                                        @PathParam("stepId") Integer stepId,
+                                        @PathParam("personId") Integer personId) {
         try {
-            final AchievementStep step = stepsDao.get(stepId);
+            final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
-            final Person person = peopleDao.get(personId);
+            final Person person = peopleDao.read(personId);
             dao.unset(step, person);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
@@ -74,7 +74,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     }
 
     private void verifyParent(UUID achievementId, AchievementStep step) throws ObjectNotFoundException {
-        Achievement achievement = achievementDao.get(achievementId.toString());
+        Achievement achievement = achievementDao.read(achievementId);
         if (!step.getAchievement().getId().equals(achievement.getId())) {
             throw new NotFoundException();
         }

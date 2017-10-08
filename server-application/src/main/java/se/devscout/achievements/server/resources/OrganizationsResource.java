@@ -5,7 +5,6 @@ import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
 
@@ -14,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("/organizations")
@@ -29,9 +29,9 @@ public class OrganizationsResource extends AbstractResource {
     @GET
     @Path("{organizationId}")
     @UnitOfWork
-    public OrganizationDTO get(@PathParam("organizationId") String id) {
+    public OrganizationDTO get(@PathParam("organizationId") UUID id) {
         try {
-            return map(dao.get(id), OrganizationDTO.class);
+            return map(dao.read(id), OrganizationDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -65,7 +65,7 @@ public class OrganizationsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{id}")
-    public Response delete(@PathParam("id") String id) {
+    public Response delete(@PathParam("id") UUID id) {
         try {
             dao.delete(id);
             return Response.noContent().build();

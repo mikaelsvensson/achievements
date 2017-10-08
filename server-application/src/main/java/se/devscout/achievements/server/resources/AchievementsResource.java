@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("/achievements")
@@ -28,9 +29,9 @@ public class AchievementsResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("{id}")
-    public AchievementDTO get(@PathParam("id") String id) {
+    public AchievementDTO get(@PathParam("id") UUID id) {
         try {
-            return map(dao.get(id), AchievementDTO.class);
+            return map(dao.read(id), AchievementDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -64,7 +65,7 @@ public class AchievementsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{id}")
-    public Response delete(@PathParam("id") String id) {
+    public Response delete(@PathParam("id") UUID id) {
         try {
             dao.delete(id);
             return Response.noContent().build();

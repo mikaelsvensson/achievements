@@ -11,7 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.UUID;
 
-public class OrganizationsDaoImpl extends DaoImpl<Organization> implements OrganizationsDao {
+public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements OrganizationsDao {
 
     private Long maxOrganizationCount;
 
@@ -21,8 +21,8 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization> implements Organ
     }
 
     @Override
-    public Organization get(String id) throws ObjectNotFoundException {
-        return getEntity(UUID.fromString(id));
+    public Organization read(UUID id) throws ObjectNotFoundException {
+        return getEntity(id);
     }
 
     @Override
@@ -46,15 +46,15 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization> implements Organ
     }
 
     @Override
-    public Organization update(String id, OrganizationProperties properties) throws ObjectNotFoundException {
-        final Organization organization = get(id);
+    public Organization update(UUID id, OrganizationProperties properties) throws ObjectNotFoundException {
+        final Organization organization = read(id);
         organization.apply(properties);
         return super.persist(organization);
     }
 
     @Override
-    public void delete(String id) throws ObjectNotFoundException {
-        final Organization organization = get(id);
+    public void delete(UUID id) throws ObjectNotFoundException {
+        final Organization organization = read(id);
         super.currentSession().delete(organization);
     }
 

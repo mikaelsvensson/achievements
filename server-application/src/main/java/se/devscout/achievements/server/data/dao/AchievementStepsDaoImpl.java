@@ -8,15 +8,15 @@ import se.devscout.achievements.server.data.model.AchievementStepProperties;
 
 import java.util.List;
 
-public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep> implements AchievementStepsDao {
+public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep, Integer> implements AchievementStepsDao {
     public AchievementStepsDaoImpl(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
 
     @Override
-    public AchievementStep get(String id) throws ObjectNotFoundException {
+    public AchievementStep read(Integer id) throws ObjectNotFoundException {
         try {
-            return getEntity(Integer.valueOf(id));
+            return getEntity(id);
         } catch (NumberFormatException e) {
             //TODO: Log this. Could be simple client error or hacking attempt.
             throw new ObjectNotFoundException();
@@ -31,15 +31,15 @@ public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep> implements
     }
 
     @Override
-    public AchievementStep update(String id, AchievementStepProperties properties) throws ObjectNotFoundException {
-        final AchievementStep step = get(id);
+    public AchievementStep update(Integer id, AchievementStepProperties properties) throws ObjectNotFoundException {
+        final AchievementStep step = read(id);
         step.apply(properties);
         return super.persist(step);
     }
 
     @Override
-    public void delete(String id) throws ObjectNotFoundException {
-        final AchievementStep step = get(id);
+    public void delete(Integer id) throws ObjectNotFoundException {
+        final AchievementStep step = read(id);
         super.currentSession().delete(step);
     }
 

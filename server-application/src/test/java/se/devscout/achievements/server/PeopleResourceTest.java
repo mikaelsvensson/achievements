@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class PeopleResourceTest {
@@ -50,9 +49,8 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         final PersonDTO dto = response.readEntity(PersonDTO.class);
-        assertThat(dto.id).isEqualTo(person.getId().toString());
 
-        verify(dao).get(eq(person.getId().toString()));
+        verify(dao).read(eq(person.getId()));
     }
 
     @Test
@@ -71,17 +69,17 @@ public class PeopleResourceTest {
         final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
         });
         assertThat(dto).hasSize(1);
-        assertThat(dto.get(0).id).isEqualTo(person.getId().toString());
 
         verify(dao).getByParent(eq(org));
     }
 
     @Test
     public void getByOrganization_missing_expectNotFound() throws Exception {
-        when(organizationsDao.get(eq("MISSING_UUID"))).thenThrow(new NotFoundException());
+        final UUID badId = UUID.randomUUID();
+        when(organizationsDao.read(eq(badId))).thenThrow(new NotFoundException());
 
         final Response response = resources
-                .target("/organizations/MISSING_UUID/people")
+                .target("/organizations/" + badId.toString() + "/people")
                 .request()
                 .get();
 
@@ -92,22 +90,22 @@ public class PeopleResourceTest {
 
     @Test
     public void get_notFound() throws Exception {
-        when(dao.get(eq("PERSON_ID"))).thenThrow(new NotFoundException());
+        when(dao.read(eq(123))).thenThrow(new NotFoundException());
         final Response response = resources
-                .target("/organizations/ORG_ID/people/PERSON_ID")
+                .target("/organizations/" + UUID.randomUUID().toString() + "/people/123")
                 .request()
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-        verify(dao).get(eq("PERSON_ID"));
+        verify(dao).read(eq(123));
     }
 
     @Test
     public void delete_notFound() throws Exception {
         final Organization org = mockOrganization("Org");
 
-        doThrow(new NotFoundException()).when(dao).get(eq("PERSON_ID"));
+        doThrow(new NotFoundException()).when(dao).read(eq(-1));
 
         final Response response = resources
                 .target("/organizations/ORG_ID/people/PERSON_ID")
@@ -116,7 +114,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-        verify(dao, never()).delete(anyString());
+        verify(dao, never()).delete(anyInt());
     }
 
     @Test
@@ -131,7 +129,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        verify(dao).delete(eq(person.getId().toString()));
+        verify(dao).delete(eq(person.getId()));
     }
 
     @Test
@@ -148,8 +146,8 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-        verify(organizationsDao).get(eq(orgB.getId().toString()));
-        verify(dao, never()).delete(anyString());
+        verify(organizationsDao).read(eq(orgB.getId()));
+        verify(dao, never()).delete(anyInt());
     }
 
     @Test
@@ -166,8 +164,8 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-        verify(organizationsDao).get(eq(orgB.getId().toString()));
-        verify(dao).get(eq(person.getId().toString()));
+        verify(organizationsDao).read(eq(orgB.getId()));
+        verify(dao).read(eq(person.getId()));
     }
 
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
@@ -178,7 +176,7 @@ public class PeopleResourceTest {
         when(person.getOrganization()).thenReturn(org);
         when(person.getName()).thenReturn(name);
 
-        when(dao.get(eq(uuid.toString()))).thenReturn(person);
+        when(dao.read(eq(uuid))).thenReturn(person);
 
         return person;
     }
@@ -190,7 +188,7 @@ public class PeopleResourceTest {
         when(orgA.getId()).thenReturn(uuid);
         when(orgA.getName()).thenReturn(name);
 
-        when(organizationsDao.get(eq(uuid.toString()))).thenReturn(orgA);
+        when(organizationsDao.read(eq(uuid))).thenReturn(orgA);
 
         return orgA;
     }
@@ -208,12 +206,12 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final PersonDTO dto = response.readEntity(PersonDTO.class);
-        assertThat(response.getLocation().getPath()).isEqualTo("/organizations/" + org.getId() + "/people/" + dto.id);
-        assertThat(dto.id).isEqualTo(person.getId().toString());
+
+        assertThat(response.getLocation().getPath()).isEqualTo("/organizations/" + org.getId() + "/people/" + person.getId());
         assertThat(dto.name).isEqualTo("name");
 
         verify(dao).create(any(Organization.class), any(PersonProperties.class));
-        verify(organizationsDao).get(eq(org.getId().toString()));
+        verify(organizationsDao).read(eq(org.getId()));
     }
 
 }

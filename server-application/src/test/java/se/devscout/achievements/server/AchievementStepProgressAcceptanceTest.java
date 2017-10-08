@@ -59,7 +59,7 @@ public class AchievementStepProgressAcceptanceTest {
         final Response responsePerson = client
                 .target(responseOrg.getLocation() + "/people")
                 .request()
-                .post(Entity.json(new PersonDTO(null, "Alice")));
+                .post(Entity.json(new PersonDTO("Alice")));
 
         assertThat(responsePerson.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         PersonDTO personDto = responsePerson.readEntity(PersonDTO.class);

@@ -2,8 +2,6 @@ package se.devscout.achievements.server;
 
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.OrganizationDTO;
@@ -35,9 +33,10 @@ public class OrganizationsResourceTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        when(dao.get(anyString())).thenReturn(new Organization(UUID.randomUUID(), "Alice's Organization"));
+        final UUID uuid = UUID.randomUUID();
+        when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
         final OrganizationDTO dto = resources
-                .target("/organizations/alice")
+                .target("/organizations/" + uuid.toString())
                 .request()
                 .get(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();

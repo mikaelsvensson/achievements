@@ -11,7 +11,6 @@ import se.devscout.achievements.server.data.dao.PeopleDaoImpl;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,13 +41,13 @@ public class PeopleDaoImplTest {
     @Test
     public void get_happyPath() throws Exception {
         Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
-        final Person actual = dao.get(aliceUuid.toString());
+        final Person actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Alice");
     }
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
-        dao.get("-1");
+        dao.read(-1);
     }
 
     @Test
@@ -75,14 +74,14 @@ public class PeopleDaoImplTest {
         Integer id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob"))).getId();
         database.inTransaction(() -> {
             try {
-                dao.delete(id.toString());
+                dao.delete(id);
             } catch (ObjectNotFoundException e) {
                 fail();
             }
         });
         database.inTransaction(() -> {
             try {
-                dao.get(id.toString());
+                dao.read(id);
                 fail();
             } catch (ObjectNotFoundException e) {
             }
@@ -91,13 +90,13 @@ public class PeopleDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_notFound() throws Exception {
-        dao.delete("-1");
+        dao.delete(-1);
     }
 
     @Test
     public void create_happyPath() throws Exception {
         final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
-        final Person actual = database.inTransaction(() -> dao.get(result.getId().toString()));
+        final Person actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Carol");
 
@@ -117,9 +116,9 @@ public class PeopleDaoImplTest {
     public void update_personWithoutAttributes_happyPath() throws Exception {
         Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda"))).getId();
 
-        database.inTransaction(() -> dao.update(objectUuid.toString(), new PersonProperties("Becky")));
+        database.inTransaction(() -> dao.update(objectUuid, new PersonProperties("Becky")));
 
-        final Person actual = database.inTransaction(() -> dao.get(objectUuid.toString()));
+        final Person actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Becky");
         assertThat(actual.getAttributes()).isEmpty();
@@ -134,10 +133,10 @@ public class PeopleDaoImplTest {
 
         database.inTransaction(() -> {
             final PersonProperties updatedProperties = new PersonProperties("David", Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")));
-            return dao.update(objectUuid.toString(), updatedProperties);
+            return dao.update(objectUuid, updatedProperties);
         });
 
-        final Person actual = database.inTransaction(() -> dao.get(objectUuid.toString()));
+        final Person actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("David");
         assertThat(actual.getAttributes()).hasSize(2);

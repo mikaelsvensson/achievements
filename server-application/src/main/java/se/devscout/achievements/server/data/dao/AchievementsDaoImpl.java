@@ -9,14 +9,14 @@ import se.devscout.achievements.server.data.model.AchievementProperties;
 import java.util.List;
 import java.util.UUID;
 
-public class AchievementsDaoImpl extends DaoImpl<Achievement> implements AchievementsDao {
+public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements AchievementsDao {
     public AchievementsDaoImpl(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
 
     @Override
-    public Achievement get(String id) throws ObjectNotFoundException {
-        return getEntity(UUID.fromString(id));
+    public Achievement read(UUID id) throws ObjectNotFoundException {
+        return getEntity(id);
     }
 
     @Override
@@ -25,15 +25,15 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement> implements Achieve
     }
 
     @Override
-    public Achievement update(String id, AchievementProperties properties) throws ObjectNotFoundException {
-        final Achievement achievement = get(id);
+    public Achievement update(UUID id, AchievementProperties properties) throws ObjectNotFoundException {
+        final Achievement achievement = read(id);
         achievement.apply(properties);
         return super.persist(achievement);
     }
 
     @Override
-    public void delete(String id) throws ObjectNotFoundException {
-        final Achievement achievement = get(id);
+    public void delete(UUID id) throws ObjectNotFoundException {
+        final Achievement achievement = read(id);
         super.currentSession().delete(achievement);
     }
 

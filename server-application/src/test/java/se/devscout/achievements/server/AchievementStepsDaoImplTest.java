@@ -38,14 +38,14 @@ public class AchievementStepsDaoImplTest {
     @Test
     public void get_happyPath() throws Exception {
         Integer stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
-        final AchievementStep actual = dao.get(stepId.toString());
+        final AchievementStep actual = dao.read(stepId);
         assertThat(actual.getId()).isEqualTo(stepId);
         assertThat(actual.getDescription()).isEqualTo("Follow instrucions on package");
     }
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
-        dao.get("-1");
+        dao.read(-1);
     }
 
     @Test
@@ -53,14 +53,14 @@ public class AchievementStepsDaoImplTest {
         Integer stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Serve with ketchup"))).getId();
         database.inTransaction(() -> {
             try {
-                dao.delete(stepId.toString());
+                dao.delete(stepId);
             } catch (ObjectNotFoundException e) {
                 fail();
             }
         });
         database.inTransaction(() -> {
             try {
-                dao.get(stepId.toString());
+                dao.read(stepId);
                 fail();
             } catch (ObjectNotFoundException e) {
             }
@@ -69,7 +69,7 @@ public class AchievementStepsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_notFound() throws Exception {
-        dao.delete("-1");
+        dao.delete(-1);
     }
 
     @Test
@@ -78,13 +78,13 @@ public class AchievementStepsDaoImplTest {
         Integer step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
         Integer step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
 
-        final AchievementStep actual1 = database.inTransaction(() -> dao.get(step1Id.toString()));
+        final AchievementStep actual1 = database.inTransaction(() -> dao.read(step1Id));
         assertThat(actual1.getId()).isNotNull();
         assertThat(actual1.getAchievement().getId()).isEqualTo(achievement.getId());
         assertThat(actual1.getPrerequisiteAchievement().getId()).isEqualTo(achievement2.getId());
         assertThat(actual1.getDescription()).isNull();
 
-        final AchievementStep actual2 = database.inTransaction(() -> dao.get(step2Id.toString()));
+        final AchievementStep actual2 = database.inTransaction(() -> dao.read(step2Id));
         assertThat(actual2.getId()).isNotNull();
         assertThat(actual2.getAchievement().getId()).isEqualTo(achievement.getId());
         assertThat(actual2.getPrerequisiteAchievement()).isNull();
@@ -115,9 +115,9 @@ public class AchievementStepsDaoImplTest {
         Achievement achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
         Integer step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
 
-        database.inTransaction(() -> dao.update(step1Id.toString(), new AchievementStepProperties("Get food"))).getId();
+        database.inTransaction(() -> dao.update(step1Id, new AchievementStepProperties("Get food"))).getId();
 
-        final AchievementStep actual = database.inTransaction(() -> dao.get(step1Id.toString()));
+        final AchievementStep actual = database.inTransaction(() -> dao.read(step1Id));
         assertThat(actual.getId()).isEqualTo(step1Id);
         assertThat(actual.getPrerequisiteAchievement()).isNull();
         assertThat(actual.getDescription()).isEqualTo("Get food");

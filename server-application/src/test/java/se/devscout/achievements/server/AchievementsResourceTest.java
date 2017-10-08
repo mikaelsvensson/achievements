@@ -17,10 +17,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class AchievementsResourceTest {
 
@@ -34,10 +32,11 @@ public class AchievementsResourceTest {
     @Test
     public void get_happyPath() throws Exception {
         final Achievement achievement = mock(Achievement.class);
-        when(achievement.getId()).thenReturn(UUID.randomUUID());
-        when(dao.get(anyString())).thenReturn(achievement);
+        final UUID uuid = UUID.randomUUID();
+        when(achievement.getId()).thenReturn(uuid);
+        when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
-                .target("/achievements/id")
+                .target("/achievements/" + uuid.toString())
                 .request()
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -47,7 +46,7 @@ public class AchievementsResourceTest {
 
     @Test
     public void get_notFound() throws Exception {
-        when(dao.get(anyString())).thenThrow(new NotFoundException());
+        when(dao.read(any(UUID.class))).thenThrow(new NotFoundException());
         final Response response = resources
                 .target("/achievements/id")
                 .request()
@@ -57,7 +56,7 @@ public class AchievementsResourceTest {
 
     @Test
     public void delete_notFound() throws Exception {
-        doThrow(new NotFoundException()).when(dao).delete(anyString());
+        doThrow(new NotFoundException()).when(dao).delete(any(UUID.class));
         final Response response = resources
                 .target("/achievements/id")
                 .request()
@@ -68,10 +67,11 @@ public class AchievementsResourceTest {
     @Test
     public void delete_happyPath() throws Exception {
         final Achievement achievement = mock(Achievement.class);
-        when(achievement.getId()).thenReturn(UUID.randomUUID());
-        when(dao.get(anyString())).thenReturn(achievement);
+        final UUID uuid = UUID.randomUUID();
+        when(achievement.getId()).thenReturn(uuid);
+        when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
-                .target("/achievements/id")
+                .target("/achievements/" + uuid.toString())
                 .request()
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);

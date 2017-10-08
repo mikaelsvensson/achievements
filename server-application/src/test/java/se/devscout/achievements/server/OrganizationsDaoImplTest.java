@@ -8,7 +8,10 @@ import org.junit.Test;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
 import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.OrganizationProperties;
+import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.data.model.PersonAttribute;
 
 import javax.persistence.EntityExistsException;
 import java.util.List;
@@ -39,7 +42,7 @@ public class OrganizationsDaoImplTest {
     @Test
     public void get_happyPath() throws Exception {
         UUID aliceUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Alice's Organization"))).getId();
-        final Organization actual = dao.get(aliceUuid.toString());
+        final Organization actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Alice's Organization");
     }
 
@@ -68,7 +71,7 @@ public class OrganizationsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
-        dao.get(UUID.randomUUID().toString());
+        dao.read(UUID.randomUUID());
     }
 
     @Test
@@ -97,14 +100,14 @@ public class OrganizationsDaoImplTest {
         UUID id = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Partnership"))).getId();
         database.inTransaction(() -> {
             try {
-                dao.delete(id.toString());
+                dao.delete(id);
             } catch (ObjectNotFoundException e) {
                 fail();
             }
         });
         database.inTransaction(() -> {
             try {
-                dao.get(id.toString());
+                dao.read(id);
                 fail();
             } catch (ObjectNotFoundException e) {
             }
@@ -113,16 +116,16 @@ public class OrganizationsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_notFound() throws Exception {
-        dao.delete(UUID.randomUUID().toString());
+        dao.delete(UUID.randomUUID());
     }
 
     @Test
     public void update_happyPath() throws Exception {
         UUID objectUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Company"))).getId();
 
-        database.inTransaction(() -> dao.update(objectUuid.toString(), new OrganizationProperties("Alice's Company")));
+        database.inTransaction(() -> dao.update(objectUuid, new OrganizationProperties("Alice's Company")));
 
-        final Organization actual = database.inTransaction(() -> dao.get(objectUuid.toString()));
+        final Organization actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Alice's Company");
     }

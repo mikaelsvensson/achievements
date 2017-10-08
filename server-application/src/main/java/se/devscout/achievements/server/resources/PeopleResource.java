@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("/organizations/{organizationId}/people")
@@ -30,7 +31,7 @@ public class PeopleResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<PersonDTO> getByOrganization(@PathParam("organizationId") String organizationId) {
+    public List<PersonDTO> getByOrganization(@PathParam("organizationId") UUID organizationId) {
         final Organization organization = getOrganization(organizationId);
         return dao.getByParent(organization).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
     }
@@ -38,9 +39,9 @@ public class PeopleResource extends AbstractResource {
     @GET
     @Path("{id}")
     @UnitOfWork
-    public PersonDTO get(@PathParam("organizationId") String organizationId, @PathParam("id") String id) {
+    public PersonDTO get(@PathParam("organizationId") UUID organizationId, @PathParam("id") Integer id) {
         try {
-            final Person person = dao.get(id);
+            final Person person = dao.read(id);
             verifyParent(organizationId, person);
             return map(person, PersonDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -50,7 +51,7 @@ public class PeopleResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(@PathParam("organizationId") String organizationId, PersonDTO input) {
+    public Response create(@PathParam("organizationId") UUID organizationId, PersonDTO input) {
         Organization organization = getOrganization(organizationId);
         final Person person = dao.create(organization, map(input, PersonProperties.class));
         final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
@@ -60,10 +61,10 @@ public class PeopleResource extends AbstractResource {
                 .build();
     }
 
-    private Organization getOrganization(@PathParam("organizationId") String organizationId) {
+    private Organization getOrganization(@PathParam("organizationId") UUID organizationId) {
         Organization organization = null;
         try {
-            organization = organizationsDao.get(organizationId);
+            organization = organizationsDao.read(organizationId);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -73,9 +74,9 @@ public class PeopleResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{id}")
-    public Response delete(@PathParam("organizationId") String organizationId, @PathParam("id") String id) {
+    public Response delete(@PathParam("organizationId") UUID organizationId, @PathParam("id") Integer id) {
         try {
-            verifyParent(organizationId, dao.get(id));
+            verifyParent(organizationId, dao.read(id));
             dao.delete(id);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
@@ -83,7 +84,7 @@ public class PeopleResource extends AbstractResource {
         }
     }
 
-    private void verifyParent(String organizationId, Person person) throws ObjectNotFoundException {
+    private void verifyParent(UUID organizationId, Person person) throws ObjectNotFoundException {
         Organization organization = getOrganization(organizationId);
         if (!person.getOrganization().getId().equals(organization.getId())) {
             throw new NotFoundException();

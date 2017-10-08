@@ -1,9 +1,11 @@
 package se.devscout.achievements.server.data.dao;
 
-public interface BaseDao<E, P> {
-    E get(String id) throws ObjectNotFoundException;
+import java.io.Serializable;
 
-    E update(String id, P properties) throws ObjectNotFoundException;
+public interface BaseDao<E, P, ID extends Serializable> {
+    E read(ID id) throws ObjectNotFoundException;
 
-    void delete(String id) throws ObjectNotFoundException;
+    E update(ID id, P properties) throws ObjectNotFoundException;
+
+    void delete(ID id) throws ObjectNotFoundException;
 }

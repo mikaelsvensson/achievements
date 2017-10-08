@@ -1,6 +1,5 @@
 package se.devscout.achievements.server;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
@@ -8,10 +7,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.data.dao.AchievementsDaoImpl;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.data.model.AchievementStep;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ public class AchievementsDaoImplTest {
     @Test
     public void get_happyPath() throws Exception {
         UUID aliceUuid = database.inTransaction(() -> dao.create(new AchievementProperties("Cook Pasta"))).getId();
-        final Achievement actual = dao.get(aliceUuid.toString());
+        final Achievement actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Cook Pasta");
     }
 
@@ -66,7 +65,7 @@ public class AchievementsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_notFound() throws Exception {
-        dao.get(UUID.randomUUID().toString());
+        dao.read(UUID.randomUUID());
     }
 
     @Test
@@ -74,14 +73,14 @@ public class AchievementsDaoImplTest {
         UUID id = database.inTransaction(() -> dao.create(new AchievementProperties("Something"))).getId();
         database.inTransaction(() -> {
             try {
-                dao.delete(id.toString());
+                dao.delete(id);
             } catch (ObjectNotFoundException e) {
                 fail();
             }
         });
         database.inTransaction(() -> {
             try {
-                dao.get(id.toString());
+                dao.read(id);
                 fail();
             } catch (ObjectNotFoundException e) {
             }
@@ -90,13 +89,13 @@ public class AchievementsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_notFound() throws Exception {
-        dao.delete(UUID.randomUUID().toString());
+        dao.delete(UUID.randomUUID());
     }
 
     @Test
     public void create_happyPath() throws Exception {
         final Achievement result = database.inTransaction(() -> dao.create(new AchievementProperties("Boil Egg")));
-        final Achievement actual = database.inTransaction(() -> dao.get(result.getId().toString()));
+        final Achievement actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Boil Egg");
     }
@@ -105,9 +104,9 @@ public class AchievementsDaoImplTest {
     public void update_simpleAchievement_happyPath() throws Exception {
         UUID objectUuid = database.inTransaction(() -> dao.create(new AchievementProperties("Cook Pasta"))).getId();
 
-        database.inTransaction(() -> dao.update(objectUuid.toString(), new AchievementProperties("Cook Spagetti")));
+        database.inTransaction(() -> dao.update(objectUuid, new AchievementProperties("Cook Spagetti")));
 
-        final Achievement actual = database.inTransaction(() -> dao.get(objectUuid.toString()));
+        final Achievement actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Cook Spagetti");
     }
@@ -125,10 +124,10 @@ public class AchievementsDaoImplTest {
             final AchievementProperties updatedProperties = new AchievementProperties(
                     "Cook Spagetti",
                     Sets.newHashSet("italian", "quick"));
-            return dao.update(objectUuid.toString(), updatedProperties);
+            return dao.update(objectUuid, updatedProperties);
         });
 
-        final Achievement actual = database.inTransaction(() -> dao.get(objectUuid.toString()));
+        final Achievement actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Cook Spagetti");
         assertThat(actual.getTags()).containsExactlyInAnyOrder("italian", "quick");
