@@ -23,7 +23,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
             Organization.class,
             Person.class,
             Achievement.class,
-            AchievementStep.class
+            AchievementStep.class,
+            AchievementStepProgress.class
     ) {
         public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -36,11 +37,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final OrganizationsDao organizationsDao = new OrganizationsDaoImpl(sessionFactory, config.getMaxOrganizationCount());
         final AchievementsDao achievementsDao = new AchievementsDaoImpl(sessionFactory);
         final AchievementStepsDao achievementStepsDao = new AchievementStepsDaoImpl(sessionFactory);
+        final AchievementStepProgressDao progressDao = new AchievementStepProgressDaoImpl(sessionFactory);
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
 
         environment.jersey().register(new OrganizationsResource(organizationsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
+        environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
 

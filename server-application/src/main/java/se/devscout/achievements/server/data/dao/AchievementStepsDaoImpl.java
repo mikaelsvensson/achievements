@@ -15,7 +15,12 @@ public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep> implements
 
     @Override
     public AchievementStep get(String id) throws ObjectNotFoundException {
-        return getEntity(Integer.valueOf(id));
+        try {
+            return getEntity(Integer.valueOf(id));
+        } catch (NumberFormatException e) {
+            //TODO: Log this. Could be simple client error or hacking attempt.
+            throw new ObjectNotFoundException();
+        }
     }
 
     @Override

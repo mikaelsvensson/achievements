@@ -2,7 +2,6 @@ package se.devscout.achievements.server.data.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Table(name = "achievement_steps")
 @Entity
