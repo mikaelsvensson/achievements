@@ -11,8 +11,10 @@ import se.devscout.achievements.server.api.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,18 +77,40 @@ public class AchievementStepProgressAcceptanceTest {
         Client client = RULE.client();
 
         Response setResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, stepId, personId))
+                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
                 .request()
                 .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         Response unsetResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, stepId, personId))
+                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
                 .request()
                 .delete();
 
         assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+    }
+
+    @Test
+    public void setMultipleProgress_happyPath() {
+        Client client = RULE.client();
+
+        Response setResponse = client
+                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
+                .request()
+                .post(Entity.json(new ProgressDTO(true, "Finally completed")));
+        assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        Response getResponse = client
+                .target(String.format("http://localhost:%d/api/achievements/%s/progress", RULE.getLocalPort(), achievementId))
+                .request()
+                .get();
+        assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final Map<String, ProgressDTO> dto = getResponse.readEntity(new GenericType<Map<String, ProgressDTO>>() {
+        });
+        assertThat(dto.containsKey(stepId + "_" + personId));
+        assertThat(dto.get(stepId + "_" + personId).note).isEqualTo("Finally completed");
     }
 
     @Test
@@ -95,14 +119,14 @@ public class AchievementStepProgressAcceptanceTest {
 
         for (String badAchievementId : new String[]{UUID.randomUUID().toString(), "abcd", null, ""}) {
             Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
                     .request()
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
             Response unsetResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
                     .request()
                     .delete();
 
@@ -110,20 +134,21 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
     }
+
     @Test
     public void setAndUnsetProgress_badStepIds() {
         Client client = RULE.client();
 
         for (String badStepId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
             Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
                     .request()
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
             Response unsetResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
                     .request()
                     .delete();
 
@@ -131,20 +156,21 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
     }
+
     @Test
     public void setAndUnsetProgress_badPersonIds() {
         Client client = RULE.client();
 
         for (String badPersonId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
             Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
                     .request()
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
             Response unsetResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/person/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
+                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
                     .request()
                     .delete();
 

@@ -7,6 +7,12 @@ import java.io.Serializable;
 
 @Table(name = "achievement_step_progress")
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = "AchievementStepProgress.byAchievement",
+                query = "SELECT p FROM AchievementStepProgress p WHERE p.step.achievement = :achievement"
+        )
+})
 public class AchievementStepProgress extends AchievementStepProgressProperties {
 
     @EmbeddedId
@@ -40,6 +46,10 @@ public class AchievementStepProgress extends AchievementStepProgressProperties {
         return id;
     }
 
+    public AchievementStep getStep() {
+        return step;
+    }
+
     @Embeddable
     public static class Key implements Serializable {
         @Column(name = "step_id")
@@ -47,6 +57,9 @@ public class AchievementStepProgress extends AchievementStepProgressProperties {
 
         @Column(name = "person_id")
         private Integer personId;
+
+        public Key() {
+        }
 
         public Key(AchievementStep achievementStep, Person person) {
             this.stepId = achievementStep != null ? achievementStep.getId() : null;

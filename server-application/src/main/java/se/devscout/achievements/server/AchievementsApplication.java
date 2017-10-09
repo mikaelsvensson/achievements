@@ -41,7 +41,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
 
         environment.jersey().register(new OrganizationsResource(organizationsDao));
-        environment.jersey().register(new AchievementsResource(achievementsDao));
+        environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao));

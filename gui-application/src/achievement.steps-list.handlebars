@@ -20,8 +20,8 @@
             </td>
             {{#each ../people}}
                 <td>
-                    <button class="button progress-switch" data-person-id="{{id}}" data-step-id="{{../id}}">
-                        ?
+                    <button class="button progress-switch" id="progress-toggle-{{../id}}_{{id}}" data-person-id="{{id}}" data-step-id="{{../id}}">
+                        &nbsp;
                     </button>
                 </td>
             {{/each}}

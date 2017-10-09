@@ -5,6 +5,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.AchievementDTO;
+import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
@@ -23,10 +24,11 @@ import static org.mockito.Mockito.*;
 public class AchievementsResourceTest {
 
     private final AchievementsDao dao = mock(AchievementsDao.class);
+    private final AchievementStepProgressDao progressDao = mock(AchievementStepProgressDao.class);
 
     @Rule
     public final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(new AchievementsResource(dao))
+            .addResource(new AchievementsResource(dao, progressDao))
             .build();
 
     @Test

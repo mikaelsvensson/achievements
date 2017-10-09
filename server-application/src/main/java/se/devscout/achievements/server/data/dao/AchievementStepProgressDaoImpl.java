@@ -4,9 +4,18 @@ import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.data.model.*;
 
+import java.util.List;
+
 public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepProgress> implements AchievementStepProgressDao {
     public AchievementStepProgressDaoImpl(SessionFactory sessionFactory) {
         super(sessionFactory);
+    }
+
+    @Override
+    public List<AchievementStepProgress> get(Achievement achievement) {
+        return namedQuery("AchievementStepProgress.byAchievement")
+                .setParameter("achievement", achievement)
+                .getResultList();
     }
 
     @Override

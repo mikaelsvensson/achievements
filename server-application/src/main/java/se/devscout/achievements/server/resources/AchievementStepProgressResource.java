@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-@Path("/achievements/{achievementId}/steps/{stepId}/person/{personId}")
+@Path("/achievements/{achievementId}/steps/{stepId}/progress")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementStepProgressResource extends AbstractResource {
@@ -31,9 +31,10 @@ public class AchievementStepProgressResource extends AbstractResource {
 
     @GET
     @UnitOfWork
+    @Path("{personId}")
     public ProgressDTO get(@PathParam("achievementId") UUID achievementId,
-                                       @PathParam("stepId") Integer stepId,
-                                       @PathParam("personId") Integer personId) {
+                           @PathParam("stepId") Integer stepId,
+                           @PathParam("personId") Integer personId) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
@@ -44,12 +45,14 @@ public class AchievementStepProgressResource extends AbstractResource {
         }
     }
 
+    //FIXME: Should probably be PUT instead of POST
     @POST
     @UnitOfWork
+    @Path("{personId}")
     public ProgressDTO set(@PathParam("achievementId") UUID achievementId,
-                                       @PathParam("stepId") Integer stepId,
-                                       @PathParam("personId") Integer personId,
-                                       ProgressDTO dto) {
+                           @PathParam("stepId") Integer stepId,
+                           @PathParam("personId") Integer personId,
+                           ProgressDTO dto) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
@@ -62,9 +65,10 @@ public class AchievementStepProgressResource extends AbstractResource {
 
     @DELETE
     @UnitOfWork
+    @Path("{personId}")
     public Response unset(@PathParam("achievementId") UUID achievementId,
-                                        @PathParam("stepId") Integer stepId,
-                                        @PathParam("personId") Integer personId) {
+                          @PathParam("stepId") Integer stepId,
+                          @PathParam("personId") Integer personId) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);

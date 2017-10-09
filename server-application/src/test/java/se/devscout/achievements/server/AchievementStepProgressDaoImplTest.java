@@ -7,6 +7,8 @@ import org.junit.Test;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -24,24 +26,53 @@ public class AchievementStepProgressDaoImplTest {
 
     private AchievementStepProgressDaoImpl dao;
     private Person person;
+    private Person person2;
     private AchievementStep achievementStep;
     private Person personWithoutProgress;
+    private PeopleDaoImpl peopleDao;
+    private AchievementsDaoImpl achievementsDao;
+    private AchievementStepsDaoImpl stepsDao;
 
     @Before
     public void setUp() throws Exception {
         dao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
         OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
         Organization organization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
-        final PeopleDaoImpl peopleDao = new PeopleDaoImpl(database.getSessionFactory());
+        peopleDao = new PeopleDaoImpl(database.getSessionFactory());
+        achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
+        stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
+
         person = peopleDao.create(organization, new PersonProperties("Alice"));
+        person2 = peopleDao.create(organization, new PersonProperties("Alice"));
         personWithoutProgress = peopleDao.create(organization, new PersonProperties("Bob"));
-        final Achievement achievement = new AchievementsDaoImpl(database.getSessionFactory()).create(new AchievementProperties("Boil an egg"));
-        achievementStep = new AchievementStepsDaoImpl(database.getSessionFactory()).create(achievement, new AchievementStepProperties("Follow the instructions on the package"));
+
+        final Achievement achievement1 = achievementsDao.create(new AchievementProperties("Boil an egg"));
+        achievementStep = stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package"));
+
     }
 
     @Test(expected = ObjectNotFoundException.class)
     public void get_noProgress_happyPath() throws Exception {
         dao.get(achievementStep, personWithoutProgress);
+    }
+
+    @Test
+    public void getAll_noProgress_happyPath() throws Exception {
+        final Achievement achievement = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Make a sandwich")));
+        final AchievementStep step1 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Get the bread")));
+        final AchievementStep step2 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Spread butter on it")));
+        database.inTransaction(() -> {
+            try {
+                dao.set(step1, person, new AchievementStepProgressProperties(true, "Note 1"));
+                dao.set(step1, person2, new AchievementStepProgressProperties(true, "Note 2"));
+                dao.set(step2, person2, new AchievementStepProgressProperties(true, "Note 3"));
+            } catch (ObjectNotFoundException e) {
+                fail();
+            }
+        });
+
+        final List<AchievementStepProgress> progressList = dao.get(achievement);
+        assertThat(progressList).hasSize(3);
     }
 
     @Test
