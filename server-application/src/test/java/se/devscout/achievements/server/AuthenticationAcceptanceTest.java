@@ -26,7 +26,7 @@ public class AuthenticationAcceptanceTest {
     @ClassRule
     public static final DropwizardAppRule<AchievementsApplicationConfiguration> RULE =
             new DropwizardAppRule<>(
-                    App.class,
+                    MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
 
     @Test

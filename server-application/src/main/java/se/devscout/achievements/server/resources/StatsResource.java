@@ -2,7 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

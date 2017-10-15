@@ -10,7 +10,7 @@ import se.devscout.achievements.server.auth.PasswordValidator;
 
 import java.io.IOException;
 
-public class App extends AchievementsApplication {
+public class MockAchievementsApplication extends AchievementsApplication {
 
     @Override
     protected CredentialsDao getCredentialsDao(SessionFactory sessionFactory) {

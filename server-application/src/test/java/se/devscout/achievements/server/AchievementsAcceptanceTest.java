@@ -9,10 +9,8 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.AchievementStepDTO;
-import se.devscout.achievements.server.api.OrganizationDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -30,7 +28,7 @@ public class AchievementsAcceptanceTest {
     @ClassRule
     public static final DropwizardAppRule<AchievementsApplicationConfiguration> RULE =
             new DropwizardAppRule<>(
-                    App.class,
+                    MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
 
     @Test

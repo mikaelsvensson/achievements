@@ -8,7 +8,7 @@ import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.data.model.Person;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

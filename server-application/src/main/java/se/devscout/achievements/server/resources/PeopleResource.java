@@ -9,7 +9,7 @@ import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

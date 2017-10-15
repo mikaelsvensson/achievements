@@ -1,13 +1,10 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.data.dao;
 
 import io.dropwizard.testing.junit.DAOTestRule;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
-import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
 import se.devscout.achievements.server.data.model.*;
 
 import javax.persistence.EntityExistsException;

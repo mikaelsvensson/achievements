@@ -20,7 +20,7 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.MyResource;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;

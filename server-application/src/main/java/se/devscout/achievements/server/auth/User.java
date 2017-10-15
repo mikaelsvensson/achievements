@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.uti;
+package se.devscout.achievements.server.auth;
 
 import java.security.Principal;
 

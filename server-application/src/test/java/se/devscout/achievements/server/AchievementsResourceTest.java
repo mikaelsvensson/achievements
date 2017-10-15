@@ -18,7 +18,7 @@ import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.AchievementsResource;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;

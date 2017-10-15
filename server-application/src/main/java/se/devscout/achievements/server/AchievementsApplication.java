@@ -16,8 +16,8 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.*;
-import se.devscout.achievements.server.uti.PasswordAuthenticator;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.PasswordAuthenticator;
+import se.devscout.achievements.server.auth.User;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;

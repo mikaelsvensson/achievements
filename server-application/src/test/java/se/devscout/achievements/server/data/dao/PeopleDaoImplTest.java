@@ -1,13 +1,10 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.data.dao;
 
 import com.google.common.collect.Sets;
 import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
-import se.devscout.achievements.server.data.dao.PeopleDaoImpl;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.List;

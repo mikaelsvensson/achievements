@@ -5,7 +5,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

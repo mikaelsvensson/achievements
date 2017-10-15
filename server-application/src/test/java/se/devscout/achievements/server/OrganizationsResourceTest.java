@@ -18,7 +18,7 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.OrganizationsResource;
-import se.devscout.achievements.server.uti.User;
+import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;

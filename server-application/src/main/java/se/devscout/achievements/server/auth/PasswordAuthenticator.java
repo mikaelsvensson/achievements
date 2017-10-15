@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.uti;
+package se.devscout.achievements.server.auth;
 
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;

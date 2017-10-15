@@ -1,15 +1,15 @@
-package se.devscout.achievements.server.uti;
+package se.devscout.achievements.server.data.dao;
 
 import io.dropwizard.auth.basic.BasicCredentials;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
+import se.devscout.achievements.server.auth.PasswordAuthenticator;
+import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
-import se.devscout.achievements.server.auth.PasswordValidator;
+import se.devscout.achievements.server.auth.User;
 
 import java.util.Optional;
 

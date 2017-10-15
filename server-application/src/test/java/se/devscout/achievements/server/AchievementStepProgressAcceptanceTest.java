@@ -27,7 +27,7 @@ public class AchievementStepProgressAcceptanceTest {
     @ClassRule
     public static final DropwizardAppRule<AchievementsApplicationConfiguration> RULE =
             new DropwizardAppRule<>(
-                    App.class,
+                    MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
     private static String personId;
     private static String ordId;
