@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
@@ -8,6 +9,7 @@ import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Path("/organizations/{organizationId}/people")
+@Path("organizations/{organizationId}/people")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class PeopleResource extends AbstractResource {
@@ -31,15 +33,18 @@ public class PeopleResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<PersonDTO> getByOrganization(@PathParam("organizationId") UUID organizationId) {
+    public List<PersonDTO> getByOrganization(@PathParam("organizationId") UUID organizationId,
+                                             @Auth User user) {
         final Organization organization = getOrganization(organizationId);
         return dao.getByParent(organization).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
     }
 
     @GET
-    @Path("{id}")
+    @Path("{personId}")
     @UnitOfWork
-    public PersonDTO get(@PathParam("organizationId") UUID organizationId, @PathParam("id") Integer id) {
+    public PersonDTO get(@PathParam("organizationId") UUID organizationId,
+                         @PathParam("personId") Integer id,
+                         @Auth User user) {
         try {
             final Person person = dao.read(id);
             verifyParent(organizationId, person);
@@ -51,7 +56,9 @@ public class PeopleResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(@PathParam("organizationId") UUID organizationId, PersonDTO input) {
+    public Response create(@PathParam("organizationId") UUID organizationId,
+                           @Auth User user,
+                           PersonDTO input) {
         Organization organization = getOrganization(organizationId);
         final Person person = dao.create(organization, map(input, PersonProperties.class));
         final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
@@ -61,7 +68,7 @@ public class PeopleResource extends AbstractResource {
                 .build();
     }
 
-    private Organization getOrganization(@PathParam("organizationId") UUID organizationId) {
+    private Organization getOrganization( UUID organizationId) {
         Organization organization = null;
         try {
             organization = organizationsDao.read(organizationId);
@@ -73,8 +80,10 @@ public class PeopleResource extends AbstractResource {
 
     @DELETE
     @UnitOfWork
-    @Path("{id}")
-    public Response delete(@PathParam("organizationId") UUID organizationId, @PathParam("id") Integer id) {
+    @Path("{personId}")
+    public Response delete(@PathParam("organizationId") UUID organizationId,
+                           @PathParam("personId") Integer id,
+                           @Auth User user) {
         try {
             verifyParent(organizationId, dao.read(id));
             dao.delete(id);

@@ -1,9 +1,11 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/my")
+@Path("my")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MyResource extends AbstractResource {
@@ -28,7 +30,7 @@ public class MyResource extends AbstractResource {
     @GET
     @Path("people")
     @UnitOfWork
-    public List<PersonDTO> get() {
+    public List<PersonDTO> get(@Auth User user) {
         //FIXME: This currently returns ALL people in the system, since there is no concept of users at the moment
         return organizationsDao.all()
                 .stream()

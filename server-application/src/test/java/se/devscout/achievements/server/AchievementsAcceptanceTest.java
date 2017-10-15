@@ -1,5 +1,7 @@
 package se.devscout.achievements.server;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,7 @@ import se.devscout.achievements.server.api.OrganizationDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
@@ -27,7 +30,7 @@ public class AchievementsAcceptanceTest {
     @ClassRule
     public static final DropwizardAppRule<AchievementsApplicationConfiguration> RULE =
             new DropwizardAppRule<>(
-                    AchievementsApplication.class,
+                    App.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
 
     @Test
@@ -37,6 +40,7 @@ public class AchievementsAcceptanceTest {
         Response response = client
                 .target(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 1", Collections.emptyList())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -55,6 +59,7 @@ public class AchievementsAcceptanceTest {
         Response response = client
                 .target(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Collections.emptyList())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -62,6 +67,7 @@ public class AchievementsAcceptanceTest {
         Response responseStep = client
                 .target(response.getLocation() + "/steps")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementStepDTO("Get yourself a Rubik's cube")));
 
         assertThat(responseStep.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -78,6 +84,7 @@ public class AchievementsAcceptanceTest {
         Response responseA = client.register(loggingFeature)
                 .target(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO("Learn to ride bicycle", Collections.emptyList())));
         assertThat(responseA.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
@@ -86,24 +93,28 @@ public class AchievementsAcceptanceTest {
         Response responseB = client.register(loggingFeature)
                 .target(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO("Learn to ride a motorcycle", Collections.emptyList())));
         assertThat(responseB.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         Response responseStep1 = client.register(loggingFeature)
                 .target(responseB.getLocation() + "/steps")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementStepDTO(UUID.fromString(achievementBicycleId))));
         assertThat(responseStep1.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         Response responseStep2 = client.register(loggingFeature)
                 .target(responseB.getLocation() + "/steps")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementStepDTO("Learn traffic rules for highways")));
         assertThat(responseStep2.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         Response responseGetB = client.register(loggingFeature)
                 .target(responseB.getLocation())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
         assertThat(responseGetB.getStatus()).isEqualTo(HttpStatus.OK_200);
         AchievementDTO getResponse = responseGetB.readEntity(AchievementDTO.class);

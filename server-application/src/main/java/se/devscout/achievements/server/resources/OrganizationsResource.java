@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.DaoException;
@@ -7,16 +8,21 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
+import se.devscout.achievements.server.uti.User;
 
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Path("/organizations")
+@Path("organizations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrganizationsResource extends AbstractResource {
@@ -29,7 +35,7 @@ public class OrganizationsResource extends AbstractResource {
     @GET
     @Path("{organizationId}")
     @UnitOfWork
-    public OrganizationDTO get(@PathParam("organizationId") UUID id) {
+    public OrganizationDTO get(@PathParam("organizationId") UUID id, @Auth User user) {
         try {
             return map(dao.read(id), OrganizationDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -39,7 +45,7 @@ public class OrganizationsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<OrganizationDTO> find(@QueryParam("filter") String filter) {
+    public List<OrganizationDTO> find(@QueryParam("filter") String filter, @Auth User user) {
         try {
             return dao.find(filter).stream().map(o -> map(o, OrganizationDTO.class)).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
@@ -49,7 +55,8 @@ public class OrganizationsResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(OrganizationDTO input) {
+    public Response create(OrganizationDTO input,
+                           @Auth User user) {
         try {
             final Organization organization = dao.create(map(input, OrganizationProperties.class));
             final URI location = uriInfo.getRequestUriBuilder().path(organization.getId().toString()).build();
@@ -64,8 +71,9 @@ public class OrganizationsResource extends AbstractResource {
 
     @DELETE
     @UnitOfWork
-    @Path("{id}")
-    public Response delete(@PathParam("id") UUID id) {
+    @Path("{organizationId}")
+    public Response delete(@PathParam("organizationId") UUID id,
+                           @Auth User user) {
         try {
             dao.delete(id);
             return Response.noContent().build();

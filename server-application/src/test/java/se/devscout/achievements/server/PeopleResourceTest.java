@@ -1,21 +1,30 @@
 package se.devscout.achievements.server;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.hibernate.SessionFactory;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.auth.PasswordValidator;
+import se.devscout.achievements.server.auth.SecretGenerator;
+import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.Person;
-import se.devscout.achievements.server.data.model.PersonProperties;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.PeopleResource;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +41,23 @@ public class PeopleResourceTest {
     private final PeopleDao dao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
 
+    private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
+
     @Rule
     public final ResourceTestRule resources = ResourceTestRule.builder()
+//            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
+            .addProvider(AchievementsApplication.createAuthFeature(mock(SessionFactory.class), credentialsDao))
+            .addProvider(RolesAllowedDynamicFeature.class)
+            .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
+
             .addResource(new PeopleResource(dao, organizationsDao))
             .build();
+
+    @Before
+    public void setUp() throws Exception {
+        final Credentials credentials = new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray()));
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+    }
 
     @Test
     public void get_happyPath() throws Exception {
@@ -45,6 +67,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + org.getId() + "/people/" + person.getId())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -65,6 +88,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + org.getId() + "/people")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -86,6 +110,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + badId.toString() + "/people")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -99,6 +124,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + UUID.randomUUID().toString() + "/people/123")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -113,6 +139,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/ORG_ID/people/PERSON_ID")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -128,6 +155,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + org.getId() + "/people/" + person.getId())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
@@ -145,6 +173,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + orgB.getId() + "/people/" + person.getId())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -163,6 +192,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + orgB.getId() + "/people/" + person.getId())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -209,6 +239,7 @@ public class PeopleResourceTest {
         final Response response = resources
                 .target("/organizations/" + org.getId().toString() + "/people")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new PersonDTO()));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);

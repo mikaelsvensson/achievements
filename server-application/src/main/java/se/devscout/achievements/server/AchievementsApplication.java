@@ -2,6 +2,9 @@ package se.devscout.achievements.server;
 
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -13,6 +16,8 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.*;
+import se.devscout.achievements.server.uti.PasswordAuthenticator;
+import se.devscout.achievements.server.uti.User;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -22,6 +27,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
     private final HibernateBundle<AchievementsApplicationConfiguration> hibernate = new HibernateBundle<AchievementsApplicationConfiguration>(
             Organization.class,
             Person.class,
+            Credentials.class,
             Achievement.class,
             AchievementStep.class,
             AchievementStepProgress.class
@@ -39,6 +45,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final AchievementStepsDao achievementStepsDao = new AchievementStepsDaoImpl(sessionFactory);
         final AchievementStepProgressDao progressDao = new AchievementStepProgressDaoImpl(sessionFactory);
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
+        final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
+
+        environment.jersey().register(createAuthFeature(sessionFactory, credentialsDao));
+
+//        environment.jersey().register(RolesAllowedDynamicFeature.class);
+        //If you want to use @Auth to inject a custom Principal type into your resource
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
         environment.jersey().register(new OrganizationsResource(organizationsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
@@ -53,6 +66,18 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao, achievementsDao, achievementStepsDao));
 
         initCorsHeaders(environment);
+    }
+
+    protected CredentialsDao getCredentialsDao(SessionFactory sessionFactory) {
+        return new CredentialsDaoImpl(sessionFactory);
+    }
+
+    public static AuthDynamicFeature createAuthFeature(SessionFactory sessionFactory, CredentialsDao credentialsDao) {
+        return new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
+                .setAuthenticator(new PasswordAuthenticator(sessionFactory, credentialsDao))
+                .setPrefix("Basic")
+                .setRealm("Achievements")
+                .buildAuthFilter());
     }
 
     private void initCorsHeaders(Environment env) {

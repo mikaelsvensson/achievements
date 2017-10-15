@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
@@ -8,6 +9,7 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
+import se.devscout.achievements.server.uti.User;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -21,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Path("/achievements/{achievementId}/steps")
+@Path("achievements/{achievementId}/steps")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementStepsResource extends AbstractResource {
@@ -35,15 +37,18 @@ public class AchievementStepsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId) {
+    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId,
+                                                     @Auth User user) {
         final Achievement achievement = getAchievement(achievementId);
         return dao.getByParent(achievement).stream().map(p -> map(p, AchievementStepDTO.class)).collect(Collectors.toList());
     }
 
     @GET
-    @Path("{id}")
+    @Path("{stepId}")
     @UnitOfWork
-    public AchievementStepDTO get(@PathParam("achievementId") UUID achievementId, @PathParam("id") Integer id) {
+    public AchievementStepDTO get(@PathParam("achievementId") UUID achievementId,
+                                  @PathParam("stepId") Integer id,
+                                  @Auth User user) {
         try {
             final AchievementStep person = dao.read(id);
             verifyParent(achievementId, person);
@@ -55,7 +60,9 @@ public class AchievementStepsResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(@PathParam("achievementId") UUID achievementId, AchievementStepDTO input) throws ObjectNotFoundException {
+    public Response create(@PathParam("achievementId") UUID achievementId,
+                           @Auth User user,
+                           AchievementStepDTO input) throws ObjectNotFoundException {
         final AchievementStepProperties properties = map(input, AchievementStepProperties.class);
         if (input.prerequisite_achievement != null) {
             properties.setPrerequisiteAchievement(achievementsDao.read(input.prerequisite_achievement));
@@ -76,7 +83,7 @@ public class AchievementStepsResource extends AbstractResource {
                 .build();
     }
 
-    private Achievement getAchievement(@PathParam("achievementId") UUID achievementId) {
+    private Achievement getAchievement(UUID achievementId) {
         Achievement achievement = null;
         try {
             achievement = achievementsDao.read(achievementId);
@@ -88,8 +95,10 @@ public class AchievementStepsResource extends AbstractResource {
 
     @DELETE
     @UnitOfWork
-    @Path("{id}")
-    public Response delete(@PathParam("achievementId") UUID achievementId, @PathParam("id") Integer id) {
+    @Path("{stepId}")
+    public Response delete(@PathParam("achievementId") UUID achievementId,
+                           @PathParam("stepId") Integer id,
+                           @Auth User user) {
         try {
             verifyParent(achievementId, dao.read(id));
             dao.delete(id);

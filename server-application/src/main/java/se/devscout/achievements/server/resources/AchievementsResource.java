@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
@@ -9,6 +10,7 @@ import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Path("/achievements")
+@Path("achievements")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementsResource extends AbstractResource {
@@ -33,8 +35,8 @@ public class AchievementsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    @Path("{id}/progress")
-    public Map<String, ProgressDTO> getProgress(@PathParam("id") UUID id) {
+    @Path("{achievementId}/progress")
+    public Map<String, ProgressDTO> getProgress(@PathParam("achievementId") UUID id, @Auth User user) {
         try {
             final Achievement achievement = dao.read(id);
             return progressDao
@@ -48,8 +50,8 @@ public class AchievementsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    @Path("{id}")
-    public AchievementDTO get(@PathParam("id") UUID id) {
+    @Path("{achievementId}")
+    public AchievementDTO get(@PathParam("achievementId") UUID id, @Auth User user) {
         try {
             return map(dao.read(id), AchievementDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -59,7 +61,7 @@ public class AchievementsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementDTO> find(@QueryParam("filter") String filter) {
+    public List<AchievementDTO> find(@QueryParam("filter") String filter, @Auth User user) {
         try {
             return dao.find(filter).stream().map(o -> map(o, AchievementDTO.class)).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
@@ -69,7 +71,7 @@ public class AchievementsResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(AchievementDTO input) {
+    public Response create(AchievementDTO input, @Auth User user) {
         try {
             final Achievement achievement = dao.create(map(input, AchievementProperties.class));
             final URI location = uriInfo.getRequestUriBuilder().path(achievement.getId().toString()).build();
@@ -84,8 +86,8 @@ public class AchievementsResource extends AbstractResource {
 
     @DELETE
     @UnitOfWork
-    @Path("{id}")
-    public Response delete(@PathParam("id") UUID id) {
+    @Path("{achievementId}")
+    public Response delete(@PathParam("achievementId") UUID id, @Auth User user) {
         try {
             dao.delete(id);
             return Response.noContent().build();

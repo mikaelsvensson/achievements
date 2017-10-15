@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.ProgressDTO;
 import se.devscout.achievements.server.data.dao.*;
@@ -7,13 +8,14 @@ import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
-@Path("/achievements/{achievementId}/steps/{stepId}/progress")
+@Path("achievements/{achievementId}/steps/{stepId}/progress")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementStepProgressResource extends AbstractResource {
@@ -34,7 +36,8 @@ public class AchievementStepProgressResource extends AbstractResource {
     @Path("{personId}")
     public ProgressDTO get(@PathParam("achievementId") UUID achievementId,
                            @PathParam("stepId") Integer stepId,
-                           @PathParam("personId") Integer personId) {
+                           @PathParam("personId") Integer personId,
+                           @Auth User user) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);
@@ -52,6 +55,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     public ProgressDTO set(@PathParam("achievementId") UUID achievementId,
                            @PathParam("stepId") Integer stepId,
                            @PathParam("personId") Integer personId,
+                           @Auth User user,
                            ProgressDTO dto) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
@@ -68,7 +72,8 @@ public class AchievementStepProgressResource extends AbstractResource {
     @Path("{personId}")
     public Response unset(@PathParam("achievementId") UUID achievementId,
                           @PathParam("stepId") Integer stepId,
-                          @PathParam("personId") Integer personId) {
+                          @PathParam("personId") Integer personId,
+                          @Auth User user) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId, step);

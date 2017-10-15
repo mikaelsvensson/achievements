@@ -1,18 +1,28 @@
 package se.devscout.achievements.server;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.hibernate.SessionFactory;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.AchievementDTO;
+import se.devscout.achievements.server.auth.PasswordValidator;
+import se.devscout.achievements.server.auth.SecretGenerator;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.AchievementsResource;
+import se.devscout.achievements.server.uti.User;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.UUID;
 
@@ -26,10 +36,23 @@ public class AchievementsResourceTest {
     private final AchievementsDao dao = mock(AchievementsDao.class);
     private final AchievementStepProgressDao progressDao = mock(AchievementStepProgressDao.class);
 
+    private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
+
     @Rule
     public final ResourceTestRule resources = ResourceTestRule.builder()
+//            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
+            .addProvider(AchievementsApplication.createAuthFeature(mock(SessionFactory.class), credentialsDao))
+            .addProvider(RolesAllowedDynamicFeature.class)
+            .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
+
             .addResource(new AchievementsResource(dao, progressDao))
             .build();
+
+    @Before
+    public void setUp() throws Exception {
+        final Credentials credentials = new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray()));
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+    }
 
     @Test
     public void get_happyPath() throws Exception {
@@ -40,6 +63,7 @@ public class AchievementsResourceTest {
         final Response response = resources
                 .target("/achievements/" + uuid.toString())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
@@ -52,6 +76,7 @@ public class AchievementsResourceTest {
         final Response response = resources
                 .target("/achievements/id")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
     }
@@ -62,6 +87,7 @@ public class AchievementsResourceTest {
         final Response response = resources
                 .target("/achievements/id")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
     }
@@ -75,6 +101,7 @@ public class AchievementsResourceTest {
         final Response response = resources
                 .target("/achievements/" + uuid.toString())
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
     }
@@ -88,6 +115,7 @@ public class AchievementsResourceTest {
         final Response response = resources
                 .target("/achievements")
                 .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO()));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
