@@ -8,10 +8,7 @@ import org.junit.Test;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDaoImpl;
 import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.OrganizationProperties;
-import se.devscout.achievements.server.data.model.Person;
-import se.devscout.achievements.server.data.model.PersonAttribute;
+import se.devscout.achievements.server.data.model.*;
 
 import javax.persistence.EntityExistsException;
 import java.util.List;
@@ -30,6 +27,7 @@ public class OrganizationsDaoImplTest {
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
             .addEntityClass(PersonAttribute.class)
+            .addEntityClass(Credentials.class)
             .build();
 
     private OrganizationsDaoImpl dao;

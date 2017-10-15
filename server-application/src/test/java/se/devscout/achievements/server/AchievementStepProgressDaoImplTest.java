@@ -19,6 +19,7 @@ public class AchievementStepProgressDaoImplTest {
             .setShowSql(true)
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
+            .addEntityClass(Credentials.class)
             .addEntityClass(Achievement.class)
             .addEntityClass(AchievementStep.class)
             .addEntityClass(AchievementStepProgress.class)

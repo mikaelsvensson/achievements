@@ -23,6 +23,7 @@ public class PeopleDaoImplTest {
             .setShowSql(true)
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
+            .addEntityClass(Credentials.class)
             .build();
 
     private PeopleDaoImpl dao;

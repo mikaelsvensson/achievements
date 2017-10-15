@@ -1,11 +1,9 @@
 package se.devscout.achievements.server.data.model;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Table(name = "person")
@@ -21,6 +19,9 @@ public class Person extends PersonProperties {
     @JoinColumn(name = "organization_id")
     @NotNull
     private Organization organization;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Credentials> credentials = new HashSet<>();
 
     public Person() {
     }
