@@ -4,5 +4,5 @@ const templateLogout = require("./logout.handlebars");
 export function renderLogout() {
     updateView(templateLogout());
 
-    setCredentials(null, null);
+    setCredentials("", "");
 }

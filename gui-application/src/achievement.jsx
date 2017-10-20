@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, post} from "./util/api.jsx";
+import {get, post, isLoggedIn} from "./util/api.jsx";
 import {updateView, getFormData} from "./util/view.jsx";
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementStepsList = require("./achievement.steps-list.handlebars");
@@ -14,6 +14,7 @@ export function renderAchievement(appPathParams) {
             {label: "Märken och bedrifter", url: '#achievements/'},
             {label: achievementData.name}
         ];
+        templateData.isLoggedIn = isLoggedIn();
 
         updateView(templateAchievement(templateData));
 

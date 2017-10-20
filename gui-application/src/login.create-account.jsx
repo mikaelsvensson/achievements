@@ -9,9 +9,10 @@ export function renderLoginCreateAccount() {
     $('#app').find('.create-account-button').click(function (e) {
         const button = $(this);
         const form = button.addClass('is-loading').closest('form');
-        post('//localhost:8080/api/signup/', getFormData(form), function (responseData, responseStatus, jqXHR) {
+        const formData = getFormData(form);
+        post('//localhost:8080/api/signup/', formData, function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading');
-            setCredentials(form.username, form.password);
+            setCredentials(formData.username, formData.password);
 
             updateView(templateLoginCreateAccountSuccess({organization: responseData.organization}), $('#login-createaccount'));
         });
