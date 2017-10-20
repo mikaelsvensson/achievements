@@ -2,12 +2,8 @@ package se.devscout.achievements.server;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
-import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,7 +16,6 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.PeopleResource;
-import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -45,12 +40,7 @@ public class PeopleResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
-    public final ResourceTestRule resources = ResourceTestRule.builder()
-//            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
-            .addProvider(AchievementsApplication.createAuthFeature(mock(HibernateBundle.class), credentialsDao))
-            .addProvider(RolesAllowedDynamicFeature.class)
-            .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
-
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new PeopleResource(dao, organizationsDao))
             .build();
 

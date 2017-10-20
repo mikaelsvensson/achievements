@@ -3,12 +3,8 @@ package se.devscout.achievements.server;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
-import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,9 +15,11 @@ import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Credentials;
+import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.resources.MyResource;
-import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
@@ -42,12 +40,7 @@ public class MyResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
-    public final ResourceTestRule resources = ResourceTestRule.builder()
-//            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
-            .addProvider(AchievementsApplication.createAuthFeature(mock(HibernateBundle.class), credentialsDao))
-            .addProvider(RolesAllowedDynamicFeature.class)
-            .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
-
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new MyResource(peopleDao, organizationsDao))
             .build();
 
