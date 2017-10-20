@@ -2,6 +2,7 @@ package se.devscout.achievements.server;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
@@ -23,11 +24,16 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuthenticationAcceptanceTest {
+
     @ClassRule
     public static final DropwizardAppRule<AchievementsApplicationConfiguration> RULE =
             new DropwizardAppRule<>(
                     MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
+
+    private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
+            .add("http://localhost:9000/api/signup")
+            .build();
 
     @Test
     public void authenticationRequired_httpHeaderMissing_expect401() {
@@ -116,7 +122,9 @@ public class AuthenticationAcceptanceTest {
                     final Optional<Class<? extends Annotation>> httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(a -> method.isAnnotationPresent(a)).findFirst();
                     if (httpVerb.isPresent()) {
                         final String uri = String.format("http://localhost:%d/api/%s", RULE.getLocalPort(), path);
-                        endpoints.add(Pair.of(uri, httpVerb.get().getSimpleName()));
+                        if (!PUBLIC_RESOURCES.contains(uri)) {
+                            endpoints.add(Pair.of(uri, httpVerb.get().getSimpleName()));
+                        }
                     }
                 }
             }

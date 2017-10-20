@@ -61,6 +61,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao));
         environment.jersey().register(new MyResource(peopleDao, organizationsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
+        environment.jersey().register(new SignupResource(peopleDao, organizationsDao, credentialsDao));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
