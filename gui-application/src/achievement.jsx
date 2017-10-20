@@ -15,56 +15,64 @@ export function renderAchievement(appPathParams) {
             {label: achievementData.name}
         ];
 
+        updateView(templateAchievement(templateData));
+
+        $('#app').find('.create-step-button').click(function (e) {
+            const button = $(this);
+            const form = button.addClass('is-loading').closest('form');
+            post('//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                button.removeClass('is-loading');
+                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                    updateView(templateAchievementStepsList({
+                        steps: responseData,
+                        achievementId: appPathParams[0].key
+                    }), $('#achievement-steps-list'));
+                });
+            });
+        });
+
+        // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
+        $.each(achievementData, function (key, value) {
+            $('#' + key).val(value);
+        });
+
+        let showSteps = function (peopleData, steps) {
+            updateView(templateAchievementStepsList({
+                people: peopleData,
+                steps: steps,
+                achievementId: appPathParams[0].key
+            }), $('#achievement-steps-list'));
+
+            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
+                const keys = Object.keys(progressData);
+                for (let i in keys) {
+                    let key = keys[i];
+                    const progress = progressData[key];
+                    $("#progress-toggle-" + key).addClass(progress.completed ? 'is-success' : 'is-danger');
+                }
+                $(".progress-switch").click(function () {
+                    const toggleButton = $(this);
+                    toggleButton.addClass('is-loading');
+                    const toggleCompletedUrl = '//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
+                    const completed = (!toggleButton.hasClass('is-danger') && !toggleButton.hasClass('is-success')) || toggleButton.hasClass('is-danger');
+                    post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
+                        toggleButton.removeClass('is-loading');
+                        toggleButton.removeClass(responseData.completed ? 'is-danger' : 'is-success');
+                        toggleButton.addClass(responseData.completed ? 'is-success' : 'is-danger');
+                    });
+                });
+            }, function() {
+                console.log("Could not load progress");
+            });
+        };
         get('//localhost:8080/api/my/people/', function (peopleData, responseStatus, jqXHR) {
-
-            updateView(templateAchievement(templateData));
-
-            $('#app').find('.create-step-button').click(function (e) {
-                const button = $(this);
-                const form = button.addClass('is-loading').closest('form');
-                post('//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                    button.removeClass('is-loading');
-                    get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                        updateView(templateAchievementStepsList({
-                            steps: responseData,
-                            achievementId: appPathParams[0].key
-                        }), $('#achievement-steps-list'));
-                    });
-                });
-            });
-
-            // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
-            $.each(achievementData, function (key, value) {
-                $('#' + key).val(value);
-            });
-
             get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                updateView(templateAchievementStepsList({
-                    people: peopleData,
-                    steps: responseData,
-                    achievementId: appPathParams[0].key
-                }), $('#achievement-steps-list'));
-
-                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
-                    const keys = Object.keys(progressData);
-                    for (let i in keys) {
-                        let key = keys[i];
-                        const progress = progressData[key];
-                        $("#progress-toggle-" + key).addClass(progress.completed ? 'is-success' : 'is-danger');
-                    }
-                    $(".progress-switch").click(function () {
-                        const toggleButton = $(this);
-                        toggleButton.addClass('is-loading');
-                        const toggleCompletedUrl = '//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
-                        const completed = (!toggleButton.hasClass('is-danger') && !toggleButton.hasClass('is-success')) || toggleButton.hasClass('is-danger');
-                        post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
-                            toggleButton.removeClass('is-loading');
-                            toggleButton.removeClass(responseData.completed ? 'is-danger' : 'is-success');
-                            toggleButton.addClass(responseData.completed ? 'is-success' : 'is-danger');
-                        });
-                    });
-                });
-
+                showSteps(peopleData, responseData);
+            });
+        }, function () {
+            console.log("Could not load my people");
+            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                showSteps(null, responseData);
             });
         });
     });

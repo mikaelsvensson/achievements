@@ -4,13 +4,13 @@ import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -51,7 +51,7 @@ public class AchievementsResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("{achievementId}")
-    public AchievementDTO get(@PathParam("achievementId") UUID id, @Auth User user) {
+    public AchievementDTO get(@PathParam("achievementId") UUID id) {
         try {
             return map(dao.read(id), AchievementDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -61,7 +61,7 @@ public class AchievementsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementDTO> find(@QueryParam("filter") String filter, @Auth User user) {
+    public List<AchievementDTO> find(@QueryParam("filter") String filter) {
         try {
             return dao.find(filter).stream().map(o -> map(o, AchievementDTO.class)).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {

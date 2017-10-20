@@ -1,9 +1,26 @@
 {{#if achievements}}
-<ul>
     {{#each achievements}}
-    <li><a href="#achievements/{{id}}" aria-current="page">{{name}}</a></li>
+        <div class="box">
+            <article class="media">
+                <div class="media-left">
+                    {{#if image}}
+                    <figure class="image is-64x64">
+                        <img src="{{image}}" alt="Image">
+                    </figure>
+                    {{/if}}
+                </div>
+                <div class="media-content">
+                    <div class="content">
+                        <p>
+                            <strong><a href="#achievements/{{id}}" aria-current="page">{{name}}</a></strong>
+                            <br>
+                            {{description}}
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </div>
     {{/each}}
-</ul>
 {{else}}
 <p>Tyvärr, vi hittade inget som passade.</p>
 {{/if}}

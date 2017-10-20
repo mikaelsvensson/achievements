@@ -3,13 +3,13 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementStepDTO;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
-import se.devscout.achievements.server.auth.User;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -37,8 +37,7 @@ public class AchievementStepsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId,
-                                                     @Auth User user) {
+    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId) {
         final Achievement achievement = getAchievement(achievementId);
         return dao.getByParent(achievement).stream().map(p -> map(p, AchievementStepDTO.class)).collect(Collectors.toList());
     }
@@ -47,8 +46,7 @@ public class AchievementStepsResource extends AbstractResource {
     @Path("{stepId}")
     @UnitOfWork
     public AchievementStepDTO get(@PathParam("achievementId") UUID achievementId,
-                                  @PathParam("stepId") Integer id,
-                                  @Auth User user) {
+                                  @PathParam("stepId") Integer id) {
         try {
             final AchievementStep person = dao.read(id);
             verifyParent(achievementId, person);

@@ -31,8 +31,12 @@ public class AuthenticationAcceptanceTest {
                     MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
 
+    private static final String RANDOM_ORG_ID = UUID.randomUUID().toString();
+    private static final String RANDOM_ACHIEVEMENT_ID = UUID.randomUUID().toString();
     private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
             .add("http://localhost:9000/api/signup")
+            .add("http://localhost:9000/api/achievements")
+            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID)
             .build();
 
     @Test
@@ -41,7 +45,7 @@ public class AuthenticationAcceptanceTest {
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getApplicationEndpoints()) {
+        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
             final String verb = endpoint.getRight();
             final String resource = endpoint.getLeft();
             Response response = client
@@ -62,7 +66,7 @@ public class AuthenticationAcceptanceTest {
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getApplicationEndpoints()) {
+        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
             final String verb = endpoint.getRight();
             final String resource = endpoint.getLeft();
             Response response = client
@@ -84,7 +88,7 @@ public class AuthenticationAcceptanceTest {
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getApplicationEndpoints()) {
+        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
             final String verb = endpoint.getRight();
             final String resource = endpoint.getLeft();
             Response response = client
@@ -100,10 +104,10 @@ public class AuthenticationAcceptanceTest {
         assertThat(failedResources).hasSize(0);
     }
 
-    private List<Pair<String, String>> getApplicationEndpoints() {
+    private List<Pair<String, String>> getAuthenticatedApplicationEndpoints() {
         final ImmutableMap<String, String> randomUriParameterValues = ImmutableMap.<String, String>builder()
-                .put("organizationId", UUID.randomUUID().toString())
-                .put("achievementId", UUID.randomUUID().toString())
+                .put("organizationId", RANDOM_ORG_ID)
+                .put("achievementId", RANDOM_ACHIEVEMENT_ID)
                 .put("stepId", String.valueOf(1))
                 .put("personId", String.valueOf(2))
                 .build();

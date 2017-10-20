@@ -30,7 +30,7 @@ export function post(url, dataObject, onSuccess) {
     });
 }
 
-export function get(url, onSuccess) {
+export function get(url, onSuccess, onFail) {
     $.ajax({
         url: url,
         type: "GET",
@@ -39,7 +39,7 @@ export function get(url, onSuccess) {
         beforeSend: beforeSendHandler,
     })
         .done(onSuccess)
-        .fail(function (jqXHR, textStatus, errorThrown) {
+        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
                 const status = jqXHR.status;
                 renderError(`Kan inte visa ${url} efter servern svarade med felkod ${status}.`, status == 401)
             }
