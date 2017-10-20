@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, post} from "./util/api.jsx";
+import {get, post, isLoggedIn} from "./util/api.jsx";
 import {updateView, getFormData} from "./util/view.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
@@ -13,6 +13,7 @@ export function renderOrganization(appPathParams) {
             {label: "Organisationer", url: '#organizations/'},
             {label: responseData.name}
         ];
+        responseData.isLoggedIn = isLoggedIn();
 
         updateView(templateOrganization(responseData));
 

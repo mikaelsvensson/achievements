@@ -1,17 +1,54 @@
-export function parseHash(urlHash) {
-    const pathComponents = [];
-    const parts = urlHash.split(/\//);
-    // console.log("parts", parts)
-    for (let i = 0; i < parts.length; i += 2) {
-        pathComponents.push({resource: parts[i], key: parts[i + 1] || ""});
-    }
-    // console.log("pathComponents based on " + urlHash, pathComponents);
-    return pathComponents;
+import {renderMain} from "../main.jsx";
+import {renderStats} from "../stats.jsx";
+import {renderOrganization} from "../organization.jsx";
+import {renderOrganizations} from "../organizations.jsx";
+import {renderAchievement} from "../achievement.jsx";
+import {renderAchievements} from "../achievements.jsx";
+import {renderLogout} from "../logout.jsx";
+import {renderLogin} from "../login.jsx";
+import {renderError} from "../error.jsx";
+import {renderLoginCreateAccount} from "../login.create-account.jsx";
+
+export function navigateTo(appPath) {
+    window.location.hash = '#' + appPath;
 }
 
-export function isPathMatch(pathComponents, pattern) {
+export function hashChangeHandler() {
+    // On every hash change the render function is called with the new hash.
+    // This is how the navigation of our app happens.
+
+    const appPath = decodeURI(window.location.hash.substr(1));
+
+    renderRoute(appPath);
+}
+
+function renderRoute(appPath) {
+    const appPathParams = parseHash(appPath);
+
+    const routes = {
+        'stats': renderStats,
+        'logout': renderLogout,
+        'login': renderLogin,
+        'login-create-account': renderLoginCreateAccount,
+        'organizations': renderOrganizations,
+        'organizations/*': renderOrganization,
+        'achievements': renderAchievements,
+        'achievements/*': renderAchievement,
+        '': renderMain
+    };
+
+    for (let routePattern in routes) {
+        if (isPathMatch(appPathParams, routePattern)) {
+            const routeRenderer = routes[routePattern];
+            routeRenderer.call(this, appPathParams);
+            return;
+        }
+    }
+    renderError(appPath + " does not exist.");
+}
+
+function isPathMatch(pathComponents, pattern) {
     const patternComponents = parseHash(pattern);
-    // console.log(pathComponents, patternComponents);
     if (patternComponents.length != pathComponents.length) {
         return false;
     }
@@ -24,4 +61,13 @@ export function isPathMatch(pathComponents, pattern) {
         }
     }
     return true;
+}
+
+function parseHash(urlHash) {
+    const pathComponents = [];
+    const parts = urlHash.split(/\//);
+    for (let i = 0; i < parts.length; i += 2) {
+        pathComponents.push({resource: parts[i], key: parts[i + 1] || ""});
+    }
+    return pathComponents;
 }

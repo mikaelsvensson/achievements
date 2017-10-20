@@ -1,0 +1,17 @@
+<section class="section">
+    <div class="container">
+        <div class="columns is-mobile">
+            <div class="column is-half is-offset-one-quarter">
+                <div class="content is-small has-text-centered">
+                    <p>
+                        {{#if isLoggedIn}}
+                        <a href="#logout" aria-current="page">Logga ut</a>
+                        {{else}}
+                        <span>Du är inte inloggad, så du kan inte göra så mycket.</span>
+                        {{/if}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,6 +1,7 @@
 import $ from "jquery";
-import {get, post} from "./util/api.jsx";
+import {get, post, isLoggedIn} from "./util/api.jsx";
 import {updateView, getFormData} from "./util/view.jsx";
+import {navigateTo} from "./util/routing.jsx";
 const templateOrganizations = require("./organizations.handlebars");
 const templateOrganizationsResult = require("./organizations.result.handlebars");
 
@@ -9,16 +10,18 @@ export function renderOrganizations() {
         breadcrumbs: [
             {label: "Hem", url: '#/'},
             {label: "Organisationer"}
-        ]
+        ],
+        isLoggedIn: isLoggedIn()
     };
     updateView(templateOrganizations(data));
-    $('#app .create-button').click(function (e) {
+    const $app = $('#app');
+    $app.find('.create-button').click(function (e) {
         const form = $(this).addClass('is-loading').closest('form');
         post('//localhost:8080/api/organizations', getFormData(form), function (responseData, responseStatus, jqXHR) {
-            window.location.hash = '#organizations/' + responseData.id;
+            navigateTo('organizations/' + responseData.id);
         });
     });
-    $('#app .search-button').click(function (e) {
+    $app.find('.search-button').click(function (e) {
         const button = $(this);
         const form = button.addClass('is-loading').closest('form');
         const url = '//localhost:8080/api/organizations?filter=' + getFormData(form).filter;
