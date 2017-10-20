@@ -12,13 +12,14 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.auth.PasswordAuthenticator;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
+import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.*;
-import se.devscout.achievements.server.auth.PasswordAuthenticator;
-import se.devscout.achievements.server.auth.User;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -66,6 +67,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
         environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao, achievementsDao, achievementStepsDao));
+        environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
 
         initCorsHeaders(environment);
     }

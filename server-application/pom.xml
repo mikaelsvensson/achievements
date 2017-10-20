@@ -59,6 +59,11 @@
             <version>2.0.54-beta</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>se.devscout.achievements</groupId>
+            <artifactId>data-importer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
