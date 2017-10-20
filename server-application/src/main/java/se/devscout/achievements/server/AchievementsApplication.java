@@ -7,6 +7,7 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
+import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -47,7 +48,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
 
-        environment.jersey().register(createAuthFeature(sessionFactory, credentialsDao));
+        environment.jersey().register(createAuthFeature(hibernate, credentialsDao));
 
 //        environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
@@ -72,11 +73,16 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new CredentialsDaoImpl(sessionFactory);
     }
 
-    public static AuthDynamicFeature createAuthFeature(SessionFactory sessionFactory, CredentialsDao credentialsDao) {
+    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao) {
+
+        PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
+
         return new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
-                .setAuthenticator(new PasswordAuthenticator(sessionFactory, credentialsDao))
+                .setAuthenticator(tokenAuthenticator)
                 .setPrefix("Basic")
                 .setRealm("Achievements")
+//                .setAuthorizer(new DefaultAuthorizer())
+//                .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
                 .buildAuthFilter());
     }
 

@@ -3,9 +3,8 @@ package se.devscout.achievements.server.auth;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
+import io.dropwizard.hibernate.UnitOfWork;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
@@ -15,20 +14,16 @@ import java.util.Optional;
 
 public class PasswordAuthenticator implements Authenticator<BasicCredentials, User> {
 
-    private final SessionFactory sessionFactory;
     private final CredentialsDao credentialsDao;
 
-    public PasswordAuthenticator(SessionFactory sessionFactory, CredentialsDao credentialsDao) {
-        this.sessionFactory = sessionFactory;
+    public PasswordAuthenticator(CredentialsDao credentialsDao) {
         this.credentialsDao = credentialsDao;
     }
 
     @Override
+    @UnitOfWork
     public Optional<User> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
-        Optional<User> result = Optional.empty();
-        Session session = null;
         try {
-            session = sessionFactory.openSession();
             final Credentials credentials = credentialsDao.get(IdentityProvider.PASSWORD, basicCredentials.getUsername());
             if (credentials.getSecretValidator().validate(basicCredentials.getPassword().toCharArray())) {
                 return Optional.of(new User(basicCredentials.getUsername()));
@@ -40,14 +35,6 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
         } catch (ObjectNotFoundException e) {
             //TODO: Log exception
             return Optional.empty();
-        } finally {
-            if (session != null) {
-                try {
-                    session.close();
-                } catch (HibernateException e1) {
-                    e1.printStackTrace();
-                }
-            }
         }
     }
 }

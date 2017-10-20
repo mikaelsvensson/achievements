@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.data.dao;
 
 import io.dropwizard.auth.basic.BasicCredentials;
-import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import se.devscout.achievements.server.auth.PasswordAuthenticator;
@@ -20,7 +19,7 @@ import static org.mockito.Mockito.when;
 public class PasswordAuthenticatorTest {
 
     private CredentialsDao credentialsDao = mock(CredentialsDao.class);
-    private PasswordAuthenticator authenticator = new PasswordAuthenticator(mock(SessionFactory.class), credentialsDao);
+    private PasswordAuthenticator authenticator = new PasswordAuthenticator(credentialsDao);
 
     @Before
     public void setUp() throws Exception {

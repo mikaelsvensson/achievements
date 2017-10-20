@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -43,7 +44,7 @@ public class MyResourceTest {
     @Rule
     public final ResourceTestRule resources = ResourceTestRule.builder()
 //            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
-            .addProvider(AchievementsApplication.createAuthFeature(mock(SessionFactory.class), credentialsDao))
+            .addProvider(AchievementsApplication.createAuthFeature(mock(HibernateBundle.class), credentialsDao))
             .addProvider(RolesAllowedDynamicFeature.class)
             .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
 
