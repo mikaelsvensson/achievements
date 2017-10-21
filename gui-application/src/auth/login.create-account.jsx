@@ -1,6 +1,6 @@
 import $ from "jquery";
-import {updateView, getFormData} from "./util/view.jsx";
-import {post, setCredentials} from "./util/api.jsx";
+import {updateView, getFormData} from "../util/view.jsx";
+import {post, setCredentials} from "../util/api.jsx";
 const templateLoginCreateAccount = require("./login.create-account.handlebars");
 const templateLoginCreateAccountSuccess = require("./login.create-account.success.handlebars");
 export function renderLoginCreateAccount() {
@@ -12,7 +12,7 @@ export function renderLoginCreateAccount() {
         const formData = getFormData(form);
         post('//localhost:8080/api/signup/', formData, function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading');
-            setCredentials(formData.username, formData.password);
+            setCredentials(formData.person_name, formData.user_password);
 
             updateView(templateLoginCreateAccountSuccess({organization: responseData.organization}), $('#login-createaccount'));
         });

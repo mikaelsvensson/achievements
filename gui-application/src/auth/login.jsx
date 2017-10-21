@@ -1,8 +1,7 @@
 import $ from "jquery";
-import {renderError} from "./error.jsx";
-import {updateView, getFormData} from "./util/view.jsx";
-import {get, setCredentials} from "./util/api.jsx";
-import {navigateTo} from "./util/routing.jsx";
+import {updateView, getFormData} from "../util/view.jsx";
+import {get, setCredentials} from "../util/api.jsx";
+import {navigateTo} from "../util/routing.jsx";
 const templateLogin = require("./login.handlebars");
 export function renderLogin() {
     updateView(templateLogin())

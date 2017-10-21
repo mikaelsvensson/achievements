@@ -1,13 +1,13 @@
 import {renderMain} from "../main.jsx";
 import {renderStats} from "../stats.jsx";
-import {renderOrganization} from "../organization.jsx";
-import {renderOrganizations} from "../organizations.jsx";
-import {renderAchievement} from "../achievement.jsx";
-import {renderAchievements} from "../achievements.jsx";
-import {renderLogout} from "../logout.jsx";
-import {renderLogin} from "../login.jsx";
+import {renderOrganization} from "../organizations/organization.jsx";
+import {renderOrganizations} from "../organizations/organizations.jsx";
+import {renderAchievement} from "../achievements/achievement.jsx";
+import {renderAchievements} from "../achievements/achievements.jsx";
+import {renderLogout} from "../auth/logout.jsx";
+import {renderLogin} from "../auth/login.jsx";
 import {renderError} from "../error.jsx";
-import {renderLoginCreateAccount} from "../login.create-account.jsx";
+import {renderLoginCreateAccount} from "../auth/login.create-account.jsx";
 
 export function navigateTo(appPath) {
     window.location.hash = '#' + appPath;

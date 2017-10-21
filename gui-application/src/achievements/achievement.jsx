@@ -1,9 +1,9 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "./util/api.jsx";
-import {updateView, getFormData} from "./util/view.jsx";
+import {get, post, isLoggedIn} from "../util/api.jsx";
+import {updateView, getFormData} from "../util/view.jsx";
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementStepsList = require("./achievement.steps-list.handlebars");
-const templateLoading = require("./loading.handlebars");
+const templateLoading = require("../loading.handlebars");
 
 export function renderAchievement(appPathParams) {
     updateView(templateLoading());

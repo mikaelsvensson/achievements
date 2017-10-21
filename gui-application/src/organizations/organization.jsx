@@ -1,9 +1,9 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "./util/api.jsx";
-import {updateView, getFormData} from "./util/view.jsx";
+import {get, post, isLoggedIn} from "../util/api.jsx";
+import {updateView, getFormData} from "../util/view.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
-const templateLoading = require("./loading.handlebars");
+const templateLoading = require("../loading.handlebars");
 
 export function renderOrganization(appPathParams) {
     updateView(templateLoading());

@@ -1,7 +1,7 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "./util/api.jsx";
-import {updateView, getFormData} from "./util/view.jsx";
-import {navigateTo} from "./util/routing.jsx";
+import {get, post, isLoggedIn} from "../util/api.jsx";
+import {updateView, getFormData} from "../util/view.jsx";
+import {navigateTo} from "../util/routing.jsx";
 const templateAchievements = require("./achievements.handlebars");
 const templateAchievementsResult = require("./achievements.result.handlebars");
 
