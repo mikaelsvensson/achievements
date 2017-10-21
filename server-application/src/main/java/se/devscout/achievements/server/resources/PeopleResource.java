@@ -2,11 +2,13 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.OrganizationProperties;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 import se.devscout.achievements.server.auth.User;
@@ -76,6 +78,24 @@ public class PeopleResource extends AbstractResource {
             throw new NotFoundException();
         }
         return organization;
+    }
+
+    @PUT
+    @UnitOfWork
+    @Path("{personId}")
+    public Response update(@PathParam("organizationId") UUID organizationId,
+                           @PathParam("personId") Integer id,
+                           PersonDTO input,
+                           @Auth User user) {
+        try {
+            final Person person = dao.update(id, map(input, PersonProperties.class));
+            return Response
+                    .ok()
+                    .entity(map(person, PersonDTO.class))
+                    .build();
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException("Could not find " + id.toString());
+        }
     }
 
     @DELETE

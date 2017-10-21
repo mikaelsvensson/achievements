@@ -65,6 +65,23 @@ public class OrganizationsResource extends AbstractResource {
         }
     }
 
+    @PUT
+    @UnitOfWork
+    @Path("{organizationId}")
+    public Response update(@PathParam("organizationId") UUID id,
+                           OrganizationDTO input,
+                           @Auth User user) {
+        try {
+            final Organization organization = dao.update(id, map(input, OrganizationProperties.class));
+            return Response
+                    .ok()
+                    .entity(map(organization, OrganizationDTO.class))
+                    .build();
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException("Could not find " + id.toString());
+        }
+    }
+
     @DELETE
     @UnitOfWork
     @Path("{organizationId}")

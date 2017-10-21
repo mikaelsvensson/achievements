@@ -43,4 +43,43 @@ public class OrganizationsAcceptanceTest {
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }
 
+    @Test
+    public void update_happyPath() {
+        Client client = RULE.client();
+
+        final OrganizationDTO dto = new OrganizationDTO(null, "Name");
+        Response responseCreate = client
+                .target(String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(dto));
+
+        assertThat(responseCreate.getStatus()).isEqualTo(HttpStatus.CREATED_201);
+
+        dto.name = "New Name";
+
+        Response responseUpdate = client
+                .target(responseCreate.getLocation())
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .put(Entity.json(dto));
+
+        assertThat(responseUpdate.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final OrganizationDTO responseDto = responseUpdate.readEntity(OrganizationDTO.class);
+
+        assertThat(responseDto.name).isEqualTo(dto.name);
+
+        Response responseGet = client
+                .target(responseCreate.getLocation())
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .get();
+
+        final OrganizationDTO responseGetDto = responseGet.readEntity(OrganizationDTO.class);
+
+        assertThat(responseGetDto.name).isEqualTo(dto.name);
+
+    }
+
 }
