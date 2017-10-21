@@ -30,6 +30,18 @@ export function post(url, dataObject, onSuccess) {
     });
 }
 
+export function put(url, dataObject, onSuccess) {
+    $.ajax({
+        url: url,
+        type: "PUT",
+        data: JSON.stringify(dataObject),
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        beforeSend: beforeSendHandler,
+        success: onSuccess
+    });
+}
+
 export function get(url, onSuccess, onFail) {
     $.ajax({
         url: url,

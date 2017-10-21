@@ -1,6 +1,7 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "../util/api.jsx";
+import {get, post, put, isLoggedIn} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
+import {navigateTo} from "../util/routing.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
 const templateLoading = require("../loading.handlebars");
@@ -28,6 +29,15 @@ export function renderOrganization(appPathParams) {
                         orgId: appPathParams[0].key
                     }), $('#organization-people-list'));
                 });
+            });
+        });
+
+        $('#organization-save-button').click(function (e) {
+            const button = $(this);
+            const form = button.addClass('is-loading').closest('form');
+            put('//localhost:8080/api/organizations/' + appPathParams[0].key, getFormData(form), function (responseData, responseStatus, jqXHR) {
+                button.removeClass('is-loading');
+                renderOrganization(appPathParams);
             });
         });
 

@@ -8,6 +8,7 @@ import {renderLogout} from "../auth/logout.jsx";
 import {renderLogin} from "../auth/login.jsx";
 import {renderError} from "../error.jsx";
 import {renderLoginCreateAccount} from "../auth/login.create-account.jsx";
+import {renderPerson} from "../organizations/person.jsx";
 
 export function navigateTo(appPath) {
     window.location.hash = '#' + appPath;
@@ -32,6 +33,7 @@ function renderRoute(appPath) {
         'login-create-account': renderLoginCreateAccount,
         'organizations': renderOrganizations,
         'organizations/*': renderOrganization,
+        'organizations/*/people/*': renderPerson,
         'achievements': renderAchievements,
         'achievements/*': renderAchievement,
         '': renderMain
