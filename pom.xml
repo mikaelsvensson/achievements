@@ -14,7 +14,7 @@
         <module>data-importer</module>
     </modules>
     <properties>
-        <dropwizard.version>1.1.0</dropwizard.version>
+        <dropwizard.version>1.2.0</dropwizard.version>
     </properties>
 
     <build>
@@ -28,27 +28,47 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <failBuildOnCVSS>4</failBuildOnCVSS>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>enforce</id>
-                        <configuration>
-                            <rules>
-                                <dependencyConvergence/>
-                            </rules>
-                        </configuration>
                         <goals>
-                            <goal>enforce</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
--->
+
+            <!--
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-enforcer-plugin</artifactId>
+                            <version>1.4.1</version>
+                            <executions>
+                                <execution>
+                                    <id>enforce</id>
+                                    <configuration>
+                                        <rules>
+                                            <dependencyConvergence/>
+                                        </rules>
+                                    </configuration>
+                                    <goals>
+                                        <goal>enforce</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+            -->
         </plugins>
     </build>
-
 </project>
