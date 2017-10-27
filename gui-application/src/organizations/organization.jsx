@@ -5,6 +5,7 @@ import {navigateTo} from "../util/routing.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
 const templateLoading = require("../loading.handlebars");
+const templateAchievementsResult = require("../achievements/achievements.result.handlebars");
 
 export function renderOrganization(appPathParams) {
     updateView(templateLoading());
@@ -18,7 +19,8 @@ export function renderOrganization(appPathParams) {
 
         updateView(templateOrganization(responseData));
 
-        $('#app').find('.create-person-button').click(function (e) {
+        const $app = $('#app');
+        $app.find('.create-person-button').click(function (e) {
             const button = $(this);
             const form = button.addClass('is-loading').closest('form');
             post('//localhost:8080/api/organizations/' + appPathParams[0].key + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
@@ -38,6 +40,17 @@ export function renderOrganization(appPathParams) {
             put('//localhost:8080/api/organizations/' + appPathParams[0].key, getFormData(form), function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading');
                 renderOrganization(appPathParams);
+            });
+        });
+
+        $app.find('.search-button').click(function (e) {
+            const button = $(this);
+            const form = button.addClass('is-loading').closest('form');
+            const url = '//localhost:8080/api/achievements?filter=' + getFormData(form).filter;
+            console.log(url);
+            get(url, function (responseData, responseStatus, jqXHR) {
+                button.removeClass('is-loading')
+                updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
             });
         });
 

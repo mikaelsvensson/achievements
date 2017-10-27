@@ -6,37 +6,76 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
-        <form>
-            <div class="field">
-                <label class="label">Namn</label>
-                <div class="control">
-                    <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+
+        <div class="tile is-ancestor">
+            <div class="tile is-parent is-4">
+                <div class="tile is-child notification">
+                    <h2 class="subtitle">Organisationen</h2>
+
+                    <form>
+                        <div class="field">
+                            <label class="label">Namn</label>
+                            <div class="control">
+                                <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                            </div>
+                        </div>
+
+
+                        <div class="control">
+                            <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
+                            <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                        </div>
+
+                    </form>
                 </div>
             </div>
+            <div class="tile is-parent is-4">
+                <div class="tile is-child notification">
+                    <h2 class="subtitle">Personer</h2>
 
+                    <div id="organization-people-list"></div>
 
-            <div class="control">
-                <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
-                <button class="button is-primary is-outlined" type="button">Ta bort</button>
-            </div>
+                    <form>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input class="input" type="text" name="name" placeholder="Namn"/></div>
+                            <div class="control">
+                                <a class="button is-info create-person-button">
+                                    Lägg till
+                                </a>
+                            </div>
+                        </div>
+                    </form>
 
-        </form>
-
-        <h2 class="subtitle">Personer</h2>
-
-        <div id="organization-people-list"></div>
-
-        <form>
-            <div class="field has-addons">
-                <div class="control">
-                    <input class="input" type="text" name="name" placeholder="Namn"/></div>
-                <div class="control">
-                    <a class="button is-info create-person-button">
-                        Lägg till
-                    </a>
                 </div>
             </div>
-        </form>
+            <div class="tile is-parent is-4">
+                <div class="tile is-child notification">
+                    <h2 class="subtitle">Märken och sånt</h2>
+
+                    <form>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input class="input" type="text" id="filter" name="filter" placeholder="Vad heter den?">
+                            </div>
+                            <div class="control">
+                                <a class="button is-info search-button">
+                                    Sök
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="achievements-search-result"></div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+
     </div>
 </section>
 {{> ../_footer.handlebars}}
