@@ -1,5 +1,6 @@
 package se.devscout.achievements.server;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -241,6 +242,25 @@ public class PeopleResourceTest {
 
         verify(dao).create(any(Organization.class), any(PersonProperties.class));
         verify(organizationsDao).read(eq(org.getId()));
+    }
+
+    @Test
+    public void create_invalidEmailAddress_expect422() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "name");
+        when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
+
+        final Response response = resources
+                .target("/organizations/" + org.getId().toString() + "/people")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new PersonDTO(null, "Alice", "alice@invalid")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY_422);
+        final ObjectNode actualResponseEntity = response.readEntity(ObjectNode.class);
+        assertThat(actualResponseEntity.has("message")).isTrue();
+
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
     }
 
 }

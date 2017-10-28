@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 @Path("signup")
@@ -36,10 +37,10 @@ public class SignupResource extends AbstractResource {
     @POST
     @UnitOfWork
     public Response signup(SignupDTO dto) {
-        if (Strings.isNullOrEmpty(dto.user_password)) {
+        if (Strings.isNullOrEmpty(dto.password)) {
             throw new BadRequestException("Password cannot be empty");
         }
-        if (Strings.isNullOrEmpty(dto.person_name)) {
+        if (Strings.isNullOrEmpty(dto.name)) {
             throw new BadRequestException("Name cannot be empty");
         }
         final Organization organization;
@@ -64,8 +65,8 @@ public class SignupResource extends AbstractResource {
             throw new BadRequestException("Neither id of existing organization or name of new organization was specified.");
         }
         try {
-            final Person person = peopleDao.create(organization, new PersonProperties(dto.person_name));
-            credentialsDao.create(person, new CredentialsProperties(dto.person_name, new PasswordValidator(SecretGenerator.PDKDF2, dto.user_password.toCharArray())));
+            final Person person = peopleDao.create(organization, new PersonProperties(dto.name, dto.email, Collections.emptySet()));
+            credentialsDao.create(person, new CredentialsProperties(dto.email, new PasswordValidator(SecretGenerator.PDKDF2, dto.password.toCharArray())));
             final URI location = UriBuilder.fromResource(PeopleResource.class).path(person.getId().toString()).build(organization.getId().toString());
             return Response
                     .created(location)

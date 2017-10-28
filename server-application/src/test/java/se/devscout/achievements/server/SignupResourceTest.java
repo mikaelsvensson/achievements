@@ -51,7 +51,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO(UUID.randomUUID(), "alice", "password")));
+                .post(Entity.json(new SignupDTO(UUID.randomUUID(), "alice", "password", "alice@example.com")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
@@ -70,7 +70,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO(org.getId(), "Alice", "password")));
+                .post(Entity.json(new SignupDTO(org.getId(), "Alice", "password", "alice@example.com")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         assertThat(response.getLocation()).hasPath("/organizations/" + org.getId() + "/people/" + person.getId());
@@ -79,6 +79,7 @@ public class SignupResourceTest {
         assertThat(actualResponse.organization.name).isEqualTo("The Organization");
         assertThat(actualResponse.person.id).isEqualTo(person.getId().toString());
         assertThat(actualResponse.person.name).isEqualTo("Alice");
+        assertThat(actualResponse.person.email).isEqualTo("alice@example.com");
 
         verify(organizationsDao).read(any(UUID.class));
         verify(organizationsDao, never()).create(any(OrganizationProperties.class));
@@ -93,7 +94,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO("org", "alice", "password")));
+                .post(Entity.json(new SignupDTO("org", "alice", "password", "alice@example.com")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 
@@ -113,7 +114,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO(UUID.randomUUID(), "alice", "password")));
+                .post(Entity.json(new SignupDTO(UUID.randomUUID(), "alice", "password", "alice@example.com")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 

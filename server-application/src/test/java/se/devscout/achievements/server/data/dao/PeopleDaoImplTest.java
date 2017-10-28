@@ -93,10 +93,11 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
         final Person actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Carol");
+        assertThat(actual.getEmail()).isEqualTo("carol@example.com");
 
         assertThat(actual.getAttributes()).hasSize(2);
         assertThat(actual.getAttributes().contains(new PersonAttribute("favourite_colour", "green")));
@@ -105,8 +106,8 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_sameNameAsExistingPerson_happyPath() throws Exception {
-        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
-        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
         assertThat(c1.getId()).isNotEqualTo(c2.getId());
     }
 
