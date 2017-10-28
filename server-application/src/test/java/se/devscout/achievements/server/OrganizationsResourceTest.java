@@ -7,6 +7,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
@@ -61,6 +62,14 @@ public class OrganizationsResourceTest {
     }
 
     @Test
+    public void get_noUser_happyPath() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
+        final OrganizationBaseDTO dto = resources.client().target("/organizations/" + uuid.toString()).request().get(OrganizationBaseDTO.class);
+        assertThat(dto.name).isEqualTo("Alice's Organization");
+    }
+
+    @Test
     public void create_happyPath() throws Exception {
         when(dao.create(any(OrganizationProperties.class))).thenAnswer(invocation -> new Organization(UUID.randomUUID(), ((OrganizationProperties) invocation.getArgument(0)).getName()));
         final Response response = request("/organizations").post(Entity.json(new OrganizationDTO(null, "Bob's Club")));
@@ -79,7 +88,6 @@ public class OrganizationsResourceTest {
         for (Map.Entry<String, String> entry : queryParameters.entrySet()) {
             webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
         }
-        ;
         return webTarget
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)));

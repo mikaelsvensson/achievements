@@ -2,6 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,9 +33,10 @@ public class OrganizationsResource extends AbstractResource {
     @GET
     @Path("{organizationId}")
     @UnitOfWork
-    public OrganizationDTO get(@PathParam("organizationId") UUID id, @Auth User user) {
+    public OrganizationBaseDTO get(@PathParam("organizationId") UuidString id, @Auth Optional<User> user) {
         try {
-            return map(dao.read(id), OrganizationDTO.class);
+            final Organization organization = dao.read(id.asUUID());
+            return user.isPresent() ? map(organization, OrganizationDTO.class) : map(organization, OrganizationBaseDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
