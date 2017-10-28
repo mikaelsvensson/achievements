@@ -45,6 +45,7 @@ abstract class AbstractResource {
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
                 Achievement entity = (Achievement) src;
                 AchievementDTO dto = (AchievementDTO) dest;
+                dto.id = UuidString.toString(entity.getId());
                 for (int i = 0; i < entity.getSteps().size(); i++) {
                     AchievementStep step = entity.getSteps().get(i);
                     if (step.getPrerequisiteAchievement() != null) {
