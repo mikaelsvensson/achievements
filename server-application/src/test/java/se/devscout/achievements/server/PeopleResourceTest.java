@@ -17,6 +17,7 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.PeopleResource;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -57,7 +58,7 @@ public class PeopleResourceTest {
         final Person person = mockPerson(org, "Alice");
 
         final Response response = resources
-                .target("/organizations/" + org.getId() + "/people/" + person.getId())
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -78,7 +79,7 @@ public class PeopleResourceTest {
         when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
 
         final Response response = resources
-                .target("/organizations/" + org.getId() + "/people")
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -100,7 +101,7 @@ public class PeopleResourceTest {
         when(organizationsDao.read(eq(badId))).thenThrow(new NotFoundException());
 
         final Response response = resources
-                .target("/organizations/" + badId.toString() + "/people")
+                .target("/organizations/" + UuidString.toString(badId) + "/people")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -114,7 +115,7 @@ public class PeopleResourceTest {
     public void get_notFound() throws Exception {
         when(dao.read(eq(123))).thenThrow(new NotFoundException());
         final Response response = resources
-                .target("/organizations/" + UUID.randomUUID().toString() + "/people/123")
+                .target("/organizations/" + UuidString.toString(UUID.randomUUID()) + "/people/123")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -145,7 +146,7 @@ public class PeopleResourceTest {
         final Person person = mockPerson(org, "name");
 
         final Response response = resources
-                .target("/organizations/" + org.getId() + "/people/" + person.getId())
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
@@ -163,7 +164,7 @@ public class PeopleResourceTest {
         final Person person = mockPerson(orgA, "name");
 
         final Response response = resources
-                .target("/organizations/" + orgB.getId() + "/people/" + person.getId())
+                .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
@@ -182,7 +183,7 @@ public class PeopleResourceTest {
         final Person person = mockPerson(orgA, "name");
 
         final Response response = resources
-                .target("/organizations/" + orgB.getId() + "/people/" + person.getId())
+                .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -229,7 +230,7 @@ public class PeopleResourceTest {
         when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
 
         final Response response = resources
-                .target("/organizations/" + org.getId().toString() + "/people")
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new PersonDTO()));
@@ -237,30 +238,11 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final PersonDTO dto = response.readEntity(PersonDTO.class);
 
-        assertThat(response.getLocation().getPath()).isEqualTo("/organizations/" + org.getId() + "/people/" + person.getId());
+        assertThat(response.getLocation().getPath()).isEqualTo("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId());
         assertThat(dto.name).isEqualTo("name");
 
         verify(dao).create(any(Organization.class), any(PersonProperties.class));
         verify(organizationsDao).read(eq(org.getId()));
-    }
-
-    @Test
-    public void create_invalidEmailAddress_expect422() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "name");
-        when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
-
-        final Response response = resources
-                .target("/organizations/" + org.getId().toString() + "/people")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
-                .post(Entity.json(new PersonDTO(null, "Alice", "alice@invalid")));
-
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY_422);
-        final ObjectNode actualResponseEntity = response.readEntity(ObjectNode.class);
-        assertThat(actualResponseEntity.has("message")).isTrue();
-
-        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
     }
 
 }

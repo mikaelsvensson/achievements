@@ -1,12 +1,17 @@
 package se.devscout.achievements.server.cli;
 
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.resources.UuidString;
 
 import java.io.PrintWriter;
+import java.util.Base64;
 import java.util.Collections;
 
 public class BoostrapDataTask extends DatabaseTask {
@@ -44,7 +49,9 @@ public class BoostrapDataTask extends DatabaseTask {
 
     private Organization createOrganization(PrintWriter output, String name) throws DaoException {
         final Organization organization = organizationsDao.create(new OrganizationProperties(name));
-        output.format("Created organization %s (id %s)%n", organization.getName(), organization.getId());
+        output.format("Created organization %s (id %s)%n",
+                organization.getName(),
+                UuidString.toString(organization.getId()));
         return organization;
     }
 
@@ -67,7 +74,7 @@ public class BoostrapDataTask extends DatabaseTask {
 
     private Achievement createAchievement(PrintWriter output, String name, String tag) throws DaoException {
         final Achievement achievement = achievementsDao.create(new AchievementProperties(name, Collections.singleton(tag)));
-        output.format("Created achievement %s (id %s)%n", achievement.getName(), achievement.getId());
+        output.format("Created achievement %s (id %s)%n", achievement.getName(), UuidString.toString(achievement.getId()));
         return achievement;
     }
 }

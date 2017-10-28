@@ -19,6 +19,7 @@ import se.devscout.achievements.server.data.model.IdentityProvider;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
 import se.devscout.achievements.server.resources.OrganizationsResource;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -56,16 +57,16 @@ public class OrganizationsResourceTest {
     public void get_happyPath() throws Exception {
         final UUID uuid = UUID.randomUUID();
         when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final OrganizationDTO dto = request("/organizations/" + uuid.toString()).get(OrganizationDTO.class);
+        final OrganizationDTO dto = request("/organizations/" + UuidString.toString(uuid)).get(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.name).isEqualTo("Alice's Organization");
     }
 
     @Test
-    public void get_noUser_happyPath() throws Exception {
+    public void getBasic_noUser_happyPath() throws Exception {
         final UUID uuid = UUID.randomUUID();
         when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final OrganizationBaseDTO dto = resources.client().target("/organizations/" + uuid.toString()).request().get(OrganizationBaseDTO.class);
+        final OrganizationBaseDTO dto = resources.client().target("/organizations/" + UuidString.toString(uuid) + "/basic").request().get(OrganizationBaseDTO.class);
         assertThat(dto.name).isEqualTo("Alice's Organization");
     }
 

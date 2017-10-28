@@ -5,8 +5,10 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.AchievementStepDTO;
+import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
+import se.devscout.achievements.server.data.model.Organization;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -37,7 +39,7 @@ abstract class AbstractResource {
                 AchievementStep entity = (AchievementStep) src;
                 AchievementStepDTO dto = (AchievementStepDTO) dest;
                 if (entity.getPrerequisiteAchievement() != null) {
-                    dto.prerequisite_achievement = entity.getPrerequisiteAchievement().getId();
+                    dto.prerequisite_achievement = UuidString.toString(entity.getPrerequisiteAchievement().getId());
                 }
             }
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
@@ -46,9 +48,14 @@ abstract class AbstractResource {
                 for (int i = 0; i < entity.getSteps().size(); i++) {
                     AchievementStep step = entity.getSteps().get(i);
                     if (step.getPrerequisiteAchievement() != null) {
-                        dto.steps.get(i).prerequisite_achievement = step.getPrerequisiteAchievement().getId();
+                        dto.steps.get(i).prerequisite_achievement = UuidString.toString(step.getPrerequisiteAchievement().getId());
                     }
                 }
+            }
+            if (src instanceof Organization && dest instanceof OrganizationDTO) {
+                Organization entity = (Organization) src;
+                OrganizationDTO dto = (OrganizationDTO) dest;
+                dto.id = UuidString.toString(entity.getId());
             }
             return dest;
         } else {

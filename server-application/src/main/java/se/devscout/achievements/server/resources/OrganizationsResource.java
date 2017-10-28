@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("organizations")
@@ -33,10 +32,21 @@ public class OrganizationsResource extends AbstractResource {
     @GET
     @Path("{organizationId}")
     @UnitOfWork
-    public OrganizationBaseDTO get(@PathParam("organizationId") UuidString id, @Auth Optional<User> user) {
+    public OrganizationDTO get(@PathParam("organizationId") UuidString id, @Auth User user) {
         try {
-            final Organization organization = dao.read(id.asUUID());
-            return user.isPresent() ? map(organization, OrganizationDTO.class) : map(organization, OrganizationBaseDTO.class);
+            final Organization organization = dao.read(id.getUUID());
+            return map(organization, OrganizationDTO.class);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        }
+    }
+    @GET
+    @Path("{organizationId}/basic")
+    @UnitOfWork
+    public OrganizationBaseDTO getBasic(@PathParam("organizationId") UuidString id) {
+        try {
+            final Organization organization = dao.read(id.getUUID());
+            return map(organization, OrganizationBaseDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -58,7 +68,7 @@ public class OrganizationsResource extends AbstractResource {
                            @Auth User user) {
         try {
             final Organization organization = dao.create(map(input, OrganizationProperties.class));
-            final URI location = uriInfo.getRequestUriBuilder().path(organization.getId().toString()).build();
+            final URI location = uriInfo.getRequestUriBuilder().path(UuidString.toString(organization.getId())).build();
             return Response
                     .created(location)
                     .entity(map(organization, OrganizationDTO.class))
@@ -71,11 +81,11 @@ public class OrganizationsResource extends AbstractResource {
     @PUT
     @UnitOfWork
     @Path("{organizationId}")
-    public Response update(@PathParam("organizationId") UUID id,
+    public Response update(@PathParam("organizationId") UuidString id,
                            OrganizationDTO input,
                            @Auth User user) {
         try {
-            final Organization organization = dao.update(id, map(input, OrganizationProperties.class));
+            final Organization organization = dao.update(id.getUUID(), map(input, OrganizationProperties.class));
             return Response
                     .ok()
                     .entity(map(organization, OrganizationDTO.class))
@@ -88,10 +98,10 @@ public class OrganizationsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{organizationId}")
-    public Response delete(@PathParam("organizationId") UUID id,
+    public Response delete(@PathParam("organizationId") UuidString id,
                            @Auth User user) {
         try {
-            dao.delete(id);
+            dao.delete(id.getUUID());
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();

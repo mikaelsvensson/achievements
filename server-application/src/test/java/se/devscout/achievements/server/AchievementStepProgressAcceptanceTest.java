@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.*;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -129,7 +130,7 @@ public class AchievementStepProgressAcceptanceTest {
     public void setAndUnsetProgress_badAchievementIds() {
         Client client = RULE.client();
 
-        for (String badAchievementId : new String[]{UUID.randomUUID().toString(), "abcd", null, ""}) {
+        for (String badAchievementId : new String[]{UuidString.toString(UUID.randomUUID()), "abcd", null, ""}) {
             Response setResponse = client
                     .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
                     .request()

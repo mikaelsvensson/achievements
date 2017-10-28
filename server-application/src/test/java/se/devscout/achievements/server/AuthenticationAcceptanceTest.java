@@ -10,9 +10,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
+import se.devscout.achievements.server.api.UnsuccessfulDTO;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -31,12 +34,16 @@ public class AuthenticationAcceptanceTest {
                     MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
 
-    private static final String RANDOM_ORG_ID = UUID.randomUUID().toString();
-    private static final String RANDOM_ACHIEVEMENT_ID = UUID.randomUUID().toString();
+    private static final String RANDOM_ORG_ID = UuidString.toString(UUID.randomUUID());
+    private static final String RANDOM_ACHIEVEMENT_ID = UuidString.toString(UUID.randomUUID());
     private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
             .add("http://localhost:9000/api/signup")
+            .add("http://localhost:9000/api/signup/" + RANDOM_ORG_ID)
+            .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/basic")
             .add("http://localhost:9000/api/achievements")
             .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID)
+            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps")
+            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps/1")
             .build();
 
     @Test
@@ -51,13 +58,18 @@ public class AuthenticationAcceptanceTest {
             Response response = client
                     .target(resource)
                     .request()
-                    .build(verb).invoke();
+                    .build(verb, getMockEntity(verb))
+                    .invoke();
             if (response.getStatus() != HttpStatus.UNAUTHORIZED_401) {
                 failedResources.add(verb + " " + resource + " returned " + response.getStatus());
             }
 
         }
         assertThat(failedResources).hasSize(0);
+    }
+
+    private Entity<?> getMockEntity(String verb) {
+        return "POST".equals(verb) || "PUT".equals(verb) ? Entity.json(new UnsuccessfulDTO("DTO type is not important", HttpStatus.BAD_REQUEST_400)) : null;
     }
 
     @Test
@@ -73,7 +85,8 @@ public class AuthenticationAcceptanceTest {
                     .target(resource)
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
-                    .build(verb).invoke();
+                    .build(verb, getMockEntity(verb))
+                    .invoke();
             if (response.getStatus() == HttpStatus.UNAUTHORIZED_401) {
                 failedResources.add(verb + " " + resource + " returned " + response.getStatus());
             }
@@ -95,7 +108,8 @@ public class AuthenticationAcceptanceTest {
                     .target(resource)
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:incorrect-password".getBytes(Charsets.UTF_8)))
-                    .build(verb).invoke();
+                    .build(verb, getMockEntity(verb))
+                    .invoke();
             if (response.getStatus() != HttpStatus.UNAUTHORIZED_401) {
                 failedResources.add(verb + " " + resource + " returned " + response.getStatus());
             }

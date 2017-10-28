@@ -37,19 +37,19 @@ public class AchievementStepsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UUID achievementId) {
-        final Achievement achievement = getAchievement(achievementId);
+    public List<AchievementStepDTO> getByAchievement(@PathParam("achievementId") UuidString achievementId) {
+        final Achievement achievement = getAchievement(achievementId.getUUID());
         return dao.getByParent(achievement).stream().map(p -> map(p, AchievementStepDTO.class)).collect(Collectors.toList());
     }
 
     @GET
     @Path("{stepId}")
     @UnitOfWork
-    public AchievementStepDTO get(@PathParam("achievementId") UUID achievementId,
+    public AchievementStepDTO get(@PathParam("achievementId") UuidString achievementId,
                                   @PathParam("stepId") Integer id) {
         try {
             final AchievementStep person = dao.read(id);
-            verifyParent(achievementId, person);
+            verifyParent(achievementId.getUUID(), person);
             return map(person, AchievementStepDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
@@ -58,12 +58,12 @@ public class AchievementStepsResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response create(@PathParam("achievementId") UUID achievementId,
+    public Response create(@PathParam("achievementId") UuidString achievementId,
                            @Auth User user,
                            AchievementStepDTO input) throws ObjectNotFoundException {
         final AchievementStepProperties properties = map(input, AchievementStepProperties.class);
         if (input.prerequisite_achievement != null) {
-            properties.setPrerequisiteAchievement(achievementsDao.read(input.prerequisite_achievement));
+            properties.setPrerequisiteAchievement(achievementsDao.read(UuidString.toUUID(input.prerequisite_achievement)));
         }
 
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -72,7 +72,7 @@ public class AchievementStepsResource extends AbstractResource {
             throw new BadRequestException(violations.stream().map(v -> v.getMessage()).collect(Collectors.joining()));
         }
 
-        Achievement achievement = getAchievement(achievementId);
+        Achievement achievement = getAchievement(achievementId.getUUID());
         final AchievementStep person = dao.create(achievement, properties);
         final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
         return Response
@@ -94,11 +94,11 @@ public class AchievementStepsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{stepId}")
-    public Response delete(@PathParam("achievementId") UUID achievementId,
+    public Response delete(@PathParam("achievementId") UuidString achievementId,
                            @PathParam("stepId") Integer id,
                            @Auth User user) {
         try {
-            verifyParent(achievementId, dao.read(id));
+            verifyParent(achievementId.getUUID(), dao.read(id));
             dao.delete(id);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {

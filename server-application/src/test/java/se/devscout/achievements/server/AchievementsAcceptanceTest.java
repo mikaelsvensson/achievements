@@ -11,6 +11,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.AchievementStepDTO;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -45,7 +46,7 @@ public class AchievementsAcceptanceTest {
 
         final AchievementDTO responseDto = response.readEntity(AchievementDTO.class);
 
-        final URI expectedLocation = URI.create(String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), responseDto.id));
+        final URI expectedLocation = URI.create(String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), UuidString.toString(UUID.fromString(responseDto.id))));
         final URI actualLocation = response.getLocation();
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }
@@ -99,7 +100,7 @@ public class AchievementsAcceptanceTest {
                 .target(responseB.getLocation() + "/steps")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
-                .post(Entity.json(new AchievementStepDTO(UUID.fromString(achievementBicycleId))));
+                .post(Entity.json(AchievementStepDTO.withPrerequisite(achievementBicycleId)));
         assertThat(responseStep1.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         Response responseStep2 = client.register(loggingFeature)
@@ -119,7 +120,7 @@ public class AchievementsAcceptanceTest {
         assertThat(getResponse.name).isEqualTo("Learn to ride a motorcycle");
         assertThat(getResponse.steps).hasSize(2);
         assertThat(getResponse.steps.get(0).description).isNull();
-        assertThat(getResponse.steps.get(0).prerequisite_achievement).isEqualTo(UUID.fromString(achievementBicycleId));
+        assertThat(getResponse.steps.get(0).prerequisite_achievement).isEqualTo(achievementBicycleId);
         assertThat(getResponse.steps.get(1).description).isEqualTo("Learn traffic rules for highways");
         assertThat(getResponse.steps.get(1).prerequisite_achievement).isNull();
     }

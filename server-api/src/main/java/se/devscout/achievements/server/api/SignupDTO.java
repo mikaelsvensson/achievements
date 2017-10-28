@@ -1,28 +1,19 @@
 package se.devscout.achievements.server.api;
 
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SignupDTO {
-    public UUID existing_organization_id;
+public class SignupDTO extends SignupBaseDTO {
     public String new_organization_name;
-    public String name;
-    public String email;
-    public String password;
 
     public SignupDTO() {
+        super(null, null, null);
     }
 
-    public SignupDTO(UUID existing_organization_id, String name, String password, String email) {
-        this.existing_organization_id = existing_organization_id;
-        this.name = name;
-        this.password = password;
-        this.email = email;
-    }
-
-    public SignupDTO(String new_organization_name, String name, String password, String email) {
-        this.new_organization_name = new_organization_name;
-        this.name = name;
-        this.password = password;
-        this.email = email;
+    public SignupDTO(@JsonProperty("name") String name,
+                     @JsonProperty("email") String email,
+                     @JsonProperty("password") String password,
+                     @JsonProperty("new_organization_name") String newOrganizationName) {
+        super(name, email, password);
+        this.new_organization_name = newOrganizationName;
     }
 }

@@ -34,7 +34,7 @@ public class AchievementDTOTest {
                 "Turn off stove.",
                 "Pour pasta and water over colinder."
         ).map(AchievementStepDTO::new).collect(Collectors.toList());
-        steps.add(new AchievementStepDTO(UUID.fromString("63b24026-e68c-40f5-97a6-21dcde9feae2")));
+        steps.add(AchievementStepDTO.withPrerequisite("SOME_ID"));
 
         final AchievementDTO org = new AchievementDTO(
                 "Learn how to cook pasta",
@@ -58,7 +58,7 @@ public class AchievementDTOTest {
                 "Turn off stove.",
                 "Pour pasta and water over colinder."
         ).map(AchievementStepDTO::new).collect(Collectors.toList());
-        steps.add(new AchievementStepDTO(UUID.fromString("63b24026-e68c-40f5-97a6-21dcde9feae2")));
+        steps.add(AchievementStepDTO.withPrerequisite("SOME_ID"));
 
         final AchievementDTO org = new AchievementDTO(
                 "Learn how to cook pasta",

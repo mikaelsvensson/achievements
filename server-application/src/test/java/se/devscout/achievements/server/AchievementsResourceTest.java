@@ -18,6 +18,7 @@ import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 import se.devscout.achievements.server.resources.AchievementsResource;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -55,7 +56,7 @@ public class AchievementsResourceTest {
         when(achievement.getId()).thenReturn(uuid);
         when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
-                .target("/achievements/" + uuid.toString())
+                .target("/achievements/" + UuidString.toString(uuid))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
@@ -93,7 +94,7 @@ public class AchievementsResourceTest {
         when(achievement.getId()).thenReturn(uuid);
         when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
-                .target("/achievements/" + uuid.toString())
+                .target("/achievements/" + UuidString.toString(uuid))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
@@ -113,7 +114,7 @@ public class AchievementsResourceTest {
                 .post(Entity.json(new AchievementDTO()));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
-        assertThat(response.getLocation().getPath()).isEqualTo("/achievements/" + dto.id);
+        assertThat(response.getLocation().getPath()).isEqualTo("/achievements/" + UuidString.toString(UUID.fromString(dto.id)));
         assertThat(dto.id).isEqualTo(achievement.getId().toString());
         assertThat(dto.name).isEqualTo("abc");
     }

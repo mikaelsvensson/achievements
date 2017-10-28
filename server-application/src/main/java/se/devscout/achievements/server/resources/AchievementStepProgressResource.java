@@ -34,13 +34,13 @@ public class AchievementStepProgressResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("{personId}")
-    public ProgressDTO get(@PathParam("achievementId") UUID achievementId,
+    public ProgressDTO get(@PathParam("achievementId") UuidString achievementId,
                            @PathParam("stepId") Integer stepId,
                            @PathParam("personId") Integer personId,
                            @Auth User user) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
-            verifyParent(achievementId, step);
+            verifyParent(achievementId.getUUID(), step);
             final Person person = peopleDao.read(personId);
             return map(dao.get(step, person), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -52,14 +52,14 @@ public class AchievementStepProgressResource extends AbstractResource {
     @POST
     @UnitOfWork
     @Path("{personId}")
-    public ProgressDTO set(@PathParam("achievementId") UUID achievementId,
+    public ProgressDTO set(@PathParam("achievementId") UuidString achievementId,
                            @PathParam("stepId") Integer stepId,
                            @PathParam("personId") Integer personId,
                            @Auth User user,
                            ProgressDTO dto) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
-            verifyParent(achievementId, step);
+            verifyParent(achievementId.getUUID(), step);
             final Person person = peopleDao.read(personId);
             return map(dao.set(step, person, new AchievementStepProgressProperties(dto.completed, dto.note)), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
@@ -70,13 +70,13 @@ public class AchievementStepProgressResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{personId}")
-    public Response unset(@PathParam("achievementId") UUID achievementId,
+    public Response unset(@PathParam("achievementId") UuidString achievementId,
                           @PathParam("stepId") Integer stepId,
                           @PathParam("personId") Integer personId,
                           @Auth User user) {
         try {
             final AchievementStep step = stepsDao.read(stepId);
-            verifyParent(achievementId, step);
+            verifyParent(achievementId.getUUID(), step);
             final Person person = peopleDao.read(personId);
             dao.unset(step, person);
             return Response.noContent().build();

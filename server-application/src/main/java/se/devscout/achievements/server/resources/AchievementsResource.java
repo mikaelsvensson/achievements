@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("achievements")
@@ -36,9 +35,9 @@ public class AchievementsResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("{achievementId}/progress")
-    public Map<String, ProgressDTO> getProgress(@PathParam("achievementId") UUID id, @Auth User user) {
+    public Map<String, ProgressDTO> getProgress(@PathParam("achievementId") UuidString id, @Auth User user) {
         try {
-            final Achievement achievement = dao.read(id);
+            final Achievement achievement = dao.read(id.getUUID());
             return progressDao
                     .get(achievement)
                     .stream()
@@ -51,9 +50,9 @@ public class AchievementsResource extends AbstractResource {
     @GET
     @UnitOfWork
     @Path("{achievementId}")
-    public AchievementDTO get(@PathParam("achievementId") UUID id) {
+    public AchievementDTO get(@PathParam("achievementId") UuidString id) {
         try {
-            return map(dao.read(id), AchievementDTO.class);
+            return map(dao.read(id.getUUID()), AchievementDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
@@ -74,7 +73,7 @@ public class AchievementsResource extends AbstractResource {
     public Response create(AchievementDTO input, @Auth User user) {
         try {
             final Achievement achievement = dao.create(map(input, AchievementProperties.class));
-            final URI location = uriInfo.getRequestUriBuilder().path(achievement.getId().toString()).build();
+            final URI location = uriInfo.getRequestUriBuilder().path(UuidString.toString(achievement.getId())).build();
             return Response
                     .created(location)
                     .entity(map(achievement, AchievementDTO.class))
@@ -87,9 +86,9 @@ public class AchievementsResource extends AbstractResource {
     @DELETE
     @UnitOfWork
     @Path("{achievementId}")
-    public Response delete(@PathParam("achievementId") UUID id, @Auth User user) {
+    public Response delete(@PathParam("achievementId") UuidString id, @Auth User user) {
         try {
-            dao.delete(id);
+            dao.delete(id.getUUID());
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();

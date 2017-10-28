@@ -8,12 +8,14 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +49,7 @@ public class OrganizationsAcceptanceTest {
     public void update_happyPath() {
         Client client = RULE.client();
 
-        final OrganizationDTO dto = new OrganizationDTO(null, "Name");
+        final OrganizationDTO dto = new OrganizationDTO(null, "Name To Update");
         Response responseCreate = client
                 .target(String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .request()
