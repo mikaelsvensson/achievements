@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.cli;
 
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Sets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.dataimporter.Importer;
@@ -39,6 +40,9 @@ public class ImportScoutBadgesTask extends DatabaseTask {
             properties.setDescription(dto.description);
             properties.setImage(dto.image);
             properties.setName(dto.name);
+            if (dto.tags != null) {
+                properties.setTags(Sets.newHashSet(dto.tags));
+            }
             final Set<ConstraintViolation<AchievementProperties>> violations = Validation.buildDefaultValidatorFactory().getValidator().validate(properties);
             if (violations.isEmpty()) {
                 final Achievement achievement = achievementsDao.create(properties);

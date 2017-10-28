@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {get, post, isLoggedIn} from "../util/api.jsx";
-import {updateView, getFormData} from "../util/view.jsx";
+import {updateView, getFormData, markdown2html} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 const templateAchievements = require("./achievements.handlebars");
 const templateAchievementsResult = require("./achievements.result.handlebars");
@@ -27,7 +27,12 @@ export function renderAchievements() {
         const url = '//localhost:8080/api/achievements?filter=' + getFormData(form).filter;
         console.log(url);
         get(url, function (responseData, responseStatus, jqXHR) {
-            button.removeClass('is-loading')
+            button.removeClass('is-loading');
+
+            for (let achievement of responseData) {
+                achievement.description = markdown2html(achievement.description);
+            }
+
             updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
         });
     });
