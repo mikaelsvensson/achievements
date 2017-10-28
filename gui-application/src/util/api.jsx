@@ -18,16 +18,21 @@ export function setCredentials(username, password) {
     localStorage.setItem("password", password);
 }
 
-export function post(url, dataObject, onSuccess) {
+export function post(url, dataObject, onSuccess, onFail) {
     $.ajax({
         url: url,
         type: "POST",
         data: JSON.stringify(dataObject),
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler,
-        success: onSuccess
-    });
+        beforeSend: beforeSendHandler
+    })
+        .done(onSuccess)
+        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
+                const status = jqXHR.status;
+                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
+            }
+        );
 }
 
 export function put(url, dataObject, onSuccess) {
@@ -48,12 +53,12 @@ export function get(url, onSuccess, onFail) {
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler,
+        beforeSend: beforeSendHandler
     })
         .done(onSuccess)
         .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
                 const status = jqXHR.status;
-                renderError(`Kan inte visa ${url} efter servern svarade med felkod ${status}.`, status == 401)
+                renderError(`Kan inte visa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
             }
         );
 }

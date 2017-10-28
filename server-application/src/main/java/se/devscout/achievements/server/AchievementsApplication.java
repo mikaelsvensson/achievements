@@ -20,6 +20,8 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.*;
+import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolationExceptionMapper;
+import se.devscout.achievements.server.resources.exceptionhandling.ValidationExceptionMapper;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -48,6 +50,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final AchievementStepProgressDao progressDao = new AchievementStepProgressDaoImpl(sessionFactory);
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
+
+        environment.jersey().register(ValidationExceptionMapper.class);
+        environment.jersey().register(JerseyViolationExceptionMapper.class);
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao));
 
