@@ -1,21 +1,25 @@
 package se.devscout.achievements.server;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,11 +31,11 @@ public class PeopleAcceptanceTest {
             new DropwizardAppRule<>(
                     MockAchievementsApplication.class,
                     ResourceHelpers.resourceFilePath("server-test-configuration.yaml"));
-    private String organizationId;
+    private static String organizationId;
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         Client client = RULE.client();
 
         final Response response = client
@@ -39,7 +43,7 @@ public class PeopleAcceptanceTest {
                 .request()
                 .post(null);
         final String bootstrapResponse = response.readEntity(String.class);
-        final Matcher matcher = Pattern.compile("Created organization.* \\(id ([0-9a-f-]+)").matcher(bootstrapResponse);
+        final Matcher matcher = Pattern.compile("Created organization.* \\(id (.+)\\)").matcher(bootstrapResponse);
         matcher.find();
         organizationId = matcher.group(1);
     }
@@ -85,6 +89,46 @@ public class PeopleAcceptanceTest {
         final PersonDTO response3Dto = getResponse.readEntity(PersonDTO.class);
 
         assertThat(response3Dto.name).isEqualTo("Alicia");
+    }
+
+    @Test
+    public void create_invalidEmailAddress_expect400() {
+        Client client = RULE.client();
+
+        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid");
+
+        Response createResponse = client
+                .target(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(dto));
+
+        assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        assertThat(createResponse.getHeaderString("Content-Type")).contains("application/json");
+
+        final ObjectNode actualResponseEntity = createResponse.readEntity(ObjectNode.class);
+        assertThat(actualResponseEntity.has("message")).isTrue();
+        assertThat(actualResponseEntity.get("status").asInt()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+    }
+
+    @Test
+    public void create_missingName_expect400() {
+        Client client = RULE.client();
+
+        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com");
+
+        Response createResponse = client
+                .target(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(dto));
+
+        assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        assertThat(createResponse.getHeaderString("Content-Type")).contains("application/json");
+
+        final ObjectNode actualResponseEntity = createResponse.readEntity(ObjectNode.class);
+        assertThat(actualResponseEntity.has("message")).isTrue();
+        assertThat(actualResponseEntity.get("status").asInt()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }
 
     @Test

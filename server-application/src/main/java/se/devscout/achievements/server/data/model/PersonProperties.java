@@ -70,6 +70,7 @@ public class PersonProperties {
 
     public void apply(PersonProperties that) {
         name = that.name;
+        email = that.email;
         attributes.clear();
         attributes.addAll(that.attributes);
     }
