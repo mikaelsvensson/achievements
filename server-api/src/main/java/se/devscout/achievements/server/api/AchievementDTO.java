@@ -5,12 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.net.URI;
 import java.util.List;
 
-public class AchievementDTO {
-    public String id;
-    public String name;
+public class AchievementDTO extends AchievementBaseDTO {
     public String description;
-    public List<String> tags;
-    public URI image;
     public List<AchievementStepDTO> steps;
 
     public AchievementDTO() {

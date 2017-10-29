@@ -14,6 +14,11 @@ export function renderAchievements() {
         isLoggedIn: isLoggedIn()
     };
     updateView(templateAchievements(data));
+
+    get('//localhost:8080/api/achievements', function (responseData, responseStatus, jqXHR) {
+        updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
+    });
+
     const $app = $('#app');
     $app.find('.create-button').click(function (e) {
         const form = $(this).addClass('is-loading').closest('form');
@@ -24,14 +29,8 @@ export function renderAchievements() {
     $app.find('.search-button').click(function (e) {
         const button = $(this);
         const form = button.addClass('is-loading').closest('form');
-        const url = '//localhost:8080/api/achievements?filter=' + getFormData(form).filter;
-        console.log(url);
-        get(url, function (responseData, responseStatus, jqXHR) {
+        get('//localhost:8080/api/achievements?filter=' + getFormData(form).filter, function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading');
-
-            for (let achievement of responseData) {
-                achievement.description = markdown2html(achievement.description);
-            }
 
             updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
         });

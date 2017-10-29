@@ -1,7 +1,8 @@
 import $ from "jquery";
 import {get, post, isLoggedIn} from "../util/api.jsx";
-import {updateView, getFormData} from "../util/view.jsx";
+import {updateView, getFormData, markdown2html} from "../util/view.jsx";
 const templateAchievement = require("./achievement.handlebars");
+const templateAchievementRead = require("./achievement.read.handlebars");
 const templateAchievementStepsList = require("./achievement.steps-list.handlebars");
 const templateLoading = require("../loading.handlebars");
 
@@ -16,26 +17,30 @@ export function renderAchievement(appPathParams) {
         ];
         templateData.isLoggedIn = isLoggedIn();
 
-        updateView(templateAchievement(templateData));
+        achievementData.descriptionHtml = markdown2html(achievementData.description);
 
-        $('#app').find('.create-step-button').click(function (e) {
-            const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
-            post('//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
-                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                    updateView(templateAchievementStepsList({
-                        steps: responseData,
-                        achievementId: appPathParams[0].key
-                    }), $('#achievement-steps-list'));
+        updateView(isLoggedIn() ? templateAchievement(templateData) : templateAchievementRead(templateData));
+
+        if (isLoggedIn()) {
+            $('#app').find('.create-step-button').click(function (e) {
+                const button = $(this);
+                const form = button.addClass('is-loading').closest('form');
+                post('//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                    button.removeClass('is-loading');
+                    get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                        updateView(templateAchievementStepsList({
+                            steps: responseData,
+                            achievementId: appPathParams[0].key
+                        }), $('#achievement-steps-list'));
+                    });
                 });
             });
-        });
 
-        // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
-        $.each(achievementData, function (key, value) {
-            $('#' + key).val(value);
-        });
+            // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
+            $.each(achievementData, function (key, value) {
+                $('#' + key).val(value);
+            });
+        }
 
         let showSteps = function (peopleData, steps) {
             updateView(templateAchievementStepsList({
@@ -62,19 +67,21 @@ export function renderAchievement(appPathParams) {
                         toggleButton.addClass(responseData.completed ? 'is-success' : 'is-danger');
                     });
                 });
-            }, function() {
+            }, function () {
                 console.log("Could not load progress");
             });
         };
-        get('//localhost:8080/api/my/people/', function (peopleData, responseStatus, jqXHR) {
-            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                showSteps(peopleData, responseData);
+        if (isLoggedIn()) {
+            get('//localhost:8080/api/my/people/', function (peopleData, responseStatus, jqXHR) {
+                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                    showSteps(peopleData, responseData);
+                });
+            }, function () {
+                console.log("Could not load my people");
+                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                    showSteps(null, responseData);
+                });
             });
-        }, function () {
-            console.log("Could not load my people");
-            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                showSteps(null, responseData);
-            });
-        });
+        }
     });
 }

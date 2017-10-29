@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.MoreObjects;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
+import se.devscout.achievements.server.api.AchievementBaseDTO;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
@@ -42,10 +43,14 @@ abstract class AbstractResource {
                     dto.prerequisite_achievement = UuidString.toString(entity.getPrerequisiteAchievement().getId());
                 }
             }
+            if (src instanceof Achievement && dest instanceof AchievementBaseDTO) {
+                Achievement entity = (Achievement) src;
+                AchievementBaseDTO dto = (AchievementBaseDTO) dest;
+                dto.id = UuidString.toString(entity.getId());
+            }
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
                 Achievement entity = (Achievement) src;
                 AchievementDTO dto = (AchievementDTO) dest;
-                dto.id = UuidString.toString(entity.getId());
                 for (int i = 0; i < entity.getSteps().size(); i++) {
                     AchievementStep step = entity.getSteps().get(i);
                     if (step.getPrerequisiteAchievement() != null) {
