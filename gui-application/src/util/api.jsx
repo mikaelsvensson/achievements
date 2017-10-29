@@ -35,16 +35,21 @@ export function post(url, dataObject, onSuccess, onFail) {
         );
 }
 
-export function put(url, dataObject, onSuccess) {
+export function put(url, dataObject, onSuccess, onFail) {
     $.ajax({
         url: url,
         type: "PUT",
         data: JSON.stringify(dataObject),
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler,
-        success: onSuccess
-    });
+        beforeSend: beforeSendHandler
+    })
+        .done(onSuccess)
+        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
+                const status = jqXHR.status;
+                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
+            }
+        );
 }
 
 export function get(url, onSuccess, onFail) {

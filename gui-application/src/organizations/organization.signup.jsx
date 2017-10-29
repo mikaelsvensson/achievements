@@ -29,7 +29,6 @@ export function renderOrganizationSignup(appPathParams) {
                 updateView(templateLoginCreateAccountSuccess({organization: responseData.organization}), $('#login-createaccount'));
             }, function (jqXHR, textStatus, errorThrown) {
                 button.removeClass('is-loading');
-                console.log(jqXHR, textStatus, errorThrown);
                 renderErrorBlock(jqXHR.responseJSON.message, form.find('.errors'));
             });
         });

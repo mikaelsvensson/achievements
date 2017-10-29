@@ -1,6 +1,7 @@
 import $ from "jquery";
-import {get, post, put, isLoggedIn} from "../util/api.jsx";
+import {get, put, isLoggedIn} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
+import {renderErrorBlock} from "../error-block.jsx";
 const templatePerson = require("./person.handlebars");
 const templateLoading = require("../loading.handlebars");
 
@@ -28,6 +29,9 @@ export function renderPerson(appPathParams) {
             put('//localhost:8080/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, getFormData(form), function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading');
                 renderPerson(appPathParams);
+            }, function (jqXHR, textStatus, errorThrown) {
+                button.removeClass('is-loading');
+                renderErrorBlock(jqXHR.responseJSON.message, form.find('.errors'));
             });
         });
 
