@@ -8,12 +8,14 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import se.devscout.achievements.server.api.AchievementDTO;
+import se.devscout.achievements.server.api.AchievementStepDTO;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,7 +54,7 @@ public class Importer {
                     getMarkdown(sb, contentElement.nextSibling());
                 }
                 dto.description = sb.toString();
-//                dto.steps = Collections.singletonList(new AchievementStepDTO(article.select("p[class=content-preamble]").text()));
+                dto.steps = Collections.singletonList(new AchievementStepDTO("Hela märket"));
                 dto.image = URI.create(article.select("p[class*=marke-image] > img").attr("src"));
                 achievements.add(dto);
             }
