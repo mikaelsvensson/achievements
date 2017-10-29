@@ -1,3 +1,6 @@
+/*
+ * Credits: https://css-tricks.com/rotated-table-column-headers/
+ */
 th.rotate {
     /* Something you can count on */
     height: 150px;
