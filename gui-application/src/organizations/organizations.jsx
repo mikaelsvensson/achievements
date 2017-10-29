@@ -9,7 +9,7 @@ export function renderOrganizations() {
     let data = {
         breadcrumbs: [
             {label: "Hem", url: '#/'},
-            {label: "Organisationer"}
+            {label: "Kårer"}
         ],
         isLoggedIn: isLoggedIn()
     };

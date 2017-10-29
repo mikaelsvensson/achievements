@@ -12,7 +12,7 @@ export function renderOrganization(appPathParams) {
     get('//localhost:8080/api/organizations/' + appPathParams[0].key, function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Organisationer", url: '#karer/'},
+            {label: "Kårer", url: '#karer/'},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();
