@@ -50,6 +50,23 @@ public class AchievementsDaoImplTest {
     }
 
     @Test
+    public void readAll_achievementsExists_happyPath() throws Exception {
+        UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("Make Fire"))).getId();
+        UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("Make Raft"))).getId();
+        UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("Find Treasure"))).getId();
+        final List<Achievement> actual = dao.readAll();
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(fire, raft, treasure);
+    }
+
+    @Test
+    public void readAll_emptyDatabase_happyPath() throws Exception {
+        final List<Achievement> actual = dao.readAll();
+        assertThat(actual).isNotNull();
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
     public void find_noCondition_expectException() throws Exception {
         for (String name : new String[]{null, "", "\t", "     ", "\n"}) {
             try {

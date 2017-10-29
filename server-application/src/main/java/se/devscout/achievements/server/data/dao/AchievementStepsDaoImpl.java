@@ -24,6 +24,11 @@ public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep, Integer> i
     }
 
     @Override
+    public List<AchievementStep> readAll() {
+        return readAll(AchievementStep.class);
+    }
+
+    @Override
     public AchievementStep create(Achievement parent, AchievementStepProperties properties) {
         final AchievementStep step = new ModelMapper().map(properties, AchievementStep.class);
         step.setAchievement(parent);

@@ -20,6 +20,11 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
     }
 
     @Override
+    public List<Achievement> readAll() {
+        return readAll(Achievement.class);
+    }
+
+    @Override
     public Achievement create(AchievementProperties properties) {
         return persist(new ModelMapper().map(properties, Achievement.class));
     }

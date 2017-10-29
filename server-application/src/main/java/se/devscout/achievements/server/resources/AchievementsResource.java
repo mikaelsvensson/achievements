@@ -1,7 +1,9 @@
 package se.devscout.achievements.server.resources;
 
+import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.AchievementBaseDTO;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
 import se.devscout.achievements.server.auth.User;
@@ -60,9 +62,10 @@ public class AchievementsResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<AchievementDTO> find(@QueryParam("filter") String filter) {
+    public List<AchievementBaseDTO> find(@QueryParam("filter") String filter) {
         try {
-            return dao.find(filter).stream().map(o -> map(o, AchievementDTO.class)).collect(Collectors.toList());
+            final List<Achievement> achievements = Strings.isNullOrEmpty(filter) ? dao.readAll() : dao.find(filter);
+            return achievements.stream().map(o -> map(o, AchievementBaseDTO.class)).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
         }

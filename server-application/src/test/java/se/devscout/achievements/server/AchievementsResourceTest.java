@@ -1,8 +1,13 @@
 package se.devscout.achievements.server;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,10 +18,7 @@ import se.devscout.achievements.server.auth.SecretGenerator;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.AchievementsResource;
 import se.devscout.achievements.server.resources.UuidString;
 
@@ -24,6 +26,9 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +68,39 @@ public class AchievementsResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
         assertThat(dto.id).isEqualTo(achievement.getId().toString());
+    }
+
+    @Test
+    public void getAll_happyPath() throws Exception {
+        final List<Achievement> all = Lists.newArrayList(
+                mockAchievement("Learn to ride a bike"),
+                mockAchievement("Learn to ride a motorcycle"),
+                mockAchievement("Learn to drive a car")
+        );
+        when(dao.readAll()).thenReturn(all);
+        final Response response = resources
+                .target("/achievements")
+                .request()
+                .get();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+        final ArrayNode dto = response.readEntity(ArrayNode.class);
+        assertThat(dto.size()).isEqualTo(3);
+        assertThat(dto.get(0).has("id")).isTrue();
+        assertThat(dto.get(0).has("name")).isTrue();
+        assertThat(dto.get(0).has("tags")).isTrue();
+        assertThat(dto.get(0).has("description")).isFalse();
+        assertThat(dto.get(0).has("steps")).isFalse();
+    }
+
+    private Achievement mockAchievement(String name) {
+        final Achievement achievement = mock(Achievement.class);
+        when(achievement.getId()).thenReturn(UUID.randomUUID());
+        when(achievement.getName()).thenReturn(name);
+        when(achievement.getDescription()).thenReturn(RandomStringUtils.randomAlphabetic(1000));
+        final AchievementStep step = mock(AchievementStep.class);
+        when(step.getDescription()).thenReturn(RandomStringUtils.randomAlphabetic(100));
+        when(achievement.getSteps()).thenReturn(Collections.singletonList(step));
+        return achievement;
     }
 
     @Test

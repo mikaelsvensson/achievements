@@ -26,6 +26,11 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements
     }
 
     @Override
+    public List<Organization> readAll() {
+        return readAll(Organization.class);
+    }
+
+    @Override
     public Organization create(OrganizationProperties properties) throws TooManyOrganizationsException {
         if (maxOrganizationCount != null) {
             final Long count = getEntityCount();

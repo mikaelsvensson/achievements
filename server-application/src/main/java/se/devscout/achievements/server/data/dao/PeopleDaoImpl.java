@@ -24,6 +24,11 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     }
 
     @Override
+    public List<Person> readAll() {
+        return readAll(Person.class);
+    }
+
+    @Override
     public Person create(Organization parent, PersonProperties properties) {
         final Person person = new ModelMapper().map(properties, Person.class);
         person.setOrganization(parent);
