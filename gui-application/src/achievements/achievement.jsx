@@ -12,7 +12,7 @@ export function renderAchievement(appPathParams) {
         let templateData = achievementData;
         templateData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Märken och bedrifter", url: '#achievements/'},
+            {label: "Märken och bedrifter", url: '#marken/'},
             {label: achievementData.name}
         ];
         templateData.isLoggedIn = isLoggedIn();

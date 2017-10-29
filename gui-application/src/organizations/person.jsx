@@ -9,8 +9,8 @@ export function renderPerson(appPathParams) {
     get('//localhost:8080/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Organisationer", url: '#organizations'},
-            {label: appPathParams[0].key, url: '#organizations/' + appPathParams[0].key},
+            {label: "Organisationer", url: '#karer'},
+            {label: appPathParams[0].key, url: '#karer/' + appPathParams[0].key},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();

@@ -28,16 +28,16 @@ function renderRoute(appPath) {
     const appPathParams = parseHash(appPath);
 
     const routes = {
-        'stats': renderStats,
-        'logout': renderLogout,
-        'login': renderLogin,
-        'login-create-account': renderLoginCreateAccount,
-        'organizations': renderOrganizations,
-        'organizations/*': renderOrganization,
-        'organizations/*/signup': renderOrganizationSignup,
-        'organizations/*/people/*': renderPerson,
-        'achievements': renderAchievements,
-        'achievements/*': renderAchievement,
+        'statistik': renderStats,
+        'loggaut': renderLogout,
+        'loggain': renderLogin,
+        'loggain-skapa-konto': renderLoginCreateAccount,
+        'karer': renderOrganizations,
+        'karer/*': renderOrganization,
+        'karer/*/borja': renderOrganizationSignup,
+        'karer/*/personer/*': renderPerson,
+        'marken': renderAchievements,
+        'marken/*': renderAchievement,
         '': renderMain
     };
 

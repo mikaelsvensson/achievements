@@ -23,7 +23,7 @@ export function renderAchievements() {
     $app.find('.create-button').click(function (e) {
         const form = $(this).addClass('is-loading').closest('form');
         post('//localhost:8080/api/achievements', getFormData(form), function (responseData, responseStatus, jqXHR) {
-            navigateTo('achievements/' + responseData.id);
+            navigateTo('marken/' + responseData.id);
         });
     });
     $app.find('.search-button').click(function (e) {

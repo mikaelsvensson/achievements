@@ -11,7 +11,7 @@ export function renderOrganizationSignup(appPathParams) {
     get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/basic", function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Organisationer", url: '#organizations/'},
+            {label: "Organisationer", url: '#karer/'},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();
