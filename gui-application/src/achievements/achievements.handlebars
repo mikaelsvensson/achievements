@@ -1,10 +1,9 @@
 <section class="section">
     <div class="container">
-        <h1 class="title">Märken och bedrifter</h1>
+        <h1 class="title">Märken</h1>
         {{> ../_breadcrumbs.handlebars}}
 
-        <div class="columns">
-            <div class="column">
+<!--
                 <h2 class="subtitle is-one-third">Skapa en ny</h2>
                 <form>
                     <div class="field">
@@ -17,14 +16,13 @@
                         <button class="button is-primary create-button" type="button">Skapa</button>
                     </div>
                 </form>
-            </div>
-            <div class="column is-two-thirds">
-                <h2 class="subtitle">Sök bland de som redan finns</h2>
+-->
+                <!--<h2 class="subtitle">Sök bland de som redan finns</h2>-->
 
                 <form>
                     <div class="field has-addons">
                         <div class="control">
-                            <input class="input" type="text" id="filter" name="filter" placeholder="Vad heter den?">
+                            <input class="input" type="text" id="filter" name="filter" placeholder="Sök här!">
                         </div>
                         <div class="control">
                             <a class="button is-info search-button">
@@ -33,6 +31,7 @@
                         </div>
                     </div>
                 </form>
+                <br/>
 
                 <div id="achievements-search-result"></div>
             </div>
