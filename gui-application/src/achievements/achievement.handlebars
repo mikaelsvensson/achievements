@@ -6,6 +6,28 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
+        <article class="media">
+            <div class="media-left">
+                {{#if image}}
+                <figure class="image is-128x128">
+                    <img src="{{image}}" alt="Image">
+                </figure>
+                {{/if}}
+            </div>
+            <div class="media-content">
+                <div class="content">
+                    <p>
+                        {{#each tags}}
+                        <span class="tag is-light">{{.}}</span>
+                        {{/each}}
+                    </p>
+
+                    {{{descriptionHtml}}}
+                    <!--<div id="achievement-steps-list"></div>-->
+                </div>
+            </div>
+        </article>
+<!--
         <form>
             <div class="field">
                 <label class="label">Namn</label>
@@ -28,10 +50,11 @@
             </div>
 
         </form>
+-->
 
         <div class="content">
 
-            <!--<h2 class="subtitle">Moment</h2>-->
+            <!--<p>Delsteg:</p>-->
 
             <div id="achievement-steps-list"></div>
 
