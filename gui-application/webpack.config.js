@@ -20,6 +20,10 @@ module.exports = {
                 loader: 'handlebars-loader'
             },
             {
+                test: /\.(eot|woff|woff2|svg|ttf)([\?]?.*)$/,
+                loader: "file-loader"
+            },
+            {
                 test: /\.css$/,
                 use: [
                     "style-loader",

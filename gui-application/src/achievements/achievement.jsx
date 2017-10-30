@@ -54,17 +54,20 @@ export function renderAchievement(appPathParams) {
                 for (let i in keys) {
                     let key = keys[i];
                     const progress = progressData[key];
-                    $("#progress-toggle-" + key).addClass(progress.completed ? 'is-success' : 'is-danger');
+                    $("#progress-toggle-" + key + " i.mdi").addClass(progress.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
                 }
                 $(".progress-switch").click(function () {
                     const toggleButton = $(this);
                     toggleButton.addClass('is-loading');
                     const toggleCompletedUrl = '//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
-                    const completed = (!toggleButton.hasClass('is-danger') && !toggleButton.hasClass('is-success')) || toggleButton.hasClass('is-danger');
+
+                    const iconNode = toggleButton.find("i.mdi");
+
+                    const completed = (!iconNode.hasClass('mdi-checkbox-blank-outline') && !iconNode.hasClass('mdi-checkbox-marked')) || iconNode.hasClass('mdi-checkbox-blank-outline');
                     post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
                         toggleButton.removeClass('is-loading');
-                        toggleButton.removeClass(responseData.completed ? 'is-danger' : 'is-success');
-                        toggleButton.addClass(responseData.completed ? 'is-success' : 'is-danger');
+                        iconNode.removeClass(responseData.completed ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-marked');
+                        iconNode.addClass(responseData.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
                     });
                 });
             }, function () {
@@ -81,6 +84,10 @@ export function renderAchievement(appPathParams) {
                 get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
                     showSteps(null, responseData);
                 });
+            });
+        } else {
+            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                showSteps(null, responseData);
             });
         }
     });
