@@ -3,9 +3,9 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,10 +31,7 @@ public class MyResource extends AbstractResource {
     @Path("people")
     @UnitOfWork
     public List<PersonDTO> get(@Auth User user) {
-        //FIXME: This currently returns ALL people in the system, since there is no concept of users at the moment
-        return organizationsDao.all()
-                .stream()
-                .flatMap(organization -> peopleDao.getByParent(organization).stream())
+        return peopleDao.getByParent(user.getCredentials().getPerson().getOrganization()).stream()
                 .map(p -> map(p, PersonDTO.class))
                 .collect(Collectors.toList());
     }

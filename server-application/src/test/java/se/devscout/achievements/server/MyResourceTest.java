@@ -57,6 +57,9 @@ public class MyResourceTest {
         final Organization org2 = mockOrganization("Cyberdyne Systems");
         final Person person2a = mockPerson(org2, "Bob");
         final Person person2b = mockPerson(org2, "Carol");
+        final Credentials credentials = new Credentials("bob", new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray()));
+        credentials.setPerson(person2a);
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
 
         when(peopleDao.getByParent(eq(org1))).thenReturn(Lists.newArrayList(person1));
         when(peopleDao.getByParent(eq(org2))).thenReturn(Lists.newArrayList(person2a, person2b));
@@ -65,22 +68,22 @@ public class MyResourceTest {
         final Response response = resources
                 .target("/my/people/")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
         });
-        assertThat(dto).hasSize(3);
+        assertThat(dto).hasSize(2);
         assertThat(dto.get(0).id).isNotNull();
         assertThat(dto.get(0).id).isNotEqualTo(ZERO);
+        assertThat(dto.get(0).name).isEqualTo("Bob");
         assertThat(dto.get(1).id).isNotNull();
         assertThat(dto.get(1).id).isNotEqualTo(ZERO);
-        assertThat(dto.get(2).id).isNotNull();
-        assertThat(dto.get(2).id).isNotEqualTo(ZERO);
+        assertThat(dto.get(1).name).isEqualTo("Carol");
 
-        verify(peopleDao).getByParent(eq(org1));
+        verify(peopleDao, never()).getByParent(eq(org1));
         verify(peopleDao).getByParent(eq(org2));
     }
 

@@ -1,9 +1,6 @@
 package se.devscout.achievements.server.cli;
 
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.io.BaseEncoding;
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.Longs;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.data.dao.*;
@@ -11,7 +8,6 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.io.PrintWriter;
-import java.util.Base64;
 import java.util.Collections;
 
 public class BoostrapDataTask extends DatabaseTask {
@@ -36,6 +32,13 @@ public class BoostrapDataTask extends DatabaseTask {
         createPerson(output, organization, "Randall Boggs");
         createPerson(output, organization, "Celia Mae");
         createPerson(output, organization, "Roz");
+
+        final Organization o = createOrganization(output, "Common Names Ltd.");
+        for (String lastName : new String[]{"Smith", "Johnson", "Williams", "Jones", "Brown"}) {
+            for (String firstName : new String[]{"Mary", "Patricia", "Linda", "Barbara", "Elizabeth"}) {
+                createPerson(output, o, firstName + " " + lastName);
+            }
+        }
 
         final Achievement achievementBike = createAchievement(output, "Ride bike", "easy");
         createAchievementStep(output, achievementBike, "Get the bike");
