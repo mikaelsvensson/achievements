@@ -2,7 +2,10 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
+import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
@@ -28,9 +31,18 @@ public class MyResource extends AbstractResource {
     }
 
     @GET
+    @Path("profile")
+    @UnitOfWork
+    public PersonProfileDTO getMyProfile(@Auth User user) {
+        return new PersonProfileDTO(
+                map(user.getCredentials().getPerson().getOrganization(), OrganizationDTO.class),
+                map(user.getCredentials().getPerson(), PersonDTO.class));
+    }
+
+    @GET
     @Path("people")
     @UnitOfWork
-    public List<PersonDTO> get(@Auth User user) {
+    public List<PersonDTO> getMyPeople(@Auth User user) {
         return peopleDao.getByParent(user.getCredentials().getPerson().getOrganization()).stream()
                 .map(p -> map(p, PersonDTO.class))
                 .collect(Collectors.toList());

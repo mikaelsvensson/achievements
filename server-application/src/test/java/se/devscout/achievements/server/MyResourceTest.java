@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
@@ -87,6 +88,32 @@ public class MyResourceTest {
         verify(peopleDao).getByParent(eq(org2));
     }
 
+    @Test
+    public void getMyProfile_happyPath() throws Exception {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        final Credentials credentials = new Credentials("bob", new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray()));
+        credentials.setPerson(person);
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
+
+        when(peopleDao.getByParent(eq(org))).thenReturn(Lists.newArrayList(person));
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("/my/profile/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final PersonProfileDTO dto = response.readEntity(PersonProfileDTO.class);
+        assertThat(dto.person.id).isNotNull();
+        assertThat(dto.person.name).isEqualTo("Bob");
+        assertThat(dto.person.email).isEqualTo("user@example.com");
+        assertThat(dto.organization.name).isEqualTo("Cyberdyne Systems");
+    }
+
 
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
         final Integer uuid = getRandomNonZeroValue();
@@ -95,6 +122,7 @@ public class MyResourceTest {
         when(person.getId()).thenReturn(uuid);
         when(person.getOrganization()).thenReturn(org);
         when(person.getName()).thenReturn(name);
+        when(person.getEmail()).thenReturn("user@example.com");
 
         when(peopleDao.read(eq(uuid))).thenReturn(person);
 

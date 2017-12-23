@@ -9,6 +9,7 @@ import {renderLogin} from "../auth/login.jsx";
 import {renderError} from "../error.jsx";
 import {renderLoginCreateAccount} from "../auth/login.create-account.jsx";
 import {renderPerson} from "../organizations/person.jsx";
+import {renderMyProfile} from "../my/profile.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
 
 export function navigateTo(appPath) {
@@ -29,6 +30,7 @@ function renderRoute(appPath) {
 
     const routes = {
         'statistik': renderStats,
+        'minprofil': renderMyProfile,
         'loggaut': renderLogout,
         'loggain': renderLogin,
         'loggain-skapa-konto': renderLoginCreateAccount,

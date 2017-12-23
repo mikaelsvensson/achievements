@@ -46,7 +46,7 @@ public class AchievementsAcceptanceTest {
 
         final AchievementDTO responseDto = response.readEntity(AchievementDTO.class);
 
-        final URI expectedLocation = URI.create(String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), UuidString.toString(UUID.fromString(responseDto.id))));
+        final URI expectedLocation = URI.create(String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), responseDto.id));
         final URI actualLocation = response.getLocation();
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }

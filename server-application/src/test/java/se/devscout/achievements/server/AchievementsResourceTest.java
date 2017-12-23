@@ -67,7 +67,7 @@ public class AchievementsResourceTest {
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
-        assertThat(dto.id).isEqualTo(achievement.getId().toString());
+        assertThat(dto.id).isEqualTo(UuidString.toString(achievement.getId()));
     }
 
     @Test
@@ -152,8 +152,8 @@ public class AchievementsResourceTest {
                 .post(Entity.json(new AchievementDTO()));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
-        assertThat(response.getLocation().getPath()).isEqualTo("/achievements/" + UuidString.toString(UUID.fromString(dto.id)));
-        assertThat(dto.id).isEqualTo(achievement.getId().toString());
+        assertThat(response.getLocation().getPath()).isEqualTo("/achievements/" + UuidString.toString(achievement.getId()));
+        assertThat(dto.id).isEqualTo(UuidString.toString(achievement.getId()));
         assertThat(dto.name).isEqualTo("abc");
     }
 
