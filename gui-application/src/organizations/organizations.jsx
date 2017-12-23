@@ -3,6 +3,7 @@ import {get, post, isLoggedIn} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 const templateOrganizations = require("./organizations.handlebars");
+const templateOrganizationsMy = require("./organizations.my.handlebars");
 const templateOrganizationsResult = require("./organizations.result.handlebars");
 
 export function renderOrganizations() {
@@ -14,13 +15,22 @@ export function renderOrganizations() {
         isLoggedIn: isLoggedIn()
     };
     updateView(templateOrganizations(data));
+
+    if (isLoggedIn()) {
+        get('//localhost:8080/api/my/profile/', function (responseData, responseStatus, jqXHR) {
+            updateView(templateOrganizationsMy(responseData), $('#organizations-my'));
+        });
+    }
+
     const $app = $('#app');
+
     $app.find('.create-button').click(function (e) {
         const form = $(this).addClass('is-loading').closest('form');
         post('//localhost:8080/api/organizations', getFormData(form), function (responseData, responseStatus, jqXHR) {
             navigateTo('organizations/' + responseData.id);
         });
     });
+
     $app.find('.search-button').click(function (e) {
         const button = $(this);
         const form = button.addClass('is-loading').closest('form');

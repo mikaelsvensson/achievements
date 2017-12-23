@@ -18,3 +18,7 @@ Step 2: Run administrative task (note that port number is 8081).
     Created person Randall Boggs (id 3)
     Created person Celia Mae (id 4)
     Created person Roz (id 5)
+
+Step 3: Start the GUI
+
+    $ npm run start
