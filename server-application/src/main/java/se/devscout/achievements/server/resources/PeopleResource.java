@@ -2,6 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
@@ -48,7 +49,9 @@ public class PeopleResource extends AbstractResource {
         try {
             final Person person = dao.read(id);
             verifyParent(organizationId.getUUID(), person);
-            return map(person, PersonDTO.class);
+            final PersonDTO personDTO = map(person, PersonDTO.class);
+            personDTO.organization = map(person.getOrganization(), OrganizationBaseDTO.class);
+            return personDTO;
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }

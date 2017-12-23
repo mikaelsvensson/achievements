@@ -11,7 +11,7 @@ export function renderPerson(appPathParams) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
             {label: "Kårer", url: '#karer'},
-            {label: appPathParams[0].key, url: '#karer/' + appPathParams[0].key},
+            {label: responseData.organization.name, url: '#karer/' + appPathParams[0].key},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();

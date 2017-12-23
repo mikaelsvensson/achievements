@@ -6,19 +6,22 @@ public class PersonDTO {
     public Integer id;
     public String name;
     public String email;
+    public OrganizationBaseDTO organization;
 
     public PersonDTO() {
     }
 
     public PersonDTO(Integer id,
                      String name) {
-        this(id, name, null);
+        this(id, name, null, null);
     }
     public PersonDTO(@JsonProperty("id") Integer id,
                      @JsonProperty("name") String name,
-                     @JsonProperty("email") String email) {
+                     @JsonProperty("email") String email,
+                     @JsonProperty("organization") OrganizationBaseDTO organization) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.organization = organization;
     }
 }
