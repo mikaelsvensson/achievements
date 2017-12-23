@@ -1,0 +1,13 @@
+<div>
+    {{#each achievements}}
+    <p>
+        <a href="#marken/{{achievement.id}}" aria-current="page">{{achievement.name}}</a>
+        {{#if progress_summary.people_completed}}
+        <span class="tag is-success" title="{{progress_summary.people_completed}} har gjort klar allt.">{{progress_summary.people_completed}}</span>
+        {{/if}}
+        {{#if progress_summary.people_started}}
+        <span class="tag is-warning" title="{{progress_summary.people_started}} har påbörjat.">{{progress_summary.people_started}}</span>
+        {{/if}}
+    </p>
+    {{/each}}
+</div>

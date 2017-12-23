@@ -77,7 +77,7 @@ public class PeopleAcceptanceTest {
         final PersonDTO response2Dto = updateResponse.readEntity(PersonDTO.class);
 
         assertThat(response2Dto.name).isEqualTo("Alicia");
-        assertThat(response2Dto.organization.name).isEqualTo("Monsters Inc");
+        assertThat(response2Dto.organization.name).isEqualTo("Monsters, Inc.");
 
         Response getResponse = client
                 .target(location)

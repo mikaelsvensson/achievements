@@ -4,6 +4,7 @@ import {updateView, getFormData} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
+const templateOrganizationSummaryList = require("./organization.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 const templateAchievementsResult = require("../achievements/achievements.result.handlebars");
 
@@ -64,6 +65,13 @@ export function renderOrganization(appPathParams) {
                 people: responseData,
                 orgId: appPathParams[0].key
             }), $('#organization-people-list'));
+        });
+
+        get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
+            console.log("achievement-summary:", responseData);
+            updateView(templateOrganizationSummaryList({
+                achievements: responseData.achievements
+            }), $('#achievements-summary'));
         });
     });
 }

@@ -100,8 +100,8 @@ public class PeopleDaoImplTest {
         assertThat(actual.getEmail()).isEqualTo("carol@example.com");
 
         assertThat(actual.getAttributes()).hasSize(2);
-        assertThat(actual.getAttributes().contains(new PersonAttribute("favourite_colour", "green")));
-        assertThat(actual.getAttributes().contains(new PersonAttribute("role", "administrator")));
+        assertThat(actual.getAttributes()).contains(new PersonAttribute("favourite_colour", "green"));
+        assertThat(actual.getAttributes()).contains(new PersonAttribute("role", "administrator"));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class PeopleDaoImplTest {
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("David");
         assertThat(actual.getAttributes()).hasSize(2);
-        assertThat(actual.getAttributes().contains(new PersonAttribute("favourite_colour", "blue")));
-        assertThat(actual.getAttributes().contains(new PersonAttribute("title", "administrator")));
+        assertThat(actual.getAttributes()).contains(new PersonAttribute("favourite_colour", "blue"));
+        assertThat(actual.getAttributes()).contains(new PersonAttribute("title", "administrator"));
     }
 }

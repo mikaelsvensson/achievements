@@ -60,7 +60,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
-        environment.jersey().register(new OrganizationsResource(organizationsDao));
+        environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));

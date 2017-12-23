@@ -5,9 +5,13 @@ import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.data.model.Organization;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+
+import static java.util.Objects.requireNonNull;
 
 public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements AchievementsDao {
     public AchievementsDaoImpl(SessionFactory sessionFactory) {
@@ -50,6 +54,16 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
         }
         return namedQuery("Achievement.find")
                 .setParameter("name", "%" + name + "%")
+                .getResultList();
+    }
+
+    @Override
+    public List<Achievement> findWithProgressForOrganization(Organization organization) {
+
+        requireNonNull(organization);
+
+        return namedQuery("Achievement.findWithProgressForOrganization")
+                .setParameter("organization", organization)
                 .getResultList();
     }
 }

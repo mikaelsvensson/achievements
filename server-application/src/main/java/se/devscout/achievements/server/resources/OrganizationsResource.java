@@ -2,13 +2,15 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.AchievementBaseDTO;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.OrganizationProperties;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.*;
@@ -16,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,9 +27,11 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrganizationsResource extends AbstractResource {
     private OrganizationsDao dao;
+    private AchievementsDao achievementsDao;
 
-    public OrganizationsResource(OrganizationsDao dao) {
+    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao) {
         this.dao = dao;
+        this.achievementsDao = achievementsDao;
     }
 
     @GET
@@ -47,6 +52,47 @@ public class OrganizationsResource extends AbstractResource {
         try {
             final Organization organization = dao.read(id.getUUID());
             return map(organization, OrganizationBaseDTO.class);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        }
+    }
+
+    @GET
+    @Path("{organizationId}/achievement-summary")
+    @UnitOfWork
+    public OrganizationAchievementSummaryDTO getAchievementSummary(@PathParam("organizationId") UuidString id, @Auth User user) {
+        try {
+            final Organization organization = dao.read(id.getUUID());
+
+            final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
+
+            final List<Achievement> achievements = achievementsDao.findWithProgressForOrganization(organization);
+            for (Achievement achievement : achievements) {
+                final int stepCount = achievement.getSteps().size();
+                final Map<Person, Long> completedStepsByPerson = achievement.getSteps().stream()
+                        .flatMap(achievementStep -> achievementStep.getProgressList().stream())
+                        .filter(AchievementStepProgressProperties::isCompleted)
+                        .collect(Collectors.toMap(
+                                AchievementStepProgress::getPerson,
+                                progressValue -> 1L,
+                                (u, u2) -> u + u2));
+                final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
+
+                progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
+                        .filter(entry -> entry.getValue() == stepCount)
+                        .count();
+
+                progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
+                        .filter(entry -> entry.getValue() < stepCount)
+                        .count();
+
+                final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
+                achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
+                achievementSummary.progress_summary = progressSummary;
+                summary.achievements.add(achievementSummary);
+            }
+
+            return summary;
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }

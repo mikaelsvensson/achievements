@@ -5,9 +5,7 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.data.model.AchievementStep;
+import se.devscout.achievements.server.data.model.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,12 +15,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class AchievementsDaoImplTest {
-
     @Rule
     public DAOTestRule database = DAOTestRule.newBuilder()
             .setShowSql(true)
+            .addEntityClass(Organization.class)
+            .addEntityClass(Person.class)
+            .addEntityClass(Credentials.class)
             .addEntityClass(Achievement.class)
             .addEntityClass(AchievementStep.class)
+            .addEntityClass(AchievementStepProgress.class)
             .build();
 
     private AchievementsDaoImpl dao;
@@ -30,6 +31,59 @@ public class AchievementsDaoImplTest {
     @Before
     public void setUp() throws Exception {
         dao = new AchievementsDaoImpl(database.getSessionFactory());
+    }
+
+    @Test
+    public void findWithProgressForOrganization() throws Exception {
+        // Setup: Create organization
+        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        Organization org1 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization 1")));
+        Organization org2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization 2")));
+
+        // Setup: Crate people
+        PeopleDaoImpl peopleDao = new PeopleDaoImpl(database.getSessionFactory());
+        Person personWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alice")));
+        Person personWithoutProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Bob")));
+        Person personFromOtherOrgWithProgress = database.inTransaction(() -> peopleDao.create(org2, new PersonProperties("Carol")));
+
+        // Setup: Create achievements
+        AchievementsDaoImpl achievementsDao = dao;
+        final Achievement achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
+        final Achievement achievement2 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Cook pasta")));
+        final Achievement achievement3 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Have pizza")));
+
+        // Setup: Create achievement steps
+        AchievementStepsDaoImpl stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
+        AchievementStep achievement1Step1 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package")));
+        AchievementStep achievement1Step2 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Clean up afterwards")));
+        AchievementStep achievement2Step1 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Pour water into pot")));
+        AchievementStep achievement2Step2 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Put pasta into pot")));
+        AchievementStep achievement2Step3 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Turn on stove")));
+        AchievementStep achievement2Step4 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Wait until it has boiled for the appropriate number of minutes")));
+        AchievementStep achievement2Step5 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Use colinder to pour out the water")));
+        AchievementStep achievement2Step6 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Serve with bolognese")));
+        AchievementStep achievement3Step1 = database.inTransaction(() -> stepsDao.create(achievement3, new AchievementStepProperties("Order from local pizzeria")));
+
+        // Setup: Create progress records
+        AchievementStepProgressDaoImpl progressDao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
+        database.inTransaction(() -> progressDao.set(achievement1Step1, personWithProgress, new AchievementStepProgressProperties(true, "Finally done")));
+        database.inTransaction(() -> progressDao.set(achievement1Step2, personWithProgress, new AchievementStepProgressProperties(false, "Still eating the egg")));
+        database.inTransaction(() -> progressDao.set(achievement2Step1, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step2, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step3, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step4, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step5, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement3Step1, personFromOtherOrgWithProgress, new AchievementStepProgressProperties(true, null)));
+
+        System.out.println("SUT");
+
+        final List<Achievement> actual1 = achievementsDao.findWithProgressForOrganization(org1);
+        assertThat(actual1).hasSize(2);
+        assertThat(actual1).containsOnly(achievement1, achievement2);
+
+        final List<Achievement> actual2 = achievementsDao.findWithProgressForOrganization(org2);
+        assertThat(actual2).hasSize(1);
+        assertThat(actual2).containsOnly(achievement3);
     }
 
     @Test

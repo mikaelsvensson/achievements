@@ -2,6 +2,8 @@ package se.devscout.achievements.server.data.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "achievement_steps")
 @Entity
@@ -18,6 +20,9 @@ public class AchievementStep extends AchievementStepProperties {
     @NotNull
     private Achievement achievement;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "step")
+    private List<AchievementStepProgress> progressList = new ArrayList<>();
+
     public Integer getId() {
         return id;
     }
@@ -32,5 +37,9 @@ public class AchievementStep extends AchievementStepProperties {
 
     public void setAchievement(Achievement achievement) {
         this.achievement = achievement;
+    }
+
+    public List<AchievementStepProgress> getProgressList() {
+        return progressList;
     }
 }

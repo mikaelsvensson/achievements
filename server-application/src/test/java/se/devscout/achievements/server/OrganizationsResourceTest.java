@@ -7,17 +7,16 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
+import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
-import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.OrganizationProperties;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.OrganizationsResource;
 import se.devscout.achievements.server.resources.UuidString;
 
@@ -26,6 +25,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -40,11 +40,13 @@ public class OrganizationsResourceTest {
 
     private final OrganizationsDao dao = mock(OrganizationsDao.class);
 
+    private final AchievementsDao achievementsDao = mock(AchievementsDao.class);
+
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new OrganizationsResource(dao))
+            .addResource(new OrganizationsResource(dao, achievementsDao))
             .build();
 
     @Before
@@ -117,4 +119,71 @@ public class OrganizationsResourceTest {
         verify(dao).find(eq(" "));
     }
 
+    @Test
+    public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
+        final UUID uuid = UUID.randomUUID();
+        when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
+        final Person person1 = mockPerson("Alice");
+        final Person person2 = mockPerson("Bob");
+        final Person person3 = mockPerson("Carol");
+        final AchievementStepProgress a1p1 = mockProgress(true, person1);
+        final AchievementStepProgress a1p2 = mockProgress(false, person2);
+        final AchievementStepProgress a1p3 = mockProgress(true, person1);
+        final AchievementStepProgress a1p4 = mockProgress(true, person2);
+        final AchievementStep a1s1 = mockStep(a1p1, a1p2);
+        final AchievementStep a1s2 = mockStep(a1p3, a1p4);
+        final Achievement a1 = mockAchievement("Climb mountain", a1s1, a1s2);
+
+        final AchievementStepProgress a2p1 = mockProgress(false, person2);
+        final AchievementStepProgress a2p2 = mockProgress(true, person3);
+        final AchievementStepProgress a2p3 = mockProgress(false, person2);
+        final AchievementStepProgress a2p4 = mockProgress(true, person3);
+        final AchievementStep s2 = mockStep(a2p1, a2p2);
+        final AchievementStep s3 = mockStep(a2p3, a2p4);
+        final Achievement a2 = mockAchievement("Cook egg", s2, s3);
+
+        when(achievementsDao.findWithProgressForOrganization(any(Organization.class)))
+                .thenReturn(Arrays.asList(a1, a2));
+
+        final OrganizationAchievementSummaryDTO dto = resources.client()
+                .target("/organizations/" + UuidString.toString(uuid) + "/achievement-summary")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .get(OrganizationAchievementSummaryDTO.class);
+        assertThat(dto.achievements).hasSize(2);
+        assertThat(dto.achievements.get(0).achievement.name).isEqualTo("Climb mountain");
+        assertThat(dto.achievements.get(0).progress_summary.people_completed).isEqualTo(1);
+        assertThat(dto.achievements.get(0).progress_summary.people_started).isEqualTo(1);
+        assertThat(dto.achievements.get(1).achievement.name).isEqualTo("Cook egg");
+        assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(1);
+        assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(0);
+    }
+
+    private Person mockPerson(String name) {
+        final Person person = mock(Person.class);
+        when(person.getName()).thenReturn(name);
+        return person;
+    }
+
+    private Achievement mockAchievement(String name, AchievementStep... steps) {
+        final Achievement achievementMock = mock(Achievement.class);
+        when(achievementMock.getName()).thenReturn(name);
+        when(achievementMock.getSteps()).thenReturn(Arrays.asList(
+                steps
+        ));
+        return achievementMock;
+    }
+
+    private AchievementStep mockStep(AchievementStepProgress... progress) {
+        final AchievementStep stepMock = mock(AchievementStep.class);
+        when(stepMock.getProgressList()).thenReturn(Arrays.asList(progress));
+        return stepMock;
+    }
+
+    private AchievementStepProgress mockProgress(boolean completed, Person person) {
+        final AchievementStepProgress progressMock = mock(AchievementStepProgress.class);
+        when(progressMock.isCompleted()).thenReturn(completed);
+        when(progressMock.getPerson()).thenReturn(person);
+        return progressMock;
+    }
 }
