@@ -84,7 +84,7 @@ export function renderOrganization(appPathParams) {
                 $dialog.find('div.modal-background').click(function (e) {
                     $(this).parent().removeClass('is-active');
                 });
-                $dialog.find('div.modal-close').click(function (e) {
+                $dialog.find('button.modal-close').click(function (e) {
                     $(this).parent().removeClass('is-active');
                 });
             });
