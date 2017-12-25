@@ -1,6 +1,33 @@
 # Why?
 
-# Testing
+## Run Locally
+
+Start back-end
+
+    $ mvn clean install
+    $ docker-compose build
+    $ docker-compose up
+
+Start front-end
+
+    gui-application$ npm run start
+    
+Visit http://localhost:9090/
+
+## Debug Locally
+
+Start back-end
+
+
+    $ docker-compose up database
+    $ java -jar server-application-1.0-SNAPSHOT.jar server environments/local.yaml -Ddw.database.url=jdbc:postgresql://localhost:6543/achievements
+
+
+Start front-end
+
+    gui-application$ npm run start
+    
+Visit http://localhost:9090/
 
 ## Create a Demo Organization
 

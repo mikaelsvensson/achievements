@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.data.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import se.devscout.achievements.server.auth.SecretValidator;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class Credentials extends CredentialsProperties {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     @Id
+    @Type(type = "uuid-binary")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.EAGER)

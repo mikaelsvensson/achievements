@@ -8,6 +8,7 @@ import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -112,6 +113,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
     public void initialize(Bootstrap<AchievementsApplicationConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
         bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
+        bootstrap.addBundle(new MigrationsBundle<AchievementsApplicationConfiguration>() {
+            @Override
+            public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {
+                return configuration.getDataSourceFactory();
+            }
+        });
+
     }
 
     public static void main(String[] args) throws Exception {

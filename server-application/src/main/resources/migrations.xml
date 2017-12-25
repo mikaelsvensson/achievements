@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="01_organization" author="mikael">
+        <createTable tableName="organization">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)"></column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="organization"
+                       constraintName="pk_organization"/>
+    </changeSet>
+    <changeSet id="02_person" author="mikael">
+        <createTable tableName="person">
+            <column name="id" type="integer" autoIncrement="true"></column>
+            <column name="email" type="varchar(100)"></column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"
+                             unique="true" uniqueConstraintName="idx_person_name"/>
+            </column>
+            <column name="organization_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="person"
+                       constraintName="pk_person"/>
+        <addForeignKeyConstraint baseTableName="person"
+                                 baseColumnNames="organization_id"
+                                 constraintName="fk_person_organization"
+                                 referencedTableName="organization"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="03_person_attributes" author="mikael">
+        <createTable tableName="person_attributes">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="key" type="varchar(30)"></column>
+            <column name="value" type="varchar(100)"></column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="person_attributes"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_personattributes_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="04_credentials" author="mikael">
+        <createTable tableName="credentials">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="integer"></column>
+            <column name="username" type="varchar(255)"></column>
+            <column name="secret" type="binary(1024)"></column>
+        </createTable>
+        <createIndex indexName="idx_credentials_provider_user"
+                     tableName="credentials"
+                     unique="true">
+            <column name="provider"/>
+            <column name="username"/>
+        </createIndex>
+        <addPrimaryKey columnNames="id"
+                       tableName="credentials"
+                       constraintName="pk_credentials"/>
+        <addForeignKeyConstraint baseTableName="credentials"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_credentials_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="05_achievements" author="mikael">
+        <createTable tableName="achievements">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(10000)"></column>
+            <column name="image" type="binary(5000)"></column>
+            <column name="name" type="varchar(100)">
+                <constraints unique="true" uniqueConstraintName="idx_achievements_name"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="achievements"
+                       constraintName="pk_achievements"/>
+    </changeSet>
+    <changeSet id="06_achievement_tags" author="mikael">
+        <createTable tableName="achievement_tags">
+            <column name="achivement_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tag" type="varchar(50)"></column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="achievement_tags"
+                                 baseColumnNames="achivement_id"
+                                 constraintName="fk_achievementtags_achievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="07_achievement_steps" author="mikael">
+        <createTable tableName="achievement_steps">
+            <column name="id" type="integer" autoIncrement="true"></column>
+            <column name="description" type="varchar(1000)"></column>
+            <column name="prerequisiteachievement_id" type="BINARY(16)"></column>
+            <column name="achievement_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="achievement_steps"
+                       constraintName="pk_achievement_steps"/>
+        <addForeignKeyConstraint baseTableName="achievement_steps"
+                                 baseColumnNames="achievement_id"
+                                 constraintName="fk_achievementsteps_achievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="achievement_steps"
+                                 baseColumnNames="prerequisiteachievement_id"
+                                 constraintName="fk_achievementsteps_prerequisiteachievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="08_achievement_step_progress" author="mikael">
+        <createTable tableName="achievement_step_progress">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(255)"></column>
+        </createTable>
+        <addPrimaryKey columnNames="person_id,step_id"
+                       tableName="achievement_step_progress"
+                       constraintName="pk_achievement_step_progress"/>
+        <addForeignKeyConstraint baseTableName="achievement_step_progress"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_achievementstepprogress_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="achievement_step_progress"
+                                 baseColumnNames="step_id"
+                                 constraintName="fk_achievementstepprogress_achievementsteps"
+                                 referencedTableName="achievement_steps"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.data.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class Organization extends OrganizationProperties {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     @Id
+    @Type(type = "uuid-binary")
     private UUID id;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)

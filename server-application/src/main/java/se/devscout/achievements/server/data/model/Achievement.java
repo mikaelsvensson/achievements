@@ -2,6 +2,7 @@ package se.devscout.achievements.server.data.model;
 
 import com.google.common.base.Objects;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class Achievement extends AchievementProperties {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(columnDefinition = "BINARY(16)")
     @Id
+    @Type(type = "uuid-binary")
     private UUID id;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "achievement")

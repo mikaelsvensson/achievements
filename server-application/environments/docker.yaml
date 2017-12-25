@@ -1,0 +1,20 @@
+maxOrganizationCount: 10
+
+server:
+  rootPath: /api/
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 9001
+
+database:
+  driverClass: org.postgresql.Driver
+  url: jdbc:postgresql://database:5432/achievements
+  user: achievements_app
+  password: password
+  properties:
+    hibernate.hbm2ddl.auto: none
+    hibernate.archive.autodetection: class, hbm
+    hibernate.show_sql: true

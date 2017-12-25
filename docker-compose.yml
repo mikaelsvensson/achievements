@@ -1,0 +1,35 @@
+version: '2.1'
+
+services:
+  database:
+    container_name: achievements-database
+    image: postgres:9.6
+    ports:
+      - 6543:5432
+    environment:
+      - POSTGRES_USER=achievements_app
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=achievements
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+
+  app:
+    container_name: achievements-app
+    build:
+      context: ./server-application
+#    image: hub.int.klarna.net/meta/branding-service
+    environment:
+      - ENVIRONMENT=docker
+    ports:
+      - 8080:8080
+      - 9001:9001
+    depends_on:
+      - database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9001/ping"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
