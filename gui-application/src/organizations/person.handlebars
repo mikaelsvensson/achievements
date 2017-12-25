@@ -6,38 +6,47 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
-        <div class="box">
-            <h2 class="subtitle">Sammanfattning av märken</h2>
-            <div id="achievements-summary"></div>
+        <div class="columns">
+            <div class="column">
+                <div class="box">
+                    <h2 class="subtitle">Märken</h2>
+                    <div id="achievements-summary"></div>
+                </div>
+            </div>
+            <div class="column">
+                <h2 class="subtitle">Profil</h2>
+
+                <form>
+                    <div class="field">
+                        <label class="label">Namn</label>
+                        <div class="control">
+                            <input class="input" type="text" id="name" name="name"/>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">E-postadress</label>
+                        <div class="control">
+                            <input class="input" type="email" id="email" name="email"/>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button is-primary" type="button" id="person-save-button">Spara</button>
+                        <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                    </div>
+
+                    <div class="errors"/>
+
+                </form>
+
+                <h2 class="subtitle">Inloggning</h2>
+
+                <p>
+                    <small>I framtiden kommer du här se på vilka sätt personen kan logga in.</small>
+                </p>
+            </div>
         </div>
-
-        <form>
-            <div class="field">
-                <label class="label">Namn</label>
-                <div class="control">
-                    <input class="input" type="text" id="name" name="name"/>
-                </div>
-            </div>
-
-            <div class="field">
-                <label class="label">E-postadress</label>
-                <div class="control">
-                    <input class="input" type="email" id="email" name="email"/>
-                </div>
-            </div>
-
-            <div class="control">
-                <button class="button is-primary" type="button" id="person-save-button">Spara</button>
-                <button class="button is-primary is-outlined" type="button">Ta bort</button>
-            </div>
-
-            <div class="errors"/>
-        </form>
-
-        <h2 class="subtitle">Inloggning</h2>
-
-        <p><small>I framtiden kommer du här se på vilka sätt personen kan logga in.</small></p>
-
     </div>
 </section>
 {{> ../_footer.handlebars}}
