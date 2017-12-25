@@ -2,6 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Strings;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
@@ -66,11 +67,11 @@ public class SignupResource extends AbstractResource {
         if (Strings.isNullOrEmpty(dto.password)) {
             throw new BadRequestException("Password cannot be empty");
         }
-        if (Strings.isNullOrEmpty(dto.name)) {
-            throw new BadRequestException("Name cannot be empty");
+        if (Strings.isNullOrEmpty(dto.email)) {
+            throw new BadRequestException("Email cannot be empty");
         }
         try {
-            final Person person = peopleDao.create(organization, new PersonProperties(dto.name, dto.email, Collections.emptySet()));
+            final Person person = peopleDao.create(organization, new PersonProperties(StringUtils.substringBefore(dto.email, "@"), dto.email, Collections.emptySet()));
             credentialsDao.create(person, new CredentialsProperties(dto.email, new PasswordValidator(SecretGenerator.PDKDF2, dto.password.toCharArray())));
             final URI location = UriBuilder.fromResource(PeopleResource.class)
                     .path(person.getId().toString())

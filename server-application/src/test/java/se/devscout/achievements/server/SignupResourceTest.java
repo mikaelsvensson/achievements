@@ -61,7 +61,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO("alice", "password", "alice@example.com", org.getName())));
+                .post(Entity.json(new SignupDTO("alice@example.com", "password", org.getName())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
@@ -69,6 +69,8 @@ public class SignupResourceTest {
         assertThat(responseDTO.organization.id).isEqualTo(UuidString.toString(org.getId()));
         assertThat(responseDTO.organization.name).isEqualTo(org.getName());
         assertThat(responseDTO.person.id).isEqualTo(person.getId());
+        assertThat(responseDTO.person.name).isEqualTo("alice");
+        assertThat(responseDTO.person.email).isEqualTo("alice@example.com");
 
         verify(organizationsDao).find(anyString());
         verify(organizationsDao).create(any(OrganizationProperties.class));
@@ -85,7 +87,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/" + UuidString.toString(org.getId()))
                 .request()
-                .post(Entity.json(new SignupBaseDTO("alice", "password", "alice@example.com")));
+                .post(Entity.json(new SignupBaseDTO("alice@example.com", "password")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
@@ -93,6 +95,7 @@ public class SignupResourceTest {
         assertThat(responseDTO.organization.id).isEqualTo(UuidString.toString(org.getId()));
         assertThat(responseDTO.organization.name).isEqualTo("org");
         assertThat(responseDTO.person.id).isEqualTo(person.getId());
+        assertThat(responseDTO.person.name).isEqualTo("alice");
 
         verify(organizationsDao).read(eq(org.getId()));
         verify(organizationsDao, never()).find(anyString());
@@ -108,7 +111,7 @@ public class SignupResourceTest {
         final Response response = resources
                 .target("/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO( "alice", "password", "alice@example.com", org.getName())));
+                .post(Entity.json(new SignupDTO("password", "alice@example.com", org.getName())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 

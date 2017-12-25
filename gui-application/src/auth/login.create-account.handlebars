@@ -5,7 +5,7 @@
                 Skapa konto
             </h1>
             <h2 class="subtitle">
-                ???
+                Inloggning med hjälp av e-postadress
             </h2>
         </div>
     </div>
@@ -14,8 +14,8 @@
     <form>
         <div class="field">
             <div class="control">
-                <label class="label">Vad vill du ha för användarnamn?</label>
-                <input class="input" type="text" id="name" name="name" placeholder="Användarnamn">
+                <label class="label">Vad är din e-postadress?</label>
+                <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
             </div>
         </div>
 
@@ -29,13 +29,15 @@
         <div class="field">
             <label class="label">Vilken scoutkår tillhör du?</label>
             <div class="control">
-                <input class="input" type="password" id="new_organization_name" name="new_organization_name" placeholder="Scoutkår"/>
+                <input class="input" type="text" id="new_organization_name" name="new_organization_name"
+                       placeholder="Scoutkår"/>
             </div>
         </div>
 
         <div class="control">
             <button class="button is-primary is-large create-account-button" type="button">Skapa konto</button>
         </div>
+        <div class="errors"/>
     </form>
     <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
 </section>
