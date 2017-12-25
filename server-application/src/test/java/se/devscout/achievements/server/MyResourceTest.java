@@ -12,10 +12,7 @@ import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 import se.devscout.achievements.server.data.model.Organization;
@@ -37,12 +34,13 @@ public class MyResourceTest {
     private static final int ZERO = 0;
     private final PeopleDao peopleDao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
+    private final AchievementsDao achievementsDao = mock(AchievementsDao.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, organizationsDao))
+            .addResource(new MyResource(peopleDao, organizationsDao, achievementsDao))
             .build();
 
     @Before

@@ -29,19 +29,6 @@ export function renderPerson(appPathParams) {
                 achievements: responseData.achievements,
                 org_id: appPathParams[0].key
             }), $('#achievements-summary'));
-
-            /*
-             $('.modal-achievement-summary-details-button').click(function (e) {
-             const $dialog = $(document.getElementById(this.dataset.elementRefId));
-             $dialog.addClass('is-active');
-             $dialog.find('div.modal-background').click(function (e) {
-             $(this).parent().removeClass('is-active');
-             });
-             $dialog.find('button.modal-close').click(function (e) {
-             $(this).parent().removeClass('is-active');
-             });
-             });
-             */
         });
 
         // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
