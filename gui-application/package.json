@@ -12,10 +12,10 @@
   "author": "Mikael Svensson",
   "license": "ISC",
   "dependencies": {
-    "bulma": "^0.4.4",
+    "bulma": "^0.6.1",
     "handlebars": "4.0.10",
     "jquery": "3.2.1",
-    "mdi": "^2.0.46",
+    "mdi": "^2.1.19",
     "remarkable": "^1.7.1"
   },
   "devDependencies": {
@@ -24,11 +24,11 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "css-loader": "^0.28.7",
-    "file-loader": "^0.11.1",
+    "file-loader": "^0.11.2",
     "handlebars-loader": "1.5.0",
     "html-webpack-plugin": "^2.30.1",
     "style-loader": "^0.18.2",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.3"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
   }
 }

@@ -2,16 +2,13 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.AchievementBaseDTO;
-import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
-import se.devscout.achievements.server.api.OrganizationBaseDTO;
-import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.api.*;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.auth.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,7 +16,6 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("organizations")
@@ -45,6 +41,7 @@ public class OrganizationsResource extends AbstractResource {
             throw new NotFoundException();
         }
     }
+
     @GET
     @Path("{organizationId}/basic")
     @UnitOfWork
@@ -78,17 +75,28 @@ public class OrganizationsResource extends AbstractResource {
                                 (u, u2) -> u + u2));
                 final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
 
-                progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
-                        .filter(entry -> entry.getValue() == stepCount)
-                        .count();
+                List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = null;
+                if (stepCount > 0) {
+                    progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
+                            .filter(entry -> entry.getValue() == stepCount)
+                            .count();
 
-                progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
-                        .filter(entry -> entry.getValue() < stepCount)
-                        .count();
+                    progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
+                            .filter(entry -> entry.getValue() < stepCount)
+                            .count();
+
+                    progressDetailed = completedStepsByPerson.entrySet().stream().map(entry -> {
+                        final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
+                        personProgress.percent = (int) Math.round(100.0 * entry.getValue() / stepCount);
+                        personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
+                        return personProgress;
+                    }).collect(Collectors.toList());
+                }
 
                 final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
                 achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
                 achievementSummary.progress_summary = progressSummary;
+                achievementSummary.progress_detailed = progressDetailed;
                 summary.achievements.add(achievementSummary);
             }
 

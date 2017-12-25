@@ -25,10 +25,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -154,9 +151,18 @@ public class OrganizationsResourceTest {
         assertThat(dto.achievements.get(0).achievement.name).isEqualTo("Climb mountain");
         assertThat(dto.achievements.get(0).progress_summary.people_completed).isEqualTo(1);
         assertThat(dto.achievements.get(0).progress_summary.people_started).isEqualTo(1);
+
+        dto.achievements.get(0).progress_detailed.sort(Comparator.comparing(o -> o.person.name));
+
+        assertThat(dto.achievements.get(0).progress_detailed.get(0).person.name).isEqualTo("Alice");
+        assertThat(dto.achievements.get(0).progress_detailed.get(0).percent).isEqualTo(100);
+        assertThat(dto.achievements.get(0).progress_detailed.get(1).person.name).isEqualTo("Bob");
+        assertThat(dto.achievements.get(0).progress_detailed.get(1).percent).isEqualTo(50);
         assertThat(dto.achievements.get(1).achievement.name).isEqualTo("Cook egg");
         assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(1);
         assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(0);
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).person.name).isEqualTo("Carol");
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(100);
     }
 
     private Person mockPerson(String name) {

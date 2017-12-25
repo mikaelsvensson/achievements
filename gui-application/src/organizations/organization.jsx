@@ -68,10 +68,26 @@ export function renderOrganization(appPathParams) {
         });
 
         get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
-            console.log("achievement-summary:", responseData);
+            responseData.achievements.forEach((achievement => {
+                achievement.progress_detailed.sort((item1, item2) => item2.percent - item1.percent).forEach((item) => {
+                    item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
+                })
+            }));
             updateView(templateOrganizationSummaryList({
-                achievements: responseData.achievements
+                achievements: responseData.achievements,
+                org_id: appPathParams[0].key
             }), $('#achievements-summary'));
+
+            $('.modal-achievement-summary-details-button').click(function (e) {
+                const $dialog = $(document.getElementById(this.dataset.elementRefId));
+                $dialog.addClass('is-active');
+                $dialog.find('div.modal-background').click(function (e) {
+                    $(this).parent().removeClass('is-active');
+                });
+                $dialog.find('div.modal-close').click(function (e) {
+                    $(this).parent().removeClass('is-active');
+                });
+            });
         });
     });
 }

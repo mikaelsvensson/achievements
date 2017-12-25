@@ -9,10 +9,16 @@ public class OrganizationAchievementSummaryDTO {
     public static class AchievementSummaryDTO {
         public AchievementBaseDTO achievement;
         public ProgressSummaryDTO progress_summary;
+        public List<PersonProgressDTO> progress_detailed;
     }
 
     public static class ProgressSummaryDTO {
         public int people_completed;
         public int people_started;
+    }
+
+    public static class PersonProgressDTO {
+        public PersonBaseDTO person;
+        public int percent;
     }
 }
