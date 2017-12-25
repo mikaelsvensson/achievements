@@ -3,16 +3,15 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.MoreObjects;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
-import se.devscout.achievements.server.api.AchievementBaseDTO;
-import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.api.AchievementStepDTO;
-import se.devscout.achievements.server.api.OrganizationDTO;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementStep;
-import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.api.*;
+import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 abstract class AbstractResource {
     final ModelMapper toDtoMapper;
@@ -67,5 +66,46 @@ abstract class AbstractResource {
         } else {
             return null;
         }
+    }
+
+    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
+        final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
+        for (Achievement achievement : achievements) {
+            final int stepCount = achievement.getSteps().size();
+            final Map<Person, Long> completedStepsByPerson = achievement.getSteps().stream()
+                    .flatMap(achievementStep -> achievementStep.getProgressList().stream())
+                    .filter(progress -> personFilter == null || progress.getPerson().getId().equals(personFilter))
+                    .filter(AchievementStepProgressProperties::isCompleted)
+                    .collect(Collectors.toMap(
+                            AchievementStepProgress::getPerson,
+                            progressValue -> 1L,
+                            (u, u2) -> u + u2));
+            final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
+
+            List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = null;
+            if (stepCount > 0) {
+                progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
+                        .filter(entry -> entry.getValue() == stepCount)
+                        .count();
+
+                progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
+                        .filter(entry -> entry.getValue() < stepCount)
+                        .count();
+
+                progressDetailed = completedStepsByPerson.entrySet().stream().map(entry -> {
+                    final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
+                    personProgress.percent = (int) Math.round(100.0 * entry.getValue() / stepCount);
+                    personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
+                    return personProgress;
+                }).collect(Collectors.toList());
+            }
+
+            final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
+            achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
+            achievementSummary.progress_summary = progressSummary;
+            achievementSummary.progress_detailed = progressDetailed;
+            summary.achievements.add(achievementSummary);
+        }
+        return summary;
     }
 }

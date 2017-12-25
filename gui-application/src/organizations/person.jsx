@@ -3,6 +3,7 @@ import {get, put, isLoggedIn} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
 import {renderErrorBlock} from "../error-block.jsx";
 const templatePerson = require("./person.handlebars");
+const templatePersonSummary = require("./person.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 
 export function renderPerson(appPathParams) {
@@ -17,6 +18,31 @@ export function renderPerson(appPathParams) {
         responseData.isLoggedIn = isLoggedIn();
 
         updateView(templatePerson(responseData));
+
+        get('//localhost:8080/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
+            responseData.achievements.forEach((achievement => {
+                achievement.progress_detailed.sort((item1, item2) => item2.percent - item1.percent).forEach((item) => {
+                    item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
+                })
+            }));
+            updateView(templatePersonSummary({
+                achievements: responseData.achievements,
+                org_id: appPathParams[0].key
+            }), $('#achievements-summary'));
+
+            /*
+             $('.modal-achievement-summary-details-button').click(function (e) {
+             const $dialog = $(document.getElementById(this.dataset.elementRefId));
+             $dialog.addClass('is-active');
+             $dialog.find('div.modal-background').click(function (e) {
+             $(this).parent().removeClass('is-active');
+             });
+             $dialog.find('button.modal-close').click(function (e) {
+             $(this).parent().removeClass('is-active');
+             });
+             });
+             */
+        });
 
         // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
         $.each(responseData, function (key, value) {

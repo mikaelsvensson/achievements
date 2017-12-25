@@ -21,9 +21,17 @@ import java.util.UUID;
                         query = "SELECT DISTINCT " +
                                 "  a " +
                                 "FROM " +
-                                "  Achievement a JOIN FETCH a.steps s JOIN s.progressList p " +
+                                "  Achievement a JOIN FETCH a.steps s " +
                                 "WHERE " +
-                                "  p.person.organization = :organization")
+                                "  a.id IN (SELECT DISTINCT ta.id FROM Achievement ta JOIN ta.steps tas JOIN tas.progressList tp WHERE tp.person.organization = :organization)"),
+                @NamedQuery(
+                        name = "Achievement.findWithProgressForPerson",
+                        query = "SELECT DISTINCT " +
+                                "  a " +
+                                "FROM " +
+                                "  Achievement a JOIN FETCH a.steps s " +
+                                "WHERE " +
+                                "  a.id IN (SELECT DISTINCT ta.id FROM Achievement ta JOIN ta.steps tas JOIN tas.progressList tp WHERE tp.person = :person)")
         }
 )
 public class Achievement extends AchievementProperties {

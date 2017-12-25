@@ -32,6 +32,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static se.devscout.achievements.server.MockUtil.*;
 
 public class OrganizationsResourceTest {
 
@@ -118,11 +119,11 @@ public class OrganizationsResourceTest {
 
     @Test
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
-        final UUID uuid = UUID.randomUUID();
-        when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final Person person1 = mockPerson("Alice");
-        final Person person2 = mockPerson("Bob");
-        final Person person3 = mockPerson("Carol");
+        final Organization org = mockOrganization("Alice's Organization");
+        when(dao.read(eq(org.getId()))).thenReturn(org);
+        final Person person1 = mockPerson(org, "Alice");
+        final Person person2 = mockPerson(org, "Bob");
+        final Person person3 = mockPerson(org, "Carol");
         final AchievementStepProgress a1p1 = mockProgress(true, person1);
         final AchievementStepProgress a1p2 = mockProgress(false, person2);
         final AchievementStepProgress a1p3 = mockProgress(true, person1);
@@ -143,7 +144,7 @@ public class OrganizationsResourceTest {
                 .thenReturn(Arrays.asList(a1, a2));
 
         final OrganizationAchievementSummaryDTO dto = resources.client()
-                .target("/organizations/" + UuidString.toString(uuid) + "/achievement-summary")
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/achievement-summary")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get(OrganizationAchievementSummaryDTO.class);
@@ -165,31 +166,4 @@ public class OrganizationsResourceTest {
         assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(100);
     }
 
-    private Person mockPerson(String name) {
-        final Person person = mock(Person.class);
-        when(person.getName()).thenReturn(name);
-        return person;
-    }
-
-    private Achievement mockAchievement(String name, AchievementStep... steps) {
-        final Achievement achievementMock = mock(Achievement.class);
-        when(achievementMock.getName()).thenReturn(name);
-        when(achievementMock.getSteps()).thenReturn(Arrays.asList(
-                steps
-        ));
-        return achievementMock;
-    }
-
-    private AchievementStep mockStep(AchievementStepProgress... progress) {
-        final AchievementStep stepMock = mock(AchievementStep.class);
-        when(stepMock.getProgressList()).thenReturn(Arrays.asList(progress));
-        return stepMock;
-    }
-
-    private AchievementStepProgress mockProgress(boolean completed, Person person) {
-        final AchievementStepProgress progressMock = mock(AchievementStepProgress.class);
-        when(progressMock.isCompleted()).thenReturn(completed);
-        when(progressMock.getPerson()).thenReturn(person);
-        return progressMock;
-    }
 }

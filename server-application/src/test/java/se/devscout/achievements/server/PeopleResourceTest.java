@@ -1,6 +1,5 @@
 package se.devscout.achievements.server;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -8,13 +7,11 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.PeopleResource;
 import se.devscout.achievements.server.resources.UuidString;
@@ -24,26 +21,27 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static se.devscout.achievements.server.MockUtil.*;
 
 public class PeopleResourceTest {
 
     private static final int ZERO = 0;
     private final PeopleDao dao = mock(PeopleDao.class);
+
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
+
+    private final AchievementsDao achievementsDao = mock(AchievementsDao.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new PeopleResource(dao, organizationsDao))
+            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao))
             .build();
 
     @Before
@@ -55,7 +53,9 @@ public class PeopleResourceTest {
     @Test
     public void get_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "Alice");
+        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
@@ -75,6 +75,7 @@ public class PeopleResourceTest {
     @Test
     public void getByOrganization_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "Alice");
         when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
 
@@ -143,7 +144,9 @@ public class PeopleResourceTest {
     @Test
     public void delete_happyPath() throws Exception {
         final Organization org = mockOrganization("Org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "name");
+        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
@@ -160,8 +163,11 @@ public class PeopleResourceTest {
     public void delete_wrongOrganization_expectNotFound() throws Exception {
 
         final Organization orgA = mockOrganization("ORG_A");
+        when(organizationsDao.read(eq(orgA.getId()))).thenReturn(orgA);
         final Organization orgB = mockOrganization("ORG_B");
+        when(organizationsDao.read(eq(orgB.getId()))).thenReturn(orgB);
         final Person person = mockPerson(orgA, "name");
+        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
@@ -179,8 +185,11 @@ public class PeopleResourceTest {
     public void get_wrongOrganization_expectNotFound() throws Exception {
 
         final Organization orgA = mockOrganization("ORG_A");
+        when(organizationsDao.read(eq(orgA.getId()))).thenReturn(orgA);
         final Organization orgB = mockOrganization("ORG_B");
+        when(organizationsDao.read(eq(orgB.getId()))).thenReturn(orgB);
         final Person person = mockPerson(orgA, "name");
+        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
@@ -194,6 +203,7 @@ public class PeopleResourceTest {
         verify(dao).read(eq(person.getId()));
     }
 
+/*
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
         final Integer id = getRandomNonZeroValue();
 
@@ -206,11 +216,15 @@ public class PeopleResourceTest {
 
         return person;
     }
+*/
 
+/*
     private int getRandomNonZeroValue() {
         return new Random().nextInt(10000) + 1;
     }
+*/
 
+/*
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
         final UUID uuid = UUID.randomUUID();
 
@@ -222,11 +236,14 @@ public class PeopleResourceTest {
 
         return orgA;
     }
+*/
 
     @Test
     public void create_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "name");
+        when(dao.read(eq(person.getId()))).thenReturn(person);
         when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
 
         final Response response = resources
@@ -245,4 +262,55 @@ public class PeopleResourceTest {
         verify(organizationsDao).read(eq(org.getId()));
     }
 
+    @Test
+    public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
+        final Organization org = mockOrganization("Alice's Organization");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
+        final Person person1 = mockPerson(org, "Alice");
+        when(dao.read(eq(person1.getId()))).thenReturn(person1);
+        final Person person2 = mockPerson(org, "Bob");
+        when(dao.read(eq(person2.getId()))).thenReturn(person2);
+        final Person person3 = mockPerson(org, "Carol");
+        when(dao.read(eq(person3.getId()))).thenReturn(person3);
+        final AchievementStepProgress a1p1 = mockProgress(true, person1);
+        final AchievementStepProgress a1p2 = mockProgress(true, person2);
+        final AchievementStepProgress a1p3 = mockProgress(true, person1);
+        final AchievementStepProgress a1p4 = mockProgress(true, person2);
+        final AchievementStep a1s1 = mockStep(a1p1, a1p2);
+        final AchievementStep a1s2 = mockStep(a1p3, a1p4);
+        final Achievement a1 = mockAchievement("Climb mountain", a1s1, a1s2);
+
+        final AchievementStepProgress a2p1 = mockProgress(false, person2);
+        final AchievementStepProgress a2p2 = mockProgress(true, person1);
+        final AchievementStepProgress a2p3 = mockProgress(false, person2);
+        final AchievementStepProgress a2p4 = mockProgress(false, person1);
+        final AchievementStep s2 = mockStep(a2p1, a2p2);
+        final AchievementStep s3 = mockStep(a2p3, a2p4);
+        final Achievement a2 = mockAchievement("Cook egg", s2, s3);
+
+        when(achievementsDao.findWithProgressForPerson(eq(person1)))
+                .thenReturn(Arrays.asList(a1, a2));
+
+        final OrganizationAchievementSummaryDTO dto = resources.client()
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person1.getId() + "/achievement-summary")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .get(OrganizationAchievementSummaryDTO.class);
+
+        assertThat(dto.achievements).hasSize(2);
+
+        assertThat(dto.achievements.get(0).achievement.name).isEqualTo("Climb mountain");
+        assertThat(dto.achievements.get(0).progress_summary.people_completed).isEqualTo(1);
+        assertThat(dto.achievements.get(0).progress_summary.people_started).isEqualTo(0);
+        assertThat(dto.achievements.get(0).progress_detailed).hasSize(1);
+        assertThat(dto.achievements.get(0).progress_detailed.get(0).person.name).isEqualTo("Alice");
+        assertThat(dto.achievements.get(0).progress_detailed.get(0).percent).isEqualTo(100);
+
+        assertThat(dto.achievements.get(1).achievement.name).isEqualTo("Cook egg");
+        assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(0);
+        assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(1);
+        assertThat(dto.achievements.get(1).progress_detailed).hasSize(1);
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).person.name).isEqualTo("Alice");
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(50);
+    }
 }

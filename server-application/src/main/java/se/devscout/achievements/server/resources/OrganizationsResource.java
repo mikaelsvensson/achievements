@@ -61,44 +61,9 @@ public class OrganizationsResource extends AbstractResource {
         try {
             final Organization organization = dao.read(id.getUUID());
 
-            final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
-
             final List<Achievement> achievements = achievementsDao.findWithProgressForOrganization(organization);
-            for (Achievement achievement : achievements) {
-                final int stepCount = achievement.getSteps().size();
-                final Map<Person, Long> completedStepsByPerson = achievement.getSteps().stream()
-                        .flatMap(achievementStep -> achievementStep.getProgressList().stream())
-                        .filter(AchievementStepProgressProperties::isCompleted)
-                        .collect(Collectors.toMap(
-                                AchievementStepProgress::getPerson,
-                                progressValue -> 1L,
-                                (u, u2) -> u + u2));
-                final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
 
-                List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = null;
-                if (stepCount > 0) {
-                    progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
-                            .filter(entry -> entry.getValue() == stepCount)
-                            .count();
-
-                    progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
-                            .filter(entry -> entry.getValue() < stepCount)
-                            .count();
-
-                    progressDetailed = completedStepsByPerson.entrySet().stream().map(entry -> {
-                        final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
-                        personProgress.percent = (int) Math.round(100.0 * entry.getValue() / stepCount);
-                        personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
-                        return personProgress;
-                    }).collect(Collectors.toList());
-                }
-
-                final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
-                achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
-                achievementSummary.progress_summary = progressSummary;
-                achievementSummary.progress_detailed = progressDetailed;
-                summary.achievements.add(achievementSummary);
-            }
+            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null);
 
             return summary;
         } catch (ObjectNotFoundException e) {

@@ -34,7 +34,7 @@ public class AchievementsDaoImplTest {
     }
 
     @Test
-    public void findWithProgressForOrganization() throws Exception {
+    public void findWithProgressForOrganizationAndPerson() throws Exception {
         // Setup: Create organization
         OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
         Organization org1 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization 1")));
@@ -42,7 +42,8 @@ public class AchievementsDaoImplTest {
 
         // Setup: Crate people
         PeopleDaoImpl peopleDao = new PeopleDaoImpl(database.getSessionFactory());
-        Person personWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alice")));
+        Person personAliceWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alice")));
+        Person personAlanWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alan")));
         Person personWithoutProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Bob")));
         Person personFromOtherOrgWithProgress = database.inTransaction(() -> peopleDao.create(org2, new PersonProperties("Carol")));
 
@@ -63,27 +64,49 @@ public class AchievementsDaoImplTest {
         AchievementStep achievement2Step5 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Use colinder to pour out the water")));
         AchievementStep achievement2Step6 = database.inTransaction(() -> stepsDao.create(achievement2, new AchievementStepProperties("Serve with bolognese")));
         AchievementStep achievement3Step1 = database.inTransaction(() -> stepsDao.create(achievement3, new AchievementStepProperties("Order from local pizzeria")));
+        AchievementStep achievement3Step2 = database.inTransaction(() -> stepsDao.create(achievement3, new AchievementStepProperties("Eat and enjoy")));
 
         // Setup: Create progress records
         AchievementStepProgressDaoImpl progressDao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
-        database.inTransaction(() -> progressDao.set(achievement1Step1, personWithProgress, new AchievementStepProgressProperties(true, "Finally done")));
-        database.inTransaction(() -> progressDao.set(achievement1Step2, personWithProgress, new AchievementStepProgressProperties(false, "Still eating the egg")));
-        database.inTransaction(() -> progressDao.set(achievement2Step1, personWithProgress, new AchievementStepProgressProperties(true, null)));
-        database.inTransaction(() -> progressDao.set(achievement2Step2, personWithProgress, new AchievementStepProgressProperties(true, null)));
-        database.inTransaction(() -> progressDao.set(achievement2Step3, personWithProgress, new AchievementStepProgressProperties(true, null)));
-        database.inTransaction(() -> progressDao.set(achievement2Step4, personWithProgress, new AchievementStepProgressProperties(true, null)));
-        database.inTransaction(() -> progressDao.set(achievement2Step5, personWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement1Step1, personAliceWithProgress, new AchievementStepProgressProperties(true, "Finally done")));
+        database.inTransaction(() -> progressDao.set(achievement1Step2, personAliceWithProgress, new AchievementStepProgressProperties(false, "Still eating the egg")));
+        database.inTransaction(() -> progressDao.set(achievement2Step1, personAliceWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step2, personAliceWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step3, personAliceWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step4, personAliceWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement2Step5, personAliceWithProgress, new AchievementStepProgressProperties(true, null)));
         database.inTransaction(() -> progressDao.set(achievement3Step1, personFromOtherOrgWithProgress, new AchievementStepProgressProperties(true, null)));
+        database.inTransaction(() -> progressDao.set(achievement3Step1, personAlanWithProgress, new AchievementStepProgressProperties(true, "It is a start")));
 
         System.out.println("SUT");
 
+        // Testing ORGANIZATONS:
+
         final List<Achievement> actual1 = achievementsDao.findWithProgressForOrganization(org1);
-        assertThat(actual1).hasSize(2);
-        assertThat(actual1).containsOnly(achievement1, achievement2);
+        assertThat(actual1).hasSize(3);
+        assertThat(actual1).containsOnly(achievement1, achievement2, achievement3);
 
         final List<Achievement> actual2 = achievementsDao.findWithProgressForOrganization(org2);
         assertThat(actual2).hasSize(1);
         assertThat(actual2).containsOnly(achievement3);
+
+        // Testing PEOPLE:
+
+        final List<Achievement> actual3a = database.inTransaction(() -> achievementsDao.findWithProgressForPerson(personAliceWithProgress));
+        assertThat(actual3a).hasSize(2);
+        assertThat(actual3a).containsOnly(achievement1, achievement2);
+
+        final List<Achievement> actual3b = database.inTransaction(() -> achievementsDao.findWithProgressForPerson(personAlanWithProgress));
+        assertThat(actual3b).hasSize(1);
+        assertThat(actual3b).containsOnly(achievement3);
+        assertThat(actual3b.get(0).getSteps()).hasSize(2);
+
+        final List<Achievement> actual4 = achievementsDao.findWithProgressForPerson(personFromOtherOrgWithProgress);
+        assertThat(actual4).hasSize(1);
+        assertThat(actual4).containsOnly(achievement3);
+
+        final List<Achievement> actual5 = achievementsDao.findWithProgressForPerson(personWithoutProgress);
+        assertThat(actual5).isEmpty();
     }
 
     @Test

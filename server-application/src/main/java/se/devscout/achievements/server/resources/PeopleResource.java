@@ -2,11 +2,14 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
@@ -26,10 +29,12 @@ import java.util.stream.Collectors;
 public class PeopleResource extends AbstractResource {
     private PeopleDao dao;
     private OrganizationsDao organizationsDao;
+    private AchievementsDao achievementsDao;
 
-    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao) {
+    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao) {
         this.dao = dao;
         this.organizationsDao = organizationsDao;
+        this.achievementsDao = achievementsDao;
     }
 
     @GET
@@ -56,6 +61,27 @@ public class PeopleResource extends AbstractResource {
             throw new NotFoundException();
         }
     }
+
+    @GET
+    @Path("{personId}/achievement-summary")
+    @UnitOfWork
+    public OrganizationAchievementSummaryDTO getAchievementSummary(@PathParam("organizationId") UuidString organizationId,
+                                                                   @PathParam("personId") Integer id,
+                                                                   @Auth User user) {
+        try {
+            final Person person = dao.read(id);
+            verifyParent(organizationId.getUUID(), person);
+
+            final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
+
+            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, id);
+
+            return summary;
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        }
+    }
+
 
     @POST
     @UnitOfWork

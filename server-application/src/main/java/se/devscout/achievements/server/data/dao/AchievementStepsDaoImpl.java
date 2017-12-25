@@ -31,7 +31,9 @@ public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep, Integer> i
     @Override
     public AchievementStep create(Achievement parent, AchievementStepProperties properties) {
         final AchievementStep step = new ModelMapper().map(properties, AchievementStep.class);
+        //TODO: Do this dual-linking of parent and child for all entity collections:
         step.setAchievement(parent);
+        parent.getSteps().add(step);
         return persist(step);
     }
 
@@ -45,6 +47,7 @@ public class AchievementStepsDaoImpl extends DaoImpl<AchievementStep, Integer> i
     @Override
     public void delete(Integer id) throws ObjectNotFoundException {
         final AchievementStep step = read(id);
+        step.getAchievement().getSteps().remove(step);
         super.currentSession().delete(step);
     }
 

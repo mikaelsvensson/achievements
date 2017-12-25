@@ -1,0 +1,20 @@
+<div>
+    <table style="width: auto;">
+        <tbody>
+        {{#each achievements}}
+        <tr>
+            <td>
+                <span style="white-space: nowrap;">
+                    {{achievement.name}}
+                </span>
+            </td>
+            <td>
+                <progress style="width: 10rem; margin-top: 0.4rem"
+                          class="progress is-small" value="{{progress_detailed.[0].percent}}"
+                          max="100"></progress>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>

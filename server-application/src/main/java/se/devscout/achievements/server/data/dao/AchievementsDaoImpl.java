@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.Person;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,11 +60,21 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
 
     @Override
     public List<Achievement> findWithProgressForOrganization(Organization organization) {
-
         requireNonNull(organization);
 
         return namedQuery("Achievement.findWithProgressForOrganization")
                 .setParameter("organization", organization)
                 .getResultList();
+    }
+
+    @Override
+    public List<Achievement> findWithProgressForPerson(Person person) {
+        requireNonNull(person);
+
+        final List<Achievement> list = namedQuery("Achievement.findWithProgressForPerson")
+                .setParameter("person", person)
+                .getResultList();
+
+        return list;
     }
 }
