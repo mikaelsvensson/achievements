@@ -12,7 +12,6 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.resources.OrganizationsResource;
 import se.devscout.achievements.server.resources.SignupResource;
 import se.devscout.achievements.server.resources.UuidString;
 
@@ -54,10 +53,12 @@ public class SignupResourceTest {
     @Test
     public void signup_newOrganization_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "alice");
         when(organizationsDao.create(any(OrganizationProperties.class))).thenReturn(org);
         when(organizationsDao.find(anyString())).thenReturn(Collections.EMPTY_LIST);
-        when(peopleDao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
+        when(peopleDao.create(any(Organization.class), any(PersonProperties.class))).thenAnswer(invocation -> mockPerson(
+                invocation.getArgument(0),
+                ((PersonProperties) invocation.getArgument(1)).getName(),
+                ((PersonProperties) invocation.getArgument(1)).getEmail()));
         final Response response = resources
                 .target("/signup/")
                 .request()
@@ -68,14 +69,13 @@ public class SignupResourceTest {
         final SignupResponseDTO responseDTO = response.readEntity(SignupResponseDTO.class);
         assertThat(responseDTO.organization.id).isEqualTo(UuidString.toString(org.getId()));
         assertThat(responseDTO.organization.name).isEqualTo(org.getName());
-        assertThat(responseDTO.person.id).isEqualTo(person.getId());
         assertThat(responseDTO.person.name).isEqualTo("alice");
         assertThat(responseDTO.person.email).isEqualTo("alice@example.com");
 
         verify(organizationsDao).find(anyString());
         verify(organizationsDao).create(any(OrganizationProperties.class));
         verify(peopleDao).create(eq(org), any(PersonProperties.class));
-        verify(credentialsDao).create(eq(person), any(CredentialsProperties.class));
+        verify(credentialsDao).create(any(Person.class), any(CredentialsProperties.class));
     }
 
     @Test
