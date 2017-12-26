@@ -6,6 +6,7 @@ import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
+import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
@@ -60,25 +61,31 @@ public class AchievementStepsResource extends AbstractResource {
     @UnitOfWork
     public Response create(@PathParam("achievementId") UuidString achievementId,
                            @Auth User user,
-                           AchievementStepDTO input) throws ObjectNotFoundException {
-        final AchievementStepProperties properties = map(input, AchievementStepProperties.class);
-        if (input.prerequisite_achievement != null) {
-            properties.setPrerequisiteAchievement(achievementsDao.read(UuidString.toUUID(input.prerequisite_achievement)));
-        }
+                           AchievementStepDTO input) {
+        try {
+            final AchievementStepProperties properties = map(input, AchievementStepProperties.class);
+            if (input.prerequisite_achievement != null) {
+                properties.setPrerequisiteAchievement(achievementsDao.read(UuidString.toUUID(input.prerequisite_achievement)));
+            }
 
-        final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        final Set<ConstraintViolation<AchievementStepProperties>> violations = validator.validate(properties);
-        if (!violations.isEmpty()) {
-            throw new BadRequestException(violations.stream().map(v -> v.getMessage()).collect(Collectors.joining()));
-        }
+            final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            final Set<ConstraintViolation<AchievementStepProperties>> violations = validator.validate(properties);
+            if (!violations.isEmpty()) {
+                throw new BadRequestException(violations.stream().map(v -> v.getMessage()).collect(Collectors.joining()));
+            }
 
-        Achievement achievement = getAchievement(achievementId.getUUID());
-        final AchievementStep person = dao.create(achievement, properties);
-        final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
-        return Response
-                .created(location)
-                .entity(map(person, AchievementStepDTO.class))
-                .build();
+            Achievement achievement = getAchievement(achievementId.getUUID());
+            final AchievementStep person = dao.create(achievement, properties);
+            final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
+            return Response
+                    .created(location)
+                    .entity(map(person, AchievementStepDTO.class))
+                    .build();
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        } catch (DaoException e) {
+            throw new InternalServerErrorException();
+        }
     }
 
     private Achievement getAchievement(UUID achievementId) {

@@ -20,10 +20,15 @@ public class MockUtil {
     }
 
     public static Person mockPerson(Organization organization, String name) {
+        return mockPerson(organization, name, null);
+    }
+
+    public static Person mockPerson(Organization organization, String name, String customId) {
         final Integer id = getRandomNonZeroValue();
         final Person person = mock(Person.class);
         when(person.getId()).thenReturn(id);
         when(person.getName()).thenReturn(name);
+        when(person.getCustomIdentifier()).thenReturn(customId);
         if (organization != null) {
             when(person.getOrganization()).thenReturn(organization);
         }

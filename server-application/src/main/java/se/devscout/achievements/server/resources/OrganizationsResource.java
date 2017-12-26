@@ -4,10 +4,7 @@ import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.User;
-import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.dao.DaoException;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.*;
@@ -111,6 +108,10 @@ public class OrganizationsResource extends AbstractResource {
                     .build();
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException("Could not find " + id.toString());
+        } catch (DuplicateCustomIdentifier duplicateCustomIdentifier) {
+            throw new WebApplicationException(Response.Status.CONFLICT);
+        } catch (DaoException e) {
+            throw new InternalServerErrorException();
         }
     }
 

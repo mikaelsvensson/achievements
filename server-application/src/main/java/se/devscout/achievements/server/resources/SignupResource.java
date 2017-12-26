@@ -71,7 +71,7 @@ public class SignupResource extends AbstractResource {
             throw new BadRequestException("Email cannot be empty");
         }
         try {
-            final Person person = peopleDao.create(organization, new PersonProperties(StringUtils.substringBefore(dto.email, "@"), dto.email, Collections.emptySet()));
+            final Person person = peopleDao.create(organization, new PersonProperties(StringUtils.substringBefore(dto.email, "@"), dto.email, Collections.emptySet(), null));
             credentialsDao.create(person, new CredentialsProperties(dto.email, new PasswordValidator(SecretGenerator.PDKDF2, dto.password.toCharArray())));
             final URI location = UriBuilder.fromResource(PeopleResource.class)
                     .path(person.getId().toString())
@@ -80,7 +80,7 @@ public class SignupResource extends AbstractResource {
                     .created(location)
                     .entity(new SignupResponseDTO(map(person, PersonDTO.class), map(organization, OrganizationDTO.class)))
                     .build();
-        } catch (IOException e) {
+        } catch (IOException | DaoException e) {
             throw new InternalServerErrorException("Could not configure user with credentials", e);
         }
     }

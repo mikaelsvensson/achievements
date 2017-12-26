@@ -58,18 +58,18 @@ public class BoostrapDataTask extends DatabaseTask {
         return organization;
     }
 
-    private void createPerson(PrintWriter output, Organization organization, String name) {
+    private void createPerson(PrintWriter output, Organization organization, String name) throws DaoException {
         final Person person = peopleDao.create(organization, new PersonProperties(name));
         output.format("Created person %s (id %s)%n", person.getName(), person.getId());
     }
 
-    private AchievementStep createAchievementStep(PrintWriter output, Achievement achievement, String description) {
+    private AchievementStep createAchievementStep(PrintWriter output, Achievement achievement, String description) throws DaoException {
         final AchievementStep step = achievementStepsDao.create(achievement, new AchievementStepProperties(description));
         output.format("Created regular achievement step (id %s)%n", step.getId());
         return step;
     }
 
-    private AchievementStep createAchievementStep(PrintWriter output, Achievement achievement, Achievement prerequisiteAchievement) {
+    private AchievementStep createAchievementStep(PrintWriter output, Achievement achievement, Achievement prerequisiteAchievement) throws DaoException {
         final AchievementStep step = achievementStepsDao.create(achievement, new AchievementStepProperties(prerequisiteAchievement));
         output.format("Created prerequisite achievement step (id %s)%n", step.getId());
         return step;

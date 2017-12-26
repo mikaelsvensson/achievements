@@ -10,7 +10,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 abstract class AbstractResource {
@@ -23,18 +22,27 @@ abstract class AbstractResource {
     AbstractResource() {
         toDtoMapper = new ModelMapper();
         toDtoMapper.getConfiguration().setFieldMatchingEnabled(true);
-        toDtoMapper.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
+        toDtoMapper.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
+        toDtoMapper.getConfiguration().setDestinationNameTokenizer(NameTokenizers.UNDERSCORE);
 
         fromDtoMapper = new ModelMapper();
         fromDtoMapper.getConfiguration().setFieldMatchingEnabled(true);
-        fromDtoMapper.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
+        fromDtoMapper.getConfiguration().setSourceNameTokenizer(NameTokenizers.UNDERSCORE);
+        fromDtoMapper.getConfiguration().setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
     }
 
     protected <S, T> T map(S src, Class<T> destinationType) {
         if (src != null) {
-            final T dest = MoreObjects.firstNonNull(
-                    toDtoMapper.map(src, destinationType),
-                    fromDtoMapper.map(src, destinationType));
+            final T dest;
+            if (src.getClass().getSimpleName().endsWith("DTO")) {
+                dest = fromDtoMapper.map(src, destinationType);
+            } else if (destinationType.getSimpleName().endsWith("DTO")) {
+                dest = toDtoMapper.map(src, destinationType);
+            } else {
+                dest = MoreObjects.firstNonNull(
+                        toDtoMapper.map(src, destinationType),
+                        fromDtoMapper.map(src, destinationType));
+            }
             if (src instanceof AchievementStep && dest instanceof AchievementStepDTO) {
                 AchievementStep entity = (AchievementStep) src;
                 AchievementStepDTO dto = (AchievementStepDTO) dest;

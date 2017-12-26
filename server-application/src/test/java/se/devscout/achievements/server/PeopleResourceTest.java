@@ -127,6 +127,28 @@ public class PeopleResourceTest {
     }
 
     @Test
+    public void get_byCustomId_notFound() throws Exception {
+        final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
+        final Person person = mockPerson(org, "Alice", "alice");
+        when(dao.read(eq(org), eq("alice"))).thenReturn(person);
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/c:alice")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final PersonDTO dto = response.readEntity(PersonDTO.class);
+        assertThat(dto.name).isEqualTo("Alice");
+        assertThat(dto.custom_identifier).isEqualTo("alice");
+
+        verify(dao, never()).read(anyInt());
+        verify(dao).read(eq(org), eq("alice"));
+    }
+
+    @Test
     public void delete_notFound() throws Exception {
         doThrow(new NotFoundException()).when(dao).read(eq(-1));
 

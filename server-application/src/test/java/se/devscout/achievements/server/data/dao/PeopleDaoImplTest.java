@@ -93,7 +93,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
         final Person actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Carol");
@@ -106,9 +106,19 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_sameNameAsExistingPerson_happyPath() throws Exception {
-        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
-        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")))));
+        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
+        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
         assertThat(c1.getId()).isNotEqualTo(c2.getId());
+    }
+
+    @Test(expected = DuplicateCustomIdentifier.class)
+    public void create_duplicateCustomId_notAllowed() throws Exception {
+        try {
+            dao.create(testOrganization, new PersonProperties("Carol1", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol"));
+        } catch (Exception e) {
+            fail("Exception was not expected");
+        }
+        dao.create(testOrganization, new PersonProperties("Carol2", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol"));
     }
 
     @Test
@@ -121,6 +131,20 @@ public class PeopleDaoImplTest {
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Becky");
         assertThat(actual.getAttributes()).isEmpty();
+    }
+
+    @Test(expected = DuplicateCustomIdentifier.class)
+    public void update_duplicateCustomId_notAllowed() throws Exception {
+        Integer objectUuid = null;
+
+        try {
+            database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Cooper", "belinda_id"))).getId();
+            objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Jones"))).getId();
+        } catch (Exception e) {
+            fail("Exception was not expected");
+        }
+
+        dao.update(objectUuid, new PersonProperties("Belinda Jones", "belinda_id"));
     }
 
     @Test

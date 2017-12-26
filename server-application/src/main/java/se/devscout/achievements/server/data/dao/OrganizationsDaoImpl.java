@@ -35,7 +35,7 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements
         if (maxOrganizationCount != null) {
             final Long count = getEntityCount();
             if (count >= maxOrganizationCount) {
-                throw new TooManyOrganizationsException();
+                throw new TooManyOrganizationsException("Only " + maxOrganizationCount + " organizations can exist in the system.");
             }
         }
         final Organization existingOrg = super.currentSession()

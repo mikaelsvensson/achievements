@@ -8,7 +8,7 @@ public interface BaseDao<E, P, ID extends Serializable> {
 
     List<E> readAll();
 
-    E update(ID id, P properties) throws ObjectNotFoundException;
+    E update(ID id, P properties) throws ObjectNotFoundException, DaoException;
 
     void delete(ID id) throws ObjectNotFoundException;
 }

@@ -96,7 +96,7 @@ public class OrganizationsResourceTest {
 
     @Test
     public void create_tooManyOrganizations() throws Exception {
-        when(dao.create(any(OrganizationProperties.class))).thenThrow(new TooManyOrganizationsException());
+        when(dao.create(any(OrganizationProperties.class))).thenThrow(new TooManyOrganizationsException("Too many"));
         final Response response = request("/organizations").post(Entity.json(new OrganizationDTO(null, "Will not be created")));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
     }

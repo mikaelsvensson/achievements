@@ -6,6 +6,7 @@ import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 
 public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao {
@@ -29,17 +30,25 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     }
 
     @Override
-    public Person create(Organization parent, PersonProperties properties) {
+    public Person create(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
+        verifyCustomIdentifier(parent, properties);
         final Person person = new ModelMapper().map(properties, Person.class);
         person.setOrganization(parent);
         return persist(person);
     }
 
     @Override
-    public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException {
+    public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException, DuplicateCustomIdentifier {
         final Person person = read(id);
+        verifyCustomIdentifier(person.getOrganization(), properties);
         person.apply(properties);
         return super.persist(person);
+    }
+
+    private void verifyCustomIdentifier(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
+        if (isExistingCustomId(parent, properties.getCustomIdentifier())) {
+            throw new DuplicateCustomIdentifier("Another person withing " + parent.getName() + " already has the identifier " + properties.getCustomIdentifier());
+        }
     }
 
     @Override
@@ -53,5 +62,25 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
         return namedQuery("Person.getByOrganization")
                 .setParameter("organization", parent)
                 .getResultList();
+    }
+
+    boolean isExistingCustomId(Organization parent, String customIdentifier) {
+        return !findByCustomId(parent, customIdentifier).isEmpty();
+    }
+
+    private List<Person> findByCustomId(Organization parent, String customIdentifier) {
+        return namedQuery("Person.getByCustomId")
+                .setParameter("organization", parent)
+                .setParameter("customId", customIdentifier)
+                .getResultList();
+    }
+
+    @Override
+    public Person read(Organization parent, String customId) throws ObjectNotFoundException {
+        final List<Person> list = findByCustomId(parent, customId);
+        if (list.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return list.iterator().next();
     }
 }

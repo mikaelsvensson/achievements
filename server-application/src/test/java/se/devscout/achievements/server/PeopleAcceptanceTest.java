@@ -65,6 +65,7 @@ public class PeopleAcceptanceTest {
         final URI location = createResponse.getLocation();
 
         dto.name = "Alicia";
+        dto.custom_identifier = "alicia";
 
         Response updateResponse = client
                 .target(location)
@@ -77,6 +78,7 @@ public class PeopleAcceptanceTest {
         final PersonDTO response2Dto = updateResponse.readEntity(PersonDTO.class);
 
         assertThat(response2Dto.name).isEqualTo("Alicia");
+        assertThat(response2Dto.custom_identifier).isEqualTo("alicia");
         assertThat(response2Dto.organization.name).isEqualTo("Monsters, Inc.");
 
         Response getResponse = client
@@ -96,7 +98,7 @@ public class PeopleAcceptanceTest {
     public void create_invalidEmailAddress_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null);
+        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null);
 
         Response createResponse = client
                 .target(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
@@ -116,7 +118,7 @@ public class PeopleAcceptanceTest {
     public void create_missingName_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null);
+        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null);
 
         Response createResponse = client
                 .target(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
