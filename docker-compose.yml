@@ -20,7 +20,6 @@ services:
     container_name: achievements-app
     build:
       context: ./server-application
-#    image: hub.int.klarna.net/meta/branding-service
     environment:
       - ENVIRONMENT=docker
     ports:
