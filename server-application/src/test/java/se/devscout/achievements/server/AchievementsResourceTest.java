@@ -1,13 +1,11 @@
 package se.devscout.achievements.server;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,6 +16,7 @@ import se.devscout.achievements.server.auth.SecretGenerator;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.AchievementsResource;
 import se.devscout.achievements.server.resources.UuidString;
@@ -26,7 +25,6 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -42,9 +40,10 @@ public class AchievementsResourceTest {
     private final AchievementStepProgressDao progressDao = mock(AchievementStepProgressDao.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
+    private final PeopleDao peopleDao = mock(PeopleDao.class);
 
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
             .addResource(new AchievementsResource(dao, progressDao))
             .build();
 

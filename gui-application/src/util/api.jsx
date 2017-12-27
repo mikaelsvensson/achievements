@@ -4,18 +4,56 @@ import {renderError} from "../error.jsx";
 function beforeSendHandler(xhr) {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
+    const token = localStorage.getItem("token");
+    const tokenGoogle = localStorage.getItem("token_google");
+
     if (username && password) {
         xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+    } else if (token) {
+        xhr.setRequestHeader("Authorization", "JWT " + token);
+    } else if (tokenGoogle) {
+        xhr.setRequestHeader("Authorization", "Google " + tokenGoogle);
     }
 }
 
 export function isLoggedIn() {
-    return !!localStorage.getItem("username") && !!localStorage.getItem("password");
+    const isLoggedIn = (!!localStorage.getItem("username") && !!localStorage.getItem("password"))
+        || !!localStorage.getItem("token")
+        || !!localStorage.getItem("token_google");
+    return isLoggedIn;
 }
 
 export function setCredentials(username, password) {
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
+}
+
+export function setToken(token) {
+    localStorage.setItem("token", token);
+}
+
+export function setGoogleToken(tokenGoogle) {
+    localStorage.setItem("token_google", tokenGoogle);
+}
+
+export function unsetAuth(googleApiAuth2) {
+    localStorage.removeItem("username");
+    localStorage.removeItem("password");
+    localStorage.removeItem("token");
+    localStorage.removeItem("token_google");
+
+    if (googleApiAuth2) {
+        const auth2 = googleApiAuth2.getAuthInstance();
+        if (auth2) {
+            auth2.signOut().then(function () {
+                console.log('Google user has been signed out.');
+            });
+        } else {
+            console.log("No Google Auth instance found");
+        }
+    } else {
+        console.log("No Google API client provided");
+    }
 }
 
 export function post(url, dataObject, onSuccess, onFail) {

@@ -31,4 +31,35 @@ public class AchievementsApplicationConfiguration extends Configuration {
     public void setMaxOrganizationCount(Long maxOrganizationCount) {
         this.maxOrganizationCount = maxOrganizationCount;
     }
+
+    private AuthConfig authentication;
+
+    public AuthConfig getAuthentication() {
+        return authentication;
+    }
+
+    public void setAuthentication(AuthConfig authentication) {
+        this.authentication = authentication;
+    }
+
+    public static class AuthConfig {
+        private String googleClientId;
+        private String jwtSigningSecret;
+
+        public String getGoogleClientId() {
+            return googleClientId;
+        }
+
+        public void setGoogleClientId(String googleClientId) {
+            this.googleClientId = googleClientId;
+        }
+
+        public String getJwtSigningSecret() {
+            return jwtSigningSecret;
+        }
+
+        public void setJwtSigningSecret(String jwtSigningSecret) {
+            this.jwtSigningSecret = jwtSigningSecret;
+        }
+    }
 }

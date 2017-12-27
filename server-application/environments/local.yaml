@@ -16,3 +16,7 @@ database:
     hibernate.hbm2ddl.auto: create-drop
     hibernate.archive.autodetection: class, hbm
     hibernate.show_sql: true
+
+authentication:
+  googleClientId: YOUR_CLIENT_ID_HERE
+  jwtSigningSecret: kQCTd0ypLpoFbRt8vTSaHp37kPsKMdh1wzDiuJUa

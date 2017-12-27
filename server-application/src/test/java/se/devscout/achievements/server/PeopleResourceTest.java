@@ -44,8 +44,10 @@ public class PeopleResourceTest {
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
+    private final PeopleDao peopleDao = mock(PeopleDao.class);
+
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
             .addResource(new PeopleResource(dao, organizationsDao, achievementsDao))
             .build();
 

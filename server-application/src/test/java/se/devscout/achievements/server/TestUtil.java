@@ -1,5 +1,6 @@
 package se.devscout.achievements.server;
 
+import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -8,8 +9,10 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.auth.JwtAuthenticator;
 import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Achievement;
 
 import java.util.UUID;
@@ -25,10 +28,16 @@ public class TestUtil {
                 "jdbc:h2:mem:unit_test_" + UUID.randomUUID().toString() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
     }
 
-    public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao) {
+    public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, PeopleDao peopleDao) {
+        final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
+                mockHibernateBundle(),
+                credentialsDao,
+                peopleDao,
+                new JwtAuthenticator("secret"),
+                "fake_google_client_id");
+
         return ResourceTestRule.builder()
-                //            .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
-                .addProvider(AchievementsApplication.createAuthFeature(mockHibernateBundle(), credentialsDao))
+                .addProvider(authFeature)
                 .addProvider(RolesAllowedDynamicFeature.class)
                 .addProvider(new AuthValueFactoryProvider.Binder<>(User.class));
     }

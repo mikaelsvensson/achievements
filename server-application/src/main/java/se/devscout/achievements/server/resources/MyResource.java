@@ -8,15 +8,12 @@ import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
+import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Person;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,12 +23,10 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class MyResource extends AbstractResource {
     private PeopleDao peopleDao;
-    private OrganizationsDao organizationsDao;
     private AchievementsDao achievementsDao;
 
-    public MyResource(PeopleDao peopleDao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao) {
+    public MyResource(PeopleDao peopleDao, AchievementsDao achievementsDao) {
         this.peopleDao = peopleDao;
-        this.organizationsDao = organizationsDao;
         this.achievementsDao = achievementsDao;
     }
 
@@ -39,25 +34,36 @@ public class MyResource extends AbstractResource {
     @Path("profile")
     @UnitOfWork
     public PersonProfileDTO getMyProfile(@Auth User user) {
+        final Person person = getPerson(user);
         return new PersonProfileDTO(
-                map(user.getCredentials().getPerson().getOrganization(), OrganizationDTO.class),
-                map(user.getCredentials().getPerson(), PersonDTO.class));
+                map(person.getOrganization(), OrganizationDTO.class),
+                map(person, PersonDTO.class));
     }
 
     @GET
     @Path("people")
     @UnitOfWork
     public List<PersonDTO> getMyPeople(@Auth User user) {
-        return peopleDao.getByParent(user.getCredentials().getPerson().getOrganization()).stream()
+        final Person person = getPerson(user);
+        return peopleDao.getByParent(person.getOrganization()).stream()
                 .map(p -> map(p, PersonDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private Person getPerson(@Auth User user) {
+        try {
+            return peopleDao.read(user.getId());
+        } catch (ObjectNotFoundException e) {
+            // If this happens it basically means that the user was deleted between when the user was authenticated and now.
+            throw new WebApplicationException("Could not find user mentioned in User object.");
+        }
     }
 
     @GET
     @Path("achievement-summary")
     @UnitOfWork
     public OrganizationAchievementSummaryDTO getMyAchievementsSummary(@Auth User user) {
-        final Person person = user.getCredentials().getPerson();
+        final Person person = getPerson(user);
 
         final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
 

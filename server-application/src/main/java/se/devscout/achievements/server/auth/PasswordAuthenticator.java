@@ -26,7 +26,11 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
         try {
             final Credentials credentials = credentialsDao.get(IdentityProvider.PASSWORD, basicCredentials.getUsername());
             if (credentials.getSecretValidator().validate(basicCredentials.getPassword().toCharArray())) {
-                return Optional.of(new User(basicCredentials.getUsername(), credentials));
+                final User user = new User(
+                        credentials.getPerson().getId(),
+                        credentials.getId(),
+                        basicCredentials.getUsername());
+                return Optional.of(user);
             }
             return Optional.empty();
         } catch (HibernateException e) {

@@ -12,10 +12,7 @@ import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
-import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.TooManyOrganizationsException;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.OrganizationsResource;
 import se.devscout.achievements.server.resources.UuidString;
@@ -42,8 +39,10 @@ public class OrganizationsResourceTest {
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
+    private final PeopleDao peopleDao = mock(PeopleDao.class);
+
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
             .addResource(new OrganizationsResource(dao, achievementsDao))
             .build();
 

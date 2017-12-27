@@ -1,16 +1,17 @@
 package se.devscout.achievements.server.auth;
 
-import se.devscout.achievements.server.data.model.Credentials;
-
 import java.security.Principal;
+import java.util.UUID;
 
 public class User implements Principal {
     private String name;
-    private final Credentials credentials;
+    private final UUID usedCredentialsId;
+    private int id;
 
-    public User(String name, Credentials credentials) {
+    public User(int id, UUID usedCredentialsId, String name) {
+        this.id = id;
         this.name = name;
-        this.credentials = credentials;
+        this.usedCredentialsId = usedCredentialsId;
     }
 
     @Override
@@ -18,7 +19,11 @@ public class User implements Principal {
         return name;
     }
 
-    public Credentials getCredentials() {
-        return credentials;
+    public UUID getUsedCredentialsId() {
+        return usedCredentialsId;
+    }
+
+    public int getId() {
+        return id;
     }
 }

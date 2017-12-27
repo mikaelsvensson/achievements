@@ -39,8 +39,8 @@ public class MyResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, organizationsDao, achievementsDao))
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
+            .addResource(new MyResource(peopleDao, achievementsDao))
             .build();
 
     @Before
