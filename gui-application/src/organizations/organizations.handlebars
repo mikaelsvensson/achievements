@@ -4,15 +4,20 @@
         {{> ../_breadcrumbs.handlebars}}
 
         <div class="columns">
-            <div class="column">
+            <div class="column is-one-third">
+                <h2 class="subtitle is-one-third">Din kår</h2>
+                {{#if isLoggedIn}}
                 <div id="organizations-my"></div>
+                {{else}}
+                <p>Om du hade varit inloggad så hade du här sett en länk till din kår.</p>
+                {{/if}}
             </div>
-            <div class="column">
-                <h2 class="subtitle is-one-third">Skapa en ny</h2>
+            <div class="column is-one-third">
+                <h2 class="subtitle">Skapa en ny</h2>
                 <form>
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="text" id="name" name="name" placeholder="Namn på ny organisation"/>
+                            <input class="input" type="text" id="name" name="name" placeholder="Namn på ny kår"/>
                         </div>
                     </div>
 
@@ -23,6 +28,7 @@
             </div>
             <div class="column is-one-third">
                 <h2 class="subtitle">Sök efter en som redan finns</h2>
+                {{#if isLoggedIn}}
 
                 <form>
                     <div class="field has-addons">
@@ -38,6 +44,10 @@
                 </form>
 
                 <div id="organizations-search-result"></div>
+
+                {{else}}
+                <p>Tyvärr kan bara inloggade användare söka efter kårer.</p>
+                {{/if}}
             </div>
         </div>
     </div>

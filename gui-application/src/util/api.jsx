@@ -63,7 +63,20 @@ export function get(url, onSuccess, onFail) {
         .done(onSuccess)
         .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
                 const status = jqXHR.status;
-                renderError(`Kan inte visa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
+                const isAuthFailure = status == 401 || status == 403;
+                let requestOrganizationId;
+                if (isAuthFailure) {
+                    const matches = /organizations\/([a-zA-Z0-9-]{22})/.exec(url);
+                    if (matches && matches.length >= 2) {
+                        requestOrganizationId = matches[1];
+                    }
+                }
+                renderError(`Kan inte visa sidan pga. fel ${status}.`,
+                    isAuthFailure,
+                    requestOrganizationId,
+                    url,
+                    status,
+                    isLoggedIn())
             }
         );
 }

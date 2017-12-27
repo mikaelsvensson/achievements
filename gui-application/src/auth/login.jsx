@@ -16,7 +16,7 @@ export function renderLogin() {
 
         get('//localhost:8080/api/my/people', function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading');
-            navigateTo('statistik');
+            navigateTo('minprofil');
         });
     });
 }

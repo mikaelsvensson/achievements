@@ -5,10 +5,11 @@
                 <div class="content is-small has-text-centered">
                     <p>
                         {{#if isLoggedIn}}
-                        <a href="#loggaut" aria-current="page">Logga ut</a>.
                         <a href="#minprofil" aria-current="page">Min profil</a>.
+                        <a href="#loggaut" aria-current="page">Logga ut</a>.
                         {{else}}
-                        <span>Du är inte inloggad, så du kan inte göra så mycket.</span>
+                        <span>Du är inte inloggad, så du kan inte göra så mycket. <br>Vad sägs om att <a href="#loggain"
+                                                                                                         aria-current="page">logga in</a>?</span>
                         {{/if}}
                     </p>
                 </div>
