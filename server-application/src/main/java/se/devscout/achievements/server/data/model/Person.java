@@ -13,7 +13,8 @@ import static se.devscout.achievements.server.data.model.PersonProperties.CUSTOM
         uniqueConstraints = @UniqueConstraint(name = "idx_person_customid", columnNames = {"organization_id", CUSTOM_IDENTIFIER_COLNAME}))
 @NamedQueries({
         @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization = :organization"),
-        @NamedQuery(name = "Person.getByCustomId", query = "SELECT p FROM Person p WHERE p.customIdentifier = :customId AND p.organization = :organization")
+        @NamedQuery(name = "Person.getByCustomId", query = "SELECT p FROM Person p WHERE p.customIdentifier = :customId AND p.organization = :organization"),
+        @NamedQuery(name = "Person.getByEmail", query = "SELECT p FROM Person p WHERE p.email = :email")
 })
 public class Person extends PersonProperties {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

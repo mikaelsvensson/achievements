@@ -164,4 +164,10 @@
                              columnNames="organization_id,custom_identifier"
                              constraintName="idx_person_customid"/>
     </changeSet>
+    <changeSet id="09_person_email_index" author="mikael">
+        <createIndex tableName="person"
+                     indexName="idx_person_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

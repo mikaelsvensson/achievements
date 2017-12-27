@@ -17,14 +17,20 @@
                 <h1 class="title">Välkommen</h1>
                 <form>
                     <div class="control">
-                        <!--<label class="label">Användarnamn</label>-->
-                        <input class="input is-large" type="text" id="username" name="username" placeholder="Användarnamn">
+                        <input class="input is-large"
+                               type="text"
+                               id="username"
+                               name="username"
+                               placeholder="E-postadress">
                     </div>
 
                     <div class="field">
-                        <!--<label class="label">Lösenord</label>-->
                         <div class="control">
-                            <input class="input is-large" type="password" id="password" name="password" placeholder="Lösenord"/>
+                            <input class="input is-large"
+                                   type="password"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Lösenord"/>
                         </div>
                     </div>
 
@@ -39,15 +45,24 @@
         <div class="tile is-6 is-parent">
             <article class="tile is-child">
                 <h1 class="title">Första gången du är här?</h1>
-                <p>
-                    Det är enkelt att börja använda tjänsten. Du kan antingen skapa ett konto specifikt för den här
-                    sidan
-                    eller logga in med ditt Google- eller Facebook-konto.
-                </p>
-                <p><a href="#loggain-skapa-konto" aria-current="page">Skapa ett konto med eget namn och lösenord</a>
-                </p>
-                <p><a href="#login-with-google" aria-current="page">Logga in med mitt Google-konto</a></p>
-                <p><a href="#login-with-facebook" aria-current="page">Logga in med mitt Facebook-konto</a></p>
+                <div class="content">
+                    <p>
+                        Det är enkelt att börja använda tjänsten. Det finns tre olika sätta att logga in.
+                    </p>
+
+                    <h3>Logga in med din e-postadress</h3>
+
+                    <p><a href="#loggain-skapa-konto" aria-current="page">Logga in med e-postadress</a>
+                    </p>
+
+                    <h3>Logga in via Google</h3>
+
+                    <div id="googleSigninButtonContainer"></div>
+
+                    <h3>Logga in via Facebook</h3>
+
+                    <p><a href="#login-with-facebook" aria-current="page">Logga in med mitt Facebook-konto</a></p>
+                </div>
             </article>
         </div>
     </div>

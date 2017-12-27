@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.data.model.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,23 @@ public class PeopleDaoImplTest {
     public void getByOrganization_incorrectId_expectEmptyList() throws Exception {
         final List<Person> actual = dao.getByParent(null);
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    public void getByEmail_addressExists_happyPath() throws Exception {
+        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice"))).getId();
+
+        final List<Person> actual = dao.getByEmail("alice@example.com");
+        assertThat(actual).hasSize(1);
+        assertThat(actual.get(0).getEmail()).isEqualTo("alice@example.com");
+    }
+
+    @Test
+    public void getByEmail_addressIsMissing_happyPath() throws Exception {
+        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice"))).getId();
+
+        final List<Person> actual = dao.getByEmail("bob@example.com");
+        assertThat(actual).hasSize(0);
     }
 
     @Test

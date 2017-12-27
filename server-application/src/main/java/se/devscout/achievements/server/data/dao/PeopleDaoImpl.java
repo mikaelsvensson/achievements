@@ -6,7 +6,6 @@ import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 
 public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao {
@@ -72,6 +71,13 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
         return namedQuery("Person.getByCustomId")
                 .setParameter("organization", parent)
                 .setParameter("customId", customIdentifier)
+                .getResultList();
+    }
+
+    @Override
+    public List<Person> getByEmail(String email) {
+        return namedQuery("Person.getByEmail")
+                .setParameter("email", email)
                 .getResultList();
     }
 

@@ -1,3 +1,4 @@
+var webpack = require("webpack");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
     template: __dirname + '/src/index.html',
@@ -40,5 +41,12 @@ module.exports = {
         __dirname: true,
         fs: 'empty'
     },
-    plugins: [HtmlWebpackPluginConfig]
+    plugins: [
+        HtmlWebpackPluginConfig,
+        new webpack.DefinePlugin({
+            "process.env": {
+                GOOGLE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_CLIENT_ID)
+            }
+        })
+    ]
 };
