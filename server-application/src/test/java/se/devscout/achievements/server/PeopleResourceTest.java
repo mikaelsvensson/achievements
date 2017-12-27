@@ -7,7 +7,9 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
+import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
@@ -21,7 +23,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -225,41 +230,6 @@ public class PeopleResourceTest {
         verify(dao).read(eq(person.getId()));
     }
 
-/*
-    private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
-        final Integer id = getRandomNonZeroValue();
-
-        final Person person = mock(Person.class);
-        when(person.getId()).thenReturn(id);
-        when(person.getOrganization()).thenReturn(org);
-        when(person.getName()).thenReturn(name);
-
-        when(dao.read(eq(id))).thenReturn(person);
-
-        return person;
-    }
-*/
-
-/*
-    private int getRandomNonZeroValue() {
-        return new Random().nextInt(10000) + 1;
-    }
-*/
-
-/*
-    private Organization mockOrganization(String name) throws ObjectNotFoundException {
-        final UUID uuid = UUID.randomUUID();
-
-        final Organization orgA = mock(Organization.class);
-        when(orgA.getId()).thenReturn(uuid);
-        when(orgA.getName()).thenReturn(name);
-
-        when(organizationsDao.read(eq(uuid))).thenReturn(orgA);
-
-        return orgA;
-    }
-*/
-
     @Test
     public void create_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
@@ -281,6 +251,112 @@ public class PeopleResourceTest {
         assertThat(dto.name).isEqualTo("name");
 
         verify(dao).create(any(Organization.class), any(PersonProperties.class));
+        verify(organizationsDao).read(eq(org.getId()));
+    }
+
+    @Test
+    public void batchUpdate_json_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
+
+        final Person alice = mockPerson(org, "Alice");
+        when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
+        final ArgumentCaptor<PersonProperties> updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        when(dao.update(eq(alice.getId()), updateCaptor.capture())).thenReturn(alice);
+
+        final Person bob = mockPerson(org, "Bob");
+        when(dao.read(eq(org), eq("bbb"))).thenReturn(bob);
+
+        final Person carol = mockPerson(org, "Carol");
+        when(dao.read(eq(org), eq("ccc"))).thenThrow(new ObjectNotFoundException());
+        final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .put(Entity.json(Arrays.asList(
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null)
+                )));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto).hasSize(2);
+        assertThat(dto.get(0).id).isNotNull();
+        assertThat(dto.get(0).name).isNotNull();
+        assertThat(dto.get(1).id).isNotNull();
+        assertThat(dto.get(1).name).isNotNull();
+
+        verify(dao).read(eq(org), eq("ccc"));
+        verify(dao).create(eq(org), any(PersonProperties.class));
+        assertThat(createCaptor.getValue().getCustomIdentifier()).isEqualTo("ccc");
+        assertThat(createCaptor.getValue().getName()).isEqualTo("Carol");
+        assertThat(createCaptor.getValue().getEmail()).isEqualTo("carol@example.com");
+
+        verify(dao).read(eq(org), eq("aaa"));
+        verify(dao).update(eq(alice.getId()), any(PersonProperties.class));
+        assertThat(updateCaptor.getValue().getCustomIdentifier()).isEqualTo("aaa");
+        assertThat(updateCaptor.getValue().getName()).isEqualTo("Alicia");
+        assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
+
+        verify(organizationsDao).read(eq(org.getId()));
+    }
+
+    @Test
+    public void batchUpdate_csv_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
+
+        final Person alice = mockPerson(org, "Alice");
+        when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
+        final ArgumentCaptor<PersonProperties> updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        when(dao.update(eq(alice.getId()), updateCaptor.capture())).thenReturn(alice);
+
+        final Person bob = mockPerson(org, "Bob");
+        when(dao.read(eq(org), eq("bbb"))).thenReturn(bob);
+
+        final Person carol = mockPerson(org, "Carol");
+        when(dao.read(eq(org), eq("ccc"))).thenThrow(new ObjectNotFoundException());
+        final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+                .put(Entity.entity("" +
+                                "name,email,custom_identifier\n" +
+                                "Alicia,alice@example.com,aaa\n" +
+                                "Carol,carol@example.com,ccc\n",
+                        "text/csv"
+                ));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto).hasSize(2);
+        assertThat(dto.get(0).id).isNotNull();
+        assertThat(dto.get(0).name).isNotNull();
+        assertThat(dto.get(1).id).isNotNull();
+        assertThat(dto.get(1).name).isNotNull();
+
+        verify(dao).read(eq(org), eq("ccc"));
+        verify(dao).create(eq(org), any(PersonProperties.class));
+        assertThat(createCaptor.getValue().getCustomIdentifier()).isEqualTo("ccc");
+        assertThat(createCaptor.getValue().getName()).isEqualTo("Carol");
+        assertThat(createCaptor.getValue().getEmail()).isEqualTo("carol@example.com");
+
+        verify(dao).read(eq(org), eq("aaa"));
+        verify(dao).update(eq(alice.getId()), any(PersonProperties.class));
+        assertThat(updateCaptor.getValue().getCustomIdentifier()).isEqualTo("aaa");
+        assertThat(updateCaptor.getValue().getName()).isEqualTo("Alicia");
+        assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
+
         verify(organizationsDao).read(eq(org.getId()));
     }
 

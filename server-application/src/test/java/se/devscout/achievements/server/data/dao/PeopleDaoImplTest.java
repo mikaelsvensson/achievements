@@ -150,18 +150,20 @@ public class PeopleDaoImplTest {
     @Test
     public void update_personWithAttributes_happyPath() throws Exception {
         Integer objectUuid = database.inTransaction(() -> {
-            final PersonProperties initialProperties = new PersonProperties("Dave", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")));
+            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), null);
             return dao.create(testOrganization, initialProperties);
         }).getId();
 
         database.inTransaction(() -> {
-            final PersonProperties updatedProperties = new PersonProperties("David", Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")));
+            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), "dave");
             return dao.update(objectUuid, updatedProperties);
         });
 
         final Person actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("David");
+        assertThat(actual.getEmail()).isNull();
+        assertThat(actual.getCustomIdentifier()).isEqualTo("dave");
         assertThat(actual.getAttributes()).hasSize(2);
         assertThat(actual.getAttributes()).contains(new PersonAttribute("favourite_colour", "blue"));
         assertThat(actual.getAttributes()).contains(new PersonAttribute("title", "administrator"));

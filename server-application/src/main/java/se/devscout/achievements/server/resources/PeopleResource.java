@@ -1,9 +1,14 @@
 package se.devscout.achievements.server.resources;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.google.common.collect.Lists;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
+import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.*;
@@ -13,9 +18,12 @@ import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 
 import javax.ws.rs.*;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -103,6 +111,59 @@ public class PeopleResource extends AbstractResource {
             throw new WebApplicationException(Response.Status.CONFLICT);
         } catch (DaoException e) {
             throw new InternalServerErrorException();
+        }
+    }
+
+    @PUT
+    @UnitOfWork
+    public Response upsert(@PathParam("organizationId") UuidString organizationId,
+                           @Auth User user,
+                           List<PersonDTO> input) {
+        List<PersonBaseDTO> result = new ArrayList<>();
+        Organization organization = getOrganization(organizationId.getUUID());
+        for (PersonDTO dto : input) {
+            try {
+                Person person;
+                final PersonProperties newProperties = map(dto, PersonProperties.class);
+                try {
+                    if (dto.id != null && dto.id > 0) {
+                        person = dao.read(dto.id);
+                    } else {
+                        person = dao.read(organization, dto.custom_identifier);
+                    }
+                    person = dao.update(person.getId(), newProperties);
+                    result.add(new PersonBaseDTO(person.getId(), person.getName()));
+                } catch (ObjectNotFoundException e) {
+                    person = dao.create(organization, newProperties);
+                    result.add(new PersonBaseDTO(person.getId(), person.getName()));
+                }
+            } catch (DuplicateCustomIdentifier e) {
+                throw new WebApplicationException(Response.Status.CONFLICT);
+            } catch (DaoException e) {
+                throw new InternalServerErrorException();
+            }
+        }
+        return Response
+                .ok(result)
+                .build();
+    }
+
+    @PUT
+    @Consumes("text/csv")
+    @UnitOfWork
+    public Response upsertFromCsv(@PathParam("organizationId") UuidString organizationId,
+                                  @Auth User user,
+                                  String input) {
+        LoggerFactory.getLogger(PeopleResource.class).info(input);
+        try {
+            final List<PersonDTO> values = Lists.newArrayList(
+                    new CsvMapper()
+                            .readerFor(PersonDTO.class)
+                            .with(CsvSchema.emptySchema().withHeader())
+                            .readValues(input));
+            return upsert(organizationId, user, values);
+        } catch (IOException e) {
+            throw new BadRequestException("Could not read data", e);
         }
     }
 
