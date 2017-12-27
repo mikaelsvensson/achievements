@@ -156,4 +156,12 @@
                                  referencedTableName="achievement_steps"
                                  referencedColumnNames="id"/>
     </changeSet>
+    <changeSet id="09_person_custom_identifier" author="mikael">
+        <addColumn tableName="person">
+            <column name="custom_identifier" type="varchar(100)"></column>
+        </addColumn>
+        <addUniqueConstraint tableName="person"
+                             columnNames="organization_id,custom_identifier"
+                             constraintName="idx_person_customid"/>
+    </changeSet>
 </databaseChangeLog>

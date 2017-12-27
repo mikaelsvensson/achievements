@@ -28,6 +28,7 @@ public class PersonProperties {
     private Set<PersonAttribute> attributes = new HashSet<>();
 
     @Column(name = CUSTOM_IDENTIFIER_COLNAME)
+    @Size(max = 100)
     private String customIdentifier;
 
     public PersonProperties() {
