@@ -13,3 +13,7 @@ database:
   properties:
     hibernate.show_sql: true
     hibernate.hbm2ddl.auto: create
+
+authentication:
+  googleClientId: YOUR_CLIENT_ID_HERE
+  jwtSigningSecret: JWT_SIGNING_SECRET

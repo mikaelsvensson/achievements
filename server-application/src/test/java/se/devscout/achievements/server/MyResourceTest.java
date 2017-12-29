@@ -39,13 +39,14 @@ public class MyResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new MyResource(peopleDao, achievementsDao))
             .build();
 
     @Before
     public void setUp() throws Exception {
-        final Credentials credentials = new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray()));
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
         when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
     }
 
@@ -56,7 +57,8 @@ public class MyResourceTest {
         final Organization org2 = mockOrganization("Cyberdyne Systems");
         final Person person2a = mockPerson(org2, "Bob");
         final Person person2b = mockPerson(org2, "Carol");
-        final Credentials credentials = new Credentials("bob", new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray()));
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final Credentials credentials = new Credentials("bob", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
         credentials.setPerson(person2a);
         when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
 
@@ -90,7 +92,8 @@ public class MyResourceTest {
     public void getMyProfile_happyPath() throws Exception {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        final Credentials credentials = new Credentials("bob", new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray()));
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final Credentials credentials = new Credentials("bob", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
         credentials.setPerson(person);
         when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
 

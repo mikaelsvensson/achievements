@@ -23,6 +23,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,22 +48,23 @@ public class PeopleResourceTest {
     private final PeopleDao peopleDao = mock(PeopleDao.class);
 
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new PeopleResource(dao, organizationsDao, achievementsDao))
             .build();
 
     @Before
     public void setUp() throws Exception {
-        final Credentials credentials = new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray()));
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Organization organization = mockOrganization("Acme Inc.");
+        final Person person = mockPerson(organization, "Alice");
+        final Credentials credentials = new Credentials("user", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
         when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
     }
 
     @Test
     public void get_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "Alice");
-        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
@@ -79,10 +81,15 @@ public class PeopleResourceTest {
         verify(dao).read(eq(person.getId()));
     }
 
+    private Organization mockOrganization(String name) throws ObjectNotFoundException {
+        final Organization org = MockUtil.mockOrganization(name);
+        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
+        return org;
+    }
+
     @Test
     public void getByOrganization_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "Alice");
         when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
 
@@ -136,7 +143,6 @@ public class PeopleResourceTest {
     @Test
     public void get_byCustomId_notFound() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "Alice", "alice");
         when(dao.read(eq(org), eq("alice"))).thenReturn(person);
         final Response response = resources
@@ -173,9 +179,7 @@ public class PeopleResourceTest {
     @Test
     public void delete_happyPath() throws Exception {
         final Organization org = mockOrganization("Org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "name");
-        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
@@ -192,11 +196,8 @@ public class PeopleResourceTest {
     public void delete_wrongOrganization_expectNotFound() throws Exception {
 
         final Organization orgA = mockOrganization("ORG_A");
-        when(organizationsDao.read(eq(orgA.getId()))).thenReturn(orgA);
         final Organization orgB = mockOrganization("ORG_B");
-        when(organizationsDao.read(eq(orgB.getId()))).thenReturn(orgB);
         final Person person = mockPerson(orgA, "name");
-        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
@@ -214,11 +215,8 @@ public class PeopleResourceTest {
     public void get_wrongOrganization_expectNotFound() throws Exception {
 
         final Organization orgA = mockOrganization("ORG_A");
-        when(organizationsDao.read(eq(orgA.getId()))).thenReturn(orgA);
         final Organization orgB = mockOrganization("ORG_B");
-        when(organizationsDao.read(eq(orgB.getId()))).thenReturn(orgB);
         final Person person = mockPerson(orgA, "name");
-        when(dao.read(eq(person.getId()))).thenReturn(person);
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
@@ -235,9 +233,7 @@ public class PeopleResourceTest {
     @Test
     public void create_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person = mockPerson(org, "name");
-        when(dao.read(eq(person.getId()))).thenReturn(person);
         when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
 
         final Response response = resources
@@ -259,7 +255,6 @@ public class PeopleResourceTest {
     @Test
     public void batchUpdate_json_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
 
         final Person alice = mockPerson(org, "Alice");
         when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
@@ -311,7 +306,6 @@ public class PeopleResourceTest {
     @Test
     public void batchUpdate_csv_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
 
         final Person alice = mockPerson(org, "Alice");
         when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
@@ -365,13 +359,9 @@ public class PeopleResourceTest {
     @Test
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
         final Organization org = mockOrganization("Alice's Organization");
-        when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         final Person person1 = mockPerson(org, "Alice");
-        when(dao.read(eq(person1.getId()))).thenReturn(person1);
         final Person person2 = mockPerson(org, "Bob");
-        when(dao.read(eq(person2.getId()))).thenReturn(person2);
         final Person person3 = mockPerson(org, "Carol");
-        when(dao.read(eq(person3.getId()))).thenReturn(person3);
         final AchievementStepProgress a1p1 = mockProgress(true, person1);
         final AchievementStepProgress a1p2 = mockProgress(true, person2);
         final AchievementStepProgress a1p3 = mockProgress(true, person1);
@@ -412,5 +402,18 @@ public class PeopleResourceTest {
         assertThat(dto.achievements.get(1).progress_detailed).hasSize(1);
         assertThat(dto.achievements.get(1).progress_detailed.get(0).person.name).isEqualTo("Alice");
         assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(50);
+    }
+
+    private Person mockPerson(Organization org, String name) throws ObjectNotFoundException, IOException {
+        return mockPerson(org, name, null);
+    }
+
+    private Person mockPerson(Organization org, String name, String customId) throws ObjectNotFoundException, IOException {
+        final Person person1 = MockUtil.mockPerson(org, name, customId);
+        when(dao.read(eq(person1.getId()))).thenReturn(person1);
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq(name))).thenReturn(credentials);
+        return person1;
     }
 }

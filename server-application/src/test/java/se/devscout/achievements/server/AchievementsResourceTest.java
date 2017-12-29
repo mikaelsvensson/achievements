@@ -33,6 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static se.devscout.achievements.server.MockUtil.mockOrganization;
+import static se.devscout.achievements.server.MockUtil.mockPerson;
 
 public class AchievementsResourceTest {
 
@@ -43,13 +45,17 @@ public class AchievementsResourceTest {
     private final PeopleDao peopleDao = mock(PeopleDao.class);
 
     @Rule
-    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, peopleDao)
+    public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new AchievementsResource(dao, progressDao))
             .build();
 
     @Before
     public void setUp() throws Exception {
-        final Credentials credentials = new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray()));
+        //TODO: Put this mocking into some shared class:
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Organization organization = mockOrganization("Acme Inc.");
+        final Person person = mockPerson(organization, "Alice");
+        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
         when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
     }
 

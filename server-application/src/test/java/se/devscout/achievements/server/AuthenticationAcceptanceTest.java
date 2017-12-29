@@ -37,8 +37,8 @@ public class AuthenticationAcceptanceTest {
     private static final String RANDOM_ORG_ID = UuidString.toString(UUID.randomUUID());
     private static final String RANDOM_ACHIEVEMENT_ID = UuidString.toString(UUID.randomUUID());
     private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
-            .add("http://localhost:9000/api/signup")
-            .add("http://localhost:9000/api/signup/" + RANDOM_ORG_ID)
+            .add("http://localhost:9000/api/organizations/signup")
+            .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/signup")
             .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/basic")
             .add("http://localhost:9000/api/achievements")
             .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID)
@@ -135,7 +135,7 @@ public class AuthenticationAcceptanceTest {
                 for (Method method : singleton.getClass().getDeclaredMethods()) {
                     String path = basePath;
                     if (method.isAnnotationPresent(Path.class)) {
-                        path += "/" + UriBuilder.fromMethod(singleton.getClass(), method.getName()).buildFromMap(randomUriParameterValues).toString();
+                        path += (path.length() > 0 ? "/" : "") + UriBuilder.fromMethod(singleton.getClass(), method.getName()).buildFromMap(randomUriParameterValues).toString();
                     }
                     final Optional<Class<? extends Annotation>> httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(a -> method.isAnnotationPresent(a)).findFirst();
                     if (httpVerb.isPresent()) {

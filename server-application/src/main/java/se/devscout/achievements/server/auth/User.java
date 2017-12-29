@@ -1,29 +1,31 @@
 package se.devscout.achievements.server.auth;
 
+import se.devscout.achievements.server.data.model.IdentityProvider;
+
 import java.security.Principal;
 import java.util.UUID;
 
 public class User implements Principal {
-    private String name;
-    private final UUID usedCredentialsId;
-    private int id;
+    private String personName;
+    private int personId;
+    private final UUID credentialsId;
 
-    public User(int id, UUID usedCredentialsId, String name) {
-        this.id = id;
-        this.name = name;
-        this.usedCredentialsId = usedCredentialsId;
+    public User(int personId, UUID credentialsId, String personName) {
+        this.personId = personId;
+        this.personName = personName;
+        this.credentialsId = credentialsId;
     }
 
     @Override
     public String getName() {
-        return name;
+        return personName;
     }
 
-    public UUID getUsedCredentialsId() {
-        return usedCredentialsId;
+    public UUID getCredentialsId() {
+        return credentialsId;
     }
 
-    public int getId() {
-        return id;
+    public int getPersonId() {
+        return personId;
     }
 }

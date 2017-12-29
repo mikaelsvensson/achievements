@@ -6,24 +6,32 @@ import org.junit.Test;
 import se.devscout.achievements.server.auth.PasswordAuthenticator;
 import se.devscout.achievements.server.auth.PasswordValidator;
 import se.devscout.achievements.server.auth.SecretGenerator;
+import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
-import se.devscout.achievements.server.auth.User;
+import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.Person;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static se.devscout.achievements.server.MockUtil.mockOrganization;
+import static se.devscout.achievements.server.MockUtil.mockPerson;
 
 public class PasswordAuthenticatorTest {
 
     private CredentialsDao credentialsDao = mock(CredentialsDao.class);
-    private PasswordAuthenticator authenticator = new PasswordAuthenticator(credentialsDao);
+    private PasswordAuthenticator authenticator = new PasswordAuthenticator(credentialsDao/*, new SecretValidatorFactory(null)*/);
 
     @Before
     public void setUp() throws Exception {
-        when(credentialsDao.get(IdentityProvider.PASSWORD, "user")).thenReturn(new Credentials("username", new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray())));
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Organization organization = mockOrganization("Acme Inc.");
+        final Person person = mockPerson(organization, "Alice");
+        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
+        when(credentialsDao.get(IdentityProvider.PASSWORD, "user")).thenReturn(credentials);
         when(credentialsDao.get(IdentityProvider.PASSWORD, "missing")).thenThrow(new ObjectNotFoundException());
     }
 

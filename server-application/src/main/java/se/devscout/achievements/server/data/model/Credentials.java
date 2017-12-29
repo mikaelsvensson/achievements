@@ -36,13 +36,13 @@ public class Credentials extends CredentialsProperties {
     public Credentials() {
     }
 
-    public Credentials(String username, SecretValidator validator, Person person) {
-        super(username, validator);
+    public Credentials(String username, IdentityProvider provider, byte[] secret, Person person) {
+        super(username, provider, secret);
         this.person = person;
     }
 
-    public Credentials(String username, SecretValidator validator) {
-        super(username, validator);
+    public Credentials(String username, IdentityProvider provider, byte[] secret) {
+        super(username, provider, secret);
     }
 
     public Person getPerson() {

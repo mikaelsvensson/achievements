@@ -21,12 +21,10 @@ public class CredentialsProperties {
     public CredentialsProperties() {
     }
 
-    public CredentialsProperties(String username, SecretValidator validator) {
+    public CredentialsProperties(String username, IdentityProvider provider, byte[] secret) {
         this.username = username;
-        this.secret = validator.getSecret();
-        if (validator instanceof PasswordValidator) {
-            provider = IdentityProvider.PASSWORD;
-        }
+        this.provider = provider;
+        this.secret = secret;
     }
 
     public String getUsername() {
@@ -53,11 +51,4 @@ public class CredentialsProperties {
         this.provider = provider;
     }
 
-    public SecretValidator getSecretValidator() {
-        switch (provider) {
-            case PASSWORD:
-                return new PasswordValidator(secret);
-        }
-        throw new IllegalArgumentException("Cannot handle identity provider " + provider);
-    }
 }

@@ -52,7 +52,7 @@ public class MyResource extends AbstractResource {
 
     private Person getPerson(@Auth User user) {
         try {
-            return peopleDao.read(user.getId());
+            return peopleDao.read(user.getPersonId());
         } catch (ObjectNotFoundException e) {
             // If this happens it basically means that the user was deleted between when the user was authenticated and now.
             throw new WebApplicationException("Could not find user mentioned in User object.");

@@ -22,6 +22,7 @@ export function renderOrganizationSignup(appPathParams) {
             const button = $(this);
             const form = button.addClass('is-loading').closest('form');
             const formData = getFormData(form);
+            //TODO: Signup API does no longer work like this...
             post('//localhost:8080/api/signup/' + appPathParams[0].key, formData, function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading');
                 setCredentials(formData.email, formData.password);
