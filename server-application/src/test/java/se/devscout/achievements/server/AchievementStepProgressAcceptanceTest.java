@@ -39,37 +39,25 @@ public class AchievementStepProgressAcceptanceTest {
     public static void setupAchievement() {
         Client client = RULE.client();
 
-        Response responseAch = client
-                .target(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseAch = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Collections.emptyList())));
 
         assertThat(responseAch.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         AchievementDTO achievementDto = responseAch.readEntity(AchievementDTO.class);
 
-        Response responseStep = client
-                .target(responseAch.getLocation() + "/steps")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseStep = TestUtil.request(client, responseAch.getLocation() + "/steps")
                 .post(Entity.json(new AchievementStepDTO("Get yourself a Rubik's cube")));
 
         assertThat(responseStep.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         AchievementStepDTO stepDto = responseStep.readEntity(AchievementStepDTO.class);
         assertThat(stepDto.description).isEqualTo("Get yourself a Rubik's cube");
 
-        Response responseOrg = client
-                .target(String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseOrg = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(new OrganizationDTO(null, "Name")));
 
         assertThat(responseOrg.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final Response responsePerson = client
-                .target(responseOrg.getLocation() + "/people")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        final Response responsePerson = TestUtil.request(client, responseOrg.getLocation() + "/people")
                 .post(Entity.json(new PersonDTO(null, "Alice")));
 
         assertThat(responsePerson.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -85,18 +73,12 @@ public class AchievementStepProgressAcceptanceTest {
     public void setAndUnsetProgress_happyPath() {
         Client client = RULE.client();
 
-        Response setResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response setResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
                 .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response unsetResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response unsetResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
                 .delete();
 
         assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
@@ -106,23 +88,17 @@ public class AchievementStepProgressAcceptanceTest {
     public void setMultipleProgress_happyPath() {
         Client client = RULE.client();
 
-        Response setResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response setResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId))
                 .post(Entity.json(new ProgressDTO(true, "Finally completed")));
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response getResponse = client
-                .target(String.format("http://localhost:%d/api/achievements/%s/progress", RULE.getLocalPort(), achievementId))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response getResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/progress", RULE.getLocalPort(), achievementId))
                 .get();
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         final Map<String, ProgressDTO> dto = getResponse.readEntity(new GenericType<Map<String, ProgressDTO>>() {
         });
-        assertThat(dto.containsKey(stepId + "_" + personId));
+        assertThat(dto).containsKey(stepId + "_" + personId);
         assertThat(dto.get(stepId + "_" + personId).note).isEqualTo("Finally completed");
     }
 
@@ -131,10 +107,7 @@ public class AchievementStepProgressAcceptanceTest {
         Client client = RULE.client();
 
         for (String badAchievementId : new String[]{UuidString.toString(UUID.randomUUID()), "abcd", null, ""}) {
-            Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
-                    .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+            Response setResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -155,18 +128,12 @@ public class AchievementStepProgressAcceptanceTest {
         Client client = RULE.client();
 
         for (String badStepId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
-            Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
-                    .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+            Response setResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-            Response unsetResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
-                    .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+            Response unsetResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, badStepId, personId))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -179,18 +146,12 @@ public class AchievementStepProgressAcceptanceTest {
         Client client = RULE.client();
 
         for (String badPersonId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
-            Response setResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
-                    .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+            Response setResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
                     .post(Entity.json(new ProgressDTO(true, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-            Response unsetResponse = client
-                    .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
-                    .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+            Response unsetResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, badPersonId))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);

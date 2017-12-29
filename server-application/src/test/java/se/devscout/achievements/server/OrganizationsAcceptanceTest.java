@@ -1,21 +1,16 @@
 package se.devscout.achievements.server;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.OrganizationDTO;
-import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,10 +25,7 @@ public class OrganizationsAcceptanceTest {
     public void create_happyPath() {
         Client client = RULE.client();
 
-        Response response = client
-                .target(String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response response = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(new OrganizationDTO(null, "Name")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -50,20 +42,14 @@ public class OrganizationsAcceptanceTest {
         Client client = RULE.client();
 
         final OrganizationDTO dto = new OrganizationDTO(null, "Name To Update");
-        Response responseCreate = client
-                .target(String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseCreate = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(dto));
 
         assertThat(responseCreate.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         dto.name = "New Name";
 
-        Response responseUpdate = client
-                .target(responseCreate.getLocation())
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseUpdate = TestUtil.request(client, responseCreate.getLocation())
                 .put(Entity.json(dto));
 
         assertThat(responseUpdate.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -72,10 +58,7 @@ public class OrganizationsAcceptanceTest {
 
         assertThat(responseDto.name).isEqualTo(dto.name);
 
-        Response responseGet = client
-                .target(responseCreate.getLocation())
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
+        Response responseGet = TestUtil.request(client, responseCreate.getLocation())
                 .get();
 
         final OrganizationDTO responseGetDto = responseGet.readEntity(OrganizationDTO.class);

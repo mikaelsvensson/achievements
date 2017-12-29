@@ -1,5 +1,7 @@
 package se.devscout.achievements.server;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.db.PooledDataSourceFactory;
@@ -14,6 +16,10 @@ import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.HttpHeaders;
+import java.net.URI;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
@@ -60,5 +66,16 @@ public class TestUtil {
                 return "mocked-bundle";
             }
         };
+    }
+
+    static Invocation.Builder request(Client client, String location) {
+        return request(client, URI.create(location));
+    }
+
+    static Invocation.Builder request(Client client, URI location) {
+        return client
+                .target(location)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)));
     }
 }
