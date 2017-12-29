@@ -10,10 +10,9 @@ import org.junit.Test;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
-import se.devscout.achievements.server.auth.JwtAuthenticator;
-import se.devscout.achievements.server.auth.PasswordValidator;
-import se.devscout.achievements.server.auth.SecretGenerator;
 import se.devscout.achievements.server.auth.SecretValidatorFactory;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
@@ -21,6 +20,7 @@ import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.AuthResource;
 import se.devscout.achievements.server.resources.UuidString;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.HttpHeaders;
@@ -31,7 +31,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static se.devscout.achievements.server.MockUtil.mockPerson;
 
 public class AuthResourceTest {
 

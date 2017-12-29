@@ -9,10 +9,10 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.server.auth.JwtAuthenticator;
-import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import java.util.UUID;
 

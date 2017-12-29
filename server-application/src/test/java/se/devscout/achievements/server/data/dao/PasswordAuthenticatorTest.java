@@ -3,14 +3,14 @@ package se.devscout.achievements.server.data.dao;
 import io.dropwizard.auth.basic.BasicCredentials;
 import org.junit.Before;
 import org.junit.Test;
-import se.devscout.achievements.server.auth.PasswordAuthenticator;
-import se.devscout.achievements.server.auth.PasswordValidator;
-import se.devscout.achievements.server.auth.SecretGenerator;
-import se.devscout.achievements.server.auth.User;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import java.util.Optional;
 

@@ -2,17 +2,20 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.*;
-import se.devscout.achievements.server.auth.User;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
+import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.OrganizationProperties;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("organizations")

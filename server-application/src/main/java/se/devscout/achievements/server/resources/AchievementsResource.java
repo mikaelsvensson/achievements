@@ -6,13 +6,13 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementBaseDTO;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
-import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

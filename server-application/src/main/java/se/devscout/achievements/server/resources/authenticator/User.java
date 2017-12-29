@@ -1,6 +1,4 @@
-package se.devscout.achievements.server.auth;
-
-import se.devscout.achievements.server.data.model.IdentityProvider;
+package se.devscout.achievements.server.resources.authenticator;
 
 import java.security.Principal;
 import java.util.UUID;

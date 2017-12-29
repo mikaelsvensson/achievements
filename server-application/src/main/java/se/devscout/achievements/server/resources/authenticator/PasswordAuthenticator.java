@@ -1,10 +1,15 @@
-package se.devscout.achievements.server.auth;
+package se.devscout.achievements.server.resources.authenticator;
 
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.hibernate.HibernateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import se.devscout.achievements.server.auth.SecretValidationResult;
+import se.devscout.achievements.server.auth.SecretValidator;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
@@ -14,6 +19,7 @@ import java.util.Optional;
 
 public class PasswordAuthenticator implements Authenticator<BasicCredentials, User> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PasswordAuthenticator.class);
     private final CredentialsDao credentialsDao;
 
     public PasswordAuthenticator(CredentialsDao credentialsDao) {
@@ -36,11 +42,8 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
             } else {
                 return Optional.empty();
             }
-        } catch (HibernateException e) {
-            //TODO: Log exception
-            return Optional.empty();
-        } catch (ObjectNotFoundException e) {
-            //TODO: Log exception
+        } catch (HibernateException | ObjectNotFoundException e) {
+            LOGGER.error("Exception when trying to validate credentials", e);
             return Optional.empty();
         }
     }

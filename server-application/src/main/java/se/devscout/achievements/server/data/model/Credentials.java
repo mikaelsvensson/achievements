@@ -2,7 +2,6 @@ package se.devscout.achievements.server.data.model;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import se.devscout.achievements.server.auth.SecretValidator;
 
 import javax.persistence.*;
 import java.util.UUID;

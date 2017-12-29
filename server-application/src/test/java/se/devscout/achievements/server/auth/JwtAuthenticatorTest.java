@@ -1,6 +1,8 @@
 package se.devscout.achievements.server.auth;
 
 import org.junit.Test;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import java.util.Optional;
 import java.util.UUID;

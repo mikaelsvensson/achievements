@@ -4,8 +4,8 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import se.devscout.achievements.server.auth.PasswordValidator;
-import se.devscout.achievements.server.auth.SecretGenerator;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.*;
 
 import java.io.IOException;
@@ -51,10 +51,6 @@ public class CredentialsDaoImplTest {
 
         final Credentials actual = database.inTransaction(() -> dao.get(IdentityProvider.PASSWORD, "alice"));
         assertThat(actual.getUsername()).isEqualTo("alice");
-
-//        SecretValidator loc = actual.getSecretValidator();
-//        assertThat(loc).isInstanceOf(PasswordValidator.class);
-//        assertThat(loc.validate("pw".toCharArray())).isTrue();
     }
 
     @Test(expected = ObjectNotFoundException.class)
@@ -118,33 +114,4 @@ public class CredentialsDaoImplTest {
     public void read_missingCredentials_expectException() throws Exception {
         dao.read(UUID.randomUUID());
     }
-
-//    @Test
-//    public void update_changePassword_happyPath() throws Exception {
-//        final Credentials credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice", new PasswordValidator(PasswordValidator.SecretGenerator.PDKDF2, "old password".toCharArray()))));
-//        final Credentials actual = dao.update(credentials.getId(), new CredentialsProperties("alice", new PasswordValidator(PasswordValidator.SecretGenerator.PDKDF2, "new password".toCharArray())));
-//        assertThat(actual.getUsername()).isEqualTo("alice");
-//        assertThat(actual.getSecretValidator().validate("new password".toCharArray())).isTrue();
-//    }
-//
-//    @Test
-//    public void update_duplicateUsername_expectException() throws Exception {
-//        final Credentials credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice", new PasswordValidator(PasswordValidator.SecretGenerator.PDKDF2, "old password".toCharArray()))));
-//        dao.update(credentials.getId(), new CredentialsProperties("alice", new PasswordValidator(PasswordValidator.SecretGenerator.PDKDF2, "pw".toCharArray())));
-//    }
-//
-//    @Test
-//    public void update_missingCredentials_expectException() throws Exception {
-//        fail("Not implemented yet");
-//    }
-//
-//    @Test
-//    public void delete_existingCredentials_happyPath() throws Exception {
-//        fail("Not implemented yet");
-//    }
-//
-//    @Test
-//    public void delete_missingCredentials_expectException() throws Exception {
-//        fail("Not implemented yet");
-//    }
 }

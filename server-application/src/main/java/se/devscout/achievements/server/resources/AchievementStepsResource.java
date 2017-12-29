@@ -3,7 +3,6 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementStepDTO;
-import se.devscout.achievements.server.auth.User;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
@@ -11,6 +10,7 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

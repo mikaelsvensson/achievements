@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth;
+package se.devscout.achievements.server.auth.password;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;

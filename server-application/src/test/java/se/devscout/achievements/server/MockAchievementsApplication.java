@@ -1,8 +1,8 @@
 package se.devscout.achievements.server;
 
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.server.auth.PasswordValidator;
-import se.devscout.achievements.server.auth.SecretGenerator;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDaoImpl;
 import se.devscout.achievements.server.data.model.Credentials;

@@ -7,9 +7,13 @@ import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
-import se.devscout.achievements.server.auth.*;
+import se.devscout.achievements.server.auth.SecretValidationResult;
+import se.devscout.achievements.server.auth.SecretValidator;
+import se.devscout.achievements.server.auth.SecretValidatorFactory;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

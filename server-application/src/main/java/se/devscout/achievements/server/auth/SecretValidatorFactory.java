@@ -1,6 +1,8 @@
 package se.devscout.achievements.server.auth;
 
-import se.devscout.achievements.server.data.model.GoogleTokenValidator;
+import se.devscout.achievements.server.auth.google.GoogleTokenValidator;
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 
 import java.io.IOException;

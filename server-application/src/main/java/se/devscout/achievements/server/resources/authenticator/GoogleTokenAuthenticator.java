@@ -1,15 +1,15 @@
-package se.devscout.achievements.server.auth;
+package se.devscout.achievements.server.resources.authenticator;
 
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.devscout.achievements.server.auth.SecretValidationResult;
+import se.devscout.achievements.server.auth.google.GoogleTokenValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.GoogleTokenValidator;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 
 import java.util.Optional;
@@ -42,9 +42,11 @@ public class GoogleTokenAuthenticator implements Authenticator<String, User> {
                 Credentials credentials = credentialsDao.get(IdentityProvider.GOOGLE, validationResult.getUserName());
                 return Optional.of(new User(credentials.getPerson().getId(), credentials.getId(), validationResult.getUserEmail()));
             } catch (ObjectNotFoundException e) {
+                LOGGER.error("Exception when trying to validate credentials", e);
                 return Optional.empty();
             }
         } else {
+            LOGGER.error("Could not validate token");
             return Optional.empty();
         }
     }

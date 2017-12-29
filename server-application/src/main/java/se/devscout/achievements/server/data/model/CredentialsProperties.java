@@ -1,8 +1,5 @@
 package se.devscout.achievements.server.data.model;
 
-import se.devscout.achievements.server.auth.PasswordValidator;
-import se.devscout.achievements.server.auth.SecretValidator;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;

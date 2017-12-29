@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth;
+package se.devscout.achievements.server.resources.authenticator;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -45,6 +45,7 @@ public class JwtAuthenticator implements Authenticator<String, User> {
             );
             return Optional.of(user);
         } catch (JWTVerificationException e) {
+            LOGGER.error("Exception when trying to validate credentials", e);
             return Optional.empty();
         }
     }

@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.data.model;
+package se.devscout.achievements.server.auth.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.SecretValidationResult;
 import se.devscout.achievements.server.auth.SecretValidator;
+import se.devscout.achievements.server.data.model.IdentityProvider;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

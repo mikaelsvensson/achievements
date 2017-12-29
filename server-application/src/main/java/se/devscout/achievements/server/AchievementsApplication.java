@@ -17,13 +17,17 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.server.auth.*;
+import se.devscout.achievements.server.auth.SecretValidatorFactory;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.resources.*;
+import se.devscout.achievements.server.resources.authenticator.GoogleTokenAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolationExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.ValidationExceptionMapper;
 
