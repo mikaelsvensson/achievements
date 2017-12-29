@@ -1,11 +1,16 @@
 package se.devscout.achievements.server;
 
+import se.devscout.achievements.server.auth.password.PasswordValidator;
+import se.devscout.achievements.server.auth.password.SecretGenerator;
+import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -59,5 +64,13 @@ public class MockUtil {
         when(progressMock.isCompleted()).thenReturn(completed);
         when(progressMock.getPerson()).thenReturn(person);
         return progressMock;
+    }
+
+    static void setupDefaultCredentials(CredentialsDao credentialsDao) throws ObjectNotFoundException {
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Organization organization = mockOrganization("Acme Inc.");
+        final Person person = mockPerson(organization, "Alice");
+        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
+        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
     }
 }

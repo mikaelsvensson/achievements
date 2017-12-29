@@ -11,13 +11,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.auth.password.PasswordValidator;
-import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.resources.AchievementsResource;
 import se.devscout.achievements.server.resources.UuidString;
 
@@ -33,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static se.devscout.achievements.server.MockUtil.mockOrganization;
-import static se.devscout.achievements.server.MockUtil.mockPerson;
 
 public class AchievementsResourceTest {
 
@@ -51,12 +49,7 @@ public class AchievementsResourceTest {
 
     @Before
     public void setUp() throws Exception {
-        //TODO: Put this mocking into some shared class:
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Organization organization = mockOrganization("Acme Inc.");
-        final Person person = mockPerson(organization, "Alice");
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+        MockUtil.setupDefaultCredentials(credentialsDao);
     }
 
     @Test

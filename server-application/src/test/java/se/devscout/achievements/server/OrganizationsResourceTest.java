@@ -10,8 +10,6 @@ import org.junit.Test;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
-import se.devscout.achievements.server.auth.password.PasswordValidator;
-import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.OrganizationsResource;
@@ -48,11 +46,7 @@ public class OrganizationsResourceTest {
 
     @Before
     public void setUp() throws Exception {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Organization organization = mockOrganization("Acme Inc.");
-        final Person person = mockPerson(organization, "Alice");
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+        MockUtil.setupDefaultCredentials(credentialsDao);
     }
 
     @Test

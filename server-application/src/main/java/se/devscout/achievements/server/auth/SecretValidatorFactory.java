@@ -5,8 +5,6 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 
-import java.io.IOException;
-
 public class SecretValidatorFactory {
     private String googleClientId;
 
@@ -17,11 +15,7 @@ public class SecretValidatorFactory {
     public SecretValidator get(IdentityProvider idp, String generatorConfiguration) {
         switch (idp) {
             case PASSWORD:
-                try {
-                    return new PasswordValidator(SecretGenerator.PDKDF2, generatorConfiguration.toCharArray());
-                } catch (IOException e) {
-                    throw new IllegalArgumentException(e);
-                }
+                return new PasswordValidator(SecretGenerator.PDKDF2, generatorConfiguration.toCharArray());
             case GOOGLE:
                 return new GoogleTokenValidator(googleClientId);
             default:

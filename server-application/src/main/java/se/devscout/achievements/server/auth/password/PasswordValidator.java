@@ -26,8 +26,12 @@ public class PasswordValidator implements SecretValidator {
         this.storedSecret = storedSecret;
     }
 
-    public PasswordValidator(SecretGenerator generator, final char[] plainTextPassword) throws IOException {
-        setSecret(generator, plainTextPassword);
+    public PasswordValidator(SecretGenerator generator, final char[] plainTextPassword) {
+        try {
+            setSecret(generator, plainTextPassword);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override

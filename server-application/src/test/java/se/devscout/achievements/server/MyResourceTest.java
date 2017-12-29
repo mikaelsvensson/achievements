@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.PersonDTO;
@@ -42,13 +41,6 @@ public class MyResourceTest {
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new MyResource(peopleDao, achievementsDao))
             .build();
-
-    @Before
-    public void setUp() throws Exception {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
-    }
 
     @Test
     public void getMyPeople_happyPath() throws Exception {

@@ -8,7 +8,6 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,14 +80,10 @@ public class CredentialsDaoImplTest {
     @Test
     public void getByParent_personWithCredentials_expectOne() throws Exception {
         database.inTransaction(() -> {
-            try {
-                final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw1".toCharArray());
-                dao.create(this.alice, new CredentialsProperties("alice1", passwordValidator.getIdentityProvider(), passwordValidator.getSecret()));
-                final PasswordValidator passwordValidator1 = new PasswordValidator(SecretGenerator.PDKDF2, "pw2".toCharArray());
-                dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator1.getIdentityProvider(), passwordValidator1.getSecret()));
-            } catch (IOException e) {
-                fail();
-            }
+            final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw1".toCharArray());
+            dao.create(this.alice, new CredentialsProperties("alice1", passwordValidator.getIdentityProvider(), passwordValidator.getSecret()));
+            final PasswordValidator passwordValidator1 = new PasswordValidator(SecretGenerator.PDKDF2, "pw2".toCharArray());
+            dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator1.getIdentityProvider(), passwordValidator1.getSecret()));
         });
         final List<Credentials> actual = dao.getByParent(alice);
         assertThat(actual).hasSize(2);
