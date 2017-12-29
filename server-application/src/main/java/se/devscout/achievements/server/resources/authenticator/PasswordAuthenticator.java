@@ -8,7 +8,6 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.SecretValidationResult;
-import se.devscout.achievements.server.auth.SecretValidator;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
@@ -31,8 +30,7 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
     public Optional<User> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
         try {
             final Credentials credentials = credentialsDao.get(IdentityProvider.PASSWORD, basicCredentials.getUsername());
-            final SecretValidator validator = new PasswordValidator(credentials.getSecret());
-            final SecretValidationResult validationResult = validator.validate(basicCredentials.getPassword().toCharArray());
+            final SecretValidationResult validationResult = new PasswordValidator(credentials.getSecret()).validate(basicCredentials.getPassword().toCharArray());
             if (validationResult.isValid()) {
                 final User user = new User(
                         credentials.getPerson().getId(),

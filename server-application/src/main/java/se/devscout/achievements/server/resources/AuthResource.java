@@ -29,14 +29,12 @@ public class AuthResource extends AbstractResource {
     private CredentialsDao credentialsDao;
     private PeopleDao peopleDao;
     private OrganizationsDao organizationsDao;
-    //    private String googleClientId;
     private SecretValidatorFactory factory;
 
     public AuthResource(JwtAuthenticator authenticator, CredentialsDao credentialsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao, SecretValidatorFactory factory) {
         this.authenticator = authenticator;
         this.credentialsDao = credentialsDao;
         this.peopleDao = peopleDao;
-//        this.googleClientId = googleClientId;
         this.organizationsDao = organizationsDao;
         this.factory = factory;
     }
@@ -137,14 +135,6 @@ public class AuthResource extends AbstractResource {
                         createCredentials(person, validationResult.getUserName(), validator.getIdentityProvider(), validator.getSecret());
 
                         return generateTokenResponse(person);
-
-//                    final URI location = UriBuilder.fromResource(PeopleResource.class)
-//                            .path(person.getId().toString())
-//                            .build(UuidString.toString(organization.getId()));
-//                    return Response
-//                            .created(location)
-//                            .entity(new SignupResponseDTO(map(person, PersonDTO.class), map(organization, OrganizationDTO.class)))
-//                            .build();
                     } else {
                         throw new ClientErrorException(dto.email + " is already registered with another organization.", Response.Status.BAD_REQUEST);
                     }

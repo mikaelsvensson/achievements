@@ -40,7 +40,11 @@ public class GoogleTokenAuthenticator implements Authenticator<String, User> {
         if (validationResult.isValid()) {
             try {
                 Credentials credentials = credentialsDao.get(IdentityProvider.GOOGLE, validationResult.getUserName());
-                return Optional.of(new User(credentials.getPerson().getId(), credentials.getId(), validationResult.getUserEmail()));
+                final User user = new User(
+                        credentials.getPerson().getId(),
+                        credentials.getId(),
+                        validationResult.getUserEmail());
+                return Optional.of(user);
             } catch (ObjectNotFoundException e) {
                 LOGGER.error("Exception when trying to validate credentials", e);
                 return Optional.empty();
