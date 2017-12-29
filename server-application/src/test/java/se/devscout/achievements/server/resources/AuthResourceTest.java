@@ -1,4 +1,4 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.resources;
 
 import com.auth0.jwt.JWT;
 import com.google.common.base.Charsets;
@@ -7,6 +7,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
@@ -18,8 +19,6 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.resources.AuthResource;
-import se.devscout.achievements.server.resources.UuidString;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.client.Entity;

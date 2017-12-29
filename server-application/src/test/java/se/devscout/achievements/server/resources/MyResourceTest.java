@@ -1,4 +1,4 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -7,6 +7,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
@@ -16,7 +17,6 @@ import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.IdentityProvider;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
-import se.devscout.achievements.server.resources.MyResource;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;

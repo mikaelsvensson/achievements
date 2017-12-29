@@ -1,4 +1,4 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
@@ -7,13 +7,13 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.MockUtil;
+import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.resources.OrganizationsResource;
-import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;

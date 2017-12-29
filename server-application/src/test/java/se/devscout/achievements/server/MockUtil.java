@@ -66,7 +66,7 @@ public class MockUtil {
         return progressMock;
     }
 
-    static void setupDefaultCredentials(CredentialsDao credentialsDao) throws ObjectNotFoundException {
+    public static void setupDefaultCredentials(CredentialsDao credentialsDao) throws ObjectNotFoundException {
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
         final Organization organization = mockOrganization("Acme Inc.");
         final Person person = mockPerson(organization, "Alice");

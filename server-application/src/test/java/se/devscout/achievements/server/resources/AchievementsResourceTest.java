@@ -1,4 +1,4 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Charsets;
@@ -10,6 +10,8 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.MockUtil;
+import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
@@ -18,8 +20,6 @@ import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStep;
-import se.devscout.achievements.server.resources.AchievementsResource;
-import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;

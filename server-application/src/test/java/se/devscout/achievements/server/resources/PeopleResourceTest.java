@@ -1,4 +1,4 @@
-package se.devscout.achievements.server;
+package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import se.devscout.achievements.server.MockUtil;
+import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
@@ -15,8 +17,6 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.resources.PeopleResource;
-import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
