@@ -20,6 +20,7 @@ public class PersonProperties {
     @Size(min = 1, max = 100)
     @Column(length = 100)
     @EmailAddress
+    //TODO: Changes to email address should propagate to credentials if user signs in using email address.
     private String email;
 
     @ElementCollection

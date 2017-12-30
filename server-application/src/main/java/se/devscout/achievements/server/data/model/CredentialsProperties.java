@@ -7,10 +7,12 @@ import javax.validation.constraints.Size;
 
 @MappedSuperclass
 public class CredentialsProperties {
+    //TODO: Rename to userId to avoid confusion with "some name that might be understandable to humans"
     private String username;
     @Basic
     @Column(length = 1024)
     @Size(max = 1024)
+    //TODO: Rename "identity provider data" and "secret" to "credentials data"?
     private byte[] secret;
 
     private IdentityProvider provider;

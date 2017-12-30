@@ -2,6 +2,7 @@ package se.devscout.achievements.server.auth;
 
 public class SecretValidationResult {
     private String userEmail;
+    //TODO: Rename to userId to avoid confusion with "some name that might be understandable to humans", like the email address.
     private String userName;
     private boolean isValid;
 
