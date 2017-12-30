@@ -25,10 +25,14 @@ public class MockUtil {
     }
 
     public static Person mockPerson(Organization organization, String name) {
-        return mockPerson(organization, name, null);
+        return mockPerson(organization, name, null, null);
     }
 
     public static Person mockPerson(Organization organization, String name, String customId) {
+        return mockPerson(organization, name, customId, null);
+    }
+
+    public static Person mockPerson(Organization organization, String name, String customId, String email) {
         final Integer id = getRandomNonZeroValue();
         final Person person = mock(Person.class);
         when(person.getId()).thenReturn(id);
@@ -36,6 +40,9 @@ public class MockUtil {
         when(person.getCustomIdentifier()).thenReturn(customId);
         if (organization != null) {
             when(person.getOrganization()).thenReturn(organization);
+        }
+        if (email != null) {
+            when(person.getEmail()).thenReturn(email);
         }
         return person;
     }
@@ -72,5 +79,7 @@ public class MockUtil {
         final Person person = mockPerson(organization, "Alice");
         final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("user"))).thenReturn(credentials);
+        when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
+
     }
 }

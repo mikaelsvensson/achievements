@@ -16,10 +16,10 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
     }
 
     @Override
-    public Credentials get(CredentialsType provider, String username) throws ObjectNotFoundException {
+    public Credentials get(CredentialsType type, String userId) throws ObjectNotFoundException {
         final List list = namedQuery("Credentials.getByUsername")
-                .setParameter("type", provider)
-                .setParameter("userId", username)
+                .setParameter("type", type)
+                .setParameter("userId", userId)
                 .getResultList();
         if (list.size() == 1) {
             return (Credentials) list.get(0);

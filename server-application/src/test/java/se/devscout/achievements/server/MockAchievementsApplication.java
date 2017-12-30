@@ -19,7 +19,7 @@ public class MockAchievementsApplication extends AchievementsApplication {
     protected CredentialsDao getCredentialsDao(SessionFactory sessionFactory) {
         final CredentialsDao dao = new CredentialsDaoImpl(sessionFactory) {
             @Override
-            public Credentials get(CredentialsType provider, String username) {
+            public Credentials get(CredentialsType type, String userId) {
                 final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
                 final Organization organization = mockOrganization("Acme Inc.");
                 final Person person = mockPerson(organization, "Alice");
