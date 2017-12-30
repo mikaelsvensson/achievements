@@ -2,9 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
-import se.devscout.achievements.server.api.OrganizationBaseDTO;
-import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
@@ -24,10 +22,12 @@ import java.util.stream.Collectors;
 public class OrganizationsResource extends AbstractResource {
     private OrganizationsDao dao;
     private AchievementsDao achievementsDao;
+    private AuthResourceUtil authResourceUtil;
 
-    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao) {
+    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao, AuthResourceUtil authResourceUtil) {
         this.dao = dao;
         this.achievementsDao = achievementsDao;
+        this.authResourceUtil = authResourceUtil;
     }
 
     @GET
@@ -52,6 +52,21 @@ public class OrganizationsResource extends AbstractResource {
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
+    }
+
+    @POST
+    @Path("{organizationId}/signup")
+    @UnitOfWork
+    public Response existingOrganizationSignup(@PathParam("organizationId") UuidString id,
+                                               SignupBaseDTO dto) {
+        return authResourceUtil.existingOrganizationSignup(id, dto);
+    }
+
+    @POST
+    @Path("signup")
+    @UnitOfWork
+    public Response newOrganizationSignup(SignupDTO dto) {
+        return authResourceUtil.newOrganizationSignup(dto);
     }
 
     @GET

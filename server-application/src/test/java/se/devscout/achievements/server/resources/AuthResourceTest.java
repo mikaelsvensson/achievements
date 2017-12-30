@@ -14,10 +14,7 @@ import se.devscout.achievements.server.api.SignupDTO;
 import se.devscout.achievements.server.auth.SecretValidatorFactory;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
@@ -31,15 +28,18 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+//TODO: Split into SignInResourceTest and SignUpResourceTest?
 public class AuthResourceTest {
 
     private final PeopleDao peopleDao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
+    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, organizationsDao, new SecretValidatorFactory("google_client_id"));
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new AuthResource(new JwtAuthenticator("secret"), credentialsDao, peopleDao, organizationsDao, new SecretValidatorFactory("google_client_id")))
+            .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class), authResourceUtil))
+            .addResource(new SignInResource(authResourceUtil))
             .build();
 
     @Test
@@ -65,6 +65,7 @@ public class AuthResourceTest {
         assertThat(dto.token).isNotEmpty();
         JWT.decode(dto.token);
     }
+
     @Test
     public void signup_noOrganization_expectBadRequest() throws Exception {
         final Response response = resources

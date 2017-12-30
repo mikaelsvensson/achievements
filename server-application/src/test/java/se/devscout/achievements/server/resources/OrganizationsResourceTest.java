@@ -12,8 +12,10 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.auth.SecretValidatorFactory;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -39,9 +41,11 @@ public class OrganizationsResourceTest {
 
     private final PeopleDao peopleDao = mock(PeopleDao.class);
 
+    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, dao, new SecretValidatorFactory("google_client_id"));
+
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new OrganizationsResource(dao, achievementsDao))
+            .addResource(new OrganizationsResource(dao, achievementsDao, authResourceUtil))
             .build();
 
     @Before

@@ -11,59 +11,49 @@
     </div>
 </section>
 <section class="section">
-    <div class="tile is-ancestor">
-        <div class="tile is-6 is-parent">
-            <article class="tile is-child">
-                <h1 class="title">Välkommen</h1>
+    <div class="columns">
+        <div class="column">
+            <article class="notification">
+                <p class="subtitle">Logga in med Google</p>
+                <div id="googleSigninButtonContainer"></div>
+            </article>
+        </div>
+        <div class="column">
+            <article class="notification">
+                <p class="subtitle">...eller din e-postadress</p>
                 <form>
-                    <div class="control">
-                        <input class="input is-large"
-                               type="text"
-                               id="username"
-                               name="username"
-                               placeholder="E-postadress">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
+                        </div>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large"
-                                   type="password"
-                                   id="password"
-                                   name="password"
-                                   placeholder="Lösenord"/>
+                            <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
                         </div>
                     </div>
 
                     <div class="control">
-                        <button class="button is-primary is-large" type="button" id="login-submit">Logga in</button>
+                        <button class="button is-primary" id="login-submit" type="button">
+                            Logga in
+                        </button>
+                    </div>
+
+                    <div class="errors"/>
+
+                    <div class="content is-small">
+                        <p><a href="#login-reset-password" aria-current="page">Jag har glömt mitt lösenord</a></p>
                     </div>
                 </form>
-                <p>Tyvärr är det så att <a href="#login-reset-password" aria-current="page">jag har glömt mitt
-                    lösenord</a>.</p>
-            </article>
-        </div>
-        <div class="tile is-6 is-parent">
-            <article class="tile is-child">
-                <h1 class="title">Första gången du är här?</h1>
-                <div class="content">
-                    <p>
-                        Det är enkelt att börja använda tjänsten. Det finns tre olika sätta att logga in.
-                    </p>
-
-                    <h3>Logga in med din e-postadress</h3>
-
-                    <p><a href="#loggain-skapa-konto" aria-current="page">Logga in med e-postadress</a>
-                    </p>
-
-                    <h3>Logga in via Google</h3>
-
-                    <div id="googleSigninButtonContainer"></div>
-
-                    <h3>Logga in via Facebook</h3>
-
-                    <p><a href="#login-with-facebook" aria-current="page">Logga in med mitt Facebook-konto</a></p>
-                </div>
             </article>
         </div>
     </div>
+
+    <div class="content">
+        <p>Först gången du är här? Antingen kan du <a href="#skapa-konto" aria-current="page">skapa en ny kår</a> eller
+            <a href="#skapa-konto-hos-kar" aria-current="page">ansöka om att få tillgång till en existerande kår</a>.
+        </p>
+    </div>
+    <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
 </section>

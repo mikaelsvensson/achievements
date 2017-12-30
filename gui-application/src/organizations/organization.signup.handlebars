@@ -2,7 +2,7 @@
     <div class="hero-body">
         <div class="container">
             <h1 class="title">
-                Skapa konto hos {{name}}
+                Logga in hos {{name}} för första gången
             </h1>
             <h2 class="subtitle">
                 Det finns flera sätt att logga in här. Valmöjligheter :-)
@@ -10,45 +10,44 @@
         </div>
     </div>
 </section>
-<section class="section" id="login-createaccount">
-    <div class="tile is-ancestor">
-        <div class="tile is-parent">
-            <article class="tile is-child notification">
-                <p class="title">Logga in med e-postadress</p>
+<section class="section">
+    <div class="columns">
+        <div class="column">
+            <article class="notification">
+                <p class="subtitle">Logga in med Google</p>
+                <div id="googleSigninButtonContainer"></div>
+            </article>
+        </div>
+        <div class="column">
+            <article class="notification">
+                <p class="subtitle">...eller din e-postadress</p>
                 <form>
                     <div class="field">
                         <div class="control">
-                            <label class="label">Vad är din e-postadress?</label>
                             <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
                         </div>
                     </div>
 
                     <div class="field">
-                        <label class="label">Vad vill du ha för lösenord?</label>
                         <div class="control">
                             <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
                         </div>
                     </div>
 
                     <div class="control">
-                        <button class="button is-primary is-large organization-signup-button" type="button">Skapa konto</button>
+                        <button class="button is-primary organization-signup-button" type="button">
+                            Skapa konto
+                        </button>
                     </div>
 
                     <div class="errors"/>
                 </form>
             </article>
         </div>
-        <div class="tile is-parent is-vertical">
-            <article class="tile is-child notification">
-                <p class="title">Logga in med Google</p>
-                <!--<p class="subtitle">Använd ditt vanliga Google-konto för att logga in</p>-->
-            </article>
-            <article class="tile is-child notification">
-                <p class="title">Logga in med Facebook</p>
-                <!--<p class="subtitle">Använd ditt vanliga Facebook-konto för att logga in</p>-->
-            </article>
-        </div>
     </div>
 
+    <div class="content is-small">
+        <p>För att kunna logga in måste din e-postadress redan ha kopplats till kåren av en av ledarna.</p>
+    </div>
     <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
 </section>

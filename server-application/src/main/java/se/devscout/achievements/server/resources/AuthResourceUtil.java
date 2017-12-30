@@ -1,8 +1,6 @@
 package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Strings;
-import io.dropwizard.auth.Auth;
-import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
@@ -15,23 +13,22 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-@Path("")
-public class AuthResource extends AbstractResource {
+public class AuthResourceUtil {
     private final JwtAuthenticator authenticator;
     private CredentialsDao credentialsDao;
     private PeopleDao peopleDao;
     private OrganizationsDao organizationsDao;
     private SecretValidatorFactory factory;
 
-    public AuthResource(JwtAuthenticator authenticator, CredentialsDao credentialsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao, SecretValidatorFactory factory) {
+    public AuthResourceUtil(JwtAuthenticator authenticator, CredentialsDao credentialsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao, SecretValidatorFactory factory) {
         this.authenticator = authenticator;
         this.credentialsDao = credentialsDao;
         this.peopleDao = peopleDao;
@@ -39,10 +36,7 @@ public class AuthResource extends AbstractResource {
         this.factory = factory;
     }
 
-    @POST
-    @Path("signin")
-    @UnitOfWork
-    public Response createToken(@Auth User user) {
+    public Response createToken(User user) {
         try {
             final Credentials credentials = credentialsDao.read(user.getCredentialsId());
 
@@ -68,15 +62,12 @@ public class AuthResource extends AbstractResource {
                 person.getId());
     }
 
-    @POST
-    @Path("organizations/signup")
-    @UnitOfWork
     public Response newOrganizationSignup(SignupDTO dto) {
+        if (Strings.isNullOrEmpty(dto.new_organization_name)) {
+            throw new BadRequestException("Name of new organization was not specified.");
+        }
         final List<Organization> organizations = organizationsDao.find(dto.new_organization_name);
         if (organizations.isEmpty()) {
-            if (Strings.isNullOrEmpty(dto.new_organization_name)) {
-                throw new BadRequestException("Name of new organization was not specified.");
-            }
 
             try {
                 // Create organization
@@ -107,14 +98,11 @@ public class AuthResource extends AbstractResource {
     }
 
     private void createCredentials(Person person, String userName, IdentityProvider identityProvider, byte[] secret) throws DaoException {
-        final CredentialsProperties credentialsProperties = new CredentialsProperties(userName, identityProvider, secret);
+        final CredentialsProperties credentialsProperties = new CredentialsProperties(StringUtils.defaultString(userName, person.getEmail()), identityProvider, secret);
         credentialsDao.create(person, credentialsProperties);
     }
 
-    @POST
-    @Path("organizations/{organizationId}/signup")
-    @UnitOfWork
-    public Response existingOrganizationSignup(@PathParam("organizationId") UuidString id,
+    public Response existingOrganizationSignup(UuidString id,
                                                SignupBaseDTO dto) {
         try {
             if (Strings.isNullOrEmpty(dto.email)) {

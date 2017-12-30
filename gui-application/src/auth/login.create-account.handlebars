@@ -2,42 +2,60 @@
     <div class="hero-body">
         <div class="container">
             <h1 class="title">
-                Skapa konto
+                Skapa kår
             </h1>
             <h2 class="subtitle">
-                Inloggning med hjälp av e-postadress
+                Kom igång genom att skapa en kår. Du blir kårens första användare!
             </h2>
         </div>
     </div>
 </section>
-<section class="section" id="login-createaccount">
+<section class="section">
+    <p class="subtitle">Vad heter din scoutkår?</p>
+    <input class="input" type="text" id="new_organization_name" name="new_organization_name"
+           placeholder="Namn på scoutkår"/>
+</section>
+<section class="section">
+    <p class="subtitle">Hur vill du logga in?</p>
+
     <form>
-        <div class="field">
-            <div class="control">
-                <label class="label">Vad är din e-postadress?</label>
-                <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
+        <div class="columns">
+            <div class="column">
+                <article class="notification">
+                    <p class="subtitle">Logga in med Google</p>
+                    <div id="googleSigninButtonContainer"></div>
+                    <input class="input" disabled type="text" id="google_email" name="google_email">
+                    <input class="input" disabled type="hidden" id="google_token" name="google_token">
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <p class="subtitle">...eller din e-postadress</p>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
+                        </div>
+                    </div>
+
+                    <div class="errors"/>
+                </article>
             </div>
         </div>
-
-        <div class="field">
-            <label class="label">Vad vill du ha för lösenord?</label>
-            <div class="control">
-                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-            </div>
-        </div>
-
-        <div class="field">
-            <label class="label">Vilken scoutkår tillhör du?</label>
-            <div class="control">
-                <input class="input" type="text" id="new_organization_name" name="new_organization_name"
-                       placeholder="Scoutkår"/>
-            </div>
-        </div>
-
-        <div class="control">
-            <button class="button is-primary is-large create-account-button" type="button">Skapa konto</button>
-        </div>
-        <div class="errors"/>
     </form>
+</section>
+</section>
+<section class="section">
+    <!--<p class="subtitle">Hur vill du logga in?</p>-->
+    <div class="control">
+        <button class="button is-primary is-large create-account-button" type="button">
+            Skapa nya kåren och gör mig till första användaren
+        </button>
+    </div>
     <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
 </section>

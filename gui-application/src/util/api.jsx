@@ -7,6 +7,8 @@ function beforeSendHandler(xhr) {
     const token = localStorage.getItem("token");
     const tokenGoogle = localStorage.getItem("token_google");
 
+    // console.log(username, password, tokenGoogle, token);
+
     if (username && password) {
         xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
     } else if (token) {
@@ -24,15 +26,18 @@ export function isLoggedIn() {
 }
 
 export function setCredentials(username, password) {
+    unsetAuth(null);
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
 }
 
 export function setToken(token) {
+    unsetAuth(null);
     localStorage.setItem("token", token);
 }
 
 export function setGoogleToken(tokenGoogle) {
+    unsetAuth(null);
     localStorage.setItem("token_google", tokenGoogle);
 }
 
@@ -41,19 +46,6 @@ export function unsetAuth(googleApiAuth2) {
     localStorage.removeItem("password");
     localStorage.removeItem("token");
     localStorage.removeItem("token_google");
-
-    if (googleApiAuth2) {
-        const auth2 = googleApiAuth2.getAuthInstance();
-        if (auth2) {
-            auth2.signOut().then(function () {
-                console.log('Google user has been signed out.');
-            });
-        } else {
-            console.log("No Google Auth instance found");
-        }
-    } else {
-        console.log("No Google API client provided");
-    }
 }
 
 export function post(url, dataObject, onSuccess, onFail) {

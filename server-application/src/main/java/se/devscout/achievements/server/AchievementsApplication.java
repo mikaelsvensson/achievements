@@ -64,20 +64,28 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
         final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(config.getAuthentication().getJwtSigningSecret());
+
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtAuthenticator, config.getAuthentication().getGoogleClientId()));
 
 //        environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
-        environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao));
+        AuthResourceUtil authResourceUtil = new AuthResourceUtil(
+                jwtAuthenticator,
+                credentialsDao,
+                peopleDao,
+                organizationsDao,
+                new SecretValidatorFactory(config.getAuthentication().getGoogleClientId()));
+
+        environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao, authResourceUtil));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao));
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
-        environment.jersey().register(new AuthResource(jwtAuthenticator, credentialsDao, peopleDao, organizationsDao, new SecretValidatorFactory(config.getAuthentication().getGoogleClientId())));
+        environment.jersey().register(new SignInResource(authResourceUtil));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
