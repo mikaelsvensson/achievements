@@ -1,7 +1,6 @@
 import $ from "jquery";
 import {get, post, put, isLoggedIn} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
-import {navigateTo} from "../util/routing.jsx";
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
 const templateOrganizationSummaryList = require("./organization.summary.result.handlebars");
@@ -17,6 +16,7 @@ export function renderOrganization(appPathParams) {
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();
+        responseData.invite_link = window.location.protocol + '//' + window.location.host + '/#karer/' + appPathParams[0].key + '/skapa-konto';
 
         updateView(templateOrganization(responseData));
 
