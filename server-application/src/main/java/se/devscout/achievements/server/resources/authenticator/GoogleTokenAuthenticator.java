@@ -5,12 +5,12 @@ import io.dropwizard.auth.Authenticator;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.devscout.achievements.server.auth.SecretValidationResult;
+import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.google.GoogleTokenValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.CredentialsType;
 
 import java.util.Optional;
 
@@ -36,10 +36,10 @@ public class GoogleTokenAuthenticator implements Authenticator<String, User> {
     @Override
     @UnitOfWork
     public Optional<User> authenticate(String token) throws AuthenticationException {
-        final SecretValidationResult validationResult = new GoogleTokenValidator(googleClientId).validate(token.toCharArray());
+        final ValidationResult validationResult = new GoogleTokenValidator(googleClientId).validate(token.toCharArray());
         if (validationResult.isValid()) {
             try {
-                Credentials credentials = credentialsDao.get(IdentityProvider.GOOGLE, validationResult.getUserName());
+                Credentials credentials = credentialsDao.get(CredentialsType.GOOGLE, validationResult.getUserId());
                 final User user = new User(
                         credentials.getPerson().getId(),
                         credentials.getId(),

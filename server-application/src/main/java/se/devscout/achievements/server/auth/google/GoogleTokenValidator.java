@@ -6,15 +6,15 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.devscout.achievements.server.auth.SecretValidationResult;
-import se.devscout.achievements.server.auth.SecretValidator;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.auth.CredentialsValidator;
+import se.devscout.achievements.server.auth.ValidationResult;
+import se.devscout.achievements.server.data.model.CredentialsType;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
-public class GoogleTokenValidator implements SecretValidator {
+public class GoogleTokenValidator implements CredentialsValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleTokenValidator.class);
     private final String googleClientId;
 
@@ -23,13 +23,13 @@ public class GoogleTokenValidator implements SecretValidator {
     }
 
     @Override
-    public SecretValidationResult validate(char[] secret) {
+    public ValidationResult validate(char[] data) {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 .setAudience(Collections.singletonList(googleClientId))
                 .build();
 
         try {
-            String token = new String(secret);
+            String token = new String(data);
             GoogleIdToken idToken = verifier.verify(token);
             if (idToken != null) {
                 GoogleIdToken.Payload payload = idToken.getPayload();
@@ -48,23 +48,23 @@ public class GoogleTokenValidator implements SecretValidator {
                         locale,
                         pictureUrl);
 
-                return new SecretValidationResult(email, userId, true);
+                return new ValidationResult(email, userId, true);
             } else {
                 LOGGER.info("Invalid Google token");
-                return SecretValidationResult.INVALID;
+                return ValidationResult.INVALID;
             }
         } catch (GeneralSecurityException | IOException e) {
-            return SecretValidationResult.INVALID;
+            return ValidationResult.INVALID;
         }
     }
 
     @Override
-    public byte[] getSecret() {
+    public byte[] getCredentialsData() {
         return new byte[0];
     }
 
     @Override
-    public IdentityProvider getIdentityProvider() {
-        return IdentityProvider.GOOGLE;
+    public CredentialsType getCredentialsType() {
+        return CredentialsType.GOOGLE;
     }
 }

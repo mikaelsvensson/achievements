@@ -6,7 +6,7 @@ import org.junit.Test;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
@@ -30,9 +30,9 @@ public class PasswordAuthenticatorTest {
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
         final Organization organization = mockOrganization("Acme Inc.");
         final Person person = mockPerson(organization, "Alice");
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
-        when(credentialsDao.get(IdentityProvider.PASSWORD, "user")).thenReturn(credentials);
-        when(credentialsDao.get(IdentityProvider.PASSWORD, "missing")).thenThrow(new ObjectNotFoundException());
+        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
+        when(credentialsDao.get(CredentialsType.PASSWORD, "user")).thenReturn(credentials);
+        when(credentialsDao.get(CredentialsType.PASSWORD, "missing")).thenThrow(new ObjectNotFoundException());
     }
 
     @Test

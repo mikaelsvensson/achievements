@@ -14,7 +14,7 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 
@@ -50,9 +50,9 @@ public class MyResourceTest {
         final Person person2a = mockPerson(org2, "Bob");
         final Person person2b = mockPerson(org2, "Carol");
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = new Credentials("bob", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
+        final Credentials credentials = new Credentials("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
         credentials.setPerson(person2a);
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
 
         when(peopleDao.getByParent(eq(org1))).thenReturn(Lists.newArrayList(person1));
         when(peopleDao.getByParent(eq(org2))).thenReturn(Lists.newArrayList(person2a, person2b));
@@ -85,9 +85,9 @@ public class MyResourceTest {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = new Credentials("bob", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
+        final Credentials credentials = new Credentials("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
         credentials.setPerson(person);
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("bob"))).thenReturn(credentials);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
 
         when(peopleDao.getByParent(eq(org))).thenReturn(Lists.newArrayList(person));
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));

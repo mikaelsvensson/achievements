@@ -70,7 +70,7 @@ public class MockUtil {
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
         final Organization organization = mockOrganization("Acme Inc.");
         final Person person = mockPerson(organization, "Alice");
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("user"))).thenReturn(credentials);
     }
 }

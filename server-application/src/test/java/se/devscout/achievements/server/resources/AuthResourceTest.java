@@ -11,7 +11,7 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
-import se.devscout.achievements.server.auth.SecretValidatorFactory;
+import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
@@ -35,7 +35,7 @@ public class AuthResourceTest {
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
-    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, organizationsDao, new SecretValidatorFactory("google_client_id"));
+    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class), authResourceUtil))
@@ -47,9 +47,9 @@ public class AuthResourceTest {
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
         final Organization organization = mockOrganization("Acme Inc.");
         final Person person = mockPerson(organization, "Alice");
-        final Credentials credentials = new Credentials("user", passwordValidator.getIdentityProvider(), passwordValidator.getSecret(), person);
+        final Credentials credentials = new Credentials("user", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
         credentials.setId(UUID.randomUUID());
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq("user"))).thenReturn(credentials);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("user"))).thenReturn(credentials);
         when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
 
         final Response response = resources
@@ -93,7 +93,7 @@ public class AuthResourceTest {
         final Response response = resources
                 .target("organizations/signup")
                 .request()
-                .post(Entity.json(new SignupDTO("alice@example.com", "password", org.getName(), IdentityProvider.PASSWORD)));
+                .post(Entity.json(new SignupDTO("alice@example.com", "password", org.getName(), CredentialsType.PASSWORD)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
@@ -116,7 +116,7 @@ public class AuthResourceTest {
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/signup")
                 .request()
-                .post(Entity.json(new SignupBaseDTO("alice@example.com", "password", IdentityProvider.PASSWORD)));
+                .post(Entity.json(new SignupBaseDTO("alice@example.com", "password", CredentialsType.PASSWORD)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
@@ -138,7 +138,7 @@ public class AuthResourceTest {
         final Response response = resources
                 .target("/organizations/signup/")
                 .request()
-                .post(Entity.json(new SignupDTO("password", "alice@example.com", org.getName(), IdentityProvider.PASSWORD)));
+                .post(Entity.json(new SignupDTO("password", "alice@example.com", org.getName(), CredentialsType.PASSWORD)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 

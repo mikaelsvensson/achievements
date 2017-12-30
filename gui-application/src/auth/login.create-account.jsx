@@ -32,12 +32,12 @@ export function renderLoginCreateAccount() {
         };
         if (googleEmail) {
             signUpDto.email = googleEmail;
-            signUpDto.identity_provider = "google"
-            signUpDto.identity_provider_data = $('#google_token').val()
+            signUpDto.credentials_type = "google"
+            signUpDto.credentials_data = $('#google_token').val()
         } else {
             signUpDto.email = $('#email').val();
-            signUpDto.identity_provider = "password"
-            signUpDto.identity_provider_data = $('#password').val();
+            signUpDto.credentials_type = "password"
+            signUpDto.credentials_data = $('#password').val();
         }
         console.log("signUpDto", signUpDto);
         post('//localhost:8080/api/organizations/signup/', signUpDto, function (responseData, responseStatus, jqXHR) {

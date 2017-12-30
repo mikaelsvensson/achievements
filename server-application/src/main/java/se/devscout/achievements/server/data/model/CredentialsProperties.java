@@ -7,47 +7,46 @@ import javax.validation.constraints.Size;
 
 @MappedSuperclass
 public class CredentialsProperties {
-    //TODO: Rename to userId to avoid confusion with "some name that might be understandable to humans"
-    private String username;
+    @Column(name = "user_id")
+    private String userId;
     @Basic
     @Column(length = 1024)
     @Size(max = 1024)
-    //TODO: Rename "identity provider data" and "secret" to "credentials data"?
-    private byte[] secret;
+    private byte[] data;
 
-    private IdentityProvider provider;
+    private CredentialsType type;
 
     public CredentialsProperties() {
     }
 
-    public CredentialsProperties(String username, IdentityProvider provider, byte[] secret) {
-        this.username = username;
-        this.provider = provider;
-        this.secret = secret;
+    public CredentialsProperties(String userId, CredentialsType type, byte[] data) {
+        this.userId = userId;
+        this.type = type;
+        this.data = data;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public byte[] getSecret() {
-        return secret;
+    public byte[] getData() {
+        return data;
     }
 
-    public void setSecret(byte[] secret) {
-        this.secret = secret;
+    public void setData(byte[] data) {
+        this.data = data;
     }
 
-    public IdentityProvider getProvider() {
-        return provider;
+    public CredentialsType getType() {
+        return type;
     }
 
-    public void setProvider(IdentityProvider provider) {
-        this.provider = provider;
+    public void setType(CredentialsType type) {
+        this.type = type;
     }
 
 }

@@ -7,12 +7,12 @@ import io.dropwizard.hibernate.UnitOfWork;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.devscout.achievements.server.auth.SecretValidationResult;
+import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.CredentialsType;
 
 import java.util.Optional;
 
@@ -29,8 +29,9 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
     @UnitOfWork
     public Optional<User> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
         try {
-            final Credentials credentials = credentialsDao.get(IdentityProvider.PASSWORD, basicCredentials.getUsername());
-            final SecretValidationResult validationResult = new PasswordValidator(credentials.getSecret()).validate(basicCredentials.getPassword().toCharArray());
+            final Credentials credentials = credentialsDao.get(CredentialsType.PASSWORD, basicCredentials.getUsername());
+            final PasswordValidator validator = new PasswordValidator(credentials.getData());
+            final ValidationResult validationResult = validator.validate(basicCredentials.getPassword().toCharArray());
             if (validationResult.isValid()) {
                 final User user = new User(
                         credentials.getPerson().getId(),

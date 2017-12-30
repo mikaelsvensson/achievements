@@ -59,15 +59,15 @@
             <column name="person_id" type="integer">
                 <constraints nullable="false"/>
             </column>
-            <column name="provider" type="integer"></column>
-            <column name="username" type="varchar(255)"></column>
-            <column name="secret" type="binary(1024)"></column>
+            <column name="type" type="integer"></column>
+            <column name="user_id" type="varchar(255)"></column>
+            <column name="data" type="binary(1024)"></column>
         </createTable>
         <createIndex indexName="idx_credentials_provider_user"
                      tableName="credentials"
                      unique="true">
-            <column name="provider"/>
-            <column name="username"/>
+            <column name="type"/>
+            <column name="user_id"/>
         </createIndex>
         <addPrimaryKey columnNames="id"
                        tableName="credentials"

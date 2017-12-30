@@ -4,7 +4,7 @@ import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsProperties;
-import se.devscout.achievements.server.data.model.IdentityProvider;
+import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.data.model.Person;
 
 import java.util.List;
@@ -16,10 +16,10 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
     }
 
     @Override
-    public Credentials get(IdentityProvider provider, String username) throws ObjectNotFoundException {
+    public Credentials get(CredentialsType provider, String username) throws ObjectNotFoundException {
         final List list = namedQuery("Credentials.getByUsername")
-                .setParameter("provider", provider)
-                .setParameter("username", username)
+                .setParameter("type", provider)
+                .setParameter("userId", username)
                 .getResultList();
         if (list.size() == 1) {
             return (Credentials) list.get(0);

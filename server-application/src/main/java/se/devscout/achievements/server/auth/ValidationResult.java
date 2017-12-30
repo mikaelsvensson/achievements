@@ -1,16 +1,16 @@
 package se.devscout.achievements.server.auth;
 
-public class SecretValidationResult {
+public class ValidationResult {
     private String userEmail;
     //TODO: Rename to userId to avoid confusion with "some name that might be understandable to humans", like the email address.
-    private String userName;
+    private String userId;
     private boolean isValid;
 
-    public static final SecretValidationResult INVALID = new SecretValidationResult(null, null, false);
+    public static final ValidationResult INVALID = new ValidationResult(null, null, false);
 
-    public SecretValidationResult(String userEmail, String userName, boolean isValid) {
+    public ValidationResult(String userEmail, String userId, boolean isValid) {
         this.userEmail = userEmail;
-        this.userName = userName;
+        this.userId = userId;
         this.isValid = isValid;
     }
 
@@ -18,8 +18,8 @@ public class SecretValidationResult {
         return userEmail;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUserId() {
+        return userId;
     }
 
     public boolean isValid() {

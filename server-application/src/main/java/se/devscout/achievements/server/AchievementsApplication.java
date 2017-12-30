@@ -17,7 +17,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.server.auth.SecretValidatorFactory;
+import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
@@ -76,7 +76,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 credentialsDao,
                 peopleDao,
                 organizationsDao,
-                new SecretValidatorFactory(config.getAuthentication().getGoogleClientId()));
+                new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId()));
 
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao, authResourceUtil));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));

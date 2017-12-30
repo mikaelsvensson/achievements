@@ -9,12 +9,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "credentials",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"provider", "username"})
+                @UniqueConstraint(columnNames = {"type", "user_id"})
         })
 @NamedQueries({
         @NamedQuery(
                 name = "Credentials.getByUsername",
-                query = "SELECT c FROM Credentials c WHERE c.provider = :provider AND c.username = :username"
+                query = "SELECT c FROM Credentials c WHERE c.type = :type AND c.userId = :userId"
         ),
         @NamedQuery(
                 name = "Credentials.getByPerson",
@@ -35,12 +35,12 @@ public class Credentials extends CredentialsProperties {
     public Credentials() {
     }
 
-    public Credentials(String username, IdentityProvider provider, byte[] secret, Person person) {
+    public Credentials(String username, CredentialsType provider, byte[] secret, Person person) {
         super(username, provider, secret);
         this.person = person;
     }
 
-    public Credentials(String username, IdentityProvider provider, byte[] secret) {
+    public Credentials(String username, CredentialsType provider, byte[] secret) {
         super(username, provider, secret);
     }
 

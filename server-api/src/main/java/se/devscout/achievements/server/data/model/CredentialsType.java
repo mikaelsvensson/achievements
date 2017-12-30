@@ -1,6 +1,6 @@
 package se.devscout.achievements.server.data.model;
 
-public enum IdentityProvider {
+public enum CredentialsType {
     PASSWORD,
     GOOGLE
 }

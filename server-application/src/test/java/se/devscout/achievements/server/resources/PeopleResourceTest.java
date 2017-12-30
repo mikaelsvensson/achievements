@@ -409,8 +409,8 @@ public class PeopleResourceTest {
         final Person person1 = MockUtil.mockPerson(org, name, customId);
         when(dao.read(eq(person1.getId()))).thenReturn(person1);
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Credentials credentials = new Credentials("username", passwordValidator.getIdentityProvider(), passwordValidator.getSecret());
-        when(credentialsDao.get(eq(IdentityProvider.PASSWORD), eq(name))).thenReturn(credentials);
+        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(name))).thenReturn(credentials);
         return person1;
     }
 }

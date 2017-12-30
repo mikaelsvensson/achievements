@@ -18,8 +18,8 @@ export function renderOrganizationSignup(appPathParams) {
 
         const signUpDto = {
             email: profile.getEmail(),
-            identity_provider: "google",
-            identity_provider_data: id_token
+            credentials_type: "google",
+            credentials_data: id_token
         };
         post('//localhost:8080/api/organizations/' + appPathParams[0].key + '/signup', signUpDto, function (responseData, responseStatus, jqXHR) {
             setToken(responseData.token);
@@ -54,8 +54,8 @@ export function renderOrganizationSignup(appPathParams) {
 
             const signUpDto = {
                 email: formData.email,
-                identity_provider: "password",
-                identity_provider_data: formData.password
+                credentials_type: "password",
+                credentials_data: formData.password
             };
 
             post('//localhost:8080/api/organizations/' + appPathParams[0].key + '/signup', signUpDto, function (responseData, responseStatus, jqXHR) {
