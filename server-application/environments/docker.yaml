@@ -11,7 +11,7 @@ server:
 
 database:
   driverClass: org.postgresql.Driver
-  url: jdbc:postgresql://database:5432/achievements
+  url: jdbc:postgresql://database:6543/achievements
   user: achievements_app
   password: password
   properties:
