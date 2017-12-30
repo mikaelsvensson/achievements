@@ -1,4 +1,4 @@
-<div>
+{{#if achievements}}
     {{#each achievements}}
     <div class="field is-grouped is-grouped-multiline">
         <div class="control">
@@ -54,4 +54,6 @@
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
     {{/each}}
-</div>
+{{else}}
+<p>Om några hade påbörjat något märke så hade du sett det här.</p>
+{{/if}}
