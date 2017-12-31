@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "build:production": "webpack -p",
-    "start": "webpack-dev-server --hot --port 9090"
+    "start": "webpack-dev-server --hot --port 63344"
   },
   "author": "Mikael Svensson",
   "license": "ISC",
