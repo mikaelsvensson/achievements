@@ -3,6 +3,7 @@ package se.devscout.achievements.server;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
+import se.devscout.achievements.server.mail.SmtpSenderConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ public class AchievementsApplicationConfiguration extends Configuration {
     @Valid
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
+    private SmtpSenderConfiguration smtp;
 
     @JsonProperty("database")
     public void setDataSourceFactory(DataSourceFactory factory) {
@@ -40,6 +42,14 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
     public void setAuthentication(AuthConfig authentication) {
         this.authentication = authentication;
+    }
+
+    public SmtpSenderConfiguration getSmtp() {
+        return smtp;
+    }
+
+    public void setSmtp(SmtpSenderConfiguration smtp) {
+        this.smtp = smtp;
     }
 
     public static class AuthConfig {

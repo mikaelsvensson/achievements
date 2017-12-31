@@ -28,6 +28,7 @@ import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
+import se.devscout.achievements.server.mail.SmtpSender;
 import se.devscout.achievements.server.resources.*;
 import se.devscout.achievements.server.resources.authenticator.GoogleTokenAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
@@ -102,7 +103,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 jwtTokenService,
                 new GoogleIdentityProvider(config.getAuthentication().getGoogleClientId(), config.getAuthentication().getGoogleClientSecret(), ClientBuilder.newClient()),
                 new MicrosoftIdentityProvider(config.getAuthentication().getMicrosoftClientId(), config.getAuthentication().getMicrosoftClientSecret(), ClientBuilder.newClient()),
-                new EmailIdentityProvider(jwtTokenService)));
+                new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()))));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 

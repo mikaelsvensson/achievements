@@ -46,6 +46,7 @@ public class OpenIdResource extends AbstractResource {
                                     @QueryParam("email") String email) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final Map<String, String> claims = email != null ? ImmutableMap.of("email", email) : null;
+        //TODO: Tokens should expire after, say, 15 minutes
         final String state = tokenService.encode(null, claims);
         return Response.temporaryRedirect(idp.getProviderAuthURL("signin/callback", state)).build();
     }
@@ -58,6 +59,7 @@ public class OpenIdResource extends AbstractResource {
                                     @QueryParam("organizationName") String organizationName,
                                     @QueryParam("email") String email) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
+        //TODO: Tokens should expire after, say, 15 minutes
         final String state = tokenService.encode(null, ImmutableMap.of(
                 "organizationId", organizationId != null ? organizationId.getValue() : null,
                 "organizationName", organizationName,

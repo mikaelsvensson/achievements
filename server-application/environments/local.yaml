@@ -23,3 +23,13 @@ authentication:
   microsoftClientId: YOUR_CLIENT_ID_HERE
   microsoftClientSecret: YOUR_CLIENT_SECRET_HERE
   jwtSigningSecret: kQCTd0ypLpoFbRt8vTSaHp37kPsKMdh1wzDiuJUa
+
+
+smtp:
+  # Sample configuration in case you want to send your mails using Gmail
+  host: smtp.googlemail.com
+  port: 465
+  username: YOUR_GOOGLE_EMAIL_ADDRESS
+  password: YOUR_GOOGLE_PASSWORD
+  fromAddress: YOUR_GOOGLE_EMAIL_ADDRESS
+  ssl: true

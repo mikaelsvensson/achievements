@@ -14,6 +14,7 @@ import se.devscout.achievements.server.auth.openid.MicrosoftIdentityProvider;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.core.Response;
@@ -45,7 +46,7 @@ public class OpenIdResourceTest {
                     TOKEN_SERVICE,
                     googleIdentityProvider,
                     microsoftIdentityProvider,
-                    new EmailIdentityProvider(TOKEN_SERVICE)))
+                    new EmailIdentityProvider(TOKEN_SERVICE, mock(EmailSender.class))))
             .build();
 
     public OpenIdResourceTest() throws UnsupportedEncodingException {
