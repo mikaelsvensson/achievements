@@ -6,6 +6,8 @@ import {renderAchievement} from "../achievements/achievement.jsx";
 import {renderAchievements} from "../achievements/achievements.jsx";
 import {renderLogout} from "../auth/logout.jsx";
 import {renderLogin} from "../auth/login.jsx";
+import {renderLoginWaitForEmail} from "../auth/login.wait-for-email.jsx";
+import {renderRedirect} from "../auth/auth.redirect.jsx";
 import {renderError} from "../error.jsx";
 import {renderLoginCreateAccount} from "../auth/login.create-account.jsx";
 import {renderPerson} from "../organizations/person.jsx";
@@ -40,6 +42,8 @@ function renderRoute(appPath) {
         'karer/*/personer/*': renderPerson,
         'marken': renderAchievements,
         'marken/*': renderAchievement,
+        'signin/check-mail-box': renderLoginWaitForEmail,
+        'signin/*': renderRedirect,
         '': renderMain
     };
 

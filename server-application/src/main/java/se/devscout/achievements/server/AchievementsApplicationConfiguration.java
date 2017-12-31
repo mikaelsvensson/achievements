@@ -44,7 +44,11 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
     public static class AuthConfig {
         private String googleClientId;
+        private String googleClientSecret;
+        private String microsoftClientId;
+        private String microsoftClientSecret;
         private String jwtSigningSecret;
+
 
         public String getGoogleClientId() {
             return googleClientId;
@@ -60,6 +64,30 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
         public void setJwtSigningSecret(String jwtSigningSecret) {
             this.jwtSigningSecret = jwtSigningSecret;
+        }
+
+        public String getGoogleClientSecret() {
+            return googleClientSecret;
+        }
+
+        public void setGoogleClientSecret(String googleClientSecret) {
+            this.googleClientSecret = googleClientSecret;
+        }
+
+        public String getMicrosoftClientId() {
+            return microsoftClientId;
+        }
+
+        public void setMicrosoftClientId(String microsoftClientId) {
+            this.microsoftClientId = microsoftClientId;
+        }
+
+        public String getMicrosoftClientSecret() {
+            return microsoftClientSecret;
+        }
+
+        public void setMicrosoftClientSecret(String microsoftClientSecret) {
+            this.microsoftClientSecret = microsoftClientSecret;
         }
     }
 }

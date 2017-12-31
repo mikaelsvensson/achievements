@@ -21,4 +21,7 @@ database:
 
 authentication:
   googleClientId: YOUR_CLIENT_ID_HERE
+  googleClientSecret: YOUR_CLIENT_SECRET_HERE
+  microsoftClientId: YOUR_CLIENT_ID_HERE
+  microsoftClientSecret: YOUR_CLIENT_SECRET_HERE
   jwtSigningSecret: QiIRLaJPGlOt53wvcs7UOboftTl0ViqCdlzCUbYE

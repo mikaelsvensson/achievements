@@ -11,45 +11,54 @@
     </div>
 </section>
 <section class="section">
-    <div class="columns">
-        <div class="column">
-            <article class="notification">
-                <p class="subtitle">Logga in med Google</p>
-                <div id="googleSigninButtonContainer"></div>
-            </article>
-        </div>
-        <div class="column">
-            <article class="notification">
-                <p class="subtitle">...eller din e-postadress</p>
-                <form>
+    <form method="get">
+        <div class="columns">
+            <div class="column">
+                <article class="notification">
+                    <p class="subtitle">Logga in med Google</p>
+                    <div id="googleSigninButtonContainer"></div>
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/google/signin">Google
+                    </button>
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/microsoft/signin">Microsoft
+                    </button>
+                    <div class="content is-small">
+                        <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <p class="subtitle">...eller din e-postadress</p>
                     <div class="field">
                         <div class="control">
                             <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
                         </div>
                     </div>
 
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-                        </div>
-                    </div>
+                    <!--
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
+                                            </div>
+                                        </div>
+                    -->
 
-                    <div class="control">
-                        <button class="button is-primary" id="login-submit" type="button">
-                            Logga in
-                        </button>
-                    </div>
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/password/signin">E-post
+                    </button>
 
                     <div class="errors"/>
 
                     <div class="content is-small">
                         <p><a href="#login-reset-password" aria-current="page">Jag har glömt mitt lösenord</a></p>
                     </div>
-                </form>
-            </article>
+                </article>
+            </div>
         </div>
-    </div>
 
+    </form>
     <div class="content">
         <p>Först gången du är här? Antingen kan du <a href="#skapa-konto" aria-current="page">skapa en ny kår</a> eller
             <a href="#skapa-konto-hos-kar" aria-current="page">ansöka om att få tillgång till en existerande kår</a>.

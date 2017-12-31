@@ -10,11 +10,8 @@ import io.dropwizard.auth.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
-
-import static java.util.Objects.requireNonNull;
 
 public class JwtAuthenticator implements Authenticator<String, User> {
 
@@ -23,15 +20,9 @@ public class JwtAuthenticator implements Authenticator<String, User> {
     private final Algorithm algorithm;
     private final JWTVerifier verifier;
 
-    public JwtAuthenticator(String secret) {
-        requireNonNull(secret);
-        try {
-            algorithm = Algorithm.HMAC512(secret);
-            verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Could not initialize JWT algorithm.");
-            throw new IllegalArgumentException();
-        }
+    public JwtAuthenticator(Algorithm algorithm) {
+        this.algorithm = algorithm;
+        verifier = JWT.require(this.algorithm).withIssuer(ISSUER).build();
     }
 
     @Override

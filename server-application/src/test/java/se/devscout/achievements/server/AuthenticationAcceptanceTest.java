@@ -11,6 +11,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.UnsuccessfulDTO;
+import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.*;
@@ -36,6 +37,7 @@ public class AuthenticationAcceptanceTest {
 
     private static final String RANDOM_ORG_ID = UuidString.toString(UUID.randomUUID());
     private static final String RANDOM_ACHIEVEMENT_ID = UuidString.toString(UUID.randomUUID());
+    private static final String IDENTITY_PROVIDER_NAME = CredentialsType.PASSWORD.name().toLowerCase();
     private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
             .add("http://localhost:9000/api/organizations/signup")
             .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/signup")
@@ -44,6 +46,10 @@ public class AuthenticationAcceptanceTest {
             .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID)
             .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps")
             .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps/1")
+            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signin")
+            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signin/callback")
+            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup")
+            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup/callback")
             .build();
 
     @Test
@@ -124,6 +130,7 @@ public class AuthenticationAcceptanceTest {
                 .put("achievementId", RANDOM_ACHIEVEMENT_ID)
                 .put("stepId", String.valueOf(1))
                 .put("personId", String.valueOf(2))
+                .put("identityProvider", IDENTITY_PROVIDER_NAME)
                 .build();
         List<Pair<String, String>> endpoints = new ArrayList<>();
         final Set<Object> singletons = RULE.getEnvironment().jersey().getResourceConfig().getSingletons();

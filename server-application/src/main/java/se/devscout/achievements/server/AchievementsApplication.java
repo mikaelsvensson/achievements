@@ -1,5 +1,6 @@
 package se.devscout.achievements.server;
 
+import com.auth0.jwt.algorithms.Algorithm;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -33,6 +34,7 @@ import se.devscout.achievements.server.resources.exceptionhandling.ValidationExc
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import javax.ws.rs.client.ClientBuilder;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -63,7 +65,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(ValidationExceptionMapper.class);
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
-        final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(config.getAuthentication().getJwtSigningSecret());
+        Algorithm algorithm = Algorithm.HMAC512(config.getAuthentication().getJwtSigningSecret());
+
+        final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(algorithm);
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtAuthenticator, config.getAuthentication().getGoogleClientId()));
 
@@ -85,7 +89,19 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao));
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
-        environment.jersey().register(new SignInResource(authResourceUtil));
+//        environment.jersey().register(new SignInResource(authResourceUtil));
+        environment.jersey().register(new OpenIdResource(ClientBuilder.newClient(),
+                config.getAuthentication().getGoogleClientId(),
+                config.getAuthentication().getGoogleClientSecret(),
+                new OpenIdResourceAuthUtil(
+                        jwtAuthenticator,
+                        credentialsDao,
+                        peopleDao,
+                        organizationsDao,
+                        new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId())),
+                config.getAuthentication().getMicrosoftClientId(),
+                config.getAuthentication().getMicrosoftClientSecret(),
+                algorithm));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
