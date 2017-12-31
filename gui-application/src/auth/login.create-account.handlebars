@@ -12,20 +12,30 @@
 </section>
 <section class="section">
     <p class="subtitle">Vad heter din scoutkår?</p>
-    <input class="input" type="text" id="new_organization_name" name="new_organization_name"
+    <input class="input is-large"
+           type="text"
+           id="new_organization_name"
+           name="new_organization_name"
            placeholder="Namn på scoutkår"/>
 </section>
 <section class="section">
     <p class="subtitle">Hur vill du logga in?</p>
 
-    <form>
+    <form method="get">
         <div class="columns">
             <div class="column">
                 <article class="notification">
-                    <p class="subtitle">Logga in med Google</p>
+                    <p class="subtitle">Logga in med Google eller Microsoft</p>
                     <div id="googleSigninButtonContainer"></div>
-                    <input class="input" disabled type="text" id="google_email" name="google_email">
-                    <input class="input" disabled type="hidden" id="google_token" name="google_token">
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/google/signup">Google
+                    </button>
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/microsoft/signup">Microsoft
+                    </button>
+                    <div class="content is-small">
+                        <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
+                    </div>
                 </article>
             </div>
             <div class="column">
@@ -37,25 +47,26 @@
                         </div>
                     </div>
 
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-                        </div>
-                    </div>
+                    <!--
+                                        <div class="field">
+                                            <div class="control">
+                                                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
+                                            </div>
+                                        </div>
+                    -->
+
+                    <button class="button is-primary is-large" type="submit"
+                            formaction="http://localhost:8080/api/openid/password/signup">E-post
+                    </button>
 
                     <div class="errors"/>
+
+                    <div class="content is-small">
+                        <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
+                    </div>
                 </article>
             </div>
         </div>
     </form>
-</section>
-</section>
-<section class="section">
-    <!--<p class="subtitle">Hur vill du logga in?</p>-->
-    <div class="control">
-        <button class="button is-primary is-large create-account-button" type="button">
-            Skapa nya kåren och gör mig till första användaren
-        </button>
-    </div>
     <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
 </section>
