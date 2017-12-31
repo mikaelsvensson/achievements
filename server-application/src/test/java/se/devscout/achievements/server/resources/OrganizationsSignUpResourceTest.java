@@ -1,6 +1,5 @@
 package se.devscout.achievements.server.resources;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Ignore;
@@ -11,10 +10,8 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
-import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
-import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -32,11 +29,11 @@ public class OrganizationsSignUpResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
-    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
+//    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class), authResourceUtil))
+            .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class)/*, authResourceUtil*/))
             .build();
 
     public OrganizationsSignUpResourceTest() throws UnsupportedEncodingException {

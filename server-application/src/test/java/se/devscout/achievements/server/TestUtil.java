@@ -12,9 +12,9 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.client.Client;
@@ -42,7 +42,7 @@ public class TestUtil {
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
                 mockHibernateBundle(),
                 credentialsDao,
-                mock(JwtAuthenticator.class),
+                mock(JwtTokenService.class),
                 "fake_google_client_id");
 
         return ResourceTestRule.builder()

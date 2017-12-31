@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.resources;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -13,6 +12,8 @@ import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
+import se.devscout.achievements.server.auth.jwt.JwtTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
@@ -33,8 +34,9 @@ public class SignInResourceTest {
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
+    private final JwtTokenService tokenService = new JwtTokenServiceImpl("secret");
     //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
-    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
+    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(tokenService), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
@@ -62,7 +64,8 @@ public class SignInResourceTest {
         final AuthTokenDTO dto = response.readEntity(AuthTokenDTO.class);
 
         assertThat(dto.token).isNotEmpty();
-        JWT.decode(dto.token);
+        final DecodedJWT actual = tokenService.decode(dto.token);
+        assertThat(actual.getSubject()).isEqualTo("Alice");
     }
 
     @Test

@@ -1,6 +1,5 @@
 package se.devscout.achievements.server;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -19,6 +18,8 @@ import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
+import se.devscout.achievements.server.auth.jwt.JwtTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.EmailIdentityProvider;
 import se.devscout.achievements.server.auth.openid.GoogleIdentityProvider;
 import se.devscout.achievements.server.auth.openid.MicrosoftIdentityProvider;
@@ -68,24 +69,22 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(ValidationExceptionMapper.class);
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
-        Algorithm algorithm = Algorithm.HMAC512(config.getAuthentication().getJwtSigningSecret());
+        final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
 
-        final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(algorithm);
-
-        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtAuthenticator, config.getAuthentication().getGoogleClientId()));
+        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService, config.getAuthentication().getGoogleClientId()));
 
 //        environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
-        AuthResourceUtil authResourceUtil = new AuthResourceUtil(
-                jwtAuthenticator,
-                credentialsDao,
-                peopleDao,
-                organizationsDao,
-                new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId()));
+//        AuthResourceUtil authResourceUtil = new AuthResourceUtil(
+//                jwtAuthenticator,
+//                credentialsDao,
+//                peopleDao,
+//                organizationsDao,
+//                new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId()));
 
-        environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao, authResourceUtil));
+        environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao/*, authResourceUtil*/));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
@@ -95,15 +94,15 @@ public class AchievementsApplication extends Application<AchievementsApplication
 //        environment.jersey().register(new SignInResource(authResourceUtil));
         environment.jersey().register(new OpenIdResource(
                 new OpenIdResourceAuthUtil(
-                        jwtAuthenticator,
+                        new JwtAuthenticator(jwtTokenService),
                         credentialsDao,
                         peopleDao,
                         organizationsDao,
                         new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId())),
-                algorithm,
+                jwtTokenService,
                 new GoogleIdentityProvider(config.getAuthentication().getGoogleClientId(), config.getAuthentication().getGoogleClientSecret(), ClientBuilder.newClient()),
                 new MicrosoftIdentityProvider(config.getAuthentication().getMicrosoftClientId(), config.getAuthentication().getMicrosoftClientSecret(), ClientBuilder.newClient()),
-                new EmailIdentityProvider()));
+                new EmailIdentityProvider(jwtTokenService)));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
@@ -117,10 +116,11 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new CredentialsDaoImpl(sessionFactory);
     }
 
-    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtAuthenticator jwtAuthenticator, String googleClientId) {
+    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService, String googleClientId) {
 
         PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
         GoogleTokenAuthenticator googleTokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(GoogleTokenAuthenticator.class, new Class[]{CredentialsDao.class, String.class}, new Object[]{credentialsDao, googleClientId});
+        JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(jwtTokenService);
 
         List<AuthFilter> filters = Lists.newArrayList(
                 new BasicCredentialAuthFilter.Builder<User>()

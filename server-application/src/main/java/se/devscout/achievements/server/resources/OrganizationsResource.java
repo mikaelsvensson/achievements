@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 public class OrganizationsResource extends AbstractResource {
     private OrganizationsDao dao;
     private AchievementsDao achievementsDao;
-    private AuthResourceUtil authResourceUtil;
+//    private AuthResourceUtil authResourceUtil;
 
-    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao, AuthResourceUtil authResourceUtil) {
+    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao/*, AuthResourceUtil authResourceUtil*/) {
         this.dao = dao;
         this.achievementsDao = achievementsDao;
-        this.authResourceUtil = authResourceUtil;
+//        this.authResourceUtil = authResourceUtil;
     }
 
     @GET
