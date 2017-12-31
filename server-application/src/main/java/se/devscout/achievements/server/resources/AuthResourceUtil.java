@@ -6,6 +6,7 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
+//TODO: Remove class when OpenIdResourceAuthUtil is on par feature-wise
 public class AuthResourceUtil {
     private final JwtAuthenticator authenticator;
     private CredentialsDao credentialsDao;

@@ -36,6 +36,7 @@ abstract class AbstractIdentityProvider implements IdentityProvider {
                 .queryParam("scope", "openid email")
                 .queryParam("redirect_uri", getCallbackURL(path).toString())
                 .queryParam("state", appState)
+                //TODO: How and when is this nonce validated?
                 .queryParam("nonce", Base64.getUrlEncoder().encodeToString(RandomUtils.nextBytes(30)))
                 .build();
     }

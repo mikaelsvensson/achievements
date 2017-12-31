@@ -18,6 +18,8 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
 
+//TODO: Test this resource!
+//TODO: Rename resource since the "e-mail provider" is not an OpenID IdP.
 @Path("openid/{identityProvider}")
 public class OpenIdResource extends AbstractResource {
 
@@ -33,6 +35,7 @@ public class OpenIdResource extends AbstractResource {
         MAPPING = ImmutableMap.<String, IdentityProvider>builder()
                 .put(CredentialsType.GOOGLE.name().toLowerCase(), googleIdentityProvider)
                 .put(CredentialsType.MICROSOFT.name().toLowerCase(), microsoftIdentityProvider)
+                //TODO: Rename to "email" instead of "password" since "password" is also the label we use in the database?
                 .put(CredentialsType.PASSWORD.name().toLowerCase(), emailIdentityProvider)
                 .build();
         this.util = util;
