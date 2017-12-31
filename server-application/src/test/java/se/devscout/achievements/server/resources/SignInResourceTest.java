@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.resources;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -21,6 +22,7 @@ import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -31,12 +33,16 @@ public class SignInResourceTest {
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
-    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
+    //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
+    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new SignInResource(authResourceUtil))
             .build();
+
+    public SignInResourceTest() throws UnsupportedEncodingException {
+    }
 
     @Before
     public void setUp() throws Exception {

@@ -37,7 +37,7 @@ public class TestUtil {
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
                 mockHibernateBundle(),
                 credentialsDao,
-                new JwtAuthenticator("secret"),
+                mock(JwtAuthenticator.class),
                 "fake_google_client_id");
 
         return ResourceTestRule.builder()

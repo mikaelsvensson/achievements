@@ -41,7 +41,7 @@ public class OrganizationsResourceTest {
 
     private final PeopleDao peopleDao = mock(PeopleDao.class);
 
-    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator("secret"), credentialsDao, peopleDao, dao, new CredentialsValidatorFactory("google_client_id"));
+    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(mock(JwtAuthenticator.class), credentialsDao, peopleDao, dao, new CredentialsValidatorFactory("google_client_id"));
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
