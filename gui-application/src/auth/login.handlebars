@@ -15,14 +15,29 @@
         <div class="columns">
             <div class="column">
                 <article class="notification">
-                    <p class="subtitle">Logga in med Google</p>
-                    <div id="googleSigninButtonContainer"></div>
-                    <button class="button is-primary is-large" type="submit"
-                            formaction="http://localhost:8080/api/openid/google/signin">Google
-                    </button>
-                    <button class="button is-primary is-large" type="submit"
-                            formaction="http://localhost:8080/api/openid/microsoft/signin">Microsoft
-                    </button>
+                    <!--<p class="subtitle">Logga in med Google</p>-->
+                    <!--<div class="content is-small">
+                        <p>Smidigt om du har en Gmail-adress:</p>
+                    </div>-->
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="http://localhost:8080/api/openid/google/signin">
+                                Logga in med Google
+                            </button>
+                        </div>
+                    </div>
+                    <!--<div class="content is-small">
+                        <p>Smidigt om du har en Hotmail-, Live- eller Outlook-adress:</p>
+                    </div>-->
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="http://localhost:8080/api/openid/microsoft/signin">
+                                Logga in med Microsoft
+                            </button>
+                        </div>
+                    </div>
                     <div class="content is-small">
                         <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
                     </div>
@@ -45,8 +60,9 @@
                                         </div>
                     -->
 
-                    <button class="button is-primary is-large" type="submit"
-                            formaction="http://localhost:8080/api/openid/password/signin">E-post
+                    <button class="button is-primary is-medium" type="submit"
+                            formaction="http://localhost:8080/api/openid/password/signin">
+                        Logga in med e-post
                     </button>
 
                     <div class="errors"/>
