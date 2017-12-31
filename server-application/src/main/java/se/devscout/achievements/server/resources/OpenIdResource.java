@@ -73,8 +73,13 @@ public class OpenIdResource extends AbstractResource {
                                          @QueryParam("code") String authCode) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final ValidationResult result = idp.handleCallback(authCode, "signin/callback");
-        final AuthTokenDTO tokenDTO = util.createToken(idp.getCredentialsType(), result.getUserId());
-        return createSignedInResponse(tokenDTO);
+        try {
+            final AuthTokenDTO tokenDTO = util.createToken(idp.getCredentialsType(), result.getUserId());
+            return createSignedInResponse(tokenDTO);
+        } catch (NotFoundException e) {
+            final AuthTokenDTO tokenDTO = util.newSignup(result, idp.getCredentialsType(), idp.getCredentialsData());
+            return createSignedInResponse(tokenDTO);
+        }
     }
 
     @GET
