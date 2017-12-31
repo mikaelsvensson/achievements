@@ -19,6 +19,9 @@ import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
+import se.devscout.achievements.server.auth.openid.EmailIdentityProvider;
+import se.devscout.achievements.server.auth.openid.GoogleIdentityProvider;
+import se.devscout.achievements.server.auth.openid.MicrosoftIdentityProvider;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
@@ -90,18 +93,17 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
 //        environment.jersey().register(new SignInResource(authResourceUtil));
-        environment.jersey().register(new OpenIdResource(ClientBuilder.newClient(),
-                config.getAuthentication().getGoogleClientId(),
-                config.getAuthentication().getGoogleClientSecret(),
+        environment.jersey().register(new OpenIdResource(
                 new OpenIdResourceAuthUtil(
                         jwtAuthenticator,
                         credentialsDao,
                         peopleDao,
                         organizationsDao,
                         new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId())),
-                config.getAuthentication().getMicrosoftClientId(),
-                config.getAuthentication().getMicrosoftClientSecret(),
-                algorithm));
+                algorithm,
+                new GoogleIdentityProvider(config.getAuthentication().getGoogleClientId(), config.getAuthentication().getGoogleClientSecret(), ClientBuilder.newClient()),
+                new MicrosoftIdentityProvider(config.getAuthentication().getMicrosoftClientId(), config.getAuthentication().getMicrosoftClientSecret(), ClientBuilder.newClient()),
+                new EmailIdentityProvider()));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 

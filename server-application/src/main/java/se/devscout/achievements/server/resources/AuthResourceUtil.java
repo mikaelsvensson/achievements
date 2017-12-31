@@ -1,25 +1,10 @@
 package se.devscout.achievements.server.resources;
 
-import com.google.common.base.Strings;
-import org.apache.commons.lang3.StringUtils;
-import se.devscout.achievements.server.api.AuthTokenDTO;
-import se.devscout.achievements.server.api.SignupBaseDTO;
-import se.devscout.achievements.server.api.SignupDTO;
-import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
-import se.devscout.achievements.server.auth.ValidationResult;
-import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.OrganizationsDao;
+import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
-import se.devscout.achievements.server.resources.authenticator.User;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
 
 public class AuthResourceUtil {
     private final JwtAuthenticator authenticator;
@@ -36,18 +21,7 @@ public class AuthResourceUtil {
         this.factory = factory;
     }
 
-    public Response createToken(User user) {
-        try {
-            final Credentials credentials = credentialsDao.read(user.getCredentialsId());
-
-            final Person person = credentials.getPerson();
-
-            return generateTokenResponse(person);
-        } catch (ObjectNotFoundException e) {
-            throw new NotFoundException();
-        }
-    }
-
+/*
     private Response generateTokenResponse(Person person) {
         return Response
                 .ok()
@@ -62,6 +36,8 @@ public class AuthResourceUtil {
                 person.getId());
     }
 
+*/
+/*
     public Response newOrganizationSignup(SignupDTO dto) {
         if (Strings.isNullOrEmpty(dto.new_organization_name)) {
             throw new BadRequestException("Name of new organization was not specified.");
@@ -138,4 +114,5 @@ public class AuthResourceUtil {
             throw new NotFoundException("Could not find organization " + id);
         }
     }
+*/
 }

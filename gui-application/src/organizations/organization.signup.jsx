@@ -1,8 +1,5 @@
-import $ from "jquery";
-import {get, post, isLoggedIn, setToken} from "../util/api.jsx";
-import {updateView, getFormData} from "../util/view.jsx";
-import {renderErrorBlock} from "../error-block.jsx";
-import {navigateTo} from "../util/routing.jsx";
+import {get, isLoggedIn} from "../util/api.jsx";
+import {updateView} from "../util/view.jsx";
 const templateSignup = require("./organization.signup.handlebars");
 const templateLoading = require("../loading.handlebars");
 
@@ -21,6 +18,7 @@ export function renderOrganizationSignup(appPathParams) {
 
         updateView(templateSignup(responseData));
 
+        /*
         $('#app').find('.organization-signup-button').click(function (e) {
             const button = $(this);
             const form = button.addClass('is-loading').closest('form');
@@ -44,5 +42,6 @@ export function renderOrganizationSignup(appPathParams) {
                 renderErrorBlock(jqXHR.responseJSON.message, form.find('.errors'));
             });
         });
+         */
     });
 }

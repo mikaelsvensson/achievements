@@ -1,13 +1,11 @@
 //TODO: Rename login.create-account to signup?
-import $ from "jquery";
 import {updateView} from "../util/view.jsx";
-import {post, setToken} from "../util/api.jsx";
-import {navigateTo} from "../util/routing.jsx";
 const templateLoginCreateAccount = require("./login.create-account.handlebars");
 
 export function renderLoginCreateAccount() {
     updateView(templateLoginCreateAccount())
 
+    /*
     $('#app').find('.create-account-button').click(function (e) {
         const button = $(this);
         const form = button.addClass('is-loading').closest('form');
@@ -33,4 +31,5 @@ export function renderLoginCreateAccount() {
             navigateTo('minprofil')
         });
     });
+     */
 }

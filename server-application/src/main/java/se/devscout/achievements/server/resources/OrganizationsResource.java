@@ -2,7 +2,9 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.*;
+import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
+import se.devscout.achievements.server.api.OrganizationBaseDTO;
+import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
@@ -54,6 +56,7 @@ public class OrganizationsResource extends AbstractResource {
         }
     }
 
+/*
     @POST
     @Path("{organizationId}/signup")
     @UnitOfWork
@@ -61,13 +64,16 @@ public class OrganizationsResource extends AbstractResource {
                                                SignupBaseDTO dto) {
         return authResourceUtil.existingOrganizationSignup(id, dto);
     }
+*/
 
+/*
     @POST
     @Path("signup")
     @UnitOfWork
     public Response newOrganizationSignup(SignupDTO dto) {
         return authResourceUtil.newOrganizationSignup(dto);
     }
+*/
 
     @GET
     @Path("{organizationId}/achievement-summary")

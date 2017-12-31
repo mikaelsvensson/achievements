@@ -34,7 +34,7 @@ public class SignInResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
-    private final AuthResourceUtil authResourceUtil = new AuthResourceUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
+    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(Algorithm.HMAC512("secret")), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)

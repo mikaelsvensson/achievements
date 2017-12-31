@@ -14,7 +14,6 @@ import se.devscout.achievements.server.auth.openid.MicrosoftIdentityProvider;
 import se.devscout.achievements.server.data.model.CredentialsType;
 
 import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
@@ -26,17 +25,15 @@ public class OpenIdResource extends AbstractResource {
     private OpenIdResourceAuthUtil util;
     private Algorithm jwtAlgorithm;
 
-    public OpenIdResource(Client client,
-                          String googleClientId,
-                          String googleClientSecret,
-                          OpenIdResourceAuthUtil util,
-                          String microsoftClientId,
-                          String microsoftClientSecret,
-                          Algorithm jwtAlgorithm) {
+    public OpenIdResource(OpenIdResourceAuthUtil util,
+                          Algorithm jwtAlgorithm,
+                          GoogleIdentityProvider googleIdentityProvider,
+                          MicrosoftIdentityProvider microsoftIdentityProvider,
+                          EmailIdentityProvider emailIdentityProvider) {
         MAPPING = ImmutableMap.<String, IdentityProvider>builder()
-                .put(CredentialsType.GOOGLE.name().toLowerCase(), new GoogleIdentityProvider(googleClientId, googleClientSecret, client))
-                .put(CredentialsType.MICROSOFT.name().toLowerCase(), new MicrosoftIdentityProvider(microsoftClientId, microsoftClientSecret, client))
-                .put(CredentialsType.PASSWORD.name().toLowerCase(), new EmailIdentityProvider())
+                .put(CredentialsType.GOOGLE.name().toLowerCase(), googleIdentityProvider)
+                .put(CredentialsType.MICROSOFT.name().toLowerCase(), microsoftIdentityProvider)
+                .put(CredentialsType.PASSWORD.name().toLowerCase(), emailIdentityProvider)
                 .build();
         this.util = util;
         this.jwtAlgorithm = jwtAlgorithm;
@@ -79,7 +76,7 @@ public class OpenIdResource extends AbstractResource {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final ValidationResult result = idp.handleCallback(authCode, "signin/callback");
         final AuthTokenDTO tokenDTO = util.createToken(idp.getCredentialsType(), result.getUserId());
-        return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
+        return createSignedInResponse(tokenDTO);
     }
 
     @GET
@@ -94,17 +91,19 @@ public class OpenIdResource extends AbstractResource {
         final ValidationResult result = idp.handleCallback(authCode, "signup/callback");
         if (!jwt.getClaim("organizationId").isNull()) {
             final AuthTokenDTO tokenDTO = util.existingOrganizationSignup(new UuidString(jwt.getClaim("organizationId").asString()), result, idp.getCredentialsType(), idp.getCredentialsData());
-            //TODO: Do not hard-code localhost in redirection URLs
-            return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
+            return createSignedInResponse(tokenDTO);
         } else if (!jwt.getClaim("organizationName").isNull()) {
             final AuthTokenDTO tokenDTO = util.newOrganizationSignup(jwt.getClaim("organizationName").asString(), result, idp.getCredentialsType(), idp.getCredentialsData());
-            //TODO: Do not hard-code localhost in redirection URLs
-            return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
+            return createSignedInResponse(tokenDTO);
         } else {
             final AuthTokenDTO tokenDTO = util.newSignup(result, idp.getCredentialsType(), idp.getCredentialsData());
-            //TODO: Do not hard-code localhost in redirection URLs
-            return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
+            return createSignedInResponse(tokenDTO);
         }
+    }
+
+    private Response createSignedInResponse(AuthTokenDTO tokenDTO) {
+        //TODO: Do not hard-code localhost in redirection URLs
+        return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
     }
 
     private IdentityProvider getIdentityProvider(String identityProvider) {

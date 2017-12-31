@@ -8,6 +8,7 @@ import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -34,6 +35,10 @@ public class TestUtil {
     }
 
     public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao) {
+        return resourceTestRule(credentialsDao, Boolean.TRUE);
+    }
+
+    public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, Boolean followRedirects) {
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
                 mockHibernateBundle(),
                 credentialsDao,
@@ -41,6 +46,7 @@ public class TestUtil {
                 "fake_google_client_id");
 
         return ResourceTestRule.builder()
+                .setClientConfigurator(clientConfig -> clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects))
                 .addProvider(authFeature)
                 .addProvider(RolesAllowedDynamicFeature.class)
                 .addProvider(new AuthValueFactoryProvider.Binder<>(User.class));

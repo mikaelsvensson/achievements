@@ -10,6 +10,7 @@ import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
@@ -37,10 +38,16 @@ public class OpenIdResourceAuthUtil {
 
     public AuthTokenDTO createToken(CredentialsType credentialsType, String userId) {
         try {
-            final Credentials credentials = credentialsDao.get(credentialsType, userId);
+            final Person person = credentialsDao.get(credentialsType, userId).getPerson();
+            return generateTokenResponse(person);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        }
+    }
 
-            final Person person = credentials.getPerson();
-
+    public AuthTokenDTO createToken(User user) {
+        try {
+            final Person person = credentialsDao.read(user.getCredentialsId()).getPerson();
             return generateTokenResponse(person);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();

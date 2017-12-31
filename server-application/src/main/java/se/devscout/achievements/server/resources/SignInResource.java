@@ -15,15 +15,18 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Path("signin")
 public class SignInResource extends AbstractResource {
-    private AuthResourceUtil authResourceUtil;
+    private OpenIdResourceAuthUtil util;
 
-    public SignInResource(AuthResourceUtil authResourceUtil) {
-        this.authResourceUtil = authResourceUtil;
+    public SignInResource(OpenIdResourceAuthUtil util) {
+        this.util = util;
     }
 
     @POST
     @UnitOfWork
     public Response createToken(@Auth User user) {
-        return authResourceUtil.createToken(user);
+        return Response
+                .ok()
+                .entity(util.createToken(user))
+                .build();
     }
 }
