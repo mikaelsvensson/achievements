@@ -42,10 +42,6 @@ Start back-end
     $ docker-compose build
     $ docker-compose up
 
-If you want to enable Google Sign-In, you must set your app's Google client id in the environment variable GOOGLE_CLIENT_ID:
-
-    $ export GOOGLE_CLIENT_ID=your_client_id_goes_here
-
 Start front-end
 
     gui-application$ npm run start

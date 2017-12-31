@@ -42,11 +42,6 @@ module.exports = {
         fs: 'empty'
     },
     plugins: [
-        HtmlWebpackPluginConfig,
-        new webpack.DefinePlugin({
-            "process.env": {
-                GOOGLE_CLIENT_ID: JSON.stringify(process.env.GOOGLE_CLIENT_ID)
-            }
-        })
+        HtmlWebpackPluginConfig
     ]
 };

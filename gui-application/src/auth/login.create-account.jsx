@@ -3,25 +3,10 @@ import $ from "jquery";
 import {updateView} from "../util/view.jsx";
 import {post, setToken} from "../util/api.jsx";
 import {navigateTo} from "../util/routing.jsx";
-import {initGoogleSigninButton} from "./auth.google.jsx";
-
 const templateLoginCreateAccount = require("./login.create-account.handlebars");
 
-function onGoogleSuccess(googleUser) {
-    var id_token = googleUser.getAuthResponse().id_token;
-
-    var profile = googleUser.getBasicProfile();
-    $('#google_email').val(profile.getEmail());
-    $('#google_token').val(id_token);
-}
-function onGoogleFailure(error) {
-    // TODO: Inform user of this error
-    console.log(error);
-}
 export function renderLoginCreateAccount() {
     updateView(templateLoginCreateAccount())
-
-    initGoogleSigninButton(onGoogleSuccess, onGoogleFailure);
 
     $('#app').find('.create-account-button').click(function (e) {
         const button = $(this);
