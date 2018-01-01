@@ -6,6 +6,7 @@ import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthFilter;
 import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.chained.ChainedAuthFilter;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
@@ -16,6 +17,7 @@ import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
@@ -72,7 +74,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
-//        environment.jersey().register(RolesAllowedDynamicFeature.class);
+        environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
@@ -113,16 +115,19 @@ public class AchievementsApplication extends Application<AchievementsApplication
         PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
         JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(jwtTokenService);
 
+        final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
+
         List<AuthFilter> filters = Lists.newArrayList(
                 new BasicCredentialAuthFilter.Builder<User>()
                         .setAuthenticator(tokenAuthenticator)
                         .setPrefix("Basic")
 //                        .setRealm("Achievements")
-//                        .setAuthorizer(new DefaultAuthorizer())
+                        .setAuthorizer(authorizer)
 //                        .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
                         .buildAuthFilter(),
                 new OAuthCredentialAuthFilter.Builder<User>()
                         .setAuthenticator(jwtAuthenticator)
+                        .setAuthorizer(authorizer)
                         .setPrefix("JWT")
                         .buildAuthFilter()
         );
