@@ -42,6 +42,11 @@ module.exports = {
         fs: 'empty'
     },
     plugins: [
-        HtmlWebpackPluginConfig
+        HtmlWebpackPluginConfig,
+        new webpack.DefinePlugin({
+            "process.env": {
+                CUSTOMER_SUPPORT_EMAIL: JSON.stringify(process.env.CUSTOMER_SUPPORT_EMAIL)
+            }
+        })
     ]
 };

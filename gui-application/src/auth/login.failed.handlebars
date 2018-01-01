@@ -1,0 +1,22 @@
+<section class="hero is-primary">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                Ojdå
+            </h1>
+            <h2 class="subtitle">
+                Vi kunde tyvärr inte logga in dig
+            </h2>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="content">
+        {{#if customerSupportEmail}}
+        <p>Försök gärna en gång till, eller kontakta oss på <a href="mailto:{{customerSupportEmail}}">{{customerSupportEmail}}</a>.
+        </p>
+        {{else}}
+        <p>Försök gärna en gång till.</p>
+        {{/if}}
+    </div>
+</section>
