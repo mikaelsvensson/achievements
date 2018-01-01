@@ -4,13 +4,13 @@ import {renderOrganization} from "../organizations/organization.jsx";
 import {renderOrganizations} from "../organizations/organizations.jsx";
 import {renderAchievement} from "../achievements/achievement.jsx";
 import {renderAchievements} from "../achievements/achievements.jsx";
-import {renderLogout} from "../auth/logout.jsx";
-import {renderLogin} from "../auth/login.jsx";
-import {renderLoginWaitForEmail} from "../auth/login.wait-for-email.jsx";
-import {renderLoginFailed} from "../auth/login.failed.jsx";
+import {renderSignout} from "../auth/signout.jsx";
+import {renderSignin} from "../auth/signin.jsx";
+import {renderSigninWaitForEmail} from "../auth/signin.wait-for-email.jsx";
+import {renderSigninFailed} from "../auth/signin.failed.jsx";
 import {renderRedirect} from "../auth/auth.redirect.jsx";
 import {renderError} from "../error.jsx";
-import {renderLoginCreateAccount} from "../auth/login.create-account.jsx";
+import {renderSignup} from "../auth/signup.jsx";
 import {renderPerson} from "../organizations/person.jsx";
 import {renderMyProfile} from "../my/profile.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
@@ -34,17 +34,17 @@ function renderRoute(appPath) {
     const routes = {
         'statistik': renderStats,
         'minprofil': renderMyProfile,
-        'loggaut': renderLogout,
-        'loggain': renderLogin,
-        'skapa-konto': renderLoginCreateAccount,
+        'loggaut': renderSignout,
+        'loggain': renderSignin,
+        'skapa-konto': renderSignup,
         'karer': renderOrganizations,
         'karer/*': renderOrganization,
         'karer/*/skapa-konto': renderOrganizationSignup,
         'karer/*/personer/*': renderPerson,
         'marken': renderAchievements,
         'marken/*': renderAchievement,
-        'signin/failed': renderLoginFailed,
-        'signin/check-mail-box': renderLoginWaitForEmail,
+        'signin/failed': renderSigninFailed,
+        'signin/check-mail-box': renderSigninWaitForEmail,
         'signin/*': renderRedirect,
         '': renderMain
     };

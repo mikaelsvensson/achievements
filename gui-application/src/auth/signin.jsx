@@ -2,10 +2,10 @@ import $ from "jquery";
 import {updateView, getFormData} from "../util/view.jsx";
 import {post, setCredentials, setToken} from "../util/api.jsx";
 import {navigateTo} from "../util/routing.jsx";
-const templateLogin = require("./login.handlebars");
+const templateSignin = require("./signin.handlebars");
 
-export function renderLogin() {
-    updateView(templateLogin());
+export function renderSignin() {
+    updateView(templateSignin());
 
     $('#login-submit').click(function (e) {
         const button = $(this);

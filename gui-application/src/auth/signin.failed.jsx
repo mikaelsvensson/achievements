@@ -1,11 +1,11 @@
 import {updateView} from "../util/view.jsx";
-const templateLoginFailed = require("./login.failed.handlebars");
+const templateSigninFailed = require("./signin.failed.handlebars");
 
 // CUSTOMER_SUPPORT_EMAIL fetched from environment variable by Webpack during build.
 const CUSTOMER_SUPPORT_EMAIL = process.env.CUSTOMER_SUPPORT_EMAIL;
 
-export function renderLoginFailed() {
-    updateView(templateLoginFailed({
+export function renderSigninFailed() {
+    updateView(templateSigninFailed({
         customerSupportEmail: CUSTOMER_SUPPORT_EMAIL
     }));
 }
