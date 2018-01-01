@@ -5,6 +5,7 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.Collections;
@@ -39,7 +40,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
+        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
         final Person actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Alice");
     }
@@ -51,9 +52,9 @@ public class PeopleDaoImplTest {
 
     @Test
     public void getByOrganization_happyPath() throws Exception {
-        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice"))).getId();
-        Integer amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda"))).getId();
-        Integer bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob"))).getId();
+        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
+        Integer amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda", Roles.READER))).getId();
+        Integer bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob", Roles.READER))).getId();
 
         final List<Person> actualA = dao.getByParent(testOrganization);
         assertThat(actualA.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(aliceUuid, amandaUuid);
@@ -70,7 +71,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void getByEmail_addressExists_happyPath() throws Exception {
-        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice"))).getId();
+        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 
         final List<Person> actual = dao.getByEmail("alice@example.com");
         assertThat(actual).hasSize(1);
@@ -79,7 +80,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void getByEmail_addressIsMissing_happyPath() throws Exception {
-        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice"))).getId();
+        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 
         final List<Person> actual = dao.getByEmail("bob@example.com");
         assertThat(actual).hasSize(0);
@@ -87,7 +88,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        Integer id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob"))).getId();
+        Integer id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob", Roles.READER))).getId();
         database.inTransaction(() -> {
             try {
                 dao.delete(id);
@@ -111,7 +112,7 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
+        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
         final Person actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Carol");
@@ -124,26 +125,26 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_sameNameAsExistingPerson_happyPath() throws Exception {
-        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
-        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null)));
+        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
+        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
         assertThat(c1.getId()).isNotEqualTo(c2.getId());
     }
 
     @Test(expected = DuplicateCustomIdentifier.class)
     public void create_duplicateCustomId_notAllowed() throws Exception {
         try {
-            dao.create(testOrganization, new PersonProperties("Carol1", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol"));
+            dao.create(testOrganization, new PersonProperties("Carol1", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol", Roles.READER));
         } catch (Exception e) {
             fail("Exception was not expected");
         }
-        dao.create(testOrganization, new PersonProperties("Carol2", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol"));
+        dao.create(testOrganization, new PersonProperties("Carol2", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), "carol", Roles.READER));
     }
 
     @Test
     public void update_personWithoutAttributes_happyPath() throws Exception {
-        Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda"))).getId();
+        Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda", Roles.READER))).getId();
 
-        database.inTransaction(() -> dao.update(objectUuid, new PersonProperties("Becky")));
+        database.inTransaction(() -> dao.update(objectUuid, new PersonProperties("Becky", Roles.READER)));
 
         final Person actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
@@ -156,24 +157,24 @@ public class PeopleDaoImplTest {
         Integer objectUuid = null;
 
         try {
-            database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Cooper", "belinda_id"))).getId();
-            objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Jones"))).getId();
+            database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Cooper", "belinda_id", Roles.READER))).getId();
+            objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda Jones", Roles.READER))).getId();
         } catch (Exception e) {
             fail("Exception was not expected");
         }
 
-        dao.update(objectUuid, new PersonProperties("Belinda Jones", "belinda_id"));
+        dao.update(objectUuid, new PersonProperties("Belinda Jones", "belinda_id", Roles.READER));
     }
 
     @Test
     public void update_personWithAttributes_happyPath() throws Exception {
         Integer objectUuid = database.inTransaction(() -> {
-            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), null);
+            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), null, Roles.READER);
             return dao.create(testOrganization, initialProperties);
         }).getId();
 
         database.inTransaction(() -> {
-            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), "dave");
+            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), "dave", Roles.READER);
             return dao.update(objectUuid, updatedProperties);
         });
 

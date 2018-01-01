@@ -170,4 +170,10 @@
             <column name="email"/>
         </createIndex>
     </changeSet>
+
+    <changeSet id="10_person_role" author="mikael">
+        <addColumn tableName="person">
+            <column name="role" type="varchar(100)" defaultValue="reader"></column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

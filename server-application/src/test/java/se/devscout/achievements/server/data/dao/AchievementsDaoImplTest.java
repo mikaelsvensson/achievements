@@ -5,6 +5,7 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.List;
@@ -42,10 +43,10 @@ public class AchievementsDaoImplTest {
 
         // Setup: Crate people
         PeopleDaoImpl peopleDao = new PeopleDaoImpl(database.getSessionFactory());
-        Person personAliceWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alice")));
-        Person personAlanWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alan")));
-        Person personWithoutProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Bob")));
-        Person personFromOtherOrgWithProgress = database.inTransaction(() -> peopleDao.create(org2, new PersonProperties("Carol")));
+        Person personAliceWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alice", Roles.READER)));
+        Person personAlanWithProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Alan", Roles.READER)));
+        Person personWithoutProgress = database.inTransaction(() -> peopleDao.create(org1, new PersonProperties("Bob", Roles.READER)));
+        Person personFromOtherOrgWithProgress = database.inTransaction(() -> peopleDao.create(org2, new PersonProperties("Carol", Roles.READER)));
 
         // Setup: Create achievements
         AchievementsDaoImpl achievementsDao = dao;

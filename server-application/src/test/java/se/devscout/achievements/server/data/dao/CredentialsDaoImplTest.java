@@ -4,6 +4,7 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.model.*;
@@ -39,7 +40,7 @@ public class CredentialsDaoImplTest {
         peopleDao = new PeopleDaoImpl(database.getSessionFactory());
         organizationsDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
         organization = database.inTransaction(() -> organizationsDao.create(new OrganizationProperties("Test Organization")));
-        alice = database.inTransaction(() -> peopleDao.create(organization, new PersonProperties("Alice")));
+        alice = database.inTransaction(() -> peopleDao.create(organization, new PersonProperties("Alice", Roles.READER)));
     }
 
     @Test

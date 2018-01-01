@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources.authenticator;
 
+import com.google.common.collect.Sets;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
@@ -7,6 +8,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
@@ -14,6 +16,7 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
 
+import java.util.Collections;
 import java.util.Optional;
 
 public class PasswordAuthenticator implements Authenticator<BasicCredentials, User> {
@@ -33,10 +36,12 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
             final PasswordValidator validator = new PasswordValidator(credentials.getData());
             final ValidationResult validationResult = validator.validate(basicCredentials.getPassword().toCharArray());
             if (validationResult.isValid()) {
+                final String role = credentials.getPerson().getRole();
                 final User user = new User(
                         credentials.getPerson().getId(),
                         credentials.getId(),
-                        basicCredentials.getUsername());
+                        basicCredentials.getUsername(),
+                        Sets.union(Collections.singleton(role), Roles.IMPLICIT_ROLES.getOrDefault(role, Collections.emptySet())));
                 return Optional.of(user);
             } else {
                 return Optional.empty();

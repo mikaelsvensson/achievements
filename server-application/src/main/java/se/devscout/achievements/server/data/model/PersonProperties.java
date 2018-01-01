@@ -32,28 +32,35 @@ public class PersonProperties {
     @Size(max = 100)
     private String customIdentifier;
 
+    @Size(max = 100)
+    private String role;
+
     public PersonProperties() {
     }
 
-    public PersonProperties(String name, String email, Set<PersonAttribute> attributes, String customIdentifier) {
+    public PersonProperties(String name, String email, Set<PersonAttribute> attributes, String customIdentifier, String role) {
         this.name = name;
         this.email = email;
         this.attributes = attributes;
         this.customIdentifier = customIdentifier;
+        this.role = role;
     }
 
-    public PersonProperties(String name) {
+    public PersonProperties(String name, String role) {
         this.name = name;
+        this.role = role;
     }
 
-    public PersonProperties(String name, String customIdentifier) {
+    public PersonProperties(String name, String customIdentifier, String role) {
         this.name = name;
         this.customIdentifier = customIdentifier;
+        this.role = role;
     }
 
-    public PersonProperties(String name, Set<PersonAttribute> attributes) {
+    public PersonProperties(String name, Set<PersonAttribute> attributes, String role) {
         this.name = name;
         this.attributes = attributes;
+        this.role = role;
     }
 
     public String getName() {
@@ -94,5 +101,13 @@ public class PersonProperties {
 
     public void setCustomIdentifier(String customIdentifier) {
         this.customIdentifier = customIdentifier;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

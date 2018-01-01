@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.AuthTokenDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
@@ -56,7 +57,8 @@ public class OpenIdResourceAuthUtil {
         return authenticator.generateToken(
                 person.getName(),
                 person.getOrganization() != null ? person.getOrganization().getId() : null,
-                person.getId());
+                person.getId(),
+                person.getRole());
     }
 
     public AuthTokenDTO newOrganizationSignup(String newOrganizationName,
@@ -75,7 +77,7 @@ public class OpenIdResourceAuthUtil {
                 // Create person
                 final String email = validationResult.getUserEmail();
                 final String name = StringUtils.substringBefore(email, "@");
-                final Person person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null));
+                final Person person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.EDITOR));
 
                 createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 

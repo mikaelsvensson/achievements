@@ -15,7 +15,7 @@ public class JwtAuthenticatorTest {
     @Test
     public void generateTokenAndAuthenticate_happyPath() throws Exception {
         final JwtAuthenticator authenticator = new JwtAuthenticator(new JwtTokenServiceImpl("secret"));
-        final String token = authenticator.generateToken("username", UUID.randomUUID(), 1337);
+        final String token = authenticator.generateToken("username", UUID.randomUUID(), 1337, Roles.EDITOR);
         final Optional<User> user = authenticator.authenticate(token);
         assertThat(user.get().getName()).isEqualTo("username");
     }

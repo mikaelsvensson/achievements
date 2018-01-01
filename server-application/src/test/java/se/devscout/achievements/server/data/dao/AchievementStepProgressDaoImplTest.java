@@ -4,6 +4,7 @@ import io.dropwizard.testing.junit.DAOTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.model.*;
 
 import java.util.List;
@@ -42,9 +43,9 @@ public class AchievementStepProgressDaoImplTest {
         achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
         stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
 
-        person = peopleDao.create(organization, new PersonProperties("Alice"));
-        person2 = peopleDao.create(organization, new PersonProperties("Alice"));
-        personWithoutProgress = peopleDao.create(organization, new PersonProperties("Bob"));
+        person = peopleDao.create(organization, new PersonProperties("Alice", Roles.READER));
+        person2 = peopleDao.create(organization, new PersonProperties("Alice", Roles.READER));
+        personWithoutProgress = peopleDao.create(organization, new PersonProperties("Bob", Roles.READER));
 
         final Achievement achievement1 = achievementsDao.create(new AchievementProperties("Boil an egg"));
         achievementStep = stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package"));

@@ -3,6 +3,7 @@ package se.devscout.achievements.server.cli;
 import com.google.common.collect.ImmutableMultimap;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
@@ -59,7 +60,7 @@ public class BoostrapDataTask extends DatabaseTask {
     }
 
     private void createPerson(PrintWriter output, Organization organization, String name) throws DaoException {
-        final Person person = peopleDao.create(organization, new PersonProperties(name));
+        final Person person = peopleDao.create(organization, new PersonProperties(name, Roles.READER));
         output.format("Created person %s (id %s)%n", person.getName(), person.getId());
     }
 

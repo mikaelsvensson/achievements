@@ -32,12 +32,12 @@ public class Person extends PersonProperties {
     public Person() {
     }
 
-    public Person(String name) {
-        this(null, name);
+    public Person(String name, String role) {
+        this(null, name, role);
     }
 
-    public Person(Integer id, String name) {
-        super(name);
+    public Person(Integer id, String name, String role) {
+        super(name, role);
         this.id = id;
     }
 
