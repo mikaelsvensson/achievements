@@ -55,8 +55,8 @@ public class OpenIdResource extends AbstractResource {
     @Path("signup")
     @UnitOfWork
     public Response doSignUpRequest(@PathParam("identityProvider") String identityProvider,
-                                    @QueryParam("organizationId") UuidString organizationId,
-                                    @QueryParam("organizationName") String organizationName,
+                                    @QueryParam("organization_id") UuidString organizationId,
+                                    @QueryParam("new_organization_name") String organizationName,
                                     @QueryParam("email") String email) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final String state = tokenService.encode(new OpenIdCallbackStateToken(email, organizationId, organizationName));
