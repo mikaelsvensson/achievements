@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {updateView, getFormData} from "../util/view.jsx";
-import {post, setCredentials, setToken} from "../util/api.jsx";
+import {post, setCredentials, setToken, createOnFailHandler} from "../util/api.jsx";
 import {navigateTo} from "../util/routing.jsx";
 const templateSignin = require("./signin.handlebars");
 
@@ -20,7 +20,7 @@ export function renderSignin() {
             setToken(responseData.token);
 
             navigateTo('minprofil');
-        });
+        }, createOnFailHandler(form.find('.errors'), button));
 
     });
 }

@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "../util/api.jsx";
+import {get, post, isLoggedIn, createOnFailHandler} from "../util/api.jsx";
 import {updateView, getFormData} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 const templateOrganizations = require("./organizations.handlebars");
@@ -28,7 +28,7 @@ export function renderOrganizations() {
         const form = $(this).addClass('is-loading').closest('form');
         post('//localhost:8080/api/organizations', getFormData(form), function (responseData, responseStatus, jqXHR) {
             navigateTo('organizations/' + responseData.id);
-        });
+        }, createOnFailHandler(form.find('.errors'), button));
     });
 
     $app.find('.search-button').click(function (e) {

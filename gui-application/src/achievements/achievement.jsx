@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, post, isLoggedIn} from "../util/api.jsx";
+import {get, post, isLoggedIn, createOnFailHandler} from "../util/api.jsx";
 import {updateView, getFormData, markdown2html} from "../util/view.jsx";
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementRead = require("./achievement.read.handlebars");
@@ -33,7 +33,7 @@ export function renderAchievement(appPathParams) {
                             achievementId: appPathParams[0].key
                         }), $('#achievement-steps-list'));
                     });
-                });
+                }, createOnFailHandler(form.find('.errors'), button));
             });
 
             // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?

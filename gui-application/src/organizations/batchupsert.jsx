@@ -1,6 +1,7 @@
 import $ from "jquery";
-import {get, putCsv, isLoggedIn} from "../util/api.jsx";
+import {get, putCsv, isLoggedIn, createOnFailHandler} from "../util/api.jsx";
 import {updateView} from "../util/view.jsx";
+
 const templateLoading = require("../loading.handlebars");
 const templateBatchUpsert = require("./batchupsert.handlebars");
 const templateBatchUpsertResult = require("./batchupsert.result.handlebars");
@@ -33,7 +34,7 @@ export function renderBatchUpsert(appPathParams) {
                 };
 
                 updateView(templateBatchUpsertResult(props), $('#batchupsert-result'));
-            });
+            }, createOnFailHandler(form.find('.errors'), button));
         });
     });
 }

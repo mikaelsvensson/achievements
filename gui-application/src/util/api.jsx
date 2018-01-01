@@ -1,5 +1,6 @@
 import $ from "jquery";
 import {renderError} from "../error.jsx";
+import {renderErrorBlock} from "../error-block.jsx";
 
 function beforeSendHandler(xhr) {
     const username = localStorage.getItem("username");
@@ -117,4 +118,19 @@ export function get(url, onSuccess, onFail) {
                     isLoggedIn())
             }
         );
+}
+
+export function createOnFailHandler(container, button) {
+    return function (jqXHR, textStatus, errorThrown) {
+        if (button) {
+            button.removeClass('is-loading');
+        }
+        //TODO: Add this kind of error handling to all post, put and get calls.
+        if (container && container.length == 1) {
+            renderErrorBlock(jqXHR.responseJSON.message, container);
+        } else {
+            renderError(jqXHR.responseJSON.message);
+        }
+        console.log("ERROR: " + errorThrown);
+    }
 }
