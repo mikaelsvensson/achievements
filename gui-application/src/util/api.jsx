@@ -66,12 +66,20 @@ export function post(url, dataObject, onSuccess, onFail) {
 }
 
 export function put(url, dataObject, onSuccess, onFail) {
+    internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, onFail);
+}
+
+export function putCsv(url, data, onSuccess, onFail) {
+    internalPut(url, 'text/csv', data, onSuccess, onFail);
+}
+
+function internalPut(url, contentType, data, onSuccess, onFail) {
     $.ajax({
         url: url,
         type: "PUT",
-        data: JSON.stringify(dataObject),
+        data: data,
         dataType: "json",
-        contentType: "application/json; charset=utf-8",
+        contentType: contentType,
         beforeSend: beforeSendHandler
     })
         .done(onSuccess)

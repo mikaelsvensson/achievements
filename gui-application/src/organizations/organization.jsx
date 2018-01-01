@@ -16,6 +16,7 @@ export function renderOrganization(appPathParams) {
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();
+        responseData.orgId = appPathParams[0].key;
         responseData.invite_link = window.location.protocol + '//' + window.location.host + '/#karer/' + appPathParams[0].key + '/skapa-konto';
 
         updateView(templateOrganization(responseData));

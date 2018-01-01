@@ -1,0 +1,63 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Importera
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+        <h2 class="subtitle">Importera personer</h2>
+
+        <p>Använd den här funktionen för att importera data från ert medlemsregister.</p>
+
+        <form>
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" type="text" id="import-data" placeholder="Primary textarea"
+                              style="height: 20em;">
+custom_identifier,name,email,role
+alice,Alice,alice@example.com,reader
+bob,Bob,bob@example.com,reader</textarea>
+                </div>
+            </div>
+
+            <div class="control">
+                <button class="button is-primary" type="button" id="import-button">Importera</button>
+            </div>
+
+            <div id="batchupsert-result"/>
+
+            <div class="content is-small">
+                <p>Gör så här:</p>
+                <ol>
+                    <li>Exportera information från ert medlemsregister i CSV-format</li>
+                    <li>Klistra in data i det stora fältet ovan.</li>
+                    <li>Tryck Importera.</li>
+                    <li>Vi kommer nu att uppdatera informationen för de personer som redan existerar i systemet. Vi
+                        kommer också lägga in de personer som inte fanns sedan tidigare. Personer som inte nämns kommer
+                        att finnas kvar (importfunktionen tar aldrig bort några personer ur systemet).
+                    </li>
+                </ol>
+
+                <p>För att det ska fungera ställs följande krav:</p>
+                <ul>
+                    <li>Första raden ska ange vilka kolumner som används.</li>
+                    <li>Varje rad ska motsvara en person.</li>
+                    <li>Följande kolumner kan användas:
+                        <ul>
+                            <li>id: Systemets eget id-nummer för personen.</li>
+                            <li>custom_identifier: Er egen identifierare för personen.</li>
+                            <li>name: Personens namn</li>
+                            <li>email: Personens e-postadress</li>
+                            <li>role: Personens roll hos er (tillåtna värden är "editor" och "reader")</li>
+                        </ul>
+                    </li>
+                    <li>Kolumnen id eller custom_identifier måste ha ett värde för varje person.</li>
+                </ul>
+            </div>
+
+        </form>
+
+    </div>
+</section>
+{{> ../_footer.handlebars}}

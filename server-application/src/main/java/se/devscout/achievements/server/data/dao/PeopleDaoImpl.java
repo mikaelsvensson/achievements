@@ -39,14 +39,14 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     @Override
     public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException, DuplicateCustomIdentifier {
         final Person person = read(id);
-        verifyCustomIdentifier(person.getOrganization(), properties);
+//        verifyCustomIdentifier(person.getOrganization(), properties);
         person.apply(properties);
         return super.persist(person);
     }
 
     private void verifyCustomIdentifier(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
         if (isExistingCustomId(parent, properties.getCustomIdentifier())) {
-            throw new DuplicateCustomIdentifier("Another person withing " + parent.getName() + " already has the identifier " + properties.getCustomIdentifier());
+            throw new DuplicateCustomIdentifier("Another person within " + parent.getName() + " already has the identifier " + properties.getCustomIdentifier());
         }
     }
 

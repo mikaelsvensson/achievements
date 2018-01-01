@@ -1,4 +1,4 @@
-<div>
+{{#if achievements}}
     <table style="width: auto;">
         <tbody>
         {{#each achievements}}
@@ -17,4 +17,8 @@
         {{/each}}
         </tbody>
     </table>
-</div>
+{{else}}
+<p>
+    <small>Hen har inte börjat ta några märken ännu.</small>
+</p>
+{{/if}}
