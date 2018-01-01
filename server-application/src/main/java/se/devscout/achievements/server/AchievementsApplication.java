@@ -17,7 +17,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.EmailIdentityProvider;
@@ -30,7 +29,6 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.mail.SmtpSender;
 import se.devscout.achievements.server.resources.*;
-import se.devscout.achievements.server.resources.authenticator.GoogleTokenAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
@@ -72,18 +70,11 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
 
-        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService, config.getAuthentication().getGoogleClientId()));
+        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
 //        environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
-
-//        AuthResourceUtil authResourceUtil = new AuthResourceUtil(
-//                jwtAuthenticator,
-//                credentialsDao,
-//                peopleDao,
-//                organizationsDao,
-//                new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId()));
 
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao/*, authResourceUtil*/));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
@@ -98,8 +89,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
                         new JwtAuthenticator(jwtTokenService),
                         credentialsDao,
                         peopleDao,
-                        organizationsDao,
-                        new CredentialsValidatorFactory(config.getAuthentication().getGoogleClientId())),
+                        organizationsDao
+                ),
                 jwtTokenService,
                 new GoogleIdentityProvider(config.getAuthentication().getGoogleClientId(), config.getAuthentication().getGoogleClientSecret(), ClientBuilder.newClient()),
                 new MicrosoftIdentityProvider(config.getAuthentication().getMicrosoftClientId(), config.getAuthentication().getMicrosoftClientSecret(), ClientBuilder.newClient()),
@@ -117,10 +108,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new CredentialsDaoImpl(sessionFactory);
     }
 
-    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService, String googleClientId) {
+    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService) {
 
         PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
-        GoogleTokenAuthenticator googleTokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(GoogleTokenAuthenticator.class, new Class[]{CredentialsDao.class, String.class}, new Object[]{credentialsDao, googleClientId});
         JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(jwtTokenService);
 
         List<AuthFilter> filters = Lists.newArrayList(
@@ -134,10 +124,6 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 new OAuthCredentialAuthFilter.Builder<User>()
                         .setAuthenticator(jwtAuthenticator)
                         .setPrefix("JWT")
-                        .buildAuthFilter(),
-                new OAuthCredentialAuthFilter.Builder<User>()
-                        .setAuthenticator(googleTokenAuthenticator)
-                        .setPrefix("Google")
                         .buildAuthFilter()
         );
         return new AuthDynamicFeature(new ChainedAuthFilter<>(filters));

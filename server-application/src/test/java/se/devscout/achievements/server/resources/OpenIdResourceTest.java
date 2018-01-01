@@ -6,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.TestUtil;
-import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
+import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.EmailIdentityProvider;
 import se.devscout.achievements.server.auth.openid.GoogleIdentityProvider;
@@ -29,13 +29,13 @@ import static org.mockito.Mockito.when;
 
 public class OpenIdResourceTest {
 
-    private static final JwtTokenServiceImpl TOKEN_SERVICE = new JwtTokenServiceImpl("secret");
+    private final JwtTokenService tokenService = new JwtTokenServiceImpl("secret");
     private final PeopleDao peopleDao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
-    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(TOKEN_SERVICE), credentialsDao, peopleDao, organizationsDao, new CredentialsValidatorFactory("google_client_id"));
+    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(tokenService), credentialsDao, peopleDao, organizationsDao);
 
     private final GoogleIdentityProvider googleIdentityProvider = mock(GoogleIdentityProvider.class);
     private final MicrosoftIdentityProvider microsoftIdentityProvider = mock(MicrosoftIdentityProvider.class);
@@ -43,10 +43,10 @@ public class OpenIdResourceTest {
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, false)
             .addResource(new OpenIdResource(
                     authResourceUtil,
-                    TOKEN_SERVICE,
+                    tokenService,
                     googleIdentityProvider,
                     microsoftIdentityProvider,
-                    new EmailIdentityProvider(TOKEN_SERVICE, mock(EmailSender.class))))
+                    new EmailIdentityProvider(tokenService, mock(EmailSender.class))))
             .build();
 
     public OpenIdResourceTest() throws UnsupportedEncodingException {

@@ -42,8 +42,8 @@ public class TestUtil {
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
                 mockHibernateBundle(),
                 credentialsDao,
-                mock(JwtTokenService.class),
-                "fake_google_client_id");
+                mock(JwtTokenService.class)
+        );
 
         return ResourceTestRule.builder()
                 .setClientConfigurator(clientConfig -> clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects))
