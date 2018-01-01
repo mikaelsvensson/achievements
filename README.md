@@ -42,6 +42,10 @@ Start back-end
     $ docker-compose build
     $ docker-compose up
 
+Set the CUSTOMER_SUPPORT_EMAIL to your customer support e-mail address in order to show it on error pages:
+
+    $ export CUSTOMER_SUPPORT_EMAIL=achievements@example.com
+
 Start front-end
 
     gui-application$ npm run start
