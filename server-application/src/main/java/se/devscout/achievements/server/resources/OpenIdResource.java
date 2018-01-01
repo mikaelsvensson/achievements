@@ -1,6 +1,5 @@
 package se.devscout.achievements.server.resources;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.collect.ImmutableMap;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AuthTokenDTO;
@@ -25,7 +24,7 @@ public class OpenIdResource extends AbstractResource {
 
     private final Map<String, IdentityProvider> MAPPING;
     private OpenIdResourceAuthUtil util;
-    private JwtTokenService tokenService;
+    private OpenIdCallbackStateTokenService tokenService;
 
     public OpenIdResource(OpenIdResourceAuthUtil util,
                           JwtTokenService tokenService,
@@ -39,7 +38,7 @@ public class OpenIdResource extends AbstractResource {
                 .put(CredentialsType.PASSWORD.name().toLowerCase(), emailIdentityProvider)
                 .build();
         this.util = util;
-        this.tokenService = tokenService;
+        this.tokenService = new OpenIdCallbackStateTokenService(tokenService);
     }
 
     @GET
@@ -48,9 +47,7 @@ public class OpenIdResource extends AbstractResource {
     public Response doSignInRequest(@PathParam("identityProvider") String identityProvider,
                                     @QueryParam("email") String email) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
-        final Map<String, String> claims = email != null ? ImmutableMap.of("email", email) : null;
-        //TODO: Tokens should expire after, say, 15 minutes
-        final String state = tokenService.encode(null, claims);
+        final String state = tokenService.encode(new OpenIdCallbackStateToken(email));
         return Response.temporaryRedirect(idp.getProviderAuthURL("signin/callback", state)).build();
     }
 
@@ -62,11 +59,7 @@ public class OpenIdResource extends AbstractResource {
                                     @QueryParam("organizationName") String organizationName,
                                     @QueryParam("email") String email) {
         IdentityProvider idp = getIdentityProvider(identityProvider);
-        //TODO: Tokens should expire after, say, 15 minutes
-        final String state = tokenService.encode(null, ImmutableMap.of(
-                "organizationId", organizationId != null ? organizationId.getValue() : null,
-                "organizationName", organizationName,
-                "email", email));
+        final String state = tokenService.encode(new OpenIdCallbackStateToken(email, organizationId, organizationName));
         return Response.temporaryRedirect(idp.getProviderAuthURL("signup/callback", state)).build();
     }
 
@@ -79,10 +72,10 @@ public class OpenIdResource extends AbstractResource {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final ValidationResult result = idp.handleCallback(authCode, "signin/callback");
         try {
-            final AuthTokenDTO tokenDTO = util.createToken(idp.getCredentialsType(), result.getUserId());
+            final AuthTokenDTO tokenDTO = util.createToken(result.getCredentialsType(), result.getUserId());
             return createSignedInResponse(tokenDTO);
         } catch (NotFoundException e) {
-            final AuthTokenDTO tokenDTO = util.newSignup(result, idp.getCredentialsType(), idp.getCredentialsData());
+            final AuthTokenDTO tokenDTO = util.newSignup(result);
             return createSignedInResponse(tokenDTO);
         }
     }
@@ -92,20 +85,20 @@ public class OpenIdResource extends AbstractResource {
     @UnitOfWork
     public Response handleSignUpCallback(@PathParam("identityProvider") String identityProvider,
                                          @QueryParam("code") String authCode,
-                                         @QueryParam("state") String appState) {
+                                         @QueryParam("state") String callbackState) {
         try {
-            final DecodedJWT jwt = tokenService.decode(appState);
+            final OpenIdCallbackStateToken jwt = tokenService.decode(callbackState);
 
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final ValidationResult result = idp.handleCallback(authCode, "signup/callback");
-            if (!jwt.getClaim("organizationId").isNull()) {
-                final AuthTokenDTO tokenDTO = util.existingOrganizationSignup(new UuidString(jwt.getClaim("organizationId").asString()), result, idp.getCredentialsType(), idp.getCredentialsData());
+            if (jwt.getOrganizationId() != null) {
+                final AuthTokenDTO tokenDTO = util.existingOrganizationSignup(jwt.getOrganizationId(), result);
                 return createSignedInResponse(tokenDTO);
-            } else if (!jwt.getClaim("organizationName").isNull()) {
-                final AuthTokenDTO tokenDTO = util.newOrganizationSignup(jwt.getClaim("organizationName").asString(), result, idp.getCredentialsType(), idp.getCredentialsData());
+            } else if (jwt.getOrganizationName() != null) {
+                final AuthTokenDTO tokenDTO = util.newOrganizationSignup(jwt.getOrganizationName(), result);
                 return createSignedInResponse(tokenDTO);
             } else {
-                final AuthTokenDTO tokenDTO = util.newSignup(result, idp.getCredentialsType(), idp.getCredentialsData());
+                final AuthTokenDTO tokenDTO = util.newSignup(result);
                 return createSignedInResponse(tokenDTO);
             }
         } catch (TokenServiceException e) {
