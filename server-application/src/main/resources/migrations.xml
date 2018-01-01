@@ -24,9 +24,13 @@
                 <constraints nullable="false"
                              unique="true" uniqueConstraintName="idx_person_name"/>
             </column>
+            <column name="role" type="varchar(100)" defaultValue="reader">
+                <constraints nullable="false"/>
+            </column>
             <column name="organization_id" type="BINARY(16)">
                 <constraints nullable="false"/>
             </column>
+            <column name="custom_identifier" type="varchar(100)"></column>
         </createTable>
         <addPrimaryKey columnNames="id"
                        tableName="person"
@@ -36,6 +40,13 @@
                                  constraintName="fk_person_organization"
                                  referencedTableName="organization"
                                  referencedColumnNames="id"/>
+        <addUniqueConstraint tableName="person"
+                             columnNames="organization_id,custom_identifier"
+                             constraintName="idx_person_customid"/>
+        <createIndex tableName="person"
+                     indexName="idx_person_email">
+            <column name="email"/>
+        </createIndex>
     </changeSet>
     <changeSet id="03_person_attributes" author="mikael">
         <createTable tableName="person_attributes">
@@ -155,25 +166,5 @@
                                  constraintName="fk_achievementstepprogress_achievementsteps"
                                  referencedTableName="achievement_steps"
                                  referencedColumnNames="id"/>
-    </changeSet>
-    <changeSet id="09_person_custom_identifier" author="mikael">
-        <addColumn tableName="person">
-            <column name="custom_identifier" type="varchar(100)"></column>
-        </addColumn>
-        <addUniqueConstraint tableName="person"
-                             columnNames="organization_id,custom_identifier"
-                             constraintName="idx_person_customid"/>
-    </changeSet>
-    <changeSet id="09_person_email_index" author="mikael">
-        <createIndex tableName="person"
-                     indexName="idx_person_email">
-            <column name="email"/>
-        </createIndex>
-    </changeSet>
-
-    <changeSet id="10_person_role" author="mikael">
-        <addColumn tableName="person">
-            <column name="role" type="varchar(100)" defaultValue="reader"></column>
-        </addColumn>
     </changeSet>
 </databaseChangeLog>
