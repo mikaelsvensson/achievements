@@ -221,6 +221,21 @@ public class PeopleResourceTest {
     }
 
     @Test
+    public void delete_self_expectBadRequest() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson().getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .delete();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).delete(anyInt());
+    }
+
+    @Test
     public void get_wrongOrganization_expectNotFound() throws Exception {
 
         final Organization orgA = mockOrganization("ORG_A");
@@ -279,6 +294,75 @@ public class PeopleResourceTest {
     }
 
     @Test
+    public void create_privilegeEscalation_expectBadRequest() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.json(new PersonDTO(null, "Alice", "admin")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+    }
+
+    @Test
+    public void update_changeName_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person expectedPerson = mockPerson(org, "Alicia");
+        when(dao.read(eq(expectedPerson.getId()))).thenReturn(expectedPerson);
+        when(dao.update(eq(expectedPerson.getId()), any(PersonProperties.class))).thenReturn(expectedPerson);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + expectedPerson.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.json(new PersonDTO(null, "Alicia")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+        final PersonDTO dto = response.readEntity(PersonDTO.class);
+
+        assertThat(dto.name).isEqualTo("Alicia");
+
+        verify(dao).update(eq(expectedPerson.getId()), any(PersonProperties.class));
+    }
+
+    @Test
+    public void update_privilegeEscalation_expectBadRequest() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person expectedPerson = mockPerson(org, "Alicia");
+        when(dao.read(eq(expectedPerson.getId()))).thenReturn(expectedPerson);
+        when(dao.update(eq(expectedPerson.getId()), any(PersonProperties.class))).thenReturn(expectedPerson);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + expectedPerson.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.json(new PersonDTO(null, "Alicia", "admin")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).update(eq(expectedPerson.getId()), any(PersonProperties.class));
+    }
+
+    @Test
+    public void update_self_expectBadRequest() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson().getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.json(new PersonDTO(null, "Alice")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).update(anyInt(), any(PersonProperties.class));
+    }
+
+    @Test
     public void batchUpdate_json_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
 
@@ -300,8 +384,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null)
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -338,8 +422,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null)
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
@@ -420,6 +504,50 @@ public class PeopleResourceTest {
         assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
 
         verify(organizationsDao).read(eq(org.getId()));
+    }
+
+    @Test
+    public void batchUpdate_csv_updateSelf_expectBadRequest() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        // Some mocking which maybe should be moved to MockUtil
+        final Person editorPerson = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+        final Organization editorOrganization = editorPerson.getOrganization();
+        when(organizationsDao.read(eq(editorOrganization.getId()))).thenReturn(editorOrganization);
+
+        //SUT 1: Batch update using custom identifier
+        when(dao.read(any(Organization.class), eq("alice_editor"))).thenReturn(editorPerson);
+
+        final Response response1 = resources
+                .target("/organizations/" + UuidString.toString(editorOrganization.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.entity("" +
+                                "name,email,custom_identifier,id\n" +
+                                "Alicia,alice@example.com,alice_editor,",
+                        "text/csv"
+                ));
+
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        //SUT 1: Batch update using primary key value
+        when(dao.read(eq(editorPerson.getId()))).thenReturn(editorPerson);
+
+        final Response response2 = resources
+                .target("/organizations/" + UuidString.toString(editorOrganization.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.entity("" +
+                                "name,email,custom_identifier,id\n" +
+                                "Alicia,alice@example.com,," + editorPerson.getId(),
+                        "text/csv"
+                ));
+
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).create(eq(org), any(PersonProperties.class));
+        verify(dao, never()).update(anyInt(), any(PersonProperties.class));
+        verify(dao, never()).delete(anyInt());
     }
 
     @Test

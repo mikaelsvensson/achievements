@@ -80,7 +80,7 @@ public class PeopleAcceptanceTest {
     public void create_invalidEmailAddress_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null);
+        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null, null);
 
         Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
@@ -97,7 +97,7 @@ public class PeopleAcceptanceTest {
     public void create_missingName_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null);
+        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null, null);
 
         Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));

@@ -102,6 +102,7 @@ public class PeopleResource extends AbstractResource {
                            @Auth User user,
                            PersonDTO input) {
         try {
+            checkRoleEscalation(input, user);
             Organization organization = getOrganization(organizationId.getUUID());
             final PersonProperties properties = map(input, PersonProperties.class);
             properties.setRole(Roles.READER);
@@ -136,6 +137,9 @@ public class PeopleResource extends AbstractResource {
                     } else {
                         person = dao.read(organization, dto.custom_identifier);
                     }
+
+                    checkSelfEditing(person.getId(), user);
+
                     person = dao.update(person.getId(), newProperties);
                     result.add(new PersonBaseDTO(person.getId(), person.getName()));
                 } catch (ObjectNotFoundException e) {
@@ -192,6 +196,8 @@ public class PeopleResource extends AbstractResource {
                            PersonDTO input,
                            @Auth User user) {
         try {
+            checkRoleEscalation(input, user);
+            checkSelfEditing(id, user);
             final Person person = dao.update(id, map(input, PersonProperties.class));
             return Response
                     .ok()
@@ -206,6 +212,18 @@ public class PeopleResource extends AbstractResource {
         }
     }
 
+    private void checkRoleEscalation(PersonDTO input, @Auth User user) {
+        if (input.role != null && !user.getRoles().contains(input.role)) {
+            throw new BadRequestException("You can only grant users your own roles.");
+        }
+    }
+
+    private void checkSelfEditing(int requestPersonId, @Auth User user) {
+        if (requestPersonId == user.getPersonId()) {
+            throw new BadRequestException("You can not edit yourself.");
+        }
+    }
+
     @DELETE
     @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
@@ -214,6 +232,7 @@ public class PeopleResource extends AbstractResource {
                            @PathParam("personId") Integer id,
                            @Auth User user) {
         try {
+            checkSelfEditing(id, user);
             verifyParent(organizationId.getUUID(), dao.read(id));
             dao.delete(id);
             return Response.noContent().build();
