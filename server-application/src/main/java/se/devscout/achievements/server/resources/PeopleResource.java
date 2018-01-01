@@ -103,7 +103,9 @@ public class PeopleResource extends AbstractResource {
                            PersonDTO input) {
         try {
             Organization organization = getOrganization(organizationId.getUUID());
-            final Person person = dao.create(organization, map(input, PersonProperties.class));
+            final PersonProperties properties = map(input, PersonProperties.class);
+            properties.setRole(Roles.READER);
+            final Person person = dao.create(organization, properties);
             final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
             return Response
                     .created(location)

@@ -3,6 +3,7 @@ package se.devscout.achievements.server.data.model;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +34,7 @@ public class PersonProperties {
     private String customIdentifier;
 
     @Size(max = 100)
+    @NotNull
     private String role;
 
     public PersonProperties() {
