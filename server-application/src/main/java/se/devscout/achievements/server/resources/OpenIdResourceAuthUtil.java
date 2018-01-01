@@ -3,9 +3,6 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.AuthTokenDTO;
-import se.devscout.achievements.server.api.SignupBaseDTO;
-import se.devscout.achievements.server.auth.CredentialsValidator;
-import se.devscout.achievements.server.auth.CredentialsValidatorFactory;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
@@ -20,20 +17,17 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
-//TODO: Replace or merge with AuthResourceUtil
 public class OpenIdResourceAuthUtil {
     private final JwtAuthenticator authenticator;
     private CredentialsDao credentialsDao;
     private PeopleDao peopleDao;
     private OrganizationsDao organizationsDao;
-    private CredentialsValidatorFactory factory;
 
-    public OpenIdResourceAuthUtil(JwtAuthenticator authenticator, CredentialsDao credentialsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao, CredentialsValidatorFactory factory) {
+    public OpenIdResourceAuthUtil(JwtAuthenticator authenticator, CredentialsDao credentialsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao) {
         this.authenticator = authenticator;
         this.credentialsDao = credentialsDao;
         this.peopleDao = peopleDao;
         this.organizationsDao = organizationsDao;
-        this.factory = factory;
     }
 
     public AuthTokenDTO createToken(CredentialsType credentialsType, String userId) {
@@ -66,9 +60,7 @@ public class OpenIdResourceAuthUtil {
     }
 
     public AuthTokenDTO newOrganizationSignup(String newOrganizationName,
-                                              ValidationResult validationResult,
-                                              CredentialsType credentialsType,
-                                              byte[] credentialsData) {
+                                              ValidationResult validationResult) {
 
         if (Strings.isNullOrEmpty(newOrganizationName)) {
             throw new BadRequestException("Name of new organization was not specified.");
@@ -85,7 +77,7 @@ public class OpenIdResourceAuthUtil {
                 final String name = StringUtils.substringBefore(email, "@");
                 final Person person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null));
 
-                createCredentials(person, validationResult.getUserId(), credentialsType, credentialsData);
+                createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                 return generateTokenResponse(person);
             } catch (DaoException e) {
@@ -96,19 +88,13 @@ public class OpenIdResourceAuthUtil {
         }
     }
 
-    private CredentialsValidator getCredentialsValidator(SignupBaseDTO dto) {
-        return factory.get(dto.credentials_type, dto.credentials_data);
-    }
-
     private void createCredentials(Person person, String userName, CredentialsType credentialsType, byte[] secret) throws DaoException {
         final CredentialsProperties credentialsProperties = new CredentialsProperties(StringUtils.defaultString(userName, person.getEmail()), credentialsType, secret);
         credentialsDao.create(person, credentialsProperties);
     }
 
     public AuthTokenDTO existingOrganizationSignup(UuidString id,
-                                                   ValidationResult validationResult,
-                                                   CredentialsType credentialsType,
-                                                   byte[] credentialsData) {
+                                                   ValidationResult validationResult) {
         try {
             if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
                 throw new BadRequestException("Email cannot be empty");
@@ -121,7 +107,7 @@ public class OpenIdResourceAuthUtil {
                     Organization organization = organizationsDao.read(id.getUUID());
                     if (person.getOrganization().getId() == organization.getId()) {
 
-                        createCredentials(person, validationResult.getUserId(), credentialsType, credentialsData);
+                        createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                         return generateTokenResponse(person);
                     } else {
@@ -140,7 +126,7 @@ public class OpenIdResourceAuthUtil {
         }
     }
 
-    public AuthTokenDTO newSignup(ValidationResult validationResult, CredentialsType credentialsType, byte[] credentialsData) {
+    public AuthTokenDTO newSignup(ValidationResult validationResult) {
         if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
             throw new BadRequestException("Email cannot be empty");
         }
@@ -149,7 +135,7 @@ public class OpenIdResourceAuthUtil {
             if (people.size() == 1) {
                 final Person person = people.get(0);
 
-                createCredentials(person, validationResult.getUserId(), credentialsType, credentialsData);
+                createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                 return generateTokenResponse(person);
             } else if (people.isEmpty()) {

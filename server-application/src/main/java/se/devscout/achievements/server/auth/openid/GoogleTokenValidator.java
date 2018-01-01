@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth.google;
+package se.devscout.achievements.server.auth.openid;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -48,7 +48,7 @@ public class GoogleTokenValidator implements CredentialsValidator {
                         locale,
                         pictureUrl);
 
-                return new ValidationResult(email, userId, true);
+                return new ValidationResult(email, userId, true, CredentialsType.GOOGLE, new byte[0]);
             } else {
                 LOGGER.info("Invalid Google token");
                 return ValidationResult.INVALID;

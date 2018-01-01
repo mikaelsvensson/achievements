@@ -3,7 +3,6 @@ package se.devscout.achievements.server.auth.openid;
 import org.apache.commons.lang3.RandomUtils;
 import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.ValidationResult;
-import se.devscout.achievements.server.data.model.CredentialsType;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -29,13 +28,13 @@ abstract class AbstractIdentityProvider implements IdentityProvider {
         this.tokenValidator = tokenValidator;
     }
 
-    public URI getProviderAuthURL(String path, String appState) {
+    public URI getProviderAuthURL(String path, String callbackState) {
         return UriBuilder.fromUri(authEndpoint)
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid email")
                 .queryParam("redirect_uri", getCallbackURL(path).toString())
-                .queryParam("state", appState)
+                .queryParam("state", callbackState)
                 //TODO: How and when is this nonce validated?
                 .queryParam("nonce", Base64.getUrlEncoder().encodeToString(RandomUtils.nextBytes(30)))
                 .build();
@@ -65,16 +64,6 @@ abstract class AbstractIdentityProvider implements IdentityProvider {
     }
 
     protected abstract URI getCallbackURL(String path);
-
-    @Override
-    public CredentialsType getCredentialsType() {
-        return tokenValidator.getCredentialsType();
-    }
-
-    @Override
-    public byte[] getCredentialsData() {
-        return tokenValidator.getCredentialsData();
-    }
 
     protected ValidationResult parseToken(String idToken) {
         return tokenValidator.validate(idToken.toCharArray());

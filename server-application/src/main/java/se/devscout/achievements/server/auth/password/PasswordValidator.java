@@ -41,7 +41,7 @@ public class PasswordValidator implements CredentialsValidator {
             final byte id = (byte) stream.read();
             final SecretGenerator generator = Stream.of(SecretGenerator.values()).filter(secretGenerator -> secretGenerator.getId() == id).findFirst().get();
             final boolean valid = generator.validatePassword(data, ByteStreams.toByteArray(stream));
-            return new ValidationResult(null, null, valid);
+            return new ValidationResult(null, null, valid, CredentialsType.PASSWORD, storedSecret);
         } catch (IOException e) {
             LOGGER.warn("Problem when validating password", e);
             return ValidationResult.INVALID;

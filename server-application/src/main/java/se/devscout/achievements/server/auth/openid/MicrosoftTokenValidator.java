@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth.microsoft;
+package se.devscout.achievements.server.auth.openid;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -16,7 +16,7 @@ public class MicrosoftTokenValidator implements CredentialsValidator {
         final String token = new String(data);
         final DecodedJWT jwt = JWT.decode(token);
         //TODO: Look into how to guarantee that the e-mail claim is returned
-        return new ValidationResult(jwt.getClaim("email").asString(), jwt.getSubject(), true);
+        return new ValidationResult(jwt.getClaim("email").asString(), jwt.getSubject(), true, CredentialsType.MICROSOFT, new byte[0]);
     }
 
     @Override

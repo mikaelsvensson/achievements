@@ -1,7 +1,5 @@
 package se.devscout.achievements.server.auth.openid;
 
-import se.devscout.achievements.server.auth.microsoft.MicrosoftTokenValidator;
-
 import javax.ws.rs.client.Client;
 import java.net.URI;
 

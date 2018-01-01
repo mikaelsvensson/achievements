@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth.email;
+package se.devscout.achievements.server.auth.openid;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class EmailTokenValidator implements CredentialsValidator {
             final String token = new String(data);
             final DecodedJWT jwt = jwtTokenService.decode(token);
             final String email = jwt.getClaim("email").asString();
-            return new ValidationResult(email, email, true);
+            return new ValidationResult(email, email, true, CredentialsType.PASSWORD, new byte[0]);
         } catch (TokenServiceException e) {
             LOGGER.info("Could not decode JWT", e);
             return ValidationResult.INVALID;
