@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.data.model;
 
+import com.google.api.client.repackaged.com.google.common.base.Strings;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import javax.validation.ConstraintValidator;
@@ -14,7 +15,7 @@ public class EmailAddressValidator implements ConstraintValidator<EmailAddress, 
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null) {
+        if (Strings.isNullOrEmpty(value)) {
             return true;
         }
         return EmailValidator.getInstance().isValid(value);

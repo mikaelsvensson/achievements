@@ -18,7 +18,7 @@ public class PersonProperties {
     @NotEmpty
     private String name;
 
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     @Column(length = 100)
     @EmailAddress
     //TODO: Changes to email address should propagate to credentials if user signs in using email address.
