@@ -89,8 +89,8 @@ public class AuthenticationAcceptanceTest {
             final String resource = endpoint.getLeft();
             Response response = client
                     .target(resource)
+                    .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                     .build(verb, getMockEntity(verb))
                     .invoke();
             if (response.getStatus() == HttpStatus.UNAUTHORIZED_401) {

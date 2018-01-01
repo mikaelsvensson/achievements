@@ -6,6 +6,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementBaseDTO;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
@@ -14,6 +15,7 @@ import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -72,6 +74,7 @@ public class AchievementsResource extends AbstractResource {
     }
 
     @POST
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public Response create(AchievementDTO input, @Auth User user) {
         try {
@@ -87,6 +90,7 @@ public class AchievementsResource extends AbstractResource {
     }
 
     @DELETE
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{achievementId}")
     public Response delete(@PathParam("achievementId") UuidString id, @Auth User user) {

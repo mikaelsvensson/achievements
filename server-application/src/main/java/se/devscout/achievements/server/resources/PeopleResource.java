@@ -10,6 +10,7 @@ import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
@@ -17,6 +18,7 @@ import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -94,6 +96,7 @@ public class PeopleResource extends AbstractResource {
 
 
     @POST
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public Response create(@PathParam("organizationId") UuidString organizationId,
                            @Auth User user,
@@ -114,6 +117,7 @@ public class PeopleResource extends AbstractResource {
     }
 
     @PUT
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public Response upsert(@PathParam("organizationId") UuidString organizationId,
                            @Auth User user,
@@ -148,6 +152,7 @@ public class PeopleResource extends AbstractResource {
     }
 
     @PUT
+    @RolesAllowed(Roles.EDITOR)
     @Consumes("text/csv")
     @UnitOfWork
     public Response upsertFromCsv(@PathParam("organizationId") UuidString organizationId,
@@ -177,6 +182,7 @@ public class PeopleResource extends AbstractResource {
     }
 
     @PUT
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{personId}")
     public Response update(@PathParam("organizationId") UuidString organizationId,
@@ -199,6 +205,7 @@ public class PeopleResource extends AbstractResource {
     }
 
     @DELETE
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{personId}")
     public Response delete(@PathParam("organizationId") UuidString organizationId,

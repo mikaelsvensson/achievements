@@ -1,7 +1,5 @@
 package se.devscout.achievements.server;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +13,6 @@ import se.devscout.achievements.server.resources.UuidString;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Map;
@@ -114,8 +111,8 @@ public class AchievementStepProgressAcceptanceTest {
 
             Response unsetResponse = client
                     .target(String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), badAchievementId, stepId, personId))
+                    .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);

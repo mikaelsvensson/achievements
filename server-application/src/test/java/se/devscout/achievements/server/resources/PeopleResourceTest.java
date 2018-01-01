@@ -1,7 +1,5 @@
 package se.devscout.achievements.server.resources;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
@@ -13,6 +11,7 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
@@ -21,7 +20,6 @@ import se.devscout.achievements.server.data.model.*;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
@@ -45,8 +43,6 @@ public class PeopleResourceTest {
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
-    private final PeopleDao peopleDao = mock(PeopleDao.class);
-
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addResource(new PeopleResource(dao, organizationsDao, achievementsDao))
@@ -65,8 +61,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -92,8 +88,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -114,8 +110,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(badId) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -128,8 +124,8 @@ public class PeopleResourceTest {
         when(dao.read(eq(123))).thenThrow(new NotFoundException());
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(UUID.randomUUID()) + "/people/123")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -144,8 +140,8 @@ public class PeopleResourceTest {
         when(dao.read(eq(org), eq("alice"))).thenReturn(person);
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/c:alice")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -164,8 +160,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/ORG_ID/people/PERSON_ID")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -180,13 +176,29 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
         verify(dao).delete(eq(person.getId()));
+    }
+
+    @Test
+    public void delete_unauthorizedUser_expectForbidden() throws Exception {
+        final Organization org = mockOrganization("Org");
+        final Person person = mockPerson(org, "name");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .delete();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
+
+        verify(dao, never()).delete(eq(person.getId()));
     }
 
     @Test
@@ -198,8 +210,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -217,8 +229,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -235,8 +247,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new PersonDTO()));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -247,6 +259,23 @@ public class PeopleResourceTest {
 
         verify(dao).create(any(Organization.class), any(PersonProperties.class));
         verify(organizationsDao).read(eq(org.getId()));
+    }
+
+    @Test
+    public void create_unauthorizedUser_expectForbidden() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "name");
+        when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .post(Entity.json(new PersonDTO()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
+
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
     }
 
     @Test
@@ -268,8 +297,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .put(Entity.json(Arrays.asList(
                         new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null),
                         new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null)
@@ -301,6 +330,46 @@ public class PeopleResourceTest {
     }
 
     @Test
+    public void batchUpdateJson_unauthorizedUser_expectForbidden() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .put(Entity.json(Arrays.asList(
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null)
+                )));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
+
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+        verify(dao, never()).update(anyInt(), any(PersonProperties.class));
+    }
+
+    @Test
+    public void batchUpdateCsv_unauthorizedUser_expectForbidden() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .put(Entity.entity("" +
+                                "name,email,custom_identifier\n" +
+                                "Alicia,alice@example.com,aaa\n" +
+                                "Carol,carol@example.com,ccc\n",
+                        "text/csv"
+                ));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
+
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+        verify(dao, never()).update(anyInt(), any(PersonProperties.class));
+    }
+
+    @Test
     public void batchUpdate_csv_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
 
@@ -319,8 +388,8 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .put(Entity.entity("" +
                                 "name,email,custom_identifier\n" +
                                 "Alicia,alice@example.com,aaa\n" +
@@ -380,8 +449,8 @@ public class PeopleResourceTest {
 
         final OrganizationAchievementSummaryDTO dto = resources.client()
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person1.getId() + "/achievement-summary")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get(OrganizationAchievementSummaryDTO.class);
 
         assertThat(dto.achievements).hasSize(2);
@@ -406,7 +475,7 @@ public class PeopleResourceTest {
     }
 
     private Person mockPerson(Organization org, String name, String customId) throws ObjectNotFoundException, IOException {
-        final Person person1 = MockUtil.mockPerson(org, name, customId);
+        final Person person1 = MockUtil.mockPerson(org, name, customId, Roles.READER);
         when(dao.read(eq(person1.getId()))).thenReturn(person1);
         final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
         final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());

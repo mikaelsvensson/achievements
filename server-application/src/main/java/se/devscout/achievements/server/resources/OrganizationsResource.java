@@ -5,12 +5,14 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -103,6 +105,7 @@ public class OrganizationsResource extends AbstractResource {
     }
 
     @POST
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public Response create(OrganizationDTO input,
                            @Auth User user) {
@@ -119,6 +122,7 @@ public class OrganizationsResource extends AbstractResource {
     }
 
     @PUT
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{organizationId}")
     public Response update(@PathParam("organizationId") UuidString id,
@@ -140,6 +144,7 @@ public class OrganizationsResource extends AbstractResource {
     }
 
     @DELETE
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{organizationId}")
     public Response delete(@PathParam("organizationId") UuidString id,

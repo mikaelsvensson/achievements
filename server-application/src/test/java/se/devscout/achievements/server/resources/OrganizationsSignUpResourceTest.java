@@ -10,6 +10,7 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.SignupBaseDTO;
 import se.devscout.achievements.server.api.SignupDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 
@@ -126,7 +127,7 @@ public class OrganizationsSignUpResourceTest {
     }
 
     private Person mockPerson(Organization org, String name, String email) throws ObjectNotFoundException {
-        final Person person = MockUtil.mockPerson(org, name, null, email);
+        final Person person = MockUtil.mockPerson(org, name, null, email, Roles.READER);
 
         when(peopleDao.read(eq(person.getId()))).thenReturn(person);
 

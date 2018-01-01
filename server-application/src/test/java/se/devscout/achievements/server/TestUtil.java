@@ -1,7 +1,5 @@
 package se.devscout.achievements.server;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.db.PooledDataSourceFactory;
@@ -19,7 +17,6 @@ import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.HttpHeaders;
 import java.net.URI;
 import java.util.UUID;
 
@@ -81,7 +78,7 @@ public class TestUtil {
     static Invocation.Builder request(Client client, URI location) {
         return client
                 .target(location)
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)));
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request();
     }
 }

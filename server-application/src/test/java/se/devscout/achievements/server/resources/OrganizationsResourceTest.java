@@ -1,9 +1,8 @@
 package se.devscout.achievements.server.resources;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,13 +11,13 @@ import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
 import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
@@ -55,7 +54,7 @@ public class OrganizationsResourceTest {
     public void get_happyPath() throws Exception {
         final UUID uuid = UUID.randomUUID();
         when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final OrganizationDTO dto = request("/organizations/" + UuidString.toString(uuid)).get(OrganizationDTO.class);
+        final OrganizationDTO dto = request("/organizations/" + UuidString.toString(uuid), MockUtil.AUTH_FEATURE_READER).get(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.name).isEqualTo("Alice's Organization");
     }
@@ -71,38 +70,38 @@ public class OrganizationsResourceTest {
     @Test
     public void create_happyPath() throws Exception {
         when(dao.create(any(OrganizationProperties.class))).thenAnswer(invocation -> new Organization(UUID.randomUUID(), ((OrganizationProperties) invocation.getArgument(0)).getName()));
-        final Response response = request("/organizations").post(Entity.json(new OrganizationDTO(null, "Bob's Club")));
+        final Response response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Bob's Club")));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final OrganizationDTO dto = response.readEntity(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.name).isEqualTo("Bob's Club");
     }
 
-    private Invocation.Builder request(String path) {
-        return request(path, Collections.EMPTY_MAP);
+    private Invocation.Builder request(String path, HttpAuthenticationFeature authFeature) {
+        return request(path, Collections.EMPTY_MAP, authFeature);
     }
 
-    private Invocation.Builder request(String path, Map<String, String> queryParameters) {
+    private Invocation.Builder request(String path, Map<String, String> queryParameters, HttpAuthenticationFeature authFeature) {
         WebTarget webTarget = resources.target(path);
         for (Map.Entry<String, String> entry : queryParameters.entrySet()) {
             webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
         }
         return webTarget
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)));
+                .register(authFeature)
+                .request();
     }
 
     @Test
     public void create_tooManyOrganizations() throws Exception {
         when(dao.create(any(OrganizationProperties.class))).thenThrow(new TooManyOrganizationsException("Too many"));
-        final Response response = request("/organizations").post(Entity.json(new OrganizationDTO(null, "Will not be created")));
+        final Response response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Will not be created")));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
     }
 
     @Test
     public void find_happyPath() throws Exception {
         when(dao.find(anyString())).thenReturn(Collections.singletonList(mock(Organization.class)));
-        final Response response = request("/organizations", Collections.singletonMap("filter", "something")).get();
+        final Response response = request("/organizations", Collections.singletonMap("filter", "something"), MockUtil.AUTH_FEATURE_READER).get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         verify(dao).find(eq("something"));
     }
@@ -110,7 +109,7 @@ public class OrganizationsResourceTest {
     @Test
     public void find_invalidFilterString_expectBadRequest() throws Exception {
         when(dao.find(anyString())).thenThrow(new IllegalArgumentException("Bad data"));
-        final Response response = request("/organizations", Collections.singletonMap("filter", " ")).get();
+        final Response response = request("/organizations", Collections.singletonMap("filter", " "), MockUtil.AUTH_FEATURE_READER).get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         verify(dao).find(eq(" "));
     }
@@ -119,9 +118,9 @@ public class OrganizationsResourceTest {
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
         final Organization org = mockOrganization("Alice's Organization");
         when(dao.read(eq(org.getId()))).thenReturn(org);
-        final Person person1 = mockPerson(org, "Alice");
-        final Person person2 = mockPerson(org, "Bob");
-        final Person person3 = mockPerson(org, "Carol");
+        final Person person1 = mockPerson(org, "Alice", Roles.READER);
+        final Person person2 = mockPerson(org, "Bob", Roles.READER);
+        final Person person3 = mockPerson(org, "Carol", Roles.READER);
         final AchievementStepProgress a1p1 = mockProgress(true, person1);
         final AchievementStepProgress a1p2 = mockProgress(false, person2);
         final AchievementStepProgress a1p3 = mockProgress(true, person1);
@@ -143,8 +142,8 @@ public class OrganizationsResourceTest {
 
         final OrganizationAchievementSummaryDTO dto = resources.client()
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/achievement-summary")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get(OrganizationAchievementSummaryDTO.class);
         assertThat(dto.achievements).hasSize(2);
         assertThat(dto.achievements.get(0).achievement.name).isEqualTo("Climb mountain");

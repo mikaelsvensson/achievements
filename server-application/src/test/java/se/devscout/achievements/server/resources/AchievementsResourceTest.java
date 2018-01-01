@@ -1,9 +1,7 @@
 package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -23,7 +21,6 @@ import se.devscout.achievements.server.data.model.AchievementStep;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +57,8 @@ public class AchievementsResourceTest {
         when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
                 .target("/achievements/" + UuidString.toString(uuid))
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);
@@ -106,8 +103,8 @@ public class AchievementsResourceTest {
         when(dao.read(any(UUID.class))).thenThrow(new NotFoundException());
         final Response response = resources
                 .target("/achievements/id")
+                .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
     }
@@ -117,8 +114,8 @@ public class AchievementsResourceTest {
         doThrow(new NotFoundException()).when(dao).delete(any(UUID.class));
         final Response response = resources
                 .target("/achievements/id")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
     }
@@ -131,8 +128,8 @@ public class AchievementsResourceTest {
         when(dao.read(eq(uuid))).thenReturn(achievement);
         final Response response = resources
                 .target("/achievements/" + UuidString.toString(uuid))
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
     }
@@ -145,8 +142,8 @@ public class AchievementsResourceTest {
         when(dao.create(any(AchievementProperties.class))).thenReturn(achievement);
         final Response response = resources
                 .target("/achievements")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:password".getBytes(Charsets.UTF_8)))
                 .post(Entity.json(new AchievementDTO()));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         final AchievementDTO dto = response.readEntity(AchievementDTO.class);

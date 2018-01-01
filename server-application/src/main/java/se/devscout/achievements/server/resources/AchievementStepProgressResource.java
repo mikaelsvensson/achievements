@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.ProgressDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
@@ -10,6 +11,7 @@ import se.devscout.achievements.server.data.model.AchievementStepProgressPropert
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,6 +52,7 @@ public class AchievementStepProgressResource extends AbstractResource {
 
     //FIXME: Should probably be PUT instead of POST
     @POST
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{personId}")
     public ProgressDTO set(@PathParam("achievementId") UuidString achievementId,
@@ -68,6 +71,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     }
 
     @DELETE
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{personId}")
     public Response unset(@PathParam("achievementId") UuidString achievementId,

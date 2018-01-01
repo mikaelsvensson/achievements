@@ -27,7 +27,7 @@ public class PasswordAuthenticatorTest {
 
     @Test
     public void authenticate_correctUsernameAndPassword_happyPath() throws Exception {
-        final Optional<User> actual = authenticator.authenticate(new BasicCredentials("user", "password"));
+        final Optional<User> actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "password"));
 
         assertThat(actual.isPresent()).isTrue();
     }
@@ -41,7 +41,7 @@ public class PasswordAuthenticatorTest {
 
     @Test
     public void authenticate_wrongPassword_happyPath() throws Exception {
-        final Optional<User> actual = authenticator.authenticate(new BasicCredentials("user", "wrong password"));
+        final Optional<User> actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "wrong password"));
 
         assertThat(actual.isPresent()).isFalse();
     }

@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementStepDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
@@ -12,6 +13,7 @@ import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
 import se.devscout.achievements.server.resources.authenticator.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -58,6 +60,7 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     @POST
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public Response create(@PathParam("achievementId") UuidString achievementId,
                            @Auth User user,
@@ -99,6 +102,7 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     @DELETE
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     @Path("{stepId}")
     public Response delete(@PathParam("achievementId") UuidString achievementId,
