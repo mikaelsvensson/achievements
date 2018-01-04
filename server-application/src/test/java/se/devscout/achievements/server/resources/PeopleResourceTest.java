@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class PeopleResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao))
+            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao, new ObjectMapper()))
             .build();
 
     @Before
@@ -384,8 +385,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonMap("title", "Boss"))
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -403,12 +404,14 @@ public class PeopleResourceTest {
         assertThat(createCaptor.getValue().getCustomIdentifier()).isEqualTo("ccc");
         assertThat(createCaptor.getValue().getName()).isEqualTo("Carol");
         assertThat(createCaptor.getValue().getEmail()).isEqualTo("carol@example.com");
+        assertThat(createCaptor.getValue().getAttributes()).contains(new PersonAttribute("title", "Boss"));
 
         verify(dao).read(eq(org), eq("aaa"));
         verify(dao).update(eq(alice.getId()), any(PersonProperties.class));
         assertThat(updateCaptor.getValue().getCustomIdentifier()).isEqualTo("aaa");
         assertThat(updateCaptor.getValue().getName()).isEqualTo("Alicia");
         assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
+        assertThat(updateCaptor.getValue().getAttributes()).isEmpty();
 
         verify(organizationsDao).read(eq(org.getId()));
     }
@@ -422,8 +425,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, null)
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
@@ -475,9 +478,9 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.entity("" +
-                                "name,email,custom_identifier\n" +
-                                "Alicia,alice@example.com,aaa\n" +
-                                "Carol,carol@example.com,ccc\n",
+                                "name,attr.tag,email,custom_identifier\n" +
+                                "Alicia,boss,alice@example.com,aaa\n" +
+                                "Carol,minion,carol@example.com,ccc\n",
                         "text/csv"
                 ));
 
@@ -496,12 +499,14 @@ public class PeopleResourceTest {
         assertThat(createCaptor.getValue().getCustomIdentifier()).isEqualTo("ccc");
         assertThat(createCaptor.getValue().getName()).isEqualTo("Carol");
         assertThat(createCaptor.getValue().getEmail()).isEqualTo("carol@example.com");
+        assertThat(createCaptor.getValue().getAttributes()).contains(new PersonAttribute("tag", "minion"));
 
         verify(dao).read(eq(org), eq("aaa"));
         verify(dao).update(eq(alice.getId()), any(PersonProperties.class));
         assertThat(updateCaptor.getValue().getCustomIdentifier()).isEqualTo("aaa");
         assertThat(updateCaptor.getValue().getName()).isEqualTo("Alicia");
         assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
+        assertThat(updateCaptor.getValue().getAttributes()).contains(new PersonAttribute("tag", "boss"));
 
         verify(organizationsDao).read(eq(org.getId()));
     }

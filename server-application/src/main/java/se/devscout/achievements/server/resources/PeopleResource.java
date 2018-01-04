@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.collect.Lists;
@@ -24,9 +25,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("organizations/{organizationId}/people")
@@ -36,11 +35,13 @@ public class PeopleResource extends AbstractResource {
     private PeopleDao dao;
     private OrganizationsDao organizationsDao;
     private AchievementsDao achievementsDao;
+    private ObjectMapper objectMapper;
 
-    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao) {
+    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper) {
         this.dao = dao;
         this.organizationsDao = organizationsDao;
         this.achievementsDao = achievementsDao;
+        this.objectMapper = objectMapper;
     }
 
     @GET
@@ -165,12 +166,24 @@ public class PeopleResource extends AbstractResource {
                                   @Auth User user,
                                   String input) {
         LoggerFactory.getLogger(PeopleResource.class).info(input);
+
         try {
-            final List<PersonDTO> values = Lists.newArrayList(
-                    new CsvMapper()
-                            .readerFor(PersonDTO.class)
-                            .with(CsvSchema.emptySchema().withHeader())
+            CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
+            final List<Map<String, String>> values1 = Lists.newArrayList(
+                    new CsvMapper().readerFor(Map.class)
+                            .with(schema)
                             .readValues(input));
+
+            List<PersonDTO> values = values1.stream().map(map -> {
+                final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
+                dto.attr = new HashMap<>();
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    if (entry.getKey().startsWith("attr.")) {
+                        dto.attr.put(entry.getKey().substring("attr.".length()), entry.getValue());
+                    }
+                }
+                return dto;
+            }).collect(Collectors.toList());
             return upsert(organizationId, user, values);
         } catch (IOException e) {
             throw new BadRequestException("Could not read data", e);
