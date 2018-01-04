@@ -13,6 +13,39 @@ $scout-rover: #e8e15a;
 $primary: $scout-blue;
 $primary-invert: findColorInvert($scout-blue);
 
+$family-header-strong: 'scouterna_dinmedium';
+$family-header: 'scouterna_dinextralight';
+
+//$family-primary: 'Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif';
+//$body-size: 1.1rem;
+
 @import "~bulma/sass/utilities/derived-variables.sass";
 
+$blue: lighten($scout-blue, 20%);
+$info: lighten($scout-blue, 20%);
+
 @import "~bulma/bulma";
+
+h1 {
+  font-family: $family-header;
+  strong {
+    font-family: $family-header-strong;
+    font-weight: $weight-normal;
+  }
+}
+
+.title {
+  font-weight: $weight-normal;
+  font-size: $size-1;
+}
+
+.breadcrumb.is-small {
+  font-family: $family-header;
+  font-size: $size-5;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+
+  a {
+    padding: 0.1em 0.4em;
+  }
+}
