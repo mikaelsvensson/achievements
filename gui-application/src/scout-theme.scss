@@ -1,0 +1,18 @@
+// More information on https://bulma.io/documentation/overview/customize/
+@import "~bulma/sass/utilities/initial-variables";
+@import "~bulma/sass/utilities/functions";
+
+$scout-blue: #003C69;
+
+$scout-adventurer: #e48043;
+$scout-tracker: #65b359;
+$scout-discoverer: #199fcd;
+$scout-challenger: #d62c77;
+$scout-rover: #e8e15a;
+
+$primary: $scout-blue;
+$primary-invert: findColorInvert($scout-blue);
+
+@import "~bulma/sass/utilities/derived-variables.sass";
+
+@import "~bulma/bulma";

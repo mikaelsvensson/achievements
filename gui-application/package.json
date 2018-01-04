@@ -16,6 +16,8 @@
     "handlebars": "4.0.10",
     "jquery": "3.2.1",
     "mdi": "^2.1.19",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
     "remarkable": "^1.7.1"
   },
   "devDependencies": {

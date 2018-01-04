@@ -1,13 +1,13 @@
 import $ from "jquery";
-import styles from "bulma/css/bulma.css";
 import {hashChangeHandler} from "./util/routing.jsx";
 import tableStyles from "./table.css";
 import mdiStyles from "mdi/css/materialdesignicons.css";
+import themeStyles from "./scout-theme.scss";
 
 $(function () {
     $(window).on('hashchange', hashChangeHandler);
 
-    const s = styles;
+    const ms = themeStyles;
     const ts = tableStyles;
     const mdis = mdiStyles;
 
