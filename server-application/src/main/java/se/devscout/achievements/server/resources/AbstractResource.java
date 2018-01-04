@@ -44,11 +44,7 @@ abstract class AbstractResource {
                         fromDtoMapper.map(src, destinationType));
             }
             if (src instanceof AchievementStep && dest instanceof AchievementStepDTO) {
-                AchievementStep entity = (AchievementStep) src;
-                AchievementStepDTO dto = (AchievementStepDTO) dest;
-                if (entity.getPrerequisiteAchievement() != null) {
-                    dto.prerequisite_achievement = UuidString.toString(entity.getPrerequisiteAchievement().getId());
-                }
+                mapAchievementStepExtras((AchievementStep) src, (AchievementStepDTO) dest);
             }
             if (src instanceof Achievement && dest instanceof AchievementBaseDTO) {
                 Achievement entity = (Achievement) src;
@@ -56,23 +52,50 @@ abstract class AbstractResource {
                 dto.id = UuidString.toString(entity.getId());
             }
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
-                Achievement entity = (Achievement) src;
-                AchievementDTO dto = (AchievementDTO) dest;
-                for (int i = 0; i < entity.getSteps().size(); i++) {
-                    AchievementStep step = entity.getSteps().get(i);
-                    if (step.getPrerequisiteAchievement() != null) {
-                        dto.steps.get(i).prerequisite_achievement = UuidString.toString(step.getPrerequisiteAchievement().getId());
-                    }
-                }
+                mapAchievementExtras((Achievement) src, (AchievementDTO) dest);
             }
             if (src instanceof Organization && dest instanceof OrganizationDTO) {
                 Organization entity = (Organization) src;
                 OrganizationDTO dto = (OrganizationDTO) dest;
                 dto.id = UuidString.toString(entity.getId());
             }
+            if (src instanceof PersonDTO && dest instanceof PersonProperties) {
+                mapPersonExtras((PersonDTO) src, (PersonProperties) dest);
+            }
+            if (src instanceof PersonProperties && dest instanceof PersonDTO) {
+                mapPersonExtras((PersonProperties) src, (PersonDTO) dest);
+            }
             return dest;
         } else {
             return null;
+        }
+    }
+
+    private void mapAchievementStepExtras(AchievementStep src, AchievementStepDTO dest) {
+        if (src.getPrerequisiteAchievement() != null) {
+            dest.prerequisite_achievement = UuidString.toString(src.getPrerequisiteAchievement().getId());
+        }
+    }
+
+    private void mapAchievementExtras(Achievement src, AchievementDTO dest) {
+        for (int i = 0; i < src.getSteps().size(); i++) {
+            AchievementStep step = src.getSteps().get(i);
+            mapAchievementStepExtras(step, dest.steps.get(i));
+        }
+    }
+
+    private void mapPersonExtras(PersonDTO src, PersonProperties dest) {
+        if (src.attr != null) {
+            dest.setAttributes(src.attr.entrySet().stream()
+                    .map(entry -> new PersonAttribute(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toSet()));
+        }
+    }
+
+    private void mapPersonExtras(PersonProperties src, PersonDTO dest) {
+        if (src.getAttributes() != null) {
+            dest.attr = src.getAttributes().stream()
+                    .collect(Collectors.toMap(PersonAttribute::getKey, PersonAttribute::getValue));
         }
     }
 

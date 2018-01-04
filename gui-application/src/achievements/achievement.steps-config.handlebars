@@ -1,0 +1,20 @@
+{{#if attrSummary}}
+{{#each attrSummary}}
+
+<div class="field">
+    <label class="label">Filtrera på {{name}}:</label>
+    <div class="control">
+        <div class="select">
+            <select id="people-filter-attr">
+                <option>Visa alla personer</option>
+                {{#each value}}
+                {{#if .}}
+                <option value="{{../name}};{{.}}">Visa bara {{../name}} {{.}}</option>
+                {{/if}}
+                {{/each}}
+            </select>
+        </div>
+    </div>
+</div>
+{{/each}}
+{{/if}}

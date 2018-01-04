@@ -1,9 +1,11 @@
 import $ from "jquery";
-import {get, post, isLoggedIn, createOnFailHandler} from "../util/api.jsx";
-import {updateView, getFormData, markdown2html} from "../util/view.jsx";
+import {createOnFailHandler, get, isLoggedIn, post} from "../util/api.jsx";
+import {getFormData, markdown2html, updateView} from "../util/view.jsx";
+
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementRead = require("./achievement.read.handlebars");
 const templateAchievementStepsList = require("./achievement.steps-list.handlebars");
+const templateAchievementStepsConfig = require("./achievement.steps-config.handlebars");
 const templateLoading = require("../loading.handlebars");
 
 export function renderAchievement(appPathParams) {
@@ -42,10 +44,10 @@ export function renderAchievement(appPathParams) {
             });
         }
 
-        let showSteps = function (peopleData, steps) {
+        let showSteps = function (peopleData, attrSummary, steps, peopleFilter) {
             updateView(templateAchievementStepsList({
-                people: peopleData,
-                steps: steps,
+                people: peopleData.filter((person) => !peopleFilter || peopleFilter(person)).sort((p1, p2) => p1.name.toLowerCase() > p2.name.toLowerCase()),
+                steps,
                 achievementId: appPathParams[0].key
             }), $('#achievement-steps-list'));
 
@@ -76,18 +78,45 @@ export function renderAchievement(appPathParams) {
         };
         if (isLoggedIn()) {
             get('//localhost:8080/api/my/people/', function (peopleData, responseStatus, jqXHR) {
+                let attrSummary = {};
+                peopleData.map(item => item.attr).forEach(attrs => Object.keys(attrs).forEach(attrName => {
+                    if (!attrSummary[attrName]) {
+                        attrSummary[attrName] = [];
+                    }
+                    if (!attrSummary[attrName].includes(attrs[attrName])) {
+                        attrSummary[attrName].push(attrs[attrName]);
+                    }
+                }));
+
+                const map = Object.keys(attrSummary).map(key => {
+                    return {"name": key, "value": attrSummary[key]};
+                });
+
+                updateView(templateAchievementStepsConfig({
+                    attrSummary: map,
+                    achievementId: appPathParams[0].key
+                }), $('#achievement-steps-config'));
+
                 get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                    showSteps(peopleData, responseData);
+
+                    $('#app').find('#people-filter-attr').change(function (e) {
+                        const optionRawValue = $(this).val().split(/;/, 2)
+                        const attrName = optionRawValue[0];
+                        const attrValue = optionRawValue[1];
+                        showSteps(peopleData, attrSummary, responseData, person => person.attr[attrName] == attrValue);
+                    });
+
+                    showSteps(peopleData, attrSummary, responseData);
                 });
             }, function () {
                 console.log("Could not load my people");
                 get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                    showSteps(null, responseData);
+                    showSteps(null, null, responseData);
                 });
             });
         } else {
             get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                showSteps(null, responseData);
+                showSteps(null, null, responseData);
             });
         }
     });

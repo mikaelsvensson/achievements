@@ -1,36 +1,65 @@
 {{#if steps}}
+<p><strong>Avklarade delsteg:</strong></p>
+<div class="is-hidden-desktop">
+    {{#each steps}}
+    <div class="notification">
+        <p>
+            {{#if prerequisite_achievement}}
+            <a href="#marken/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
+            {{else}}
+            {{description}}
+            {{/if}}
+        </p>
+        <div class="is-grouped buttons">
+            {{#each ../people}}
+            <button class="button is-white is-small progress-switch" id="progress-toggle-{{../id}}_{{id}}"
+                    data-person-id="{{id}}" data-step-id="{{../id}}">
+                    <span class="icon is-small has-text-info">
+                        <i class="mdi mdi-checkbox-blank-outline mdi-dark mdi-24px"></i>
+                    </span>
+                <span>
+                        {{name}}
+                    </span>
+            </button>
+            {{/each}}
+        </div>
+    </div>
+    {{/each}}
+</div>
+<div class="is-hidden-tablet-only is-hidden-mobile">
 <table class="table">
     <thead>
-        <tr>
-            <th></th>
-            {{#each people}}
-            <th class="rotate"><div><span>{{name}}</span></div></th>
-            {{/each}}
-        </tr>
+    <tr>
+        <th></th>
+        {{#each people}}
+        <th class="rotate"><div><span>{{name}}</span></div></th>
+        {{/each}}
+    </tr>
     </thead>
     <tbody>
     {{#each steps}}
-        <tr>
-            <td>
-                {{#if prerequisite_achievement}}
-                    <a href="#marken/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
-                {{else}}
-                    {{description}}
-                {{/if}}
-            </td>
-            {{#each ../people}}
-                <td>
-                    <button class="button is-white progress-switch" id="progress-toggle-{{../id}}_{{id}}" data-person-id="{{id}}" data-step-id="{{../id}}">
+    <tr>
+        <td>
+            {{#if prerequisite_achievement}}
+            <a href="#marken/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
+            {{else}}
+            {{description}}
+            {{/if}}
+        </td>
+        {{#each ../people}}
+        <td>
+            <button class="button is-white progress-switch" id="progress-toggle-{{../id}}_{{id}}" data-person-id="{{id}}" data-step-id="{{../id}}">
                         <span class="icon has-text-info">
                             <i class="mdi mdi-checkbox-blank-outline mdi-dark mdi-24px"></i>
                         </span>
-                    </button>
-                </td>
-            {{/each}}
-        </tr>
+            </button>
+        </td>
+        {{/each}}
+    </tr>
     {{/each}}
     </tbody>
 </table>
 {{else}}
-<p>Du har inte hunnit lägga till några moment ännu. Gör det med det lilla formuläret här till vänster.</p>
+    <p>Du har inte hunnit lägga till några moment ännu. Gör det med det lilla formuläret här till vänster.</p>
 {{/if}}
+</div>
