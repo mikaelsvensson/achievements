@@ -1,8 +1,10 @@
-package se.devscout.achievements.server.auth.openid;
+package se.devscout.achievements.server.auth.email;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.CredentialsValidator;
+import se.devscout.achievements.server.auth.IdentityProvider;
+import se.devscout.achievements.server.auth.IdentityProviderException;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.TokenServiceException;

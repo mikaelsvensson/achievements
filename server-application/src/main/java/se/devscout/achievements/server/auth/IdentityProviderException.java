@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth.openid;
+package se.devscout.achievements.server.auth;
 
 public class IdentityProviderException extends Exception {
     public IdentityProviderException(String message, Exception cause) {

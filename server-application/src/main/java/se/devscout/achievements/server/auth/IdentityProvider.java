@@ -1,6 +1,4 @@
-package se.devscout.achievements.server.auth.openid;
-
-import se.devscout.achievements.server.auth.ValidationResult;
+package se.devscout.achievements.server.auth;
 
 import java.net.URI;
 

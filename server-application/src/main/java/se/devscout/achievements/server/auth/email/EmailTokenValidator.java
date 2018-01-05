@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.auth.openid;
+package se.devscout.achievements.server.auth.email;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;

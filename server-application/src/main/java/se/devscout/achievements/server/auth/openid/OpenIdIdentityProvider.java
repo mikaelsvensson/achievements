@@ -2,6 +2,7 @@ package se.devscout.achievements.server.auth.openid;
 
 import org.apache.commons.lang3.RandomUtils;
 import se.devscout.achievements.server.auth.CredentialsValidator;
+import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.ValidationResult;
 
 import javax.ws.rs.client.Client;
