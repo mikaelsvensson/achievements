@@ -5,80 +5,76 @@
                 Logga in
             </h1>
             <h2 class="subtitle">
-                Märken är viktiga grejer. Inte vem som helst kan ändra dessa!
+                Det finns flera sätt att logga in här. Valmöjligheter :-)
             </h2>
         </div>
     </div>
 </section>
 <section class="section">
     <form method="get">
-        <div class="columns">
-            <div class="column">
-                <article class="notification">
-                    <!--<p class="subtitle">Logga in med Google</p>-->
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Gmail-adress:</p>
-                    </div>-->
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
-                                    formaction="http://localhost:8080/api/openid/google/signin">
-                                Logga in med Google
-                            </button>
+        <section class="section">
+            <div class="columns">
+                <div class="column">
+                    <article class="notification">
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-primary is-medium" type="submit"
+                                        formaction="http://localhost:8080/api/openid/google/signin">
+                                    Logga in med Google
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Hotmail-, Live- eller Outlook-adress:</p>
-                    </div>-->
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
-                                    formaction="http://localhost:8080/api/openid/microsoft/signin">
-                                Logga in med Microsoft
-                            </button>
+                        <div class="content is-small">
+                            <p>Det här passar dig som har en Gmail-adress.</p>
                         </div>
-                    </div>
-                    <div class="content is-small">
-                        <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
-                    </div>
-                </article>
-            </div>
-            <div class="column">
-                <article class="notification">
+                    </article>
+                </div>
+                <div class="column">
+                    <article class="notification">
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-primary is-medium" type="submit"
+                                        formaction="http://localhost:8080/api/openid/microsoft/signin">
+                                    Logga in med Microsoft
+                                </button>
+                            </div>
+                        </div>
+                        <div class="content is-small">
+                            <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="column">
+                    <article class="notification">
                     <p class="subtitle">...eller din e-postadress</p>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
+                            </div>
                         </div>
-                    </div>
 
-                    <!--
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-                                            </div>
-                                        </div>
-                    -->
+                        <div class="field">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="http://localhost:8080/api/openid/email/signin">
+                                Logga in med e-post
+                            </button>
+                        </div>
 
-                    <button class="button is-primary is-medium" type="submit"
-                            formaction="http://localhost:8080/api/openid/email/signin">
-                        Logga in med e-post
-                    </button>
+                        <div class="errors"/>
 
-                    <div class="errors"/>
-
-                    <div class="content is-small">
-                        <p><a href="#login-reset-password" aria-current="page">Jag har glömt mitt lösenord</a></p>
-                    </div>
-                </article>
+                        <div class="content is-small">
+                            <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
+                        </div>
+                    </article>
+                </div>
             </div>
-        </div>
-
+        </section>
     </form>
     <div class="content">
         <p>Först gången du är här? Antingen kan du <a href="#skapa-konto" aria-current="page">skapa en ny kår</a> eller
             <a href="#skapa-konto-hos-kar" aria-current="page">ansöka om att få tillgång till en existerande kår</a>.
         </p>
     </div>
-    <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
+    <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a> istället.
+    </p>
 </section>

@@ -10,15 +10,11 @@
         </div>
     </div>
 </section>
-<section class="section">
-    <form method="get">
+<form method="get">
+    <section class="section">
         <div class="columns">
             <div class="column">
                 <article class="notification">
-                    <!--<p class="subtitle">Logga in med Google</p>-->
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Gmail-adress:</p>
-                    </div>-->
                     <div class="field">
                         <div class="control">
                             <button class="button is-primary is-medium" type="submit"
@@ -27,9 +23,13 @@
                             </button>
                         </div>
                     </div>
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Hotmail-, Live- eller Outlook-adress:</p>
-                    </div>-->
+                    <div class="content is-small">
+                        <p>Det här passar dig som har en Gmail-adress.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
                     <div class="field">
                         <div class="control">
                             <button class="button is-primary is-medium" type="submit"
@@ -39,7 +39,7 @@
                         </div>
                     </div>
                     <div class="content is-small">
-                        <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
+                        <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
                     </div>
                 </article>
             </div>
@@ -48,22 +48,16 @@
                     <p class="subtitle">...eller din e-postadress</p>
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
+                            <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
                         </div>
                     </div>
 
-                    <!--
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-                                            </div>
-                                        </div>
-                    -->
-
-                    <button class="button is-primary is-medium" type="submit"
+                    <div class="field">
+                        <button class="button is-primary is-medium" type="submit"
                             formaction="http://localhost:8080/api/openid/email/signup">
-                        Logga in med e-post
-                    </button>
+                            Logga in med e-post
+                        </button>
+                    </div>
 
                     <div class="errors"/>
 
@@ -78,5 +72,6 @@
     <div class="content is-small">
         <p>För att kunna logga in måste din e-postadress redan ha kopplats till kåren av en av ledarna.</p>
     </div>
-    <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
+<p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a> istället.</p>
 </section>
+</form>

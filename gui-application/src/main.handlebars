@@ -1,20 +1,95 @@
-<section class="hero is-fullheight is-primary is-bold">
+<section class="hero is-medium is-primary is-bold">
     <div class="hero-body">
         <div class="container">
             <h1 class="title">
                 Mina märken
             </h1>
             <h2 class="subtitle">
-                Här håller du reda på alla <strong>märken</strong> som dina scouter tagit.
+                Din sida för märkena du inte har på skjortan ännu.
             </h2>
-            <div class="field is-grouped">
-                <p class="control">
-                    <a href="#marken" class="button is-inverted is-primary is-outlined is-large">Märken</a>
-                </p>
-                <p class="control">
-                    <a href="#karer" class="button is-inverted is-primary is-outlined is-large">Kårer</a>
-                </p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="columns">
+        <div class="column">
+            <div class="content">
+                <p class="subtitle">Hej scout</p>
+                <p>Om du är är scout eller scoutförälder så vill du nog <a
+                        href="#loggain" aria-current="page">logga in</a> med någon av de tre
+                    alternativen här nedan.</p>
+                <p>Du behöver förstås inte logga in om du bara vill <a href="#marken">se alla märken</a>.</p>
+            </div>
+        </div>
+        <div class="column">
+            <div class="content">
+                <p class="subtitle">Hej ledare</p>
+                <p>Om du vill rapportera hur det går för dina scouter så behöver du <a
+                        href="#skapa-konto" aria-current="page">logga in</a> med någon av de tre
+                    alternativen här nedan.</p>
+                <p>Om din kår ännu inte börjat använda den här vill pröva på den här tjänsten så kan du <a
+                        href="#skapa-konto" aria-current="page">skapa en ny kår</a> hos oss.</p>
             </div>
         </div>
     </div>
 </section>
+
+<form method="get">
+    <section class="section">
+        <div class="columns">
+            <div class="column">
+                <article class="notification">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="http://localhost:8080/api/openid/google/signin">
+                                Logga in med Google
+                            </button>
+                        </div>
+                    </div>
+                    <div class="content is-small">
+                        <p>Det här passar dig som har en Gmail-adress.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="http://localhost:8080/api/openid/microsoft/signin">
+                                Logga in med Microsoft
+                            </button>
+                        </div>
+                    </div>
+                    <div class="content is-small">
+                        <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <button class="button is-primary is-medium" type="submit"
+                                formaction="http://localhost:8080/api/openid/email/signin">
+                            Logga in med e-post
+                        </button>
+                    </div>
+
+                    <div class="errors"/>
+
+                    <div class="content is-small">
+                        <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+</form>

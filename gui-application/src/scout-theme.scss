@@ -26,7 +26,7 @@ $info: lighten($scout-blue, 20%);
 
 @import "~bulma/bulma";
 
-h1 {
+h1, h2 {
   font-family: $family-header;
   strong {
     font-family: $family-header-strong;
@@ -37,6 +37,11 @@ h1 {
 .title {
   font-weight: $weight-normal;
   font-size: $size-1;
+}
+
+h2.subtitle {
+  font-weight: $weight-normal;
+  font-size: $size-3;
 }
 
 .breadcrumb.is-small {

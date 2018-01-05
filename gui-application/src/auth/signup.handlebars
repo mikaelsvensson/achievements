@@ -22,67 +22,62 @@
 <section class="section">
     <p class="subtitle">Hur vill du logga in?</p>
 
-        <div class="columns">
-            <div class="column">
-                <article class="notification">
-                    <!--<p class="subtitle">Logga in med Google</p>-->
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Gmail-adress:</p>
-                    </div>-->
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
+    <div class="columns">
+        <div class="column">
+            <article class="notification">
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-medium" type="submit"
                                     formaction="http://localhost:8080/api/openid/google/signup">
-                                Logga in med Google
-                            </button>
-                        </div>
+                            Logga in med Google
+                        </button>
                     </div>
-                    <!--<div class="content is-small">
-                        <p>Smidigt om du har en Hotmail-, Live- eller Outlook-adress:</p>
-                    </div>-->
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
+                </div>
+                <div class="content is-small">
+                    <p>Det här passar dig som har en Gmail-adress.</p>
+                </div>
+            </article>
+        </div>
+        <div class="column">
+            <article class="notification">
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-medium" type="submit"
                                     formaction="http://localhost:8080/api/openid/microsoft/signup">
-                                Logga in med Microsoft
-                            </button>
-                        </div>
+                            Logga in med Microsoft
+                        </button>
                     </div>
-                    <div class="content is-small">
-                        <p>Du kommer till deras inloggning och kommer därefter automatiskt tillbaka till oss.</p>
+                </div>
+                <div class="content is-small">
+                    <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                </div>
+            </article>
+        </div>
+        <div class="column">
+            <article class="notification">
+                <p class="subtitle">...eller din e-postadress</p>
+                <div class="field">
+                    <div class="control">
+                        <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
                     </div>
-                </article>
-            </div>
-            <div class="column">
-                <article class="notification">
-                    <p class="subtitle">...eller din e-postadress</p>
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" type="text" id="email" name="email" placeholder="namn@example.com">
-                        </div>
-                    </div>
+                </div>
 
-                    <!--
-                                        <div class="field">
-                                            <div class="control">
-                                                <input class="input" type="password" id="password" name="password" placeholder="Lösenord"/>
-                                            </div>
-                                        </div>
-                    -->
-
+                <div class="field">
                     <button class="button is-primary is-medium" type="submit"
                             formaction="http://localhost:8080/api/openid/email/signup">
                         Logga in med e-post
                     </button>
+                </div>
 
-                    <div class="errors"/>
+                <div class="errors"/>
 
-                    <div class="content is-small">
-                        <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
-                    </div>
-                </article>
-            </div>
+                <div class="content is-small">
+                    <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
+                </div>
+            </article>
         </div>
-    <p>Nej, det här var inte riktigt min grej. <a href="#loggain" aria-current="page">Ta mig tillbaka</a>.</p>
+    </div>
+    <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a> istället.
+    </p>
 </section>
 </form>
