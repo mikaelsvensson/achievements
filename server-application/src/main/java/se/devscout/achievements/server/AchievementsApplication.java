@@ -34,6 +34,7 @@ import se.devscout.achievements.server.resources.*;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
+import se.devscout.achievements.server.resources.exceptionhandling.CallbackResourceExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolationExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.ValidationExceptionMapper;
 
@@ -67,6 +68,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
 
+        environment.jersey().register(CallbackResourceExceptionMapper.class);
         environment.jersey().register(ValidationExceptionMapper.class);
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 

@@ -45,7 +45,8 @@ function renderRoute(appPath) {
         'karer/*/personer/*': renderPerson,
         'marken': renderAchievements,
         'marken/*': renderAchievement,
-        'signin/failed': renderSigninFailed,
+        'signin-failed': renderSigninFailed,
+        'signin-failed/*': renderSigninFailed,
         'signin/check-mail-box': renderSigninWaitForEmail,
         'signin/*': renderRedirect,
         '': renderMain

@@ -11,10 +11,6 @@ import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.User;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,21 +27,21 @@ public class OpenIdResourceAuthUtil {
         this.organizationsDao = organizationsDao;
     }
 
-    public AuthTokenDTO createToken(CredentialsType credentialsType, String userId) {
+    public AuthTokenDTO createToken(CredentialsType credentialsType, String userId) throws OpenIdResourceCallbackException {
         try {
             final Person person = credentialsDao.get(credentialsType, userId).getPerson();
             return generateTokenResponse(person);
         } catch (ObjectNotFoundException e) {
-            throw new NotFoundException();
+            throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.UNKNOWN_USER, "Could not find user.", e);
         }
     }
 
-    public AuthTokenDTO createToken(User user) {
+    public AuthTokenDTO createToken(User user) throws OpenIdResourceCallbackException {
         try {
             final Person person = credentialsDao.read(user.getCredentialsId()).getPerson();
             return generateTokenResponse(person);
         } catch (ObjectNotFoundException e) {
-            throw new NotFoundException();
+            throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.UNKNOWN_USER, "Could not find user.", e);
         }
     }
 
@@ -62,14 +58,13 @@ public class OpenIdResourceAuthUtil {
     }
 
     public AuthTokenDTO newOrganizationSignup(String newOrganizationName,
-                                              ValidationResult validationResult) {
+                                              ValidationResult validationResult) throws OpenIdResourceCallbackException {
 
         if (Strings.isNullOrEmpty(newOrganizationName)) {
             throw new BadRequestException("Name of new organization was not specified.");
         }
         final List<Organization> organizations = organizationsDao.find(newOrganizationName);
         if (organizations.isEmpty()) {
-
             try {
                 // Create organization
                 final Organization organization = organizationsDao.create(new OrganizationProperties(newOrganizationName));
@@ -83,10 +78,10 @@ public class OpenIdResourceAuthUtil {
 
                 return generateTokenResponse(person);
             } catch (DaoException e) {
-                throw new InternalServerErrorException("Could not create organization '" + newOrganizationName + "'.");
+                throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.SYSTEM_ERROR, "Could not create organization '" + newOrganizationName + "'.", e);
             }
         } else {
-            throw new ClientErrorException(Response.Status.CONFLICT);
+            throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.ORGANIZATION_EXISTS, "Organization " + newOrganizationName + " already exists.");
         }
     }
 
@@ -96,10 +91,10 @@ public class OpenIdResourceAuthUtil {
     }
 
     public AuthTokenDTO existingOrganizationSignup(UuidString id,
-                                                   ValidationResult validationResult) {
+                                                   ValidationResult validationResult) throws OpenIdResourceCallbackException {
         try {
             if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
-                throw new BadRequestException("Email cannot be empty");
+                throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.INVALID_INPUT, "E-mail cannot be empty");
             }
             try {
                 final List<Person> people = peopleDao.getByEmail(validationResult.getUserEmail());
@@ -113,22 +108,22 @@ public class OpenIdResourceAuthUtil {
 
                         return generateTokenResponse(person);
                     } else {
-                        throw new ClientErrorException(validationResult.getUserEmail() + " is already registered with another organization.", Response.Status.BAD_REQUEST);
+                        throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.UNKNOWN_USER, validationResult.getUserEmail() + " is already registered with another organization.");
                     }
                 } else if (people.isEmpty()) {
-                    throw new ClientErrorException("Cannot find " + validationResult.getUserEmail(), Response.Status.BAD_REQUEST);
+                    throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.INVALID_INPUT, "Cannot find " + validationResult.getUserEmail());
                 } else {
-                    throw new InternalServerErrorException("E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
+                    throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
                 }
             } catch (DaoException e) {
-                throw new InternalServerErrorException("Could not configure user with credentials", e);
+                throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.SYSTEM_ERROR, "Could not configure user with credentials", e);
             }
         } catch (ObjectNotFoundException e) {
-            throw new NotFoundException("Could not find organization " + id);
+            throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.UNKNOWN_ORGANIZATION, "Could not find organization " + id, e);
         }
     }
 
-    public AuthTokenDTO newSignup(ValidationResult validationResult) {
+    public AuthTokenDTO newSignup(ValidationResult validationResult) throws OpenIdResourceCallbackException {
         if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
             throw new BadRequestException("Email cannot be empty");
         }
@@ -141,12 +136,12 @@ public class OpenIdResourceAuthUtil {
 
                 return generateTokenResponse(person);
             } else if (people.isEmpty()) {
-                throw new ClientErrorException("Cannot find " + validationResult.getUserEmail(), Response.Status.BAD_REQUEST);
+                throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.UNKNOWN_USER, "Cannot find " + validationResult.getUserEmail());
             } else {
-                throw new InternalServerErrorException("E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
+                throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
             }
         } catch (DaoException e) {
-            throw new InternalServerErrorException("Could not configure user with credentials", e);
+            throw new OpenIdResourceCallbackException(OpenIdResourceCallbackExceptionType.SYSTEM_ERROR, "Could not configure user with credentials", e);
         }
     }
 }

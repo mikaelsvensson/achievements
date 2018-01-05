@@ -23,7 +23,7 @@ public class SignInResource extends AbstractResource {
 
     @POST
     @UnitOfWork
-    public Response createToken(@Auth User user) {
+    public Response createToken(@Auth User user) throws OpenIdResourceCallbackException {
         return Response
                 .ok()
                 .entity(util.createToken(user))

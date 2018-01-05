@@ -2,19 +2,21 @@
     <div class="hero-body">
         <div class="container">
             <h1 class="title">
-                Ojdå
+                Det gick inte att logga in
             </h1>
             <h2 class="subtitle">
-                Vi kunde tyvärr inte logga in dig
+
             </h2>
         </div>
     </div>
 </section>
 <section class="section">
     <div class="content">
+        <p><strong>{{message}}</strong></p>
+        <p>Vad sägs om att <a href="/">gå till startsidan</a>?</p>
         {{#if customerSupportEmail}}
-        <p>Försök gärna en gång till, eller kontakta oss på <a href="mailto:{{customerSupportEmail}}">{{customerSupportEmail}}</a>.
-        </p>
+        <p>Kontakta oss på <a href="mailto:{{customerSupportEmail}}">{{customerSupportEmail}}</a> om problemet inte
+            försvinner.</p>
         {{else}}
         <p>Försök gärna en gång till.</p>
         {{/if}}

@@ -45,10 +45,14 @@ public class OpenIdResource extends AbstractResource {
     @Path("signin")
     @UnitOfWork
     public Response doSignInRequest(@PathParam("identityProvider") String identityProvider,
-                                    @QueryParam("email") String email) {
-        IdentityProvider idp = getIdentityProvider(identityProvider);
-        final String state = tokenService.encode(new OpenIdCallbackStateToken(email));
-        return Response.temporaryRedirect(idp.getProviderAuthURL("signin/callback", state)).build();
+                                    @QueryParam("email") String email) throws OpenIdResourceCallbackException {
+        try {
+            IdentityProvider idp = getIdentityProvider(identityProvider);
+            final String state = tokenService.encode(new OpenIdCallbackStateToken(email));
+            return Response.temporaryRedirect(idp.getProviderAuthURL("signin/callback", state)).build();
+        } catch (Exception e) {
+            throw new OpenIdResourceCallbackException(e);
+        }
     }
 
     @GET
@@ -57,10 +61,14 @@ public class OpenIdResource extends AbstractResource {
     public Response doSignUpRequest(@PathParam("identityProvider") String identityProvider,
                                     @QueryParam("organization_id") UuidString organizationId,
                                     @QueryParam("new_organization_name") String organizationName,
-                                    @QueryParam("email") String email) {
-        IdentityProvider idp = getIdentityProvider(identityProvider);
-        final String state = tokenService.encode(new OpenIdCallbackStateToken(email, organizationId, organizationName));
-        return Response.temporaryRedirect(idp.getProviderAuthURL("signup/callback", state)).build();
+                                    @QueryParam("email") String email) throws OpenIdResourceCallbackException {
+        try {
+            IdentityProvider idp = getIdentityProvider(identityProvider);
+            final String state = tokenService.encode(new OpenIdCallbackStateToken(email, organizationId, organizationName));
+            return Response.temporaryRedirect(idp.getProviderAuthURL("signup/callback", state)).build();
+        } catch (Exception e) {
+            throw new OpenIdResourceCallbackException(e);
+        }
     }
 
 
@@ -68,7 +76,7 @@ public class OpenIdResource extends AbstractResource {
     @Path("signin/callback")
     @UnitOfWork
     public Response handleSignInCallback(@PathParam("identityProvider") String identityProvider,
-                                         @QueryParam("code") String authCode) {
+                                         @QueryParam("code") String authCode) throws OpenIdResourceCallbackException {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         final ValidationResult result = idp.handleCallback(authCode, "signin/callback");
         try {
@@ -77,6 +85,10 @@ public class OpenIdResource extends AbstractResource {
         } catch (NotFoundException e) {
             final AuthTokenDTO tokenDTO = util.newSignup(result);
             return createSignedInResponse(tokenDTO);
+        } catch (OpenIdResourceCallbackException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OpenIdResourceCallbackException(e);
         }
     }
 
@@ -85,7 +97,7 @@ public class OpenIdResource extends AbstractResource {
     @UnitOfWork
     public Response handleSignUpCallback(@PathParam("identityProvider") String identityProvider,
                                          @QueryParam("code") String authCode,
-                                         @QueryParam("state") String callbackState) {
+                                         @QueryParam("state") String callbackState) throws OpenIdResourceCallbackException {
         try {
             final OpenIdCallbackStateToken jwt = tokenService.decode(callbackState);
 
@@ -101,8 +113,12 @@ public class OpenIdResource extends AbstractResource {
                 final AuthTokenDTO tokenDTO = util.newSignup(result);
                 return createSignedInResponse(tokenDTO);
             }
+        } catch (OpenIdResourceCallbackException e) {
+            throw e;
         } catch (TokenServiceException e) {
-            throw new BadRequestException();
+            throw new OpenIdResourceCallbackException(new BadRequestException(e));
+        } catch (Exception e) {
+            throw new OpenIdResourceCallbackException(e);
         }
     }
 
