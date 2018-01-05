@@ -18,9 +18,9 @@ import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.TokenGenerator;
 
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -32,15 +32,13 @@ public class SignInResourceTest {
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     private final JwtTokenService tokenService = new JwtTokenServiceImpl("secret");
-    //TODO: TestUtil.resourceTestRule uses another (mocked) JwtAuthenticator. This might cause bugs in future tests.
-    private final OpenIdResourceAuthUtil authResourceUtil = new OpenIdResourceAuthUtil(new JwtAuthenticator(tokenService), credentialsDao, peopleDao, organizationsDao);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new SignInResource(authResourceUtil))
+            .addResource(new SignInResource(new TokenGenerator(new JwtAuthenticator(tokenService), credentialsDao)))
             .build();
 
-    public SignInResourceTest() throws UnsupportedEncodingException {
+    public SignInResourceTest() {
     }
 
     @Before

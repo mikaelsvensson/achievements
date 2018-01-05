@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.data.dao;
 
+import com.google.api.client.util.Strings;
 import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
 import se.devscout.achievements.server.data.model.Organization;
@@ -39,13 +40,14 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     @Override
     public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException, DuplicateCustomIdentifier {
         final Person person = read(id);
-//        verifyCustomIdentifier(person.getOrganization(), properties);
+        //TODO: Will verifyCustomIdentifier cause problems here because it was designed for create, not update? For the importer?
+        verifyCustomIdentifier(person.getOrganization(), properties);
         person.apply(properties);
         return super.persist(person);
     }
 
     private void verifyCustomIdentifier(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
-        if (isExistingCustomId(parent, properties.getCustomIdentifier())) {
+        if (!Strings.isNullOrEmpty(properties.getCustomIdentifier()) && isExistingCustomId(parent, properties.getCustomIdentifier())) {
             throw new DuplicateCustomIdentifier("Another person within " + parent.getName() + " already has the identifier " + properties.getCustomIdentifier());
         }
     }

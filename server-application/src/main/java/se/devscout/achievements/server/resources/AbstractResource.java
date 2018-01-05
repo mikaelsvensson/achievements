@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.resources;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import se.devscout.achievements.server.api.*;
@@ -90,12 +91,18 @@ abstract class AbstractResource {
                     .map(entry -> new PersonAttribute(entry.getKey(), entry.getValue()))
                     .collect(Collectors.toSet()));
         }
+        if (Strings.isNullOrEmpty(src.custom_identifier)) {
+            dest.setCustomIdentifier(null);
+        }
     }
 
     private void mapPersonExtras(PersonProperties src, PersonDTO dest) {
         if (src.getAttributes() != null) {
             dest.attr = src.getAttributes().stream()
                     .collect(Collectors.toMap(PersonAttribute::getKey, PersonAttribute::getValue));
+        }
+        if (Strings.isNullOrEmpty(src.getCustomIdentifier())) {
+            dest.custom_identifier = null;
         }
     }
 

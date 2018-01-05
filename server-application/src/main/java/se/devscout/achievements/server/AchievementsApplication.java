@@ -1,5 +1,6 @@
 package se.devscout.achievements.server;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -22,8 +23,9 @@ import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.EmailIdentityProvider;
-import se.devscout.achievements.server.auth.openid.GoogleIdentityProvider;
-import se.devscout.achievements.server.auth.openid.MicrosoftIdentityProvider;
+import se.devscout.achievements.server.auth.openid.GoogleTokenValidator;
+import se.devscout.achievements.server.auth.openid.MicrosoftTokenValidator;
+import se.devscout.achievements.server.auth.openid.OpenIdIdentityProvider;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
@@ -33,6 +35,7 @@ import se.devscout.achievements.server.mail.SmtpSender;
 import se.devscout.achievements.server.resources.*;
 import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
 import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
+import se.devscout.achievements.server.resources.authenticator.TokenGenerator;
 import se.devscout.achievements.server.resources.authenticator.User;
 import se.devscout.achievements.server.resources.exceptionhandling.CallbackResourceExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolationExceptionMapper;
@@ -74,7 +77,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
 
-        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
+        final JwtAuthenticator authenticator = new JwtAuthenticator(jwtTokenService);
+        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, authenticator));
 
         environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
@@ -88,17 +92,27 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
 //        environment.jersey().register(new SignInResource(authResourceUtil));
+        final TokenGenerator tokenGenerator = new TokenGenerator(authenticator, credentialsDao);
         environment.jersey().register(new OpenIdResource(
-                new OpenIdResourceAuthUtil(
-                        new JwtAuthenticator(jwtTokenService),
-                        credentialsDao,
-                        peopleDao,
-                        organizationsDao
-                ),
                 jwtTokenService,
-                new GoogleIdentityProvider(config.getAuthentication().getGoogleClientId(), config.getAuthentication().getGoogleClientSecret(), ClientBuilder.newClient()),
-                new MicrosoftIdentityProvider(config.getAuthentication().getMicrosoftClientId(), config.getAuthentication().getMicrosoftClientSecret(), ClientBuilder.newClient()),
-                new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()))));
+                ImmutableMap.of("google",
+                        new OpenIdIdentityProvider(
+                                "https://accounts.google.com/o/oauth2/v2/auth",
+                                config.getAuthentication().getGoogleClientId(),
+                                config.getAuthentication().getGoogleClientSecret(),
+                                ClientBuilder.newClient(),
+                                "https://www.googleapis.com/oauth2/v4/token",
+                                new GoogleTokenValidator(config.getAuthentication().getGoogleClientId())),
+                        "microsoft",
+                        new OpenIdIdentityProvider(
+                                "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+                                config.getAuthentication().getMicrosoftClientId(),
+                                config.getAuthentication().getMicrosoftClientSecret(),
+                                ClientBuilder.newClient(),
+                                "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                                new MicrosoftTokenValidator()),
+                        "email",
+                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()))), tokenGenerator, credentialsDao, peopleDao, organizationsDao));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
@@ -112,10 +126,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new CredentialsDaoImpl(sessionFactory);
     }
 
-    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService) {
+    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtAuthenticator jwtAuthenticator) {
 
         PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
-        JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(jwtTokenService);
 
         final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
 
