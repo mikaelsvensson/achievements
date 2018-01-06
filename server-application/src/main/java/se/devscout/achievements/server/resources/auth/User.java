@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.resources.authenticator;
+package se.devscout.achievements.server.resources.auth;
 
 import java.security.Principal;
 import java.util.Set;

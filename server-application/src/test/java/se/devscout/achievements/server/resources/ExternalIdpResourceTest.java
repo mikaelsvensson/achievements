@@ -13,8 +13,7 @@ import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
-import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
-import se.devscout.achievements.server.resources.authenticator.TokenGenerator;
+import se.devscout.achievements.server.resources.auth.ExternalIdpResource;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -26,7 +25,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class OpenIdResourceTest {
+public class ExternalIdpResourceTest {
 
     private final JwtTokenService tokenService = new JwtTokenServiceImpl("secret");
     private final PeopleDao peopleDao = mock(PeopleDao.class);
@@ -37,12 +36,9 @@ public class OpenIdResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, false)
-            .addResource(new OpenIdResource(
+            .addResource(new ExternalIdpResource(
                     tokenService,
                     ImmutableMap.of("provider", identityProvider),
-                    new TokenGenerator(
-                            new JwtAuthenticator(tokenService),
-                            credentialsDao),
                     credentialsDao,
                     peopleDao,
                     organizationsDao))
@@ -84,7 +80,7 @@ public class OpenIdResourceTest {
 
     @Test
     public void doSignInRequest_externalIdp_noEmailAddress() throws Exception {
-        when(identityProvider.getProviderAuthURL(anyString(), any(URI.class))).thenReturn(URI.create("http://google.example.com/"));
+        when(identityProvider.getRedirectUri(anyString(), any(URI.class))).thenReturn(URI.create("http://google.example.com/"));
         final Response response = resources
                 .target("/openid/provider/signin")
                 .request()

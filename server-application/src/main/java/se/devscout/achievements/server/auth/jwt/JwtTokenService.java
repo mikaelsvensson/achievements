@@ -7,5 +7,5 @@ import java.util.Map;
 public interface JwtTokenService {
     String encode(String subject, Map<String, String> claims);
 
-    DecodedJWT decode(String token) throws TokenServiceException;
+    DecodedJWT decode(String token) throws JwtTokenServiceException;
 }

@@ -13,8 +13,7 @@ import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
-import se.devscout.achievements.server.resources.authenticator.User;
+import se.devscout.achievements.server.resources.auth.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -37,11 +36,10 @@ public class TestUtil {
     }
 
     public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, Boolean followRedirects) {
-        final JwtAuthenticator authenticator = new JwtAuthenticator(mock(JwtTokenService.class));
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
                 mockHibernateBundle(),
                 credentialsDao,
-                authenticator
+                mock(JwtTokenService.class)
         );
 
         return ResourceTestRule.builder()

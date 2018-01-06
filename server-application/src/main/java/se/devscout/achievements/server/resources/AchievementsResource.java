@@ -13,7 +13,7 @@ import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.resources.authenticator.User;
+import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;

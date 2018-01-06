@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-abstract class AbstractResource {
+public abstract class AbstractResource {
     final ModelMapper toDtoMapper;
     final ModelMapper fromDtoMapper;
 
     @Context
     protected UriInfo uriInfo;
 
-    AbstractResource() {
+    protected AbstractResource() {
         toDtoMapper = new ModelMapper();
         toDtoMapper.getConfiguration().setFieldMatchingEnabled(true);
         toDtoMapper.getConfiguration().setSourceNameTokenizer(NameTokenizers.CAMEL_CASE);
@@ -106,7 +106,7 @@ abstract class AbstractResource {
         }
     }
 
-    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
+    OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
         final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
         for (Achievement achievement : achievements) {
             final int stepCount = achievement.getSteps().size();

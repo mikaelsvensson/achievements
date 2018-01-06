@@ -88,6 +88,7 @@ public class MockUtil {
             final Organization organization = mockOrganization("Acme Inc.");
             final Person person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
             final Credentials credentials = new Credentials(USERNAME_READER, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
+            credentials.setId(UUID.randomUUID());
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_READER))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
@@ -97,6 +98,7 @@ public class MockUtil {
             final Organization organization = mockOrganization("Acme Inc.");
             final Person person = mockPerson(organization, "Alice Editor", "alice_editor", Roles.EDITOR);
             final Credentials credentials = new Credentials(USERNAME_EDITOR, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
+            credentials.setId(UUID.randomUUID());
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_EDITOR))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }

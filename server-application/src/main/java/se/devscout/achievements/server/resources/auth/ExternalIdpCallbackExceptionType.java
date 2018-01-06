@@ -1,6 +1,6 @@
-package se.devscout.achievements.server.resources;
+package se.devscout.achievements.server.resources.auth;
 
-public enum OpenIdResourceCallbackExceptionType {
+public enum ExternalIdpCallbackExceptionType {
     UNSPECIFIED,
     UNKNOWN_USER,
     UNKNOWN_ORGANIZATION,

@@ -43,11 +43,11 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     }
 
     @Override
-    public DecodedJWT decode(String token) throws TokenServiceException {
+    public DecodedJWT decode(String token) throws JwtTokenServiceException {
         try {
             return verifier.verify(token);
         } catch (JWTVerificationException e) {
-            throw new TokenServiceException(e);
+            throw new JwtTokenServiceException(e);
         }
     }
 }

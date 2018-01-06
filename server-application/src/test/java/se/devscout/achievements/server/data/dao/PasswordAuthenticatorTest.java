@@ -5,8 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.data.model.CredentialsType;
-import se.devscout.achievements.server.resources.authenticator.PasswordAuthenticator;
-import se.devscout.achievements.server.resources.authenticator.User;
+import se.devscout.achievements.server.resources.auth.PasswordAuthenticator;
+import se.devscout.achievements.server.resources.auth.User;
 
 import java.util.Optional;
 

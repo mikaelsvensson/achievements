@@ -29,7 +29,7 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         this.tokenValidator = tokenValidator;
     }
 
-    public URI getProviderAuthURL(String callbackState, URI callbackUri) {
+    public URI getRedirectUri(String callbackState, URI callbackUri) {
         return UriBuilder.fromUri(authEndpoint)
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")
@@ -53,13 +53,13 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         data.putSingle("redirect_uri", callbackUri.toString());
         data.putSingle("client_secret", clientSecret);
 
-        final TokenResponse tokenResponse = client.
+        final OpenIdTokenResponse openIdTokenResponse = client.
                 target(tokenUri)
                 .request()
                 .post(Entity.form(data))
-                .readEntity(TokenResponse.class);
+                .readEntity(OpenIdTokenResponse.class);
 
-        final String idToken = tokenResponse.id_token;
+        final String idToken = openIdTokenResponse.id_token;
 
         return parseToken(idToken);
     }

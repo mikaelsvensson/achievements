@@ -11,7 +11,7 @@ import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
-import se.devscout.achievements.server.resources.authenticator.User;
+import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.ConstraintViolation;

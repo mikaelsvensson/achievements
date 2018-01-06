@@ -1,7 +1,7 @@
 package se.devscout.achievements.server.auth.openid;
 
 //TODO: These properties are standardized by OpenId Connect, right?
-public class TokenResponse {
+public class OpenIdTokenResponse {
     public String token_type;
     public String scope;
     public long expires_in;

@@ -6,31 +6,31 @@ import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.IdentityProviderException;
 import se.devscout.achievements.server.auth.ValidationResult;
+import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
-import se.devscout.achievements.server.auth.jwt.TokenServiceException;
+import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
-import se.devscout.achievements.server.resources.OpenIdCallbackStateTokenService;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 public class EmailIdentityProvider implements IdentityProvider {
 
-    private final OpenIdCallbackStateTokenService jwtTokenService;
+    private final JwtSignUpTokenService jwtTokenService;
     private EmailSender emailSender;
     private CredentialsValidator tokenValidator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailIdentityProvider.class);
 
     public EmailIdentityProvider(JwtTokenService jwtTokenService, EmailSender emailSender) {
-        this.jwtTokenService = new OpenIdCallbackStateTokenService(jwtTokenService);
+        this.jwtTokenService = new JwtSignUpTokenService(jwtTokenService);
         this.emailSender = emailSender;
         this.tokenValidator = new EmailTokenValidator(jwtTokenService);
     }
 
     @Override
-    public URI getProviderAuthURL(String callbackState, URI callbackUri) throws IdentityProviderException {
+    public URI getRedirectUri(String callbackState, URI callbackUri) throws IdentityProviderException {
 
         final URI confirmationUri = getSignInLink(callbackUri, callbackState);
 
@@ -42,7 +42,7 @@ public class EmailIdentityProvider implements IdentityProvider {
 
             //TODO: Do not hard-code hostname here:
             return URI.create("http://localhost:63344/#signin/check-mail-box");
-        } catch (TokenServiceException e) {
+        } catch (JwtTokenServiceException e) {
             //TODO: Unit test for when TokenServiceException happens
             LOGGER.warn("Could not read JWT token containing e-mail address", e);
             throw new IdentityProviderException("Could not read JWT token containing e-mail address", e);

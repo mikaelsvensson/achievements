@@ -10,15 +10,13 @@ import org.junit.Test;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.dao.OrganizationsDao;
-import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.CredentialsType;
-import se.devscout.achievements.server.resources.authenticator.JwtAuthenticator;
-import se.devscout.achievements.server.resources.authenticator.TokenGenerator;
+import se.devscout.achievements.server.resources.auth.SignInResource;
 
 import javax.ws.rs.core.Response;
 
@@ -27,15 +25,13 @@ import static org.mockito.Mockito.*;
 
 public class SignInResourceTest {
 
-    private final PeopleDao peopleDao = mock(PeopleDao.class);
-    private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     private final JwtTokenService tokenService = new JwtTokenServiceImpl("secret");
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new SignInResource(new TokenGenerator(new JwtAuthenticator(tokenService), credentialsDao)))
+            .addResource(new SignInResource(new JwtSignInTokenService(tokenService), credentialsDao))
             .build();
 
     public SignInResourceTest() {
@@ -60,7 +56,7 @@ public class SignInResourceTest {
 
         assertThat(dto.token).isNotEmpty();
         final DecodedJWT actual = tokenService.decode(dto.token);
-        assertThat(actual.getSubject()).isEqualTo("Alice Editor");
+        assertThat(actual.getSubject()).isEqualTo("Alice Reader");
     }
 
     @Test

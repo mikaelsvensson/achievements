@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.resources.authenticator;
+package se.devscout.achievements.server.resources.auth;
 
 import com.google.common.collect.Sets;
 import io.dropwizard.auth.AuthenticationException;
