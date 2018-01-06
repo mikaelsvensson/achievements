@@ -30,7 +30,7 @@ public class EmailIdentityProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new EmailIdentityProvider(jwtTokenService, emailSender);
+        provider = new EmailIdentityProvider(jwtTokenService, emailSender, URI.create("http://gui"));
     }
 
     @Test

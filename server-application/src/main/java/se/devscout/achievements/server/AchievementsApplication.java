@@ -72,7 +72,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
 
-        environment.jersey().register(CallbackResourceExceptionMapper.class);
+        environment.jersey().register(new CallbackResourceExceptionMapper(config.getGuiApplicationHost()));
         environment.jersey().register(ValidationExceptionMapper.class);
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
@@ -110,7 +110,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                                 new MicrosoftTokenValidator()),
                         "email",
-                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()))), credentialsDao, peopleDao, organizationsDao));
+                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()), config.getGuiApplicationHost())), credentialsDao, peopleDao, organizationsDao, config.getGuiApplicationHost(), config.getServerApplicationHost()));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 
@@ -165,7 +165,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
     @Override
     public void initialize(Bootstrap<AchievementsApplicationConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
-        bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
         bootstrap.addBundle(new MigrationsBundle<AchievementsApplicationConfiguration>() {
             @Override
             public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {

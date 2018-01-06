@@ -41,7 +41,9 @@ public class ExternalIdpResourceTest {
                     ImmutableMap.of("provider", identityProvider),
                     credentialsDao,
                     peopleDao,
-                    organizationsDao))
+                    organizationsDao,
+                    URI.create("http://gui"),
+                    URI.create("http://server")))
             .build();
 
     @Test
@@ -55,7 +57,7 @@ public class ExternalIdpResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
-        assertThat(redirectURI.toString()).endsWith("/#signin-failed/system-error");
+        assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin-failed/system-error");
     }
 
     @Test
@@ -69,7 +71,7 @@ public class ExternalIdpResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
-        assertThat(redirectURI.toString()).endsWith("/#signin/check-mail-box");
+        assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin/check-mail-box");
     }
 
     @Test
@@ -80,7 +82,7 @@ public class ExternalIdpResourceTest {
 
     @Test
     public void doSignInRequest_externalIdp_noEmailAddress() throws Exception {
-        when(identityProvider.getRedirectUri(anyString(), any(URI.class))).thenReturn(URI.create("http://google.example.com/"));
+        when(identityProvider.getRedirectUri(anyString(), any(URI.class))).thenAnswer(invocation -> invocation.getArgument(1));
         final Response response = resources
                 .target("/openid/provider/signin")
                 .request()
@@ -88,7 +90,8 @@ public class ExternalIdpResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
-        assertThat(redirectURI.toString()).contains("google");
+        assertThat(redirectURI.toString()).isEqualTo("http://server/api/openid/provider/signin/callback");
+
     }
 
     @Test

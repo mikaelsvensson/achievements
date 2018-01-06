@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 //TODO: Test this resource!
-//TODO: Rename resource since the "e-mail provider" is not an OpenID IdP.
 @Path("openid/{identityProvider}")
 public class ExternalIdpResource extends AbstractAuthResource {
 
@@ -30,18 +29,22 @@ public class ExternalIdpResource extends AbstractAuthResource {
     private CredentialsDao credentialsDao;
     private PeopleDao peopleDao;
     private OrganizationsDao organizationsDao;
+    private URI guiApplicationHost;
+    private URI serverApplicationHost;
 
     public ExternalIdpResource(JwtTokenService tokenService,
                                Map<String, IdentityProvider> identityProviders,
                                CredentialsDao credentialsDao,
                                PeopleDao peopleDao,
-                               OrganizationsDao organizationsDao) {
+                               OrganizationsDao organizationsDao, URI guiApplicationHost, URI serverApplicationHost) {
         super(new JwtSignInTokenService(tokenService), credentialsDao);
         this.identityProviders = identityProviders;
         this.callbackStateTokenService = new JwtSignUpTokenService(tokenService);
         this.credentialsDao = credentialsDao;
         this.peopleDao = peopleDao;
         this.organizationsDao = organizationsDao;
+        this.guiApplicationHost = guiApplicationHost;
+        this.serverApplicationHost = serverApplicationHost;
     }
 
     @GET
@@ -98,8 +101,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     private URI getCallbackUri(final String identityProvider, String path) {
-        //TODO: Do not hard-code the hostname here:
-        return URI.create("http://localhost:8080/api/openid/" + identityProvider + "/" + path);
+        return URI.create(StringUtils.appendIfMissing(serverApplicationHost.toString(), "/") + "api/openid/" + identityProvider + "/" + path);
     }
 
     @GET
@@ -133,8 +135,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     private Response createSignedInResponse(AuthTokenDTO tokenDTO) {
-        //TODO: Do not hard-code localhost in redirection URLs
-        return Response.temporaryRedirect(URI.create("http://localhost:63344/#signin/" + tokenDTO.token)).build();
+        return Response.temporaryRedirect(URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin/" + tokenDTO.token)).build();
     }
 
     private IdentityProvider getIdentityProvider(String identityProvider) {

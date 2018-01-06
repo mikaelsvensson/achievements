@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.auth.email;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.CredentialsValidator;
@@ -22,11 +23,13 @@ public class EmailIdentityProvider implements IdentityProvider {
     private CredentialsValidator tokenValidator;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailIdentityProvider.class);
+    private URI guiApplicationHost;
 
-    public EmailIdentityProvider(JwtTokenService jwtTokenService, EmailSender emailSender) {
+    public EmailIdentityProvider(JwtTokenService jwtTokenService, EmailSender emailSender, URI guiApplicationHost) {
         this.jwtTokenService = new JwtSignUpTokenService(jwtTokenService);
         this.emailSender = emailSender;
         this.tokenValidator = new EmailTokenValidator(jwtTokenService);
+        this.guiApplicationHost = guiApplicationHost;
     }
 
     @Override
@@ -40,8 +43,7 @@ public class EmailIdentityProvider implements IdentityProvider {
 
             sendEmail(email, confirmationUri);
 
-            //TODO: Do not hard-code hostname here:
-            return URI.create("http://localhost:63344/#signin/check-mail-box");
+            return URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin/check-mail-box");
         } catch (JwtTokenServiceException e) {
             //TODO: Unit test for when TokenServiceException happens
             LOGGER.warn("Could not read JWT token containing e-mail address", e);

@@ -7,9 +7,30 @@ import se.devscout.achievements.server.mail.SmtpSenderConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 
 public class AchievementsApplicationConfiguration extends Configuration {
     private Long maxOrganizationCount;
+
+    private URI serverApplicationHost;
+
+    private URI guiApplicationHost;
+
+    public URI getServerApplicationHost() {
+        return serverApplicationHost;
+    }
+
+    public void setServerApplicationHost(URI serverApplicationHost) {
+        this.serverApplicationHost = serverApplicationHost;
+    }
+
+    public URI getGuiApplicationHost() {
+        return guiApplicationHost;
+    }
+
+    public void setGuiApplicationHost(URI guiApplicationHost) {
+        this.guiApplicationHost = guiApplicationHost;
+    }
 
     @Valid
     @NotNull

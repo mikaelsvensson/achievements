@@ -1,4 +1,6 @@
 maxOrganizationCount: 10
+serverApplicationHost: http://localhost:8080
+guiApplicationHost: http://localhost:8080
 
 server:
   rootPath: /api/
