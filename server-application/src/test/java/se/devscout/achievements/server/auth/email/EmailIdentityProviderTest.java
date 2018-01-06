@@ -99,13 +99,11 @@ public class EmailIdentityProviderTest {
         }
     }
 
-    @Test(expected = IdentityProviderException.class)
+    @Test
     public void handleCallback_tokenProblem() throws JwtTokenServiceException {
         when(jwtTokenService.decode(eq("authorization_code"))).thenThrow(new JwtTokenServiceException(new Exception()));
-        try {
-            final ValidationResult result = provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
-        } finally {
-            verify(jwtTokenService).decode(eq("authorization_code"));
-        }
+        final ValidationResult result = provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
+        assertThat(result.isValid()).isFalse();
+        verify(jwtTokenService).decode(eq("authorization_code"));
     }
 }
