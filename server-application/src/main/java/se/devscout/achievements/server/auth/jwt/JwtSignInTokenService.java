@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public class JwtSignInTokenService {
 
-    private static final String ORGANIZATION_ID = "organizationId";
-    private static final String EMAIL = "email";
+    public static final String ORGANIZATION_ID = "organizationId";
+    public static final String EMAIL = "email";
 
     private final JwtTokenService jwtTokenService;
 

@@ -1,7 +1,7 @@
 package se.devscout.achievements.server.auth.jwt;
 
 public class JwtTokenServiceException extends Exception {
-    JwtTokenServiceException(Exception cause) {
+    public JwtTokenServiceException(Exception cause) {
         super(cause);
     }
 }
