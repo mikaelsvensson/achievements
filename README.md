@@ -23,12 +23,16 @@ Yes, visit https://scout-admin.herokuapp.com.
 
 # How?
 
-Required to run the application (back-end and front-end):
+Required to host the application (end-users of course only need a web browser):
 
- * Maven
- * Docker
+ * Java 8
+ * Docker (maybe not strictly necessary but it does make the database set-up easier)
+ 
+Required to build and deploy the application:
+
  * Java 8 SDK
- * NPM
+ * Maven
+ * npm
  
 Strongly recommended:
 
@@ -57,7 +61,6 @@ Visit http://localhost:9090/
 ## Debug Locally
 
 Start back-end
-
 
     $ docker-compose up database
     $ java -jar server-application-1.0-SNAPSHOT.jar server environments/local.yaml -Ddw.database.url=jdbc:postgresql://localhost:6543/achievements
