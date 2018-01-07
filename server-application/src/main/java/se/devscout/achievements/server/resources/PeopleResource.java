@@ -7,10 +7,7 @@ import com.google.common.collect.Lists;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.slf4j.LoggerFactory;
-import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
-import se.devscout.achievements.server.api.OrganizationBaseDTO;
-import se.devscout.achievements.server.api.PersonBaseDTO;
-import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
@@ -25,7 +22,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("organizations/{organizationId}/people")
@@ -176,10 +176,10 @@ public class PeopleResource extends AbstractResource {
 
             List<PersonDTO> values = values1.stream().map(map -> {
                 final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
-                dto.attr = new HashMap<>();
+                dto.attributes = new ArrayList<>();
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     if (entry.getKey().startsWith("attr.")) {
-                        dto.attr.put(entry.getKey().substring("attr.".length()), entry.getValue());
+                        dto.attributes.add(new PersonAttributeDTO(entry.getKey().substring("attr.".length()), entry.getValue()));
                     }
                 }
                 return dto;

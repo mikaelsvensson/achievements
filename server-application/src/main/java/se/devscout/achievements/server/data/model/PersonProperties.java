@@ -94,7 +94,9 @@ public class PersonProperties {
         email = that.email;
         customIdentifier = that.customIdentifier;
         attributes.clear();
-        attributes.addAll(that.attributes);
+        if (that.attributes != null) {
+            attributes.addAll(that.attributes);
+        }
     }
 
     public String getCustomIdentifier() {

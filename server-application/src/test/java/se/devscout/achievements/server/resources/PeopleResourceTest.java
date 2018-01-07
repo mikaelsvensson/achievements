@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
+import se.devscout.achievements.server.api.PersonAttributeDTO;
 import se.devscout.achievements.server.api.PersonBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.Roles;
@@ -386,7 +387,7 @@ public class PeopleResourceTest {
                 .request()
                 .put(Entity.json(Arrays.asList(
                         new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonMap("title", "Boss"))
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonList(new PersonAttributeDTO("title", "Boss")))
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -411,7 +412,7 @@ public class PeopleResourceTest {
         assertThat(updateCaptor.getValue().getCustomIdentifier()).isEqualTo("aaa");
         assertThat(updateCaptor.getValue().getName()).isEqualTo("Alicia");
         assertThat(updateCaptor.getValue().getEmail()).isEqualTo("alice@example.com");
-        assertThat(updateCaptor.getValue().getAttributes()).isEmpty();
+        assertThat(updateCaptor.getValue().getAttributes()).isNull();
 
         verify(organizationsDao).read(eq(org.getId()));
     }

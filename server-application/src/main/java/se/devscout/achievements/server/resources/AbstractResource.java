@@ -86,9 +86,9 @@ public abstract class AbstractResource {
     }
 
     private void mapPersonExtras(PersonDTO src, PersonProperties dest) {
-        if (src.attr != null) {
-            dest.setAttributes(src.attr.entrySet().stream()
-                    .map(entry -> new PersonAttribute(entry.getKey(), entry.getValue()))
+        if (src.attributes != null) {
+            dest.setAttributes(src.attributes.stream()
+                    .map(entry -> map(entry, PersonAttribute.class))
                     .collect(Collectors.toSet()));
         }
         if (Strings.isNullOrEmpty(src.custom_identifier)) {
@@ -98,8 +98,9 @@ public abstract class AbstractResource {
 
     private void mapPersonExtras(PersonProperties src, PersonDTO dest) {
         if (src.getAttributes() != null) {
-            dest.attr = src.getAttributes().stream()
-                    .collect(Collectors.toMap(PersonAttribute::getKey, PersonAttribute::getValue));
+            dest.attributes = src.getAttributes().stream()
+                    .map(attr -> new PersonAttributeDTO(attr.key, attr.value))
+                    .collect(Collectors.toList());
         }
         if (Strings.isNullOrEmpty(src.getCustomIdentifier())) {
             dest.custom_identifier = null;
