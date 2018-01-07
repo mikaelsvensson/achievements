@@ -7,18 +7,19 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "build:production": "webpack -p",
-    "start": "webpack-dev-server --hot --port 63344"
+    "start": "webpack-dev-server --hot --port 8081"
   },
   "author": "Mikael Svensson",
   "license": "ISC",
   "dependencies": {
     "bulma": "^0.6.1",
+    "flat": "^4.0.0",
     "handlebars": "4.0.10",
     "jquery": "3.2.1",
     "mdi": "^2.1.19",
     "node-sass": "^4.7.2",
-    "sass-loader": "^6.0.6",
-    "remarkable": "^1.7.1"
+    "remarkable": "^1.7.1",
+    "sass-loader": "^6.0.6"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

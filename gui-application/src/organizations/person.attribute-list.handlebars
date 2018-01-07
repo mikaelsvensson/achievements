@@ -1,0 +1,33 @@
+{{#each .}}
+<div class="field is-horizontal">
+    <div class="field-body">
+        <div class="field has-addons">
+            <p class="control">
+                <input class="input" type="text" name="attributes.{{@index}}.key" value="{{key}}"
+                       placeholder="Attributnamn">
+            </p>
+            <p class="control">
+                <input class="input" type="text" name="attributes.{{@index}}.value"
+                       value="{{value}}" placeholder="Värde">
+            </p>
+            <p class="control">
+                <a class="button attribute-remove-button" data-index="{{@index}}">
+                    <span class="icon is-small">
+                        <i class="mdi mdi-delete mdi-dark mdi-18px"></i>
+                    </span>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{{/each}}
+<div class="field">
+    <p class="control">
+        <a class="button is-text" id="attribute-add-button">
+            <span class="icon is-small">
+                <i class="mdi mdi-plus mdi-dark mdi-18px"></i>
+            </span>
+            <span>Nytt attribut</span>
+        </a>
+    </p>
+</div>

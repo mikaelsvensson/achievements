@@ -1,8 +1,10 @@
 import $ from "jquery";
 import {createOnFailHandler, get, isLoggedIn, put} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
+import {unflatten} from 'flat';
 
 const templatePerson = require("./person.handlebars");
+const templatePersonAttributeList = require("./person.attribute-list.handlebars");
 const templatePersonSummary = require("./person.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 
@@ -18,6 +20,32 @@ export function renderPerson(appPathParams) {
         responseData.isLoggedIn = isLoggedIn();
 
         updateView(templatePerson(responseData));
+
+        const getAttributeList = function (elementInForm) {
+            const button = $(elementInForm);
+            const form = button.closest('form');
+            const payload = unflatten(getFormData(form));
+            console.log(payload);
+            return payload.attributes || [];
+        };
+
+        const updateAttributeList = function () {
+            updateView(templatePersonAttributeList(responseData.attributes), $('#person-attributes-list'));
+
+            $('#app').find('.attribute-remove-button').click(function (e) {
+                responseData.attributes = getAttributeList(this);
+                responseData.attributes.splice(this.dataset.index, 1);
+                updateAttributeList();
+            });
+
+            $('#attribute-add-button').click(function (e) {
+                responseData.attributes = getAttributeList(this);
+                responseData.attributes.push({key: null, value: null});
+                updateAttributeList();
+            });
+        };
+
+        updateAttributeList();
 
         get('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
             responseData.achievements.forEach((achievement => {
@@ -39,7 +67,8 @@ export function renderPerson(appPathParams) {
         $('#person-save-button').click(function (e) {
             const button = $(this);
             const form = button.addClass('is-loading').closest('form');
-            put('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, getFormData(form), function (responseData, responseStatus, jqXHR) {
+            const payload = unflatten(getFormData(form));
+            put('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, payload, function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading');
                 renderPerson(appPathParams);
             }, createOnFailHandler(form.find('.errors'), button));

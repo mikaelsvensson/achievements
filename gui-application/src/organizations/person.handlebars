@@ -32,10 +32,22 @@
                             e-postadress eller telefonnummer. Det här värdet måste inte anges men om det anges så måste
                             det vara unikt.</p>
                     </div>
+                    <div class="field">
+                        <label class="label">Egna attribut</label>
+                        <p class="help">Här kan du fylla i data som är viktiga för er men som egentligen har inte så
+                            mycket med märken att göra. Kan exempelvis användas för att kunna söka efter personer
+                            baserat på något annat än namn.</p>
+                    </div>
 
-                    <div class="control">
-                        <button class="button is-primary" type="button" id="person-save-button">Spara</button>
-                        <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                    <div id="person-attributes-list"></div>
+
+                    <br>
+
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary" type="button" id="person-save-button">Spara</button>
+                            <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                        </div>
                     </div>
 
                     <div class="errors"/>

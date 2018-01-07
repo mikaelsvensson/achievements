@@ -12,6 +12,9 @@
                     <p>Hej, {{person.name}}.</p>
                     <p>Din e-postadress är {{person.email}}.</p>
                     <p>Du är med i kåren <a href="#karer/{{organization.id}}">{{organization.name}}</a>.</p>
+                    {{#each person.attributes}}
+                    <p>{{key}}: {{value}}</p>
+                    {{/each}}
                 </div>
             </div>
             <div class="column">
