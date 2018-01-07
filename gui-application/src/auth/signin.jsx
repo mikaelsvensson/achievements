@@ -1,11 +1,14 @@
 import $ from "jquery";
-import {updateView, getFormData} from "../util/view.jsx";
-import {post, setCredentials, setToken, createOnFailHandler} from "../util/api.jsx";
+import {getFormData, updateView} from "../util/view.jsx";
+import {createOnFailHandler, post, setCredentials, setToken} from "../util/api.jsx";
 import {navigateTo} from "../util/routing.jsx";
+
 const templateSignin = require("./signin.handlebars");
 
+const API_HOST = process.env.API_HOST;
+
 export function renderSignin() {
-    updateView(templateSignin());
+    updateView(templateSignin({host: API_HOST}));
 
     $('#login-submit').click(function (e) {
         const button = $(this);
@@ -15,7 +18,7 @@ export function renderSignin() {
 
         setCredentials(formData.email, formData.password);
 
-        post('//localhost:8080/api/signin', formData, function (responseData, responseStatus, jqXHR) {
+        post('/api/signin', formData, function (responseData, responseStatus, jqXHR) {
             button.removeClass('is-loading');
             setToken(responseData.token);
 

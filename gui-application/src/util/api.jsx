@@ -2,6 +2,8 @@ import $ from "jquery";
 import {renderError} from "../error.jsx";
 import {renderErrorBlock} from "../error-block.jsx";
 
+const API_HOST = process.env.API_HOST;
+
 function beforeSendHandler(xhr) {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
@@ -51,7 +53,7 @@ export function unsetAuth(googleApiAuth2) {
 
 export function post(url, dataObject, onSuccess, onFail) {
     $.ajax({
-        url: url,
+        url: API_HOST + url,
         type: "POST",
         data: JSON.stringify(dataObject),
         dataType: "json",
@@ -76,7 +78,7 @@ export function putCsv(url, data, onSuccess, onFail) {
 
 function internalPut(url, contentType, data, onSuccess, onFail) {
     $.ajax({
-        url: url,
+        url: API_HOST + url,
         type: "PUT",
         data: data,
         dataType: "json",
@@ -93,7 +95,7 @@ function internalPut(url, contentType, data, onSuccess, onFail) {
 
 export function get(url, onSuccess, onFail) {
     $.ajax({
-        url: url,
+        url: API_HOST + url,
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",

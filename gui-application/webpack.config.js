@@ -52,7 +52,8 @@ module.exports = {
         HtmlWebpackPluginConfig,
         new webpack.DefinePlugin({
             "process.env": {
-                CUSTOMER_SUPPORT_EMAIL: JSON.stringify(process.env.CUSTOMER_SUPPORT_EMAIL)
+                CUSTOMER_SUPPORT_EMAIL: JSON.stringify(process.env.CUSTOMER_SUPPORT_EMAIL),
+                API_HOST: JSON.stringify(process.env.API_HOST)
             }
         })
     ]

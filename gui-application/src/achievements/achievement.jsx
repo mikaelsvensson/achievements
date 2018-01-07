@@ -10,7 +10,7 @@ const templateLoading = require("../loading.handlebars");
 
 export function renderAchievement(appPathParams) {
     updateView(templateLoading());
-    get('//localhost:8080/api/achievements/' + appPathParams[0].key, function (achievementData, responseStatus, jqXHR) {
+    get('/api/achievements/' + appPathParams[0].key, function (achievementData, responseStatus, jqXHR) {
         let templateData = achievementData;
         templateData.breadcrumbs = [
             {label: "Hem", url: '#/'},
@@ -27,9 +27,9 @@ export function renderAchievement(appPathParams) {
             $('#app').find('.create-step-button').click(function (e) {
                 const button = $(this);
                 const form = button.addClass('is-loading').closest('form');
-                post('//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                post('/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
                     button.removeClass('is-loading');
-                    get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                    get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
                         updateView(templateAchievementStepsList({
                             steps: responseData,
                             achievementId: appPathParams[0].key
@@ -51,7 +51,7 @@ export function renderAchievement(appPathParams) {
                 achievementId: appPathParams[0].key
             }), $('#achievement-steps-list'));
 
-            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
+            get('/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
                 const keys = Object.keys(progressData);
                 for (let i in keys) {
                     let key = keys[i];
@@ -61,7 +61,7 @@ export function renderAchievement(appPathParams) {
                 $(".progress-switch").click(function () {
                     const toggleButton = $(this);
                     toggleButton.addClass('is-loading');
-                    const toggleCompletedUrl = '//localhost:8080/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
+                    const toggleCompletedUrl = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
 
                     const iconNode = toggleButton.find("i.mdi");
 
@@ -77,7 +77,7 @@ export function renderAchievement(appPathParams) {
             });
         };
         if (isLoggedIn()) {
-            get('//localhost:8080/api/my/people/', function (peopleData, responseStatus, jqXHR) {
+            get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
                 let attrSummary = {};
                 peopleData.map(item => item.attr).forEach(attrs => Object.keys(attrs).forEach(attrName => {
                     if (!attrSummary[attrName]) {
@@ -97,7 +97,7 @@ export function renderAchievement(appPathParams) {
                     achievementId: appPathParams[0].key
                 }), $('#achievement-steps-config'));
 
-                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
 
                     $('#app').find('#people-filter-attr').change(function (e) {
                         const optionRawValue = $(this).val().split(/;/, 2)
@@ -110,12 +110,12 @@ export function renderAchievement(appPathParams) {
                 });
             }, function () {
                 console.log("Could not load my people");
-                get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
                     showSteps(null, null, responseData);
                 });
             });
         } else {
-            get('//localhost:8080/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+            get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
                 showSteps(null, null, responseData);
             });
         }

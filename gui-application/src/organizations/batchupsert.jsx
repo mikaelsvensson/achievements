@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, putCsv, isLoggedIn, createOnFailHandler} from "../util/api.jsx";
+import {createOnFailHandler, get, isLoggedIn, putCsv} from "../util/api.jsx";
 import {updateView} from "../util/view.jsx";
 
 const templateLoading = require("../loading.handlebars");
@@ -8,7 +8,7 @@ const templateBatchUpsertResult = require("./batchupsert.result.handlebars");
 
 export function renderBatchUpsert(appPathParams) {
 
-    get('//localhost:8080/api/organizations/' + appPathParams[0].key + "/basic", function (responseData, responseStatus, jqXHR) {
+    get('/api/organizations/' + appPathParams[0].key + "/basic", function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
             {label: "Kårer", url: '#karer/'},
@@ -26,7 +26,7 @@ export function renderBatchUpsert(appPathParams) {
             const button = $(this);
             const form = button.addClass('is-loading').closest('form');
             const data = $app.find('#import-data').val();
-            putCsv('//localhost:8080/api/organizations/' + appPathParams[0].key + "/people", data, function (responseData, responseStatus, jqXHR) {
+            putCsv('/api/organizations/' + appPathParams[0].key + "/people", data, function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading')
                 const props = {
                     result: responseData,
