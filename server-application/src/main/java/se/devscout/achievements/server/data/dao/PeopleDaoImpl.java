@@ -31,7 +31,7 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
 
     @Override
     public Person create(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
-        verifyCustomIdentifier(parent, properties);
+        verifyCustomIdentifier(parent, properties, null);
         final Person person = new ModelMapper().map(properties, Person.class);
         person.setOrganization(parent);
         return persist(person);
@@ -40,15 +40,19 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     @Override
     public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException, DuplicateCustomIdentifier {
         final Person person = read(id);
-        //TODO: Will verifyCustomIdentifier cause problems here because it was designed for create, not update? For the importer?
-        verifyCustomIdentifier(person.getOrganization(), properties);
+        verifyCustomIdentifier(person.getOrganization(), properties, id);
         person.apply(properties);
         return super.persist(person);
     }
 
-    private void verifyCustomIdentifier(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
-        if (!Strings.isNullOrEmpty(properties.getCustomIdentifier()) && isExistingCustomId(parent, properties.getCustomIdentifier())) {
-            throw new DuplicateCustomIdentifier("Another person within " + parent.getName() + " already has the identifier " + properties.getCustomIdentifier());
+    private void verifyCustomIdentifier(Organization parent, PersonProperties personProperties, Integer personId) throws DuplicateCustomIdentifier {
+        final boolean isCustomerIdentifierPotentialProblem = !Strings.isNullOrEmpty(personProperties.getCustomIdentifier());
+        if (isCustomerIdentifierPotentialProblem) {
+            final List<Person> people = findByCustomId(parent, personProperties.getCustomIdentifier());
+            final boolean personWithCustomIdExists = !people.isEmpty();
+            if (personWithCustomIdExists && (personId == null || !personId.equals(people.get(0).getId()))) {
+                throw new DuplicateCustomIdentifier("Another person within " + parent.getName() + " already has the identifier " + personProperties.getCustomIdentifier());
+            }
         }
     }
 

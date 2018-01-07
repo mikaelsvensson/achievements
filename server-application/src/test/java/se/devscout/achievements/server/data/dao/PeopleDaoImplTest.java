@@ -168,13 +168,22 @@ public class PeopleDaoImplTest {
 
     @Test
     public void update_personWithAttributes_happyPath() throws Exception {
+        update_personWithAttributes_happyPath(null, "dave");
+    }
+
+    @Test
+    public void update_personWithUnchangedCustomId_happyPath() throws Exception {
+        update_personWithAttributes_happyPath("dave", "dave");
+    }
+
+    private void update_personWithAttributes_happyPath(String initialCustomIdentifier, String updatedCustomIdentifier) {
         Integer objectUuid = database.inTransaction(() -> {
-            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), null, Roles.READER);
+            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), initialCustomIdentifier, Roles.READER);
             return dao.create(testOrganization, initialProperties);
         }).getId();
 
         database.inTransaction(() -> {
-            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), "dave", Roles.READER);
+            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), updatedCustomIdentifier, Roles.READER);
             return dao.update(objectUuid, updatedProperties);
         });
 
@@ -182,7 +191,7 @@ public class PeopleDaoImplTest {
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("David");
         assertThat(actual.getEmail()).isNull();
-        assertThat(actual.getCustomIdentifier()).isEqualTo("dave");
+        assertThat(actual.getCustomIdentifier()).isEqualTo(updatedCustomIdentifier);
         assertThat(actual.getAttributes()).hasSize(2);
         assertThat(actual.getAttributes()).contains(new PersonAttribute("favourite_colour", "blue"));
         assertThat(actual.getAttributes()).contains(new PersonAttribute("title", "administrator"));
