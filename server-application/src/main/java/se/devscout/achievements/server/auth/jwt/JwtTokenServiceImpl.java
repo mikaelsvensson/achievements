@@ -33,7 +33,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     @Override
     public String encode(String subject, Map<String, String> claims, Duration validFor) {
         JWTCreator.Builder builder = JWT.create()
-                .withExpiresAt(new Date(Instant.now().plus(validFor).getEpochSecond()))
+                .withExpiresAt(new Date(Instant.now().plus(validFor).getEpochSecond() * 1000))
                 .withIssuer(ISSUER)
                 .withSubject(subject);
         if (claims != null) {
