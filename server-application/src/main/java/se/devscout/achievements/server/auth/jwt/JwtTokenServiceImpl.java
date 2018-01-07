@@ -8,6 +8,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 
 public class JwtTokenServiceImpl implements JwtTokenService {
@@ -28,8 +31,9 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     }
 
     @Override
-    public String encode(String subject, Map<String, String> claims) {
+    public String encode(String subject, Map<String, String> claims, Duration validFor) {
         JWTCreator.Builder builder = JWT.create()
+                .withExpiresAt(new Date(Instant.now().plus(validFor).getEpochSecond()))
                 .withIssuer(ISSUER)
                 .withSubject(subject);
         if (claims != null) {

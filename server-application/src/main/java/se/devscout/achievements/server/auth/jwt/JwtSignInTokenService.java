@@ -6,6 +6,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ public class JwtSignInTokenService {
 
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String EMAIL = "email";
+    private final static Duration DURATION_60_MINS = Duration.ofMinutes(60);
 
     private final JwtTokenService jwtTokenService;
 
@@ -26,7 +28,7 @@ public class JwtSignInTokenService {
                 "id", String.valueOf(token.getPersonId()),
                 "roles", Joiner.on(' ').join(token.getRoles()));
 
-        return jwtTokenService.encode(token.getPersonName(), claims);
+        return jwtTokenService.encode(token.getPersonName(), claims, DURATION_60_MINS);
     }
 
     public JwtSignInToken decode(String token) throws JwtTokenServiceException {

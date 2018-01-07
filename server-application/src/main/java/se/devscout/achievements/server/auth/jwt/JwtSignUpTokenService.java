@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import se.devscout.achievements.server.resources.UuidString;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ public class JwtSignUpTokenService {
     private static final String ORGANIZATION_ID = "organizationId";
     private static final String ORGANIZATION_NAME = "organizationName";
     private static final String EMAIL = "email";
+    private static final Duration DURATION_15_MINS = Duration.ofMinutes(15);
 
     private final JwtTokenService jwtTokenService;
 
@@ -30,8 +32,7 @@ public class JwtSignUpTokenService {
         if (state.getEmail() != null) {
             claims.put(EMAIL, state.getEmail());
         }
-        //TODO: Tokens should expire after, say, 15 minutes
-        return jwtTokenService.encode(null, claims);
+        return jwtTokenService.encode(null, claims, DURATION_15_MINS);
     }
 
     public JwtSignUpToken decode(String token) throws JwtTokenServiceException {
