@@ -11,6 +11,13 @@
 
     <artifactId>server-application</artifactId>
 
+    <properties>
+        <apiHostName>http://localhost:8080</apiHostName>
+        <mainClass>se.devscout.achievements.server.AchievementsApplication</mainClass>
+        <heroku.appName>scout-admin</heroku.appName>
+        <heroku.configFile>environments/heroku.yaml</heroku.configFile>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>se.devscout.achievements</groupId>
@@ -94,6 +101,13 @@
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>1.23.0</version>
+            <exclusions>
+                <!-- guava-jdk5 conflicts with the guava version bundled with dropwizard -->
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava-jdk5</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
@@ -130,6 +144,9 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <executable>npm</executable>
+                            <environmentVariables>
+                                <API_HOST>${apiHostName}</API_HOST>
+                            </environmentVariables>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build:production</argument>
@@ -168,7 +185,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>se.devscout.achievements.server.AchievementsApplication</mainClass>
+                                    <mainClass>${mainClass}</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -189,5 +206,32 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>heroku</id>
+            <properties>
+                <apiHostName>https://${heroku.appName}.herokuapp.com</apiHostName>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.heroku.sdk</groupId>
+                        <artifactId>heroku-maven-plugin</artifactId>
+                        <version>2.0.2</version>
+                        <configuration>
+                            <appName>${heroku.appName}</appName>
+                            <processTypes>
+                                <web>
+                                    <![CDATA[java $JAVA_OPTS -cp target/classes:target/dependency/* -Ddw.serverApplicationHost=${apiHostName} -Ddw.guiApplicationHost=${apiHostName} ${mainClass} server ${heroku.configFile}]]></web>
+                            </processTypes>
+                            <includes>
+                                <include>${heroku.configFile}</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

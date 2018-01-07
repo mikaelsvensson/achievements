@@ -15,6 +15,7 @@ public class AchievementsApplicationConfiguration extends Configuration {
     private URI serverApplicationHost;
 
     private URI guiApplicationHost;
+    private boolean autoMigrateDatabase;
 
     public URI getServerApplicationHost() {
         return serverApplicationHost;
@@ -71,6 +72,14 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
     public void setSmtp(SmtpSenderConfiguration smtp) {
         this.smtp = smtp;
+    }
+
+    public boolean isAutoMigrateDatabase() {
+        return autoMigrateDatabase;
+    }
+
+    public void setAutoMigrateDatabase(boolean autoMigrateDatabase) {
+        this.autoMigrateDatabase = autoMigrateDatabase;
     }
 
     public static class AuthConfig {

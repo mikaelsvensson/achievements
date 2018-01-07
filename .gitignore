@@ -1,2 +1,3 @@
 /gui-application/node_modules/
 /gui-application/build/
+/heroku-configure.sh

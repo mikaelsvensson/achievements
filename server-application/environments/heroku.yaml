@@ -1,0 +1,41 @@
+maxOrganizationCount: 10
+serverApplicationHost: http://localhost:8080
+guiApplicationHost: http://localhost:8080
+
+autoMigrateDatabase: true
+
+server:
+  rootPath: /api/
+  applicationConnectors:
+    - type: http
+      port: ${PORT}
+  adminConnectors:
+    - type: http
+      port: 9001
+
+database:
+  driverClass: org.postgresql.Driver
+  url: ${JDBC_DATABASE_URL}
+  user: ${JDBC_DATABASE_USERNAME}
+  password: ${JDBC_DATABASE_PASSWORD}
+  properties:
+    hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.hbm2ddl.auto: none
+    hibernate.archive.autodetection: class, hbm
+    hibernate.show_sql: true
+
+authentication:
+  googleClientId: ${GOOGLE_CLIENT_ID}
+  googleClientSecret: ${GOOGLE_CLIENT_SECRET}
+  microsoftClientId: ${MICROSOFT_CLIENT_ID}
+  microsoftClientSecret: ${MICROSOFT_CLIENT_SECRET}
+  jwtSigningSecret: ${JWT_SIGNING_SECRET:-kQCTd0ypLpoFbRt8vTSaHp37kPsKMdh1wzDiuJUa}
+
+
+smtp:
+  host: ${SMTP_HOST}
+  port: ${SMTP_PORT}
+  username: ${SMTP_USERNAME}
+  password: ${SMTP_PASSWORD}
+  fromAddress: ${SMTP_FROM}
+  ssl: true

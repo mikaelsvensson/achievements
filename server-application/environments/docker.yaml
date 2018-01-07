@@ -2,6 +2,8 @@ maxOrganizationCount: 10
 serverApplicationHost: http://localhost:8080
 guiApplicationHost: http://localhost:8080
 
+autoMigrateDatabase: true
+
 server:
   rootPath: /api/
   applicationConnectors:

@@ -19,7 +19,7 @@ but everything has to start somewhere.
 
 # Can I Try It?
 
-This service is not yet publicly available but we plan to make it free for everyone.
+Yes, visit https://scout-admin.herokuapp.com.
 
 # How?
 
@@ -32,7 +32,8 @@ Required to run the application (back-end and front-end):
  
 Strongly recommended:
 
- * Google Client Id
+ * Google API client Id (enables users to sign in using their Google accounts)
+ * Microsoft API client id (enables users to sign in using their Outlook or Hotmail accounts)
 
 ## Run Locally
 
@@ -88,7 +89,96 @@ Step 2: Run administrative task (note that port number is 8081).
 Step 3: Start the GUI
 
     $ npm run start
+
+## Deploy to Heroku
+
+### Before you can deploy
+
+0. Create an Heroku account
+
+0. Install the Heroku CLI
+
+### First deploy
+
+Either use ```heroku-configure.sh.template``` to create a set-up script...
+
+    $ cp heroku-configure.sh.template heroku-configure.sh
+    $ chmod +x heroku-configure.sh
+    $ ./heroku-configure.sh
+
+...or do the steps manually:
+
+0. Create an Heroku application with a Postgres database
+
+    ```$ heroku apps:create scout-admin --region eu```
+
+    ```$ heroku addons:create heroku-postgresql:hobby-dev```
+
+    The application has now been created and the "Heroku config variable" DATABASE_URL has been set to
+    the correct JDBC connection string. The config variable is available as an environment variable.
+
+    The environment variable PORT will be set to the port that the application must listen on.
+
+0. Configure secrets for Heroku application if you want to enable users to sign in using Google and Microsoft:
+
+    ```$ heroku config:set GOOGLE_CLIENT_ID=...```
     
+    ```$ heroku config:set GOOGLE_CLIENT_SECRET=...```
+
+    ```$ heroku config:set MICROSOFT_CLIENT_ID=...```
+    
+    ```$ heroku config:set MICROSOFT_CLIENT_SECRET=...```
+
+0. Configure secrets for Heroku application if you want to enable users to sign in using links sent by e-mail:
+
+    ```$ heroku config:set SMTP_HOST=smtp.googlemail.com```
+    
+    ```$ heroku config:set SMTP_PORT=465```
+    
+    ```$ heroku config:set SMTP_USERNAME=your complete gmail address```
+    
+    ```$ heroku config:set SMTP_PASSWORD=your gmail password```
+    
+    ```$ heroku config:set SMTP_FROM=your complete gmail address```
+
+0. It is also highly recommended to set the JWT_SIGNING_SECRET to a random string (but of course not this particular one):
+
+    ```$ heroku config:set JWT_SIGNING_SECRET=kQCTd0ypLpoFbRt8vTSaHp37kPsKMdh1wzDiuJUa```
+
+0. Deploy to Heroku using Maven and npm (npm run from Maven)
+
+    ```$ cd server-application```
+
+    ```$ mvn heroku:deploy -Pheroku```
+
+### Subsequent deploys
+
+    $ mvn heroku:deploy -Pheroku
+    
+### Creating some test data
+
+Create an organization:
+
+    $ heroku ps:exec
+    ...
+    ~ $ curl -X POST http://localhost:9001/tasks/bootstrap-data
+
+
+Add some achievements (scout merit badges from www.scouterna.se):
+
+    $ heroku ps:exec
+    ...
+    ~ $ curl -X POST http://localhost:9001/tasks/import-badges
+
+### More reading
+
+Want to know more about Java and Heroku? Here are some reading suggestions:
+
+* https://devcenter.heroku.com/articles/getting-started-with-java
+* https://devcenter.heroku.com/articles/deploying-java
+* https://devcenter.heroku.com/articles/deploying-java-applications-with-the-heroku-maven-plugin
+* https://devcenter.heroku.com/articles/logging
+
 ## Authentication
 
 ### Signing Up

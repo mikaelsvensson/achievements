@@ -11,12 +11,18 @@ import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.chained.ChainedAuthFilter;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import liquibase.Liquibase;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.SessionFactory;
@@ -45,6 +51,7 @@ import se.devscout.achievements.server.resources.exceptionhandling.ValidationExc
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.ws.rs.client.ClientBuilder;
+import java.sql.Connection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -64,6 +71,14 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
     public void run(AchievementsApplicationConfiguration config, Environment environment) throws Exception {
         final SessionFactory sessionFactory = hibernate.getSessionFactory();
+
+        if (config.isAutoMigrateDatabase()) {
+            ManagedDataSource ds = config.getDataSourceFactory().build(environment.metrics(), "migrations");
+            try (Connection connection = ds.getConnection()) {
+                Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+                migrator.update("");
+            }
+        }
 
         final OrganizationsDao organizationsDao = new OrganizationsDaoImpl(sessionFactory, config.getMaxOrganizationCount());
         final AchievementsDao achievementsDao = new AchievementsDaoImpl(sessionFactory);
@@ -172,7 +187,12 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 return configuration.getDataSourceFactory();
             }
         });
-
+        // Enable variable substitution with environment variables
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor(false)
+                )
+        );
     }
 
     public static void main(String[] args) throws Exception {
