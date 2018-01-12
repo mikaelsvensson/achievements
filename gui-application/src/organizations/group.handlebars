@@ -1,0 +1,29 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Patrull <strong>{{name}}</strong>
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+        <form>
+            <div class="field">
+                <label class="label">Namn</label>
+                <div class="control">
+                    <input class="input" type="text" id="name" name="name"/>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary" type="button" id="group-save-button">Spara</button>
+                    <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                </div>
+            </div>
+
+            <div class="errors"/>
+
+        </form>
+    </div>
+</section>
+{{> ../_footer.handlebars}}

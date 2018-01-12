@@ -59,6 +59,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
     private final HibernateBundle<AchievementsApplicationConfiguration> hibernate = new HibernateBundle<AchievementsApplicationConfiguration>(
             Organization.class,
             Person.class,
+            Group.class,
+            GroupMembership.class,
             Credentials.class,
             Achievement.class,
             AchievementStep.class,
@@ -85,6 +87,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final AchievementStepsDao achievementStepsDao = new AchievementStepsDaoImpl(sessionFactory);
         final AchievementStepProgressDao progressDao = new AchievementStepProgressDaoImpl(sessionFactory);
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
+        final GroupsDao groupsDao = new GroupsDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
 
         environment.jersey().register(new CallbackResourceExceptionMapper(config.getGuiApplicationHost()));
@@ -104,6 +107,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
+        environment.jersey().register(new GroupsResource(groupsDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
         environment.jersey().register(new ExternalIdpResource(

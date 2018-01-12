@@ -12,6 +12,7 @@ import {renderRedirect} from "../auth/auth.redirect.jsx";
 import {renderError} from "../error.jsx";
 import {renderSignup} from "../auth/signup.jsx";
 import {renderPerson} from "../organizations/person.jsx";
+import {renderGroup} from "../organizations/group.jsx";
 import {renderBatchUpsert} from "../organizations/batchupsert.jsx";
 import {renderMyProfile} from "../my/profile.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
@@ -43,6 +44,7 @@ function renderRoute(appPath) {
         'karer/*/skapa-konto': renderOrganizationSignup,
         'karer/*/personer/importera': renderBatchUpsert,
         'karer/*/personer/*': renderPerson,
+        'karer/*/patruller/*': renderGroup,
         'marken': renderAchievements,
         'marken/*': renderAchievement,
         'signin-failed': renderSigninFailed,

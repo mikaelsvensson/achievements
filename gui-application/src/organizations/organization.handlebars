@@ -1,7 +1,7 @@
 <section class="section">
     <div class="container">
         <h1 class="title">
-            Kår {{name}}
+            Kår <strong>{{name}}</strong>
         </h1>
 
         {{> ../_breadcrumbs.handlebars}}
@@ -12,7 +12,7 @@
         </div>
 
         <div class="tile is-ancestor">
-            <div class="tile is-parent is-4">
+            <div class="tile is-parent is-3">
                 <div class="tile is-child notification">
                     <h2 class="subtitle">Kåren</h2>
 
@@ -34,7 +34,7 @@
                     </form>
                 </div>
             </div>
-            <div class="tile is-parent is-4">
+            <div class="tile is-parent is-3">
                 <div class="tile is-child notification">
                     <h2 class="subtitle">Personer</h2>
 
@@ -64,7 +64,28 @@
 
                 </div>
             </div>
-            <div class="tile is-parent is-4">
+            <div class="tile is-parent is-3">
+                <div class="tile is-child notification">
+                    <h2 class="subtitle">Patruller</h2>
+
+                    <div id="organization-groups-list"></div>
+
+                    <form>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input class="input" type="text" name="name" placeholder="Namn"/></div>
+                            <div class="control">
+                                <a class="button is-info create-group-button">
+                                    Lägg till
+                                </a>
+                            </div>
+                        </div>
+                        <div class="errors"/>
+                    </form>
+
+                </div>
+            </div>
+            <div class="tile is-parent is-3">
                 <div class="tile is-child notification">
                     <h2 class="subtitle">Märken och sånt</h2>
 

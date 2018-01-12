@@ -1,0 +1,9 @@
+{{#if groups}}
+<ul>
+    {{#each groups}}
+    <li><a href="#karer/{{../orgId}}/patruller/{{id}}" aria-current="page">{{name}}</a></li>
+    {{/each}}
+</ul>
+{{else}}
+<p>Du har inte hunnit lägga till några patruller ännu.</p>
+{{/if}}

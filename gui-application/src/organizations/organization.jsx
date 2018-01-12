@@ -4,6 +4,7 @@ import {getFormData, updateView} from "../util/view.jsx";
 
 const templateOrganization = require("./organization.handlebars");
 const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
+const templateOrganizationGroupsList = require("./organizations.groups-list.handlebars");
 const templateOrganizationSummaryList = require("./organization.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 const templateAchievementsResult = require("../achievements/achievements.result.handlebars");
@@ -33,6 +34,20 @@ export function renderOrganization(appPathParams) {
                         people: responseData,
                         orgId: appPathParams[0].key
                     }), $('#organization-people-list'));
+                });
+            }, createOnFailHandler(form.find('.errors'), button));
+        });
+
+        $app.find('.create-group-button').click(function (e) {
+            const button = $(this);
+            const form = button.addClass('is-loading').closest('form');
+            post('/api/organizations/' + appPathParams[0].key + '/groups', getFormData(form), function (responseData, responseStatus, jqXHR) {
+                button.removeClass('is-loading');
+                get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
+                    updateView(templateOrganizationPeopleList({
+                        groups: responseData,
+                        orgId: appPathParams[0].key
+                    }), $('#organization-groups-list'));
                 });
             }, createOnFailHandler(form.find('.errors'), button));
         });
@@ -67,6 +82,13 @@ export function renderOrganization(appPathParams) {
                 people: responseData,
                 orgId: appPathParams[0].key
             }), $('#organization-people-list'));
+        });
+
+        get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
+            updateView(templateOrganizationGroupsList({
+                groups: responseData,
+                orgId: appPathParams[0].key
+            }), $('#organization-groups-list'));
         });
 
         get('/api/organizations/' + appPathParams[0].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
