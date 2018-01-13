@@ -79,12 +79,14 @@ export function renderAchievement(appPathParams) {
         if (isLoggedIn()) {
             get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
                 let attrSummary = {};
-                peopleData.map(item => item.attributes).forEach(attrs => Object.keys(attrs).forEach(attrName => {
+                peopleData.map(item => item.attributes).forEach(attrs => attrs.forEach(pair => {
+                    const attrName = pair.key;
+                    const attrValue = pair.value;
                     if (!attrSummary[attrName]) {
                         attrSummary[attrName] = [];
                     }
-                    if (!attrSummary[attrName].includes(attrs[attrName])) {
-                        attrSummary[attrName].push(attrs[attrName]);
+                    if (!attrSummary[attrName].includes(attrValue)) {
+                        attrSummary[attrName].push(attrValue);
                     }
                 }));
 
@@ -100,10 +102,15 @@ export function renderAchievement(appPathParams) {
                 get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
 
                     $('#app').find('#people-filter-attr').change(function (e) {
-                        const optionRawValue = $(this).val().split(/;/, 2)
-                        const attrName = optionRawValue[0];
-                        const attrValue = optionRawValue[1];
-                        showSteps(peopleData, attrSummary, responseData, person => person.attr[attrName] == attrValue);
+                        const selectedOptionValue = $(this).val();
+                        if (selectedOptionValue) {
+                            const optionRawValue = selectedOptionValue.split(/;/, 2)
+                            const attrName = optionRawValue[0];
+                            const attrValue = optionRawValue[1];
+                            showSteps(peopleData, attrSummary, responseData, person => person.attributes.some(attr => attr.key == attrName && attr.value == attrValue));
+                        } else {
+                            showSteps(peopleData, attrSummary, responseData);
+                        }
                     });
 
                     showSteps(peopleData, attrSummary, responseData);
