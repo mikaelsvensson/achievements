@@ -93,6 +93,7 @@ public class PersonProperties {
         name = that.name;
         email = that.email;
         customIdentifier = that.customIdentifier;
+        role = that.role;
         attributes.clear();
         if (that.attributes != null) {
             attributes.addAll(that.attributes);
