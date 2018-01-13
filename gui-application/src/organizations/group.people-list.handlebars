@@ -1,0 +1,14 @@
+{{#if people}}
+{{#each people}}
+<p class="field is-marginless">
+    <button type="button" class="button is-small is-text memberships-add-button" data-person-id="{{id}}">
+            <span class="icon is-small">
+                <i class="mdi mdi-plus mdi-dark mdi-18px"></i>
+            </span>
+        <span>{{name}}</span>
+    </button>
+</p>
+{{/each}}
+{{else}}
+<p>Inga träffar</p>
+{{/if}}

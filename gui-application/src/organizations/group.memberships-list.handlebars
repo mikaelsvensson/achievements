@@ -1,0 +1,14 @@
+{{#if memberships}}
+{{#each memberships}}
+<p class="field">
+    {{person.name}}
+    <button class="button is-small memberships-remove-button" data-person-id="{{person.id}}">
+            <span class="icon is-small">
+                <i class="mdi mdi-minus mdi-dark mdi-18px"></i>
+            </span>
+    </button>
+</p>
+{{/each}}
+{{else}}
+<p>Den här patrullen har ännu inga scouter.</p>
+{{/if}}

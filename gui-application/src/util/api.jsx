@@ -68,6 +68,23 @@ export function post(url, dataObject, onSuccess, onFail) {
         );
 }
 
+export function remove(url, dataObject, onSuccess, onFail) {
+    $.ajax({
+        url: API_HOST + url,
+        type: "DELETE",
+        data: JSON.stringify(dataObject),
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        beforeSend: beforeSendHandler
+    })
+        .done(onSuccess)
+        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
+                const status = jqXHR.status;
+                renderError(`Kan inte ta bort ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
+            }
+        );
+}
+
 export function put(url, dataObject, onSuccess, onFail) {
     internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, onFail);
 }

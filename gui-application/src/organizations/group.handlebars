@@ -6,24 +6,53 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
-        <form>
-            <div class="field">
-                <label class="label">Namn</label>
-                <div class="control">
-                    <input class="input" type="text" id="name" name="name"/>
-                </div>
+        <div class="columns">
+            <div class="column">
+                <form>
+                    <div class="field">
+                        <label class="label">Namn</label>
+                        <div class="control">
+                            <input class="input" type="text" id="name" name="name"/>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary" type="button" id="group-save-button">Spara</button>
+                            <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                        </div>
+                    </div>
+
+                    <div class="errors"/>
+
+                </form>
+
             </div>
+            <div class="column">
+                <div class="box">
+                    <h2 class="subtitle">Medlemmar</h2>
 
-            <div class="field">
-                <div class="control">
-                    <button class="button is-primary" type="button" id="group-save-button">Spara</button>
-                    <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                    <div id="memberships-result"></div>
+
+                    <form>
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input class="input" type="text" id="filter" name="filter"
+                                       placeholder="Vem vill du lägga till?">
+                            </div>
+                            <div class="control">
+                                <a class="button is-info" id="memberships-search-button">
+                                    Sök
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="memberships-search-result"></div>
                 </div>
+
             </div>
-
-            <div class="errors"/>
-
-        </form>
+        </div>
     </div>
 </section>
 {{> ../_footer.handlebars}}
