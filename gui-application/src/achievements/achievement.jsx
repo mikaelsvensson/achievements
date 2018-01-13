@@ -79,7 +79,7 @@ export function renderAchievement(appPathParams) {
         if (isLoggedIn()) {
             get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
                 let attrSummary = {};
-                peopleData.map(item => item.attr).forEach(attrs => Object.keys(attrs).forEach(attrName => {
+                peopleData.map(item => item.attributes).forEach(attrs => Object.keys(attrs).forEach(attrName => {
                     if (!attrSummary[attrName]) {
                         attrSummary[attrName] = [];
                     }
