@@ -1,12 +1,26 @@
+<div class="field">
+    <label class="label">Patrull:</label>
+    <div class="control">
+        <div class="select">
+            <select id="people-filter-group">
+                <option value="">Filtrera inte</option>
+                {{#each groups}}
+                {{#if .}}
+                <option value="{{id}}">Visa bara scouter i {{name}}</option>
+                {{/if}}
+                {{/each}}
+            </select>
+        </div>
+    </div>
+</div>
 {{#if attrSummary}}
 {{#each attrSummary}}
-
 <div class="field">
     <label class="label">Filtrera på {{name}}:</label>
     <div class="control">
         <div class="select">
             <select id="people-filter-attr">
-                <option value="">Visa alla personer</option>
+                <option value="">Filtrera inte</option>
                 {{#each value}}
                 {{#if .}}
                 <option value="{{../name}};{{.}}">Visa bara {{../name}} {{.}}</option>

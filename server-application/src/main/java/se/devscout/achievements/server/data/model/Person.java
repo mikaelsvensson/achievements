@@ -60,4 +60,11 @@ public class Person extends PersonProperties {
         this.organization = organization;
     }
 
+    public Set<GroupMembership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(Set<GroupMembership> memberships) {
+        this.memberships = memberships;
+    }
 }

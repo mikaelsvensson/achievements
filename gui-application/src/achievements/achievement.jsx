@@ -77,48 +77,62 @@ export function renderAchievement(appPathParams) {
             });
         };
         if (isLoggedIn()) {
-            get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
-                let attrSummary = {};
-                peopleData.map(item => item.attributes).forEach(attrs => attrs.forEach(pair => {
-                    const attrName = pair.key;
-                    const attrValue = pair.value;
-                    if (!attrSummary[attrName]) {
-                        attrSummary[attrName] = [];
-                    }
-                    if (!attrSummary[attrName].includes(attrValue)) {
-                        attrSummary[attrName].push(attrValue);
-                    }
-                }));
 
-                const map = Object.keys(attrSummary).map(key => {
-                    return {"name": key, "value": attrSummary[key]};
-                });
-
-                updateView(templateAchievementStepsConfig({
-                    attrSummary: map,
-                    achievementId: appPathParams[0].key
-                }), $('#achievement-steps-config'));
-
-                get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-
-                    $('#app').find('#people-filter-attr').change(function (e) {
-                        const selectedOptionValue = $(this).val();
-                        if (selectedOptionValue) {
-                            const optionRawValue = selectedOptionValue.split(/;/, 2)
-                            const attrName = optionRawValue[0];
-                            const attrValue = optionRawValue[1];
-                            showSteps(peopleData, attrSummary, responseData, person => person.attributes.some(attr => attr.key == attrName && attr.value == attrValue));
-                        } else {
-                            showSteps(peopleData, attrSummary, responseData);
+            get('/api/my/groups/', function (myGroups, responseStatus, jqXHR) {
+                get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
+                    let attrSummary = {};
+                    peopleData.map(item => item.attributes).forEach(attrs => attrs.forEach(pair => {
+                        const attrName = pair.key;
+                        const attrValue = pair.value;
+                        if (!attrSummary[attrName]) {
+                            attrSummary[attrName] = [];
                         }
+                        if (!attrSummary[attrName].includes(attrValue)) {
+                            attrSummary[attrName].push(attrValue);
+                        }
+                    }));
+
+                    const map = Object.keys(attrSummary).map(key => {
+                        return {"name": key, "value": attrSummary[key]};
                     });
 
-                    showSteps(peopleData, attrSummary, responseData);
-                });
-            }, function () {
-                console.log("Could not load my people");
-                get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                    showSteps(null, null, responseData);
+                    updateView(templateAchievementStepsConfig({
+                        attrSummary: map,
+                        groups: myGroups,
+                        achievementId: appPathParams[0].key
+                    }), $('#achievement-steps-config'));
+
+
+                    get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+
+                        $('#app').find('#people-filter-group').change(function (e) {
+                            const selectedGroupId = $(this).val();
+                            if (selectedGroupId) {
+                                showSteps(peopleData, attrSummary, responseData, person => person.groups.some(grp => grp.id == selectedGroupId));
+                            } else {
+                                showSteps(peopleData, attrSummary, responseData);
+                            }
+                        });
+
+                        $('#app').find('#people-filter-attr').change(function (e) {
+                            const selectedOptionValue = $(this).val();
+                            if (selectedOptionValue) {
+                                const optionRawValue = selectedOptionValue.split(/;/, 2)
+                                const attrName = optionRawValue[0];
+                                const attrValue = optionRawValue[1];
+                                showSteps(peopleData, attrSummary, responseData, person => person.attributes.some(attr => attr.key == attrName && attr.value == attrValue));
+                            } else {
+                                showSteps(peopleData, attrSummary, responseData);
+                            }
+                        });
+
+                        showSteps(peopleData, attrSummary, responseData);
+                    });
+                }, function () {
+                    console.log("Could not load my people");
+                    get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
+                        showSteps(null, null, responseData);
+                    });
                 });
             });
         } else {

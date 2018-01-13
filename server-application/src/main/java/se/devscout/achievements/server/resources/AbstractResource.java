@@ -105,6 +105,14 @@ public abstract class AbstractResource {
         if (Strings.isNullOrEmpty(src.getCustomIdentifier())) {
             dest.custom_identifier = null;
         }
+        if (src instanceof Person) {
+            Person person = (Person) src;
+            dest.groups = person.getMemberships().stream()
+                    .map(groupMembership -> new GroupBaseDTO(
+                            groupMembership.getGroup().getId(),
+                            groupMembership.getGroup().getName()))
+                    .collect(Collectors.toList());
+        }
     }
 
     OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {

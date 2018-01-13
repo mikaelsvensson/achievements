@@ -2,11 +2,9 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
-import se.devscout.achievements.server.api.OrganizationDTO;
-import se.devscout.achievements.server.api.PersonDTO;
-import se.devscout.achievements.server.api.PersonProfileDTO;
+import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
+import se.devscout.achievements.server.data.dao.GroupsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.Achievement;
@@ -23,10 +21,12 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class MyResource extends AbstractResource {
     private PeopleDao peopleDao;
+    private GroupsDao groupsDao;
     private AchievementsDao achievementsDao;
 
-    public MyResource(PeopleDao peopleDao, AchievementsDao achievementsDao) {
+    public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao) {
         this.peopleDao = peopleDao;
+        this.groupsDao = groupsDao;
         this.achievementsDao = achievementsDao;
     }
 
@@ -47,6 +47,16 @@ public class MyResource extends AbstractResource {
         final Person person = getPerson(user);
         return peopleDao.getByParent(person.getOrganization()).stream()
                 .map(p -> map(p, PersonDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("groups")
+    @UnitOfWork
+    public List<GroupBaseDTO> getMyGroups(@Auth User user) {
+        final Person person = getPerson(user);
+        return groupsDao.getByParent(person.getOrganization()).stream()
+                .map(p -> map(p, GroupBaseDTO.class))
                 .collect(Collectors.toList());
     }
 

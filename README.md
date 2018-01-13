@@ -156,6 +156,13 @@ Either use ```heroku-configure.sh.template``` to create a set-up script...
 
 ### Subsequent deploys
 
+Build everything from the project root:
+
+    $ mvn clean install
+    
+Move to the server-application folder:
+
+    $ cd server-application
     $ mvn heroku:deploy -Pheroku
     
 ### Creating some test data

@@ -32,6 +32,7 @@ public class MyResourceTest {
 
     private static final int ZERO = 0;
     private final PeopleDao peopleDao = mock(PeopleDao.class);
+    private final GroupsDao groupsDao = mock(GroupsDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final AchievementsDao achievementsDao = mock(AchievementsDao.class);
 
@@ -39,7 +40,7 @@ public class MyResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, achievementsDao))
+            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao))
             .build();
 
     @Test
