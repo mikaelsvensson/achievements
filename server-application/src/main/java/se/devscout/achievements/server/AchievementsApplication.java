@@ -107,7 +107,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
-        environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
+        environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao));
         environment.jersey().register(new GroupsResource(groupsDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
         environment.jersey().register(new GroupMembershipsResource(groupsDao, peopleDao, organizationsDao, membershipsDao));
         environment.jersey().register(new MyResource(peopleDao, achievementsDao));

@@ -7,14 +7,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.Person;
-import se.devscout.achievements.server.data.model.PersonProperties;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
@@ -28,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("organizations/{organizationId}/people")
 @Produces(MediaType.APPLICATION_JSON)
@@ -37,12 +36,16 @@ public class PeopleResource extends AbstractResource {
     private OrganizationsDao organizationsDao;
     private AchievementsDao achievementsDao;
     private ObjectMapper objectMapper;
+    private GroupsDao groupsDao;
+    private GroupMembershipsDao membershipsDao;
 
-    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper) {
+    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper, GroupsDao groupsDao, GroupMembershipsDao membershipsDao) {
         this.dao = dao;
         this.organizationsDao = organizationsDao;
         this.achievementsDao = achievementsDao;
         this.objectMapper = objectMapper;
+        this.groupsDao = groupsDao;
+        this.membershipsDao = membershipsDao;
     }
 
     @GET
@@ -152,15 +155,41 @@ public class PeopleResource extends AbstractResource {
                     person = dao.create(organization, newProperties);
                     result.add(new PersonBaseDTO(person.getId(), person.getName()));
                 }
+                if (dto.groups != null) {
+                    for (GroupBaseDTO groupDto : dto.groups) {
+                        assignGroup(organization, person, groupDto);
+                    }
+                }
             } catch (DuplicateCustomIdentifier e) {
                 throw new WebApplicationException(Response.Status.CONFLICT);
             } catch (DaoException e) {
                 throw new InternalServerErrorException();
+            } catch (ObjectNotFoundException e) {
+                throw new NotFoundException(e.getMessage());
             }
         }
         return Response
                 .ok(result)
                 .build();
+    }
+
+    private void assignGroup(Organization organization, Person person, GroupBaseDTO groupDto) throws ObjectNotFoundException, DaoException {
+        Group group = null;
+        if (groupDto.id != null) {
+            group = groupsDao.read(groupDto.id);
+        } else if (!Strings.isNullOrEmpty(groupDto.name)) {
+            try {
+                group = groupsDao.read(organization, groupDto.name);
+            } catch (ObjectNotFoundException e) {
+                group = groupsDao.create(organization, new GroupProperties(groupDto.name));
+            }
+        }
+        if (group != null) {
+            if (group.getOrganization().getId() != organization.getId()) {
+                throw new BadRequestException("Bad identifiers");
+            }
+            membershipsDao.add(person, group, GroupRole.MEMBER);
+        }
     }
 
     @PUT
@@ -180,12 +209,16 @@ public class PeopleResource extends AbstractResource {
                             .readValues(input));
 
             List<PersonDTO> values = values1.stream().map(map -> {
+                final String rawGroups = map.remove("groups");
                 final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
                 dto.attributes = new ArrayList<>();
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     if (entry.getKey().startsWith("attr.")) {
                         dto.attributes.add(new PersonAttributeDTO(entry.getKey().substring("attr.".length()), entry.getValue()));
                     }
+                }
+                if (rawGroups != null) {
+                    dto.groups = Stream.of(StringUtils.split(rawGroups, ',')).map(grp -> new GroupBaseDTO(null, grp.trim())).collect(Collectors.toList());
                 }
                 return dto;
             }).collect(Collectors.toList());

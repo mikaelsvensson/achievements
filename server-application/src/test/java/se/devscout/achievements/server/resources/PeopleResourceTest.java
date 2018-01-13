@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
@@ -9,10 +10,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
-import se.devscout.achievements.server.api.OrganizationAchievementSummaryDTO;
-import se.devscout.achievements.server.api.PersonAttributeDTO;
-import se.devscout.achievements.server.api.PersonBaseDTO;
-import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
@@ -45,9 +43,13 @@ public class PeopleResourceTest {
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
+    private final GroupsDao groupsDao = mock(GroupsDao.class);
+
+    private final GroupMembershipsDao membershipsDao = mock(GroupMembershipsDao.class);
+
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao, new ObjectMapper()))
+            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao, new ObjectMapper(), groupsDao, membershipsDao))
             .build();
 
     @Before
@@ -381,13 +383,19 @@ public class PeopleResourceTest {
         final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
 
+        final Group group = mockGroup(org, "Developers");
+        when(groupsDao.create(eq(org), any())).thenReturn(group);
+        when(groupsDao.read(eq(org), eq("Developers")))
+                .thenThrow(new ObjectNotFoundException())
+                .thenReturn(group);
+
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonList(new PersonAttributeDTO("title", "Boss")), null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null, Lists.newArrayList(new GroupBaseDTO(null, "Developers"))),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonList(new PersonAttributeDTO("title", "Boss")), Lists.newArrayList(new GroupBaseDTO(null, "Developers")))
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -415,6 +423,10 @@ public class PeopleResourceTest {
         assertThat(updateCaptor.getValue().getAttributes()).isNull();
 
         verify(organizationsDao).read(eq(org.getId()));
+        verify(groupsDao, times(2)).read(eq(org), eq("Developers"));
+        verify(groupsDao, times(1)).create(eq(org), any());
+        verify(membershipsDao).add(eq(alice), eq(group), any());
+        verify(membershipsDao).add(eq(carol), eq(group), any());
     }
 
     @Test
@@ -474,14 +486,26 @@ public class PeopleResourceTest {
         final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
 
+        final Group groupDev = mockGroup(org, "Developers");
+        final Group groupMgr = mockGroup(org, "Managers");
+        when(groupsDao.create(eq(org), any()))
+                .thenReturn(groupDev)
+                .thenReturn(groupMgr);
+        when(groupsDao.read(eq(org), eq("Developers")))
+                .thenThrow(new ObjectNotFoundException())
+                .thenReturn(groupDev);
+        when(groupsDao.read(eq(org), eq("Managers")))
+                .thenThrow(new ObjectNotFoundException())
+                .thenReturn(groupMgr);
+
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.entity("" +
-                                "name,attr.tag,email,custom_identifier\n" +
-                                "Alicia,boss,alice@example.com,aaa\n" +
-                                "Carol,minion,carol@example.com,ccc\n",
+                                "name,attr.tag,email,custom_identifier,groups\n" +
+                                "Alicia,boss,alice@example.com,aaa,Developers\n" +
+                                "Carol,minion,carol@example.com,ccc,\"Developers , Managers \"\n",
                         "text/csv"
                 ));
 
@@ -510,6 +534,12 @@ public class PeopleResourceTest {
         assertThat(updateCaptor.getValue().getAttributes()).contains(new PersonAttribute("tag", "boss"));
 
         verify(organizationsDao).read(eq(org.getId()));
+        verify(groupsDao, times(2)).read(eq(org), eq("Developers"));
+        verify(groupsDao, times(1)).read(eq(org), eq("Managers"));
+        verify(groupsDao, times(2)).create(eq(org), any());
+        verify(membershipsDao).add(eq(alice), eq(groupDev), any());
+        verify(membershipsDao).add(eq(carol), eq(groupDev), any());
+        verify(membershipsDao).add(eq(carol), eq(groupMgr), any());
     }
 
     @Test

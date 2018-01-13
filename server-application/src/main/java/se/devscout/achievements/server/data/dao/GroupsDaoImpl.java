@@ -19,6 +19,15 @@ public class GroupsDaoImpl extends DaoImpl<Group, Integer> implements GroupsDao 
     }
 
     @Override
+    public Group read(Organization parent, String name) throws ObjectNotFoundException {
+        final List<Group> list = findByName(parent, name);
+        if (list.isEmpty()) {
+            throw new ObjectNotFoundException();
+        }
+        return list.iterator().next();
+    }
+
+    @Override
     public List<Group> readAll() {
         return readAll(Group.class);
     }
@@ -68,5 +77,4 @@ public class GroupsDaoImpl extends DaoImpl<Group, Integer> implements GroupsDao 
                 .setParameter("name", groupName)
                 .getResultList();
     }
-
 }
