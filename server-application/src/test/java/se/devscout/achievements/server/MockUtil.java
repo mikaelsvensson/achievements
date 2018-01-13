@@ -56,6 +56,15 @@ public class MockUtil {
         return person;
     }
 
+    public static Group mockGroup(Organization org, String name) {
+        final Integer id = getRandomNonZeroValue();
+        final Group mock = mock(Group.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getOrganization()).thenReturn(org);
+        return mock;
+    }
+
     private static int getRandomNonZeroValue() {
         return new Random().nextInt(10000) + 1;
     }
@@ -102,5 +111,13 @@ public class MockUtil {
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_EDITOR))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
+    }
+
+    public static GroupMembership mockMembership(Group group, Person person, GroupRole role) {
+        final GroupMembership membership = mock(GroupMembership.class);
+        when(membership.getPerson()).thenReturn(person);
+        when(membership.getGroup()).thenReturn(group);
+        when(membership.getRole()).thenReturn(role);
+        return membership;
     }
 }

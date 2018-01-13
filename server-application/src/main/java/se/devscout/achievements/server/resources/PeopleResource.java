@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -47,9 +48,13 @@ public class PeopleResource extends AbstractResource {
     @GET
     @UnitOfWork
     public List<PersonDTO> getByOrganization(@PathParam("organizationId") UuidString organizationId,
+                                             @QueryParam("filter") String filter,
                                              @Auth User user) {
         final Organization organization = getOrganization(organizationId.getUUID());
-        return dao.getByParent(organization).stream().map(p -> map(p, PersonDTO.class)).collect(Collectors.toList());
+        return dao.getByParent(organization).stream()
+                .filter(person -> Strings.isNullOrEmpty(filter) || person.getName().toLowerCase().contains(filter.trim().toLowerCase()))
+                .map(p -> map(p, PersonDTO.class))
+                .collect(Collectors.toList());
     }
 
     @GET

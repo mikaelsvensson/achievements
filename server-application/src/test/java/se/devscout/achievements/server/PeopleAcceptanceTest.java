@@ -11,8 +11,10 @@ import se.devscout.achievements.server.api.PersonDTO;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,10 +79,31 @@ public class PeopleAcceptanceTest {
     }
 
     @Test
+    public void get_filtered_happyPath() {
+        Client client = RULE.client();
+
+        Response response = client
+                .target(URI.create(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId)))
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .queryParam("filter", "m")
+                .request()
+                .get();
+
+
+        final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
+        });
+        assertThat(dto).hasSize(3);
+
+        assertThat(dto.get(0).name).isEqualTo("James P. Sullivan");
+        assertThat(dto.get(1).name).isEqualTo("Mike Wazowski");
+        assertThat(dto.get(2).name).isEqualTo("Celia Mae");
+    }
+
+    @Test
     public void create_invalidEmailAddress_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null, null, null);
+        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null, null, null, null);
 
         Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
@@ -97,7 +120,7 @@ public class PeopleAcceptanceTest {
     public void create_missingName_expect400() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null, null, null);
+        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null, null, null, null);
 
         Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));

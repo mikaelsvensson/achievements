@@ -386,8 +386,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonList(new PersonAttributeDTO("title", "Boss")))
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, Collections.singletonList(new PersonAttributeDTO("title", "Boss")), null)
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -426,8 +426,8 @@ public class PeopleResourceTest {
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
                 .put(Entity.json(Arrays.asList(
-                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null),
-                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, null)
+                        new PersonDTO(-1, "Alicia", "alice@example.com", "aaa", null, null, null, null),
+                        new PersonDTO(-1, "Carol", "carol@example.com", "ccc", null, null, null, null)
                 )));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
