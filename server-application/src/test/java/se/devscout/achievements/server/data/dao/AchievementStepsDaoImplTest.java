@@ -20,6 +20,8 @@ public class AchievementStepsDaoImplTest {
             .addEntityClass(AchievementStep.class)
             .addEntityClass(AchievementStepProgress.class)
             .addEntityClass(Person.class)
+            .addEntityClass(GroupMembership.class)
+            .addEntityClass(Group.class)
             .addEntityClass(Organization.class)
             .addEntityClass(Credentials.class)
             .build();

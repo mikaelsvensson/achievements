@@ -130,6 +130,7 @@ public class AuthenticationAcceptanceTest {
                 .put("achievementId", RANDOM_ACHIEVEMENT_ID)
                 .put("stepId", String.valueOf(1))
                 .put("personId", String.valueOf(2))
+                .put("groupId", String.valueOf(3))
                 .put("identityProvider", IDENTITY_PROVIDER_NAME)
                 .build();
         List<Pair<String, String>> endpoints = new ArrayList<>();

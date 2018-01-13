@@ -25,6 +25,8 @@ public class CredentialsDaoImplTest {
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
             .addEntityClass(PersonAttribute.class)
+            .addEntityClass(GroupMembership.class)
+            .addEntityClass(Group.class)
             .build();
 
     private CredentialsDaoImpl dao;

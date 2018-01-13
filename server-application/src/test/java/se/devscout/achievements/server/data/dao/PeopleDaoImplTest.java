@@ -22,6 +22,8 @@ public class PeopleDaoImplTest {
             .setShowSql(true)
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
+            .addEntityClass(GroupMembership.class)
+            .addEntityClass(Group.class)
             .addEntityClass(Credentials.class)
             .build();
 

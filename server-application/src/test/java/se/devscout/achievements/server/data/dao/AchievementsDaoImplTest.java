@@ -21,6 +21,8 @@ public class AchievementsDaoImplTest {
             .setShowSql(true)
             .addEntityClass(Organization.class)
             .addEntityClass(Person.class)
+            .addEntityClass(GroupMembership.class)
+            .addEntityClass(Group.class)
             .addEntityClass(Credentials.class)
             .addEntityClass(Achievement.class)
             .addEntityClass(AchievementStep.class)

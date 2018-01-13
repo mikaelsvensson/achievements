@@ -190,4 +190,26 @@
                              constraintName="idx_groups_name"/>
     </changeSet>
 
+    <changeSet id="10_group_memberships" author="mikael">
+        <createTable tableName="group_memberships">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(100)"></column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="group_memberships"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_groupmemberships_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="group_memberships"
+                                 baseColumnNames="group_id"
+                                 constraintName="fk_groupmemberships_group"
+                                 referencedTableName="groups"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>

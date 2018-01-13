@@ -29,6 +29,9 @@ public class Person extends PersonProperties {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Credentials> credentials = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupMembership> memberships = new HashSet<>();
+
     public Person() {
     }
 
