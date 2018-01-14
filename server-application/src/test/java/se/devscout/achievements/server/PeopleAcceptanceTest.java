@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.auth.Roles;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -45,7 +46,7 @@ public class PeopleAcceptanceTest {
     public void createUpdateGet_happyPath() {
         Client client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice");
+        final PersonDTO dto = new PersonDTO(null, "Alice", Roles.READER);
 
         Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
