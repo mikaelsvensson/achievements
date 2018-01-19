@@ -40,7 +40,8 @@ export function renderGroup(appPathParams) {
             get('/api/organizations/' + appPathParams[0].key + '/groups/' + appPathParams[1].key + '/members', function (responseData, responseStatus, jqXHR) {
                 const container = $('#memberships-result');
                 updateView(templateMembershipsList({
-                    memberships: responseData
+                    memberships: responseData,
+                    orgId: appPathParams[0].key
                 }), container);
 
                 container.find('.memberships-remove-button').click(function (e) {

@@ -11,6 +11,44 @@
     </div>
 </section>
 
+{{#if isLoggedIn}}
+<section class="section">
+    <div class="columns">
+        <div class="column has-text-centered">
+            <div class="content">
+                <p>
+                    <a class="button is-primary is-medium" type="submit" href="#minprofil">
+                        Min sida
+                    </a>
+                </p>
+                <p>Dina märken och dina kontaktuppgifter.</p>
+            </div>
+        </div>
+        <div class="column has-text-centered">
+            <div class="content">
+                <p>
+                    <a class="button is-primary is-medium" type="submit" href="#marken">
+                        Alla märken
+                    </a>
+                </p>
+                <p>Vilka märken vill du ta?</p>
+                <p>Vilka märken har dina scouter tagit?</p>
+            </div>
+        </div>
+        <div class="column has-text-centered">
+            <div class="content">
+                <p>
+                    <a class="button is-primary is-medium" type="submit" href="#karer">
+                        Alla kårer
+                    </a>
+                </p>
+                <p>Vilka andra använder den här sidan?</p>
+            </div>
+        </div>
+    </div>
+</section>
+{{> _footer.handlebars}}
+{{else}}
 <section class="section">
     <div class="columns">
         <div class="column">
@@ -34,7 +72,6 @@
         </div>
     </div>
 </section>
-
 <form method="get">
     <section class="section">
         <div class="columns">
@@ -93,3 +130,4 @@
         </div>
     </section>
 </form>
+{{/if}}

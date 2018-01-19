@@ -61,16 +61,18 @@ export function renderOrganization(appPathParams) {
             }, createOnFailHandler(form.find('.errors'), button));
         });
 
-        $app.find('.search-button').click(function (e) {
-            const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
-            const url = '/api/achievements?filter=' + getFormData(form).filter;
-            console.log(url);
-            get(url, function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading')
-                updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
-            });
-        });
+        /*
+                $app.find('.search-button').click(function (e) {
+                    const button = $(this);
+                    const form = button.addClass('is-loading').closest('form');
+                    const url = '/api/achievements?filter=' + getFormData(form).filter;
+                    console.log(url);
+                    get(url, function (responseData, responseStatus, jqXHR) {
+                        button.removeClass('is-loading')
+                        updateView(templateAchievementsResult({achievements: responseData}), $('#achievements-search-result'));
+                    });
+                });
+        */
 
         // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
         $.each(responseData, function (key, value) {
@@ -79,14 +81,18 @@ export function renderOrganization(appPathParams) {
 
         get('/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
             updateView(templateOrganizationPeopleList({
-                people: responseData,
+                people: responseData.sort(function (a, b) {
+                    return a.name ? a.name.localeCompare(b.name) : 0;
+                }),
                 orgId: appPathParams[0].key
             }), $('#organization-people-list'));
         });
 
         get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
             updateView(templateOrganizationGroupsList({
-                groups: responseData,
+                groups: responseData.sort(function (grp1, grp2) {
+                    return grp1.name ? grp1.name.localeCompare(grp2.name) : 0;
+                }),
                 orgId: appPathParams[0].key
             }), $('#organization-groups-list'));
         });

@@ -6,75 +6,69 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
-        <article class="media">
-            <div class="media-left">
-                {{#if image}}
-                <figure class="image is-128x128">
-                    <img src="{{image}}" alt="Image">
-                </figure>
-                {{/if}}
-            </div>
-            <div class="media-content">
-                <div class="content">
-                    <p>
-                        {{#each tags}}
-                        <span class="tag is-light">{{.}}</span>
-                        {{/each}}
-                    </p>
+        <div class="content">
+            {{#if image}}
+            <figure class="image is-128x128 is-pulled-left" style="margin: 0 2em 1em 0">
+                <img src="{{image}}" alt="Image">
+            </figure>
+            {{/if}}
+            <p>
+                {{#each tags}}
+                <span class="tag is-light">{{.}}</span>
+                {{/each}}
+            </p>
 
-                    {{{descriptionHtml}}}
-                    <!--<div id="achievement-steps-list"></div>-->
-                </div>
-            </div>
-        </article>
-<!--
-        <form>
-            <div class="field">
-                <label class="label">Namn</label>
-                <div class="control">
-                    <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
-                </div>
-            </div>
+            {{{descriptionHtml}}}
+            <!--<div id="achievement-steps-list"></div>-->
+        </div>
+        <!--
+                <form>
+                    <div class="field">
+                        <label class="label">Namn</label>
+                        <div class="control">
+                            <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                        </div>
+                    </div>
 
-            <div class="field">
-                <label class="label">Beskrivning</label>
-                <div class="control">
-                    <textarea class="textarea" id="description" name="description" placeholder="Beskrivning"/>
-                </div>
-            </div>
+                    <div class="field">
+                        <label class="label">Beskrivning</label>
+                        <div class="control">
+                            <textarea class="textarea" id="description" name="description" placeholder="Beskrivning"/>
+                        </div>
+                    </div>
 
 
-            <div class="control">
-                <button class="button is-primary" type="button">Spara</button>
-                <button class="button is-primary is-outlined" type="button">Ta bort</button>
-            </div>
+                    <div class="control">
+                        <button class="button is-primary" type="button">Spara</button>
+                        <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                    </div>
 
-            <div class="errors"/>
-        </form>
--->
+                    <div class="errors"/>
+                </form>
+        -->
 
-            <!--<p>Delsteg:</p>-->
+        <!--<p>Delsteg:</p>-->
 
         <div id="achievement-steps-config"></div>
-            <div id="achievement-steps-list"></div>
+        <div id="achievement-steps-list"></div>
 
-<!--
-        <form>
-            <div class="field has-addons">
-                <div class="control">
-                    <input class="input" type="text" name="description" placeholder="Beskrivning"/>
-                </div>
-                <div class="control">
-                    <input class="input" type="text" name="prerequisite_achievement" placeholder="Krav"/>
-                </div>
-                <div class="control">
-                    <a class="button is-info create-step-button">
-                        Lägg till
-                    </a>
-                </div>
-            </div>
-        </form>
--->
+        <!--
+                <form>
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input class="input" type="text" name="description" placeholder="Beskrivning"/>
+                        </div>
+                        <div class="control">
+                            <input class="input" type="text" name="prerequisite_achievement" placeholder="Krav"/>
+                        </div>
+                        <div class="control">
+                            <a class="button is-info create-step-button">
+                                Lägg till
+                            </a>
+                        </div>
+                    </div>
+                </form>
+        -->
     </div>
 </section>
 {{> ../_footer.handlebars}}

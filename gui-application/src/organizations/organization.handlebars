@@ -6,13 +6,23 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
-        <div class="box">
-            <h2 class="subtitle">Sammanfattning av märken</h2>
-            <div id="achievements-summary"></div>
-        </div>
-
         <div class="tile is-ancestor">
-            <div class="tile is-parent is-3">
+            <div class="tile is-parent is-6">
+                <div class="tile is-child box">
+                    <h2 class="subtitle">Sammanfattning av märken</h2>
+                    <div id="achievements-summary"></div>
+                </div>
+            </div>
+            <div class="tile is-parent is-6">
+                <div class="tile is-child box">
+                    <h2 class="subtitle">Bjud in användare</h2>
+                    <p>Ge den här länken till de som du vill ska ha tillgång till din kår:</p>
+                    <p><a href="{{invite_link}}" target="_blank">{{invite_link}}</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="tile is-ancestor">
+            <div class="tile is-parent is-6">
                 <div class="tile is-child notification">
                     <h2 class="subtitle">Patruller</h2>
 
@@ -33,50 +43,31 @@
 
                 </div>
             </div>
-            <div class="tile is-parent is-3">
-                <div class="tile is-child notification">
-                    <h2 class="subtitle">Märken och sånt</h2>
+            <!--
+                        <div class="tile is-parent is-4">
+                            <div class="tile is-child notification">
+                                <h2 class="subtitle">Kåren</h2>
 
-                    <form>
-                        <div class="field has-addons">
-                            <div class="control">
-                                <input class="input" type="text" id="filter" name="filter" placeholder="Vad heter den?">
-                            </div>
-                            <div class="control">
-                                <a class="button is-info search-button">
-                                    Sök
-                                </a>
-                            </div>
-                        </div>
-                    </form>
+                                <form>
+                                    <div class="field">
+                                        <label class="label">Namn</label>
+                                        <div class="control">
+                                            <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                                        </div>
+                                    </div>
 
-                    <div id="achievements-search-result"></div>
+                                    <div class="control">
+                                        <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
+                                        <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                                    </div>
 
-                </div>
-            </div>
-            <div class="tile is-parent is-3">
-                <div class="tile is-child notification">
-                    <h2 class="subtitle">Kåren</h2>
+                                    <div class="errors"/>
 
-                    <form>
-                        <div class="field">
-                            <label class="label">Namn</label>
-                            <div class="control">
-                                <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                                </form>
                             </div>
                         </div>
-
-                        <div class="control">
-                            <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
-                            <button class="button is-primary is-outlined" type="button">Ta bort</button>
-                        </div>
-
-                        <div class="errors"/>
-
-                    </form>
-                </div>
-            </div>
-            <div class="tile is-parent is-3">
+            -->
+            <div class="tile is-parent is-6">
                 <div class="tile is-child notification">
                     <h2 class="subtitle">Personer</h2>
 
@@ -106,12 +97,6 @@
 
                 </div>
             </div>
-        </div>
-
-        <div class="box">
-            <h2 class="subtitle">Bjud in användare</h2>
-            <p>Ge den här länken till de som du vill ska ha tillgång till din kår:</p>
-            <p><a href="{{invite_link}}" target="_blank">{{invite_link}}</a></p>
         </div>
     </div>
 </section>
