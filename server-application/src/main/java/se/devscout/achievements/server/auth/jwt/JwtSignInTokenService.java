@@ -5,6 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import se.devscout.achievements.server.resources.UuidString;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class JwtSignInTokenService {
         final ImmutableMap<String, String> claims = ImmutableMap.of(
                 "credentials", token.getCredentialsId().toString(),
                 "id", String.valueOf(token.getPersonId()),
+                "organization", new UuidString(token.getOrganizationId()).getValue(),
                 "roles", Joiner.on(' ').join(token.getRoles()));
 
         return jwtTokenService.encode(token.getPersonName(), claims, DURATION_60_MINS);
@@ -40,7 +42,8 @@ public class JwtSignInTokenService {
                 jwt.getSubject(),
                 Integer.parseInt(jwt.getClaim("id").asString()),
                 UUID.fromString(jwt.getClaim("credentials").asString()),
-                roles);
+                roles,
+                new UuidString(jwt.getClaim("organization").asString()).getUUID());
 
     }
 }

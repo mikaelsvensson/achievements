@@ -2,6 +2,7 @@ package se.devscout.achievements.server.auth.jwt;
 
 import org.junit.Test;
 import se.devscout.achievements.server.auth.Roles;
+import se.devscout.achievements.server.resources.UuidString;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -14,12 +15,13 @@ public class JwtSignInTokenServiceTest {
     public void generateTokenAndAuthenticate_happyPath() throws Exception {
         final JwtSignInTokenService signInTokenService = new JwtSignInTokenService(new JwtTokenServiceImpl("secret"));
         final UUID credentialsId = UUID.randomUUID();
+        final UUID organizationId = UUID.randomUUID();
 
         final JwtSignInToken signInToken = new JwtSignInToken(
                 "username",
                 1337,
                 credentialsId,
-                Collections.singleton(Roles.EDITOR));
+                Collections.singleton(Roles.EDITOR), organizationId);
 
         final String token = signInTokenService.encode(signInToken);
         final JwtSignInToken user = signInTokenService.decode(token);
@@ -28,6 +30,7 @@ public class JwtSignInTokenServiceTest {
         assertThat(user.getPersonId()).isEqualTo(1337);
         assertThat(user.getCredentialsId()).isEqualTo(credentialsId);
         assertThat(user.getRoles()).containsOnly(Roles.EDITOR);
+        assertThat(user.getOrganizationId()).isEqualTo(new UuidString(organizationId).getValue());
     }
 
 }
