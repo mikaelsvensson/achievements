@@ -16,6 +16,7 @@
     "flat": "^4.0.0",
     "handlebars": "4.0.10",
     "jquery": "3.2.1",
+    "jwt-decode": "^2.2.0",
     "mdi": "^2.1.19",
     "node-sass": "^4.7.2",
     "remarkable": "^1.7.1",

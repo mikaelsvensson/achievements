@@ -50,7 +50,8 @@ public class AbstractAuthResource extends AbstractResource {
                         person.getName(),
                         person.getId(),
                         credentials.getId(),
-                        roles)));
+                        roles,
+                        person.getOrganization().getId())));
     }
 
 }

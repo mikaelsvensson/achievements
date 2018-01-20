@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, post} from "../util/api.jsx";
+import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
 import {getFormData, markdown2html, updateView} from "../util/view.jsx";
 
 const templateAchievement = require("./achievement.handlebars");
@@ -44,9 +44,9 @@ export function renderAchievement(appPathParams) {
             });
         }
 
-        let showSteps = function (peopleData, attrSummary, steps, peopleFilter) {
+        let showSteps = function (peopleData, steps) {
             updateView(templateAchievementStepsList({
-                people: peopleData.filter((person) => !peopleFilter || peopleFilter(person)).sort((p1, p2) => p1.name.toLowerCase() > p2.name.toLowerCase()),
+                people: peopleData && peopleData.sort((p1, p2) => p1.name.toLowerCase() > p2.name.toLowerCase()) || [],
                 steps,
                 achievementId: appPathParams[0].key
             }), $('#achievement-steps-list'));
@@ -76,68 +76,31 @@ export function renderAchievement(appPathParams) {
                 console.log("Could not load progress");
             });
         };
+
         if (isLoggedIn()) {
+            get('/api/achievements/' + appPathParams[0].key + "/steps", function (steps, responseStatus, jqXHR) {
+                showSteps(null, steps);
 
-            get('/api/my/groups/', function (myGroups, responseStatus, jqXHR) {
-                get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
-                    let attrSummary = {};
-                    peopleData.map(item => item.attributes).forEach(attrs => attrs.forEach(pair => {
-                        const attrName = pair.key;
-                        const attrValue = pair.value;
-                        if (!attrSummary[attrName]) {
-                            attrSummary[attrName] = [];
-                        }
-                        if (!attrSummary[attrName].includes(attrValue)) {
-                            attrSummary[attrName].push(attrValue);
-                        }
-                    }));
-
-                    const map = Object.keys(attrSummary).map(key => {
-                        return {"name": key, "value": attrSummary[key]};
-                    });
+                get('/api/my/groups/', function (myGroups, responseStatus, jqXHR) {
 
                     updateView(templateAchievementStepsConfig({
-                        attrSummary: map,
                         groups: myGroups,
                         achievementId: appPathParams[0].key
                     }), $('#achievement-steps-config'));
 
-
-                    get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-
-                        $('#app').find('#people-filter-group').change(function (e) {
-                            const selectedGroupId = $(this).val();
-                            if (selectedGroupId) {
-                                showSteps(peopleData, attrSummary, responseData, person => person.groups.some(grp => grp.id == selectedGroupId));
-                            } else {
-                                showSteps(peopleData, attrSummary, responseData);
-                            }
-                        });
-
-                        $('#app').find('#people-filter-attr').change(function (e) {
-                            const selectedOptionValue = $(this).val();
-                            if (selectedOptionValue) {
-                                const optionRawValue = selectedOptionValue.split(/;/, 2)
-                                const attrName = optionRawValue[0];
-                                const attrValue = optionRawValue[1];
-                                showSteps(peopleData, attrSummary, responseData, person => person.attributes.some(attr => attr.key == attrName && attr.value == attrValue));
-                            } else {
-                                showSteps(peopleData, attrSummary, responseData);
-                            }
-                        });
-
-                        showSteps(peopleData, attrSummary, responseData);
-                    });
-                }, function () {
-                    console.log("Could not load my people");
-                    get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                        showSteps(null, null, responseData);
+                    $('#app').find('#people-filter-group').change(function (e) {
+                        const selectedGroupId = $(this).val();
+                        if (selectedGroupId > 0) {
+                            get('/api/organizations/' + getUserOrganization() + '/groups/' + selectedGroupId + '/members', function (memberships, responseStatus, jqXHR) {
+                                showSteps(memberships.map(m => m.person), steps)
+                            });
+                        } else {
+                            get('/api/my/people/', function (peopleData, responseStatus, jqXHR) {
+                                showSteps(peopleData, steps)
+                            });
+                        }
                     });
                 });
-            });
-        } else {
-            get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
-                showSteps(null, null, responseData);
             });
         }
     });

@@ -2,6 +2,8 @@ import $ from "jquery";
 import {renderError} from "../error.jsx";
 import {renderErrorBlock} from "../error-block.jsx";
 
+const jwtDecode = require('jwt-decode');
+
 const API_HOST = process.env.API_HOST;
 
 function beforeSendHandler(xhr) {
@@ -37,6 +39,12 @@ export function setCredentials(username, password) {
 export function setToken(token) {
     unsetAuth(null);
     localStorage.setItem("token", token);
+    const jwt = jwtDecode(token);
+    localStorage.setItem("user_organization", jwt.organization);
+}
+
+export function getUserOrganization() {
+    return localStorage.getItem("user_organization");
 }
 
 export function setGoogleToken(tokenGoogle) {
@@ -49,6 +57,7 @@ export function unsetAuth(googleApiAuth2) {
     localStorage.removeItem("password");
     localStorage.removeItem("token");
     localStorage.removeItem("token_google");
+    localStorage.removeItem("user_organization");
 }
 
 export function post(url, dataObject, onSuccess, onFail) {
