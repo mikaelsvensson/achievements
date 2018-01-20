@@ -43,10 +43,10 @@ public class MyResource extends AbstractResource {
     @GET
     @Path("people")
     @UnitOfWork
-    public List<PersonDTO> getMyPeople(@Auth User user) {
+    public List<PersonBaseDTO> getMyPeople(@Auth User user) {
         final Person person = getPerson(user);
         return peopleDao.getByParent(person.getOrganization()).stream()
-                .map(p -> map(p, PersonDTO.class))
+                .map(p -> map(p, PersonBaseDTO.class))
                 .collect(Collectors.toList());
     }
 

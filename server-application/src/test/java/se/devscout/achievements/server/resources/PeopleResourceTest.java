@@ -65,7 +65,7 @@ public class PeopleResourceTest {
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
-                .register(MockUtil.AUTH_FEATURE_READER)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();
 
@@ -78,6 +78,22 @@ public class PeopleResourceTest {
         verify(dao).read(eq(person.getId()));
     }
 
+    @Test
+    public void get_authReader_expectUnauthorized() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
+
+        verify(dao, never()).getByParent(any(Organization.class));
+    }
+
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
         final Organization org = MockUtil.mockOrganization(name);
         when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
@@ -85,7 +101,7 @@ public class PeopleResourceTest {
     }
 
     @Test
-    public void getByOrganization_happyPath() throws Exception {
+    public void getByOrganization_authReader_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
         final Person person = mockPerson(org, "Alice");
         when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
@@ -98,11 +114,13 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
+        // A list of PersonBaseDTO should be returned but the point is that we don't accidentally want to return a PersonDTO with custom_identifier value.
         final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
         });
         assertThat(dto).hasSize(1);
         assertThat(dto.get(0).id).isNotNull();
         assertThat(dto.get(0).id).isNotEqualTo(ZERO);
+        assertThat(dto.get(0).custom_identifier).isNullOrEmpty();
 
         verify(dao).getByParent(eq(org));
     }
@@ -128,7 +146,7 @@ public class PeopleResourceTest {
         when(dao.read(eq(123))).thenThrow(new NotFoundException());
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(UUID.randomUUID()) + "/people/123")
-                .register(MockUtil.AUTH_FEATURE_READER)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();
 
@@ -144,7 +162,7 @@ public class PeopleResourceTest {
         when(dao.read(eq(org), eq("alice"))).thenReturn(person);
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/c:alice")
-                .register(MockUtil.AUTH_FEATURE_READER)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();
 

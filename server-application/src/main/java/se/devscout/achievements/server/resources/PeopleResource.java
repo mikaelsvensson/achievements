@@ -50,18 +50,19 @@ public class PeopleResource extends AbstractResource {
 
     @GET
     @UnitOfWork
-    public List<PersonDTO> getByOrganization(@PathParam("organizationId") UuidString organizationId,
-                                             @QueryParam("filter") String filter,
-                                             @Auth User user) {
+    public List<PersonBaseDTO> getByOrganization(@PathParam("organizationId") UuidString organizationId,
+                                                 @QueryParam("filter") String filter,
+                                                 @Auth User user) {
         final Organization organization = getOrganization(organizationId.getUUID());
         return dao.getByParent(organization).stream()
                 .filter(person -> Strings.isNullOrEmpty(filter) || person.getName().toLowerCase().contains(filter.trim().toLowerCase()))
-                .map(p -> map(p, PersonDTO.class))
+                .map(p -> map(p, PersonBaseDTO.class))
                 .collect(Collectors.toList());
     }
 
     @GET
     @Path("{personId}")
+    @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
     public PersonDTO get(@PathParam("organizationId") UuidString organizationId,
                          @PathParam("personId") String id,
