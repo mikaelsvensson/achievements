@@ -2,7 +2,6 @@ package se.devscout.achievements.server.auth.jwt;
 
 import org.junit.Test;
 import se.devscout.achievements.server.auth.Roles;
-import se.devscout.achievements.server.resources.UuidString;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class JwtSignInTokenServiceTest {
         assertThat(user.getPersonId()).isEqualTo(1337);
         assertThat(user.getCredentialsId()).isEqualTo(credentialsId);
         assertThat(user.getRoles()).containsOnly(Roles.EDITOR);
-        assertThat(user.getOrganizationId()).isEqualTo(new UuidString(organizationId).getValue());
+        assertThat(user.getOrganizationId()).isEqualTo(organizationId);
     }
 
 }
