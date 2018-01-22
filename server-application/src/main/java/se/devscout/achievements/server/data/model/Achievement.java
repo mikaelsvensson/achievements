@@ -14,9 +14,6 @@ import java.util.UUID;
 @NamedQueries(
         {
                 @NamedQuery(
-                        name = "Achievement.find",
-                        query = "SELECT a FROM Achievement a WHERE a.name LIKE :name"),
-                @NamedQuery(
                         name = "Achievement.findWithProgressForOrganization",
                         query = "SELECT DISTINCT " +
                                 "  a " +

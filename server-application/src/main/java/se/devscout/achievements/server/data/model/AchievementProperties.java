@@ -5,9 +5,7 @@ import org.hibernate.annotations.NaturalId;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @MappedSuperclass
@@ -39,6 +37,12 @@ public class AchievementProperties {
 
     public AchievementProperties(String name, Set<String> tags) {
         this.name = name;
+        this.tags = tags;
+    }
+
+    public AchievementProperties(String name, String description, Set<String> tags) {
+        this.name = name;
+        this.description = description;
         this.tags = tags;
     }
 

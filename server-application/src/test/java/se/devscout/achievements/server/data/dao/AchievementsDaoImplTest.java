@@ -120,13 +120,52 @@ public class AchievementsDaoImplTest {
     }
 
     @Test
-    public void find_happyPath() throws Exception {
+    public void find_singleWord_happyPath() throws Exception {
         UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("Make Fire"))).getId();
         UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("Make Raft"))).getId();
         UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("Find Treasure"))).getId();
         final List<Achievement> actual = dao.find("Make");
         List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
         assertThat(returnedUuids).containsExactlyInAnyOrder(fire, raft);
+    }
+
+    @Test
+    public void find_tag_happyPath() throws Exception {
+        UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("Make Fire", "description", Sets.newHashSet("matches", "wood")))).getId();
+        UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("Make Raft", "description", Sets.newHashSet("water", "boat")))).getId();
+        final List<Achievement> actual = dao.find("boat");
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(raft);
+    }
+
+    @Test
+    public void find_twoWords_happyPath() {
+        UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("Make Fire"))).getId();
+        UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("Make Raft"))).getId();
+        UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("Find Treasure"))).getId();
+        final List<Achievement> actual = dao.find("Make Raft");
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(raft);
+    }
+
+    @Test
+    public void find_quotedSentence_happyPath() {
+        UUID fire = database.inTransaction(() -> dao.create(new AchievementProperties("aab ccd eef"))).getId();
+        UUID raft = database.inTransaction(() -> dao.create(new AchievementProperties("aab iij kkl"))).getId();
+        UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("mmn oop qqr"))).getId();
+        final List<Achievement> actual = dao.find("\"aab ccd\"");
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(fire);
+    }
+
+    @Test
+    public void find_caseInsensitive_happyPath() {
+        UUID fire1 = database.inTransaction(() -> dao.create(new AchievementProperties("make fire"))).getId();
+        UUID fire2 = database.inTransaction(() -> dao.create(new AchievementProperties("MAKE FIRE"))).getId();
+        UUID treasure = database.inTransaction(() -> dao.create(new AchievementProperties("Find Treasure"))).getId();
+        final List<Achievement> actual = dao.find("mAkE FiRe");
+        List<UUID> returnedUuids = actual.stream().map(Achievement::getId).collect(Collectors.toList());
+        assertThat(returnedUuids).containsExactlyInAnyOrder(fire1, fire2);
     }
 
     @Test
