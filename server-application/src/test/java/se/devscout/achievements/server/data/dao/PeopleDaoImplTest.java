@@ -81,6 +81,15 @@ public class PeopleDaoImplTest {
     }
 
     @Test
+    public void getByEmail_caseInsensitiveSearch_happyPath() throws Exception {
+        database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "ALICE@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
+
+        final List<Person> actual = dao.getByEmail("alice@EXAMPLE.com");
+        assertThat(actual).hasSize(1);
+        assertThat(actual.get(0).getEmail()).isEqualTo("ALICE@example.com");
+    }
+
+    @Test
     public void getByEmail_addressIsMissing_happyPath() throws Exception {
         database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 

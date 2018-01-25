@@ -14,7 +14,7 @@ import static se.devscout.achievements.server.data.model.PersonProperties.CUSTOM
 @NamedQueries({
         @NamedQuery(name = "Person.getByOrganization", query = "SELECT p FROM Person p where p.organization = :organization"),
         @NamedQuery(name = "Person.getByCustomId", query = "SELECT p FROM Person p WHERE p.customIdentifier = :customId AND p.organization = :organization"),
-        @NamedQuery(name = "Person.getByEmail", query = "SELECT p FROM Person p WHERE p.email = :email")
+        @NamedQuery(name = "Person.getByEmail", query = "SELECT p FROM Person p WHERE LOWER(p.email) = LOWER(:email)")
 })
 public class Person extends PersonProperties {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
