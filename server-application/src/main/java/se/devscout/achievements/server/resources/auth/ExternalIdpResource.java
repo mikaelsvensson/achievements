@@ -84,16 +84,20 @@ public class ExternalIdpResource extends AbstractAuthResource {
     public Response handleSignInCallback(@PathParam("identityProvider") String identityProvider,
                                          @QueryParam("code") String authCode) throws ExternalIdpCallbackException {
         IdentityProvider idp = getIdentityProvider(identityProvider);
-        final ValidationResult result = idp.handleCallback(authCode, getCallbackUri(identityProvider, "signin/callback"));
         try {
-            final AuthTokenDTO tokenDTO = createTokenDTO(result.getCredentialsType(), result.getUserId());
-            return createSignedInResponse(tokenDTO);
-        } catch (ExternalIdpCallbackException e) {
-            if (e.getCause() instanceof ObjectNotFoundException) {
-                ObjectNotFoundException cause = (ObjectNotFoundException) e.getCause();
-                final AuthTokenDTO tokenDTO = newSignup(result);
+            final ValidationResult result = idp.handleCallback(authCode, getCallbackUri(identityProvider, "signin/callback"));
+            try {
+                final AuthTokenDTO tokenDTO = createTokenDTO(result.getCredentialsType(), result.getUserId());
                 return createSignedInResponse(tokenDTO);
+            } catch (ExternalIdpCallbackException e) {
+                if (e.getCause() instanceof ObjectNotFoundException) {
+                    ObjectNotFoundException cause = (ObjectNotFoundException) e.getCause();
+                    final AuthTokenDTO tokenDTO = newSignup(result);
+                    return createSignedInResponse(tokenDTO);
+                }
+                throw e;
             }
+        } catch (ExternalIdpCallbackException e) {
             throw e;
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);

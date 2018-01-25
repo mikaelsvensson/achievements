@@ -1,8 +1,10 @@
 package se.devscout.achievements.server.auth.openid;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.RandomUtils;
 import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.IdentityProvider;
+import se.devscout.achievements.server.auth.IdentityProviderException;
 import se.devscout.achievements.server.auth.ValidationResult;
 
 import javax.ws.rs.client.Client;
@@ -13,6 +15,11 @@ import java.net.URI;
 import java.util.Base64;
 
 public class OpenIdIdentityProvider implements IdentityProvider {
+    //    public static final LoggingFeature LOGGING_FEATURE = new LoggingFeature(
+//            Logger.getLogger(OpenIdIdentityProvider.class.getName()),
+//            Level.INFO,
+//            LoggingFeature.Verbosity.PAYLOAD_TEXT,
+//            10_000);
     private String tokenEndpoint;
     private String authEndpoint;
     private String clientId;
@@ -42,7 +49,7 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public ValidationResult handleCallback(String authCode, URI callbackUri) {
+    public ValidationResult handleCallback(String authCode, URI callbackUri) throws IdentityProviderException {
         final URI tokenUri = URI.create(tokenEndpoint);
 
         final MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
@@ -53,15 +60,19 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         data.putSingle("redirect_uri", callbackUri.toString());
         data.putSingle("client_secret", clientSecret);
 
-        final OpenIdTokenResponse openIdTokenResponse = client.
-                target(tokenUri)
+        final OpenIdTokenResponse openIdTokenResponse = client
+                .target(tokenUri)
+//                .register(LOGGING_FEATURE)
                 .request()
                 .post(Entity.form(data))
                 .readEntity(OpenIdTokenResponse.class);
 
-        final String idToken = openIdTokenResponse.id_token;
-
-        return parseToken(idToken);
+        if (Strings.isNullOrEmpty(openIdTokenResponse.error)) {
+            final String idToken = openIdTokenResponse.id_token;
+            return parseToken(idToken);
+        } else {
+            throw new IdentityProviderException("Error when handling callback: " + openIdTokenResponse.error);
+        }
     }
 
     protected ValidationResult parseToken(String idToken) {
