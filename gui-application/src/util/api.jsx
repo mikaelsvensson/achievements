@@ -61,6 +61,11 @@ export function unsetAuth(googleApiAuth2) {
     localStorage.removeItem("token");
     localStorage.removeItem("token_google");
     localStorage.removeItem("user_organization");
+    if (refreshTokenTimeoutHandle) {
+        console.log("Clearing existing refresh timeout handle");
+        clearTimeout(refreshTokenTimeoutHandle);
+        refreshTokenTimeoutHandle = null;
+    }
 }
 
 export function post(url, dataObject, onSuccess, onFail) {
@@ -167,6 +172,10 @@ export function createOnFailHandler(container, button) {
 }
 
 export function initTokenRefresh() {
+    if (!isLoggedIn()) {
+        console.log("No need to init token refresh -- user not logged in.")
+        return;
+    }
     try {
         const token = localStorage.getItem("token");
         const jwt = jwtDecode(token);
@@ -181,6 +190,7 @@ export function initTokenRefresh() {
             if (refreshTokenTimeoutHandle) {
                 console.log("Clearing existing refresh timeout handle");
                 clearTimeout(refreshTokenTimeoutHandle);
+                refreshTokenTimeoutHandle = null;
             }
             refreshTokenTimeoutHandle = setTimeout(function () {
                 console.log("Refreshing token");
