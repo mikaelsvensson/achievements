@@ -63,3 +63,11 @@ h2.subtitle {
 .clickable {
   cursor: pointer;
 }
+
+.loader {
+  @include loader;
+  width: 3em;
+  height: 3em;
+  animation-duration: 1s;
+  margin: 0 auto;
+}
