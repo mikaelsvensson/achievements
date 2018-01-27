@@ -9,10 +9,6 @@ const templatePersonSummary = require("../organizations/person.summary.result.ha
 export function renderMyProfile(appPathParams) {
     updateView(templateLoading());
     get('/api/my/profile/', function (responseData, responseStatus, jqXHR) {
-        responseData.breadcrumbs = [
-            {label: "Hem", url: '#/'},
-            {label: "Min profil"}
-        ];
         responseData.isLoggedIn = isLoggedIn();
 
         updateView(templateMyProfile(responseData));

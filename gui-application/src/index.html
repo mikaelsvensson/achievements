@@ -6,8 +6,40 @@
     <title>Achievements</title>
 </head>
 <body>
-<div class="container">
-    <div id="app"></div>
-</div>
+<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="#/">
+            Hem
+        </a>
+
+        <button class="button navbar-burger is-primary" data-target-menu="menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+    <div class="navbar-menu is-primary" id="menu">
+        <div class="navbar-start is-primary">
+            <a class="navbar-item" href="#minprofil">
+                Min sida
+            </a>
+            <a class="navbar-item" href="#karer">
+                Kårer
+            </a>
+            <a class="navbar-item" href="#marken">
+                Märken
+            </a>
+        </div>
+
+        <!--
+                <div class="navbar-end">
+                    <a class="navbar-item">
+                        End
+                    </a>
+                </div>
+        -->
+    </div>
+</nav>
+<div id="app"></div>
 </body>
 </html>

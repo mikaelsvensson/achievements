@@ -14,4 +14,12 @@ $(function () {
     const mdis = mdiStyles;
 
     $(window).trigger('hashchange');
+
+    $(document).ready(function () {
+        $(".navbar-burger").click(function (e) {
+            const targetMenu = this.dataset.targetMenu;
+            $(this).toggleClass('is-active');
+            $(document.getElementById(targetMenu)).toggleClass('is-active');
+        });
+    })
 });

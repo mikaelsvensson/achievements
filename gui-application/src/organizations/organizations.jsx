@@ -9,10 +9,6 @@ const templateOrganizationsResult = require("./organizations.result.handlebars")
 
 export function renderOrganizations() {
     let data = {
-        breadcrumbs: [
-            {label: "Hem", url: '#/'},
-            {label: "Kårer"}
-        ],
         isLoggedIn: isLoggedIn()
     };
     updateView(templateOrganizations(data));
