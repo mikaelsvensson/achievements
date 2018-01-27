@@ -4,6 +4,7 @@ import tableStyles from "./table.css";
 import mdiStyles from "mdi/css/materialdesignicons.css";
 import themeFonts from "./assets/font/stylesheet.css";
 import themeStyles from "./scout-theme.scss";
+import {initTokenRefresh} from "./util/api.jsx";
 
 $(function () {
     $(window).on('hashchange', hashChangeHandler);
@@ -22,4 +23,6 @@ $(function () {
             $(document.getElementById(targetMenu)).toggleClass('is-active');
         });
     })
+
+    initTokenRefresh();
 });

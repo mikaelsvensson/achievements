@@ -28,6 +28,7 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.email.EmailIdentityProvider;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.GoogleTokenValidator;
@@ -40,10 +41,7 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.mail.SmtpSender;
 import se.devscout.achievements.server.resources.*;
-import se.devscout.achievements.server.resources.auth.ExternalIdpResource;
-import se.devscout.achievements.server.resources.auth.JwtAuthenticator;
-import se.devscout.achievements.server.resources.auth.PasswordAuthenticator;
-import se.devscout.achievements.server.resources.auth.User;
+import se.devscout.achievements.server.resources.auth.*;
 import se.devscout.achievements.server.resources.exceptionhandling.CallbackResourceExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolationExceptionMapper;
 import se.devscout.achievements.server.resources.exceptionhandling.ValidationExceptionMapper;
@@ -96,6 +94,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
         final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
+        final JwtSignInTokenService signInTokenService = new JwtSignInTokenService(jwtTokenService);
+        final JwtSignUpTokenService signUpTokenService = new JwtSignUpTokenService(jwtTokenService);
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
@@ -112,8 +112,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new GroupMembershipsResource(groupsDao, peopleDao, organizationsDao, membershipsDao));
         environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
+        environment.jersey().register(new SignInResource(signInTokenService, credentialsDao));
         environment.jersey().register(new ExternalIdpResource(
-                jwtTokenService,
                 ImmutableMap.of("google",
                         new OpenIdIdentityProvider(
                                 "https://accounts.google.com/o/oauth2/v2/auth",
@@ -131,7 +131,14 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                                 new MicrosoftTokenValidator()),
                         "email",
-                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()), config.getGuiApplicationHost())), credentialsDao, peopleDao, organizationsDao, config.getGuiApplicationHost(), config.getServerApplicationHost()));
+                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()), config.getGuiApplicationHost())),
+                credentialsDao,
+                peopleDao,
+                organizationsDao,
+                config.getGuiApplicationHost(),
+                config.getServerApplicationHost(),
+                signInTokenService,
+                signUpTokenService));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 

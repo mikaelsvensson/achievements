@@ -8,6 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.auth.IdentityProvider;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
@@ -37,13 +39,14 @@ public class ExternalIdpResourceTest {
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao, false)
             .addResource(new ExternalIdpResource(
-                    tokenService,
                     ImmutableMap.of("provider", identityProvider),
                     credentialsDao,
                     peopleDao,
                     organizationsDao,
                     URI.create("http://gui"),
-                    URI.create("http://server")))
+                    URI.create("http://server"),
+                    new JwtSignInTokenService(tokenService),
+                    new JwtSignUpTokenService(tokenService)))
             .build();
 
     @Test

@@ -6,6 +6,8 @@ const jwtDecode = require('jwt-decode');
 
 const API_HOST = process.env.API_HOST;
 
+let refreshTokenTimeoutHandle = null;
+
 function beforeSendHandler(xhr) {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
@@ -40,6 +42,7 @@ export function setToken(token) {
     unsetAuth(null);
     localStorage.setItem("token", token);
     const jwt = jwtDecode(token);
+    initTokenRefresh();
     localStorage.setItem("user_organization", jwt.organization);
 }
 
@@ -114,7 +117,7 @@ function internalPut(url, contentType, data, onSuccess, onFail) {
         .done(onSuccess)
         .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
                 const status = jqXHR.status;
-                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
+            renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status === 401)
             }
         );
 }
@@ -160,5 +163,43 @@ export function createOnFailHandler(container, button) {
             renderError(jqXHR.responseJSON.message);
         }
         console.log("ERROR: " + errorThrown);
+    }
+}
+
+export function initTokenRefresh() {
+    try {
+        const token = localStorage.getItem("token");
+        const jwt = jwtDecode(token);
+        const msLeft = jwt.exp * 1000 - new Date().getTime();
+        if (msLeft > 0) {
+            const msToRefresh = msLeft - 60 * 1000;
+
+            console.log("" +
+                (msLeft / 1000 / 60) + " minutes left until token expires. " +
+                (msToRefresh / 1000 / 60) + " minutes left until token will be refreshed.");
+
+            if (refreshTokenTimeoutHandle) {
+                console.log("Clearing existing refresh timeout handle");
+                clearTimeout(refreshTokenTimeoutHandle);
+            }
+            refreshTokenTimeoutHandle = setTimeout(function () {
+                console.log("Refreshing token");
+                post('/api/signin', null,
+                    function (responseData) {
+                        console.log("Got new token");
+                        setToken(responseData.token);
+                    },
+                    function () {
+                        console.log("Could not refresh token");
+                    }
+                );
+            }, msToRefresh);
+        } else {
+            // Token has expired already
+            unsetAuth(null);
+        }
+    } catch (e) {
+        console.log('Something went wrong when setting up token refresh handler. Maybe the token has expired already.', e.message);
+        unsetAuth(null);
     }
 }

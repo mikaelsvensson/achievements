@@ -15,7 +15,7 @@ public class JwtSignInTokenService {
 
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String EMAIL = "email";
-    private final static Duration DURATION_60_MINS = Duration.ofMinutes(60);
+    private final static Duration TOKEN_VALIDITY_DURATION = Duration.ofMinutes(15);
 
     private final JwtTokenService jwtTokenService;
 
@@ -30,7 +30,7 @@ public class JwtSignInTokenService {
                 "organization", new UuidString(token.getOrganizationId()).getValue(),
                 "roles", Joiner.on(' ').join(token.getRoles()));
 
-        return jwtTokenService.encode(token.getPersonName(), claims, DURATION_60_MINS);
+        return jwtTokenService.encode(token.getPersonName(), claims, TOKEN_VALIDITY_DURATION);
     }
 
     public JwtSignInToken decode(String token) throws JwtTokenServiceException {

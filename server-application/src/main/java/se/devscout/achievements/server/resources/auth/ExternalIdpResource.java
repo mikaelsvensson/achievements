@@ -7,7 +7,10 @@ import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.ValidationResult;
-import se.devscout.achievements.server.auth.jwt.*;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtSignUpToken;
+import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
@@ -32,14 +35,17 @@ public class ExternalIdpResource extends AbstractAuthResource {
     private URI guiApplicationHost;
     private URI serverApplicationHost;
 
-    public ExternalIdpResource(JwtTokenService tokenService,
-                               Map<String, IdentityProvider> identityProviders,
+    public ExternalIdpResource(Map<String, IdentityProvider> identityProviders,
                                CredentialsDao credentialsDao,
                                PeopleDao peopleDao,
-                               OrganizationsDao organizationsDao, URI guiApplicationHost, URI serverApplicationHost) {
-        super(new JwtSignInTokenService(tokenService), credentialsDao);
+                               OrganizationsDao organizationsDao,
+                               URI guiApplicationHost,
+                               URI serverApplicationHost,
+                               JwtSignInTokenService signInTokenService,
+                               JwtSignUpTokenService signUpTokenService) {
+        super(signInTokenService, credentialsDao);
         this.identityProviders = identityProviders;
-        this.callbackStateTokenService = new JwtSignUpTokenService(tokenService);
+        this.callbackStateTokenService = signUpTokenService;
         this.credentialsDao = credentialsDao;
         this.peopleDao = peopleDao;
         this.organizationsDao = organizationsDao;
