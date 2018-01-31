@@ -1,0 +1,15 @@
+<div class="field">
+    <div class="control">
+        <div class="select">
+            <select id="organization-people-list-filter-group">
+                <option value="">Välj personer att visa</option>
+                <option value="">Visa alla</option>
+                {{#each groups}}
+                {{#if .}}
+                <option value="{{id}}">Visa bara scouter i {{name}}</option>
+                {{/if}}
+                {{/each}}
+            </select>
+        </div>
+    </div>
+</div>

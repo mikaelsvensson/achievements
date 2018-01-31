@@ -52,10 +52,12 @@ public class PeopleResource extends AbstractResource {
     @UnitOfWork
     public List<PersonBaseDTO> getByOrganization(@PathParam("organizationId") UuidString organizationId,
                                                  @QueryParam("filter") String filter,
+                                                 @QueryParam("group") String group,
                                                  @Auth User user) {
         final Organization organization = getOrganization(organizationId.getUUID());
         return dao.getByParent(organization).stream()
                 .filter(person -> Strings.isNullOrEmpty(filter) || person.getName().toLowerCase().contains(filter.trim().toLowerCase()))
+                .filter(person -> Strings.isNullOrEmpty(group) || person.getMemberships().stream().anyMatch(membership -> membership.getGroup().getId().equals(Integer.parseInt(group))))
                 .map(p -> map(p, PersonBaseDTO.class))
                 .collect(Collectors.toList());
     }

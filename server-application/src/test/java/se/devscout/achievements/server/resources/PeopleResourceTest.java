@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -139,6 +140,64 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
         verify(dao, never()).getByParent(any(Organization.class));
+    }
+
+    @Test
+    public void getByOrganization_filterByGroup_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+
+        final Group group1 = mockGroup(org, "Developers");
+        final Group group2 = mockGroup(org, "Marketing");
+
+        final Person person1 = mockPerson(org, "Alice");
+        when(person1.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group1, person1, GroupRole.MEMBER)));
+
+        final Person person2 = mockPerson(org, "Bob");
+        when(person2.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group1, person2, GroupRole.MANAGER)));
+
+        final Person person3 = mockPerson(org, "Carol");
+        when(person3.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group2, person3, GroupRole.MEMBER)));
+
+        when(dao.getByParent(eq(org))).thenReturn(Arrays.asList(person1, person2, person3));
+
+        final Response response1 = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .queryParam("group", group1.getId().toString())
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto1 = response1.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto1.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Bob");
+
+        final Response response2 = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .queryParam("filter", "a")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto2 = response2.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto2.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Carol");
+
+        final Response response3 = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+
+        assertThat(response3.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto3 = response3.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto3.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Bob", "Carol");
+
     }
 
     @Test
@@ -664,4 +723,15 @@ public class PeopleResourceTest {
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(name))).thenReturn(credentials);
         return person1;
     }
+
+/*
+    private Group mockGroup(Organization org, String name) throws ObjectNotFoundException, IOException {
+        final Group grp = MockUtil.mockGroup(org, name);
+        when(dao.read(eq(person1.getId()))).thenReturn(person1);
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(name))).thenReturn(credentials);
+        return person1;
+    }
+*/
 }
