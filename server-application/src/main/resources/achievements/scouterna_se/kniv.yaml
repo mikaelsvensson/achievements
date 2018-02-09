@@ -1,0 +1,36 @@
+---
+name: Kniv
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Hur en kniv används så att ingen person, du själv eller andra, skadar sig och följa detta när du använder kniven.
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur en kniv tas emot och lämnas på ett säkert sätt och följa detta när du använder kniven
+- id: null
+  prerequisite_achievement: null
+  description: Hantera kniven på ett sätt som gör att den inte skadas eller slits mer än nödvändigt
+- id: null
+  prerequisite_achievement: null
+  description: Känna till vad den Svenska knivlagen innebär
+- id: null
+  prerequisite_achievement: null
+  description: Veta vad knivens delar kallas
+- id: null
+  prerequisite_achievement: null
+  description: Kunna slipa en kniv
+- id: null
+  prerequisite_achievement: null
+  description: Provat att tälja något användbart på ett säkert sätt som ledaren godkänt
+id: null
+tags: null
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_kniv.jpg
+description: |+
+  Kniven är ett praktiskt verktyg som samtidigt kan skada allvarligt. Aktiviteterna för att få
+  knivmärket är tänkta att ge scouten de färdigheter och kunskaper som behövs för att hantera en
+  kniv på ett säkert sätt. Att jobba med knivbeviset innebär både praktiska övningar och samtal
+  om vad som är viktigt att tänka på. Gör aktiviteterna kopplade till bevismärket i ett sammanhang
+  så att det blir tydligt för alla när kunskaperna är tänkta att användas. Till exempel genom
+  att tälja något som går att använda, öva på att spänta stickor för att kunna göra en upp eld
+  och prata om knivlagen samtidigt som ni gör aktiviteter kopplade till samhället i stort.
+

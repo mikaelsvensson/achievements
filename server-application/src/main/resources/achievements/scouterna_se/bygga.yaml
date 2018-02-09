@@ -1,0 +1,26 @@
+---
+name: Bygga
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i planeringen
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i bygget
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i utvärderingen
+id: null
+slug: bygga
+tags:
+- problemlösning
+- fantasi och kreativt uttryck
+- fysiska utmaningar
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_bygga.jpg
+description: |
+  För att få intressemärket Bygga ska du vara med och bygga en större konstruktion, till exempel en flotte,
+  en trädkoja, en hinderbana eller en portal till ett läger eller till er scoutlokal. I uppgiften ingår förutom själva
+  bygget att vara delaktig i att hitta på konstruktionen och göra en ritning. Konstruktionen kan byggas antingen
+  som pionjärarbete med rep och surrningar eller med vanlig byggteknik. När bygget är slutfört är det dags för
+  utvärdering tillsammans med de andra som var med.

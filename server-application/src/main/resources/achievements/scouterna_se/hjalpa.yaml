@@ -1,0 +1,40 @@
+---
+name: Hjälpa
+steps:
+- id: null
+  prerequisite_achievement: plastra
+- id: null
+  prerequisite_achievement: null
+  description: Prioritera enligt LABC
+- id: null
+  prerequisite_achievement: null
+  description: Frigöra luftvägar och utföra mun mot mun-metoden
+- id: null
+  prerequisite_achievement: null
+  description: Lägga en person i stabilt sidoläge
+- id: null
+  prerequisite_achievement: null
+  description: Lägga om en stukad fot
+- id: null
+  prerequisite_achievement: null
+  description: Veta vilken sjukvårdsutrustning ni behöver ha med er på hajk
+- id: null
+  prerequisite_achievement: null
+  description: Visa att du kan hantera din personliga hygien på övernattning utomhus
+- id: null
+  prerequisite_achievement: null
+  description: Känna igen symptomen för energibrist och vätskebrist och veta vad du
+    kan göra för att undvika det
+id: null
+slug: hjalpa
+tags:
+- problemlösning
+- fysiska utmaningar
+- ta hand om sin kropp
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_hjalpa.jpg
+description: |+
+  För att få intressemärket Hjälpa ska du känna till och kunna visa dina scoutkompisar och din ledare innehållet för intressemärke Plåstra.
+
+  Dessutom övar du på och visar dina scoutkompisar och din ledare att du kan:
+

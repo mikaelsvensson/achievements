@@ -1,0 +1,39 @@
+---
+name: Finna
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Förstå hur kartan förhåller sig till verkligheten och känna till de vanligaste karttecknen
+- id: null
+  prerequisite_achievement: null
+  description: Kunna använda kartor av olika typ och skala för att orientera dig och
+    hitta vägen dit du ska, både i bebyggt område och i naturen
+- id: null
+  prerequisite_achievement: null
+  description: Kunna använda en kompass för att ta ut väderstäck och riktning till målet
+- id: null
+  prerequisite_achievement: null
+  description: Känna till andra sätt att hitta vädersträcken
+- id: null
+  prerequisite_achievement: null
+  description: Känna till hur du kan hitta kartor och satellitbilder på internet
+- id: null
+  prerequisite_achievement: null
+  description: Provat och känna till grunderna för en GPS om ni har tillgång till det
+id: null
+slug: finna
+tags:
+- kritiskt tänkande
+- problemlösning
+- känsla för naturen
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_finna.jpg
+description: |+
+  För att få intressemärket Finna ska du:
+   - Förstå hur kartan förhåller sig till verkligheten och känna till de vanligaste karttecknen.
+   - Kunna använda kartor av olika typ och skala för att orientera dig och hitta vägen dit du ska, både i bebyggt område och i naturen.
+   - Kunna använda en kompass för att ta ut väderstäck och riktning till målet.
+   - Känna till andra sätt att hitta vädersträcken, t.ex. med hjälp av klockan, polstjärnan och tecken i naturen.
+   - Känna till hur du kan hitta kartor och satellitbilder på internet.
+   - Provat och känna till grunderna för en GPS om ni har tillgång till det.
+

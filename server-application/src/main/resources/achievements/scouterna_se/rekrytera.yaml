@@ -1,0 +1,23 @@
+---
+name: Rekrytera
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Göra en plan på hur ni ska göra för att bli fler scouter och ledare i scoutkåren
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och planera och genomföra de aktiviteter ni kommer fram till
+- id: null
+  prerequisite_achievement: null
+  description: Aktivt marknadsföra scouting på din skola
+id: null
+slug: rekrytera
+tags:
+- relationer
+- aktiv i samhället
+- egna värderingar
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_rekrytera.jpg
+description: |
+  För att få intressemärket Rekrytera ska du tillsammans med dina ledare göra en plan på hur ni ska göra för att bli
+  fler scouter och ledare i scoutkåren. Du ska sen vara med och planera och genomföra de aktiviteter ni kommer fram till.
+  Du ska också aktivt marknadsföra scouting på din skola genom att t ex sätta upp lappar och prata med andra om scouting.

@@ -1,0 +1,39 @@
+---
+name: Mattvåan
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Följa ett enkelt recept och vara delaktig i matlagningen från start till dess att disken är klar
+- id: null
+  prerequisite_achievement: null
+  description: Känna till vad som gäller kring hygien i samband med matlagning
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och laga mat inomhus
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och laga mat utomhus på spritkök eller liknande
+- id: null
+  prerequisite_achievement: null
+  description: Planera meny för en helgövernattning eller motsvarande
+    tid
+- id: null
+  prerequisite_achievement: null
+  description: Kunna följa ett recept och laga mat med flera ingredienser både inomhus och på öppen eld
+- id: null
+  prerequisite_achievement: null
+  description: Känna till vad som påverkar hållbarheten på olika livsmedel och hur de behöver förvaras
+id: null
+slug: mattvaan
+tags:
+- ta hand om sin kropp
+- aktiv i gruppen
+- kritiskt tänkande
+- aktiv i samhället
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_mattvaan.jpg
+description: |
+  För att få Mattvåan ska du ha varit med och lagat mat inomhus och utomhus på spritkök eller liknande och varit
+  delaktig i matlagningen från start till disk. Men också kunna hantera hygienen enligt intressemärket Matettan.
+  Du ska också vara med och planera menyn för en helgövernattning eller motsvarande tid. Du ska kunna följa ett
+  recept och laga mat med flera ingredienser både inomhus och på öppen eld. Du ska också känna till vad som påverkar
+  hållbarheten på olika livsmedel och hur de behöver förvaras.

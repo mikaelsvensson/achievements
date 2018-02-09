@@ -1,0 +1,38 @@
+---
+name: Demokrati
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur scouting är organiserat i din scoutkår, i Sverige och i Världen
+- id: null
+  prerequisite_achievement: null
+  description: Ha varit med på en kårstämma (eller beslutande årsmöte på högre nivå)
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur du kan påverka genom att skriva en motion eller ett förslag till styrelsen
+- id: null
+  prerequisite_achievement: null
+  description: I din patrull haft en diskussion om demokrati.
+- id: null
+  prerequisite_achievement: null
+  description: I din patrull ha provat på att ha ett möte med agenda, ordförande och sekreterare
+- id: null
+  prerequisite_achievement: null
+  description: I din patrull eller scoutgrupp ha provat olika metoder att diskutera och bestämma saker
+id: null
+slug: demokrati
+tags:
+- egna värderingar
+- kritiskt tänkande
+- relationer
+- förståelse för omvärlden
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_demokrati.jpg
+description: |+
+  För att få intressemärke Demokrati ska du:
+   - Veta hur scouting är organiserat i din scoutkår, i Sverige och i Världen.
+   - Ha varit med på en kårstämma (eller beslutande årsmöte på högre nivå).
+   - Veta hur du kan påverka genom att skriva en motion eller ett förslag till styrelsen.
+   - I din patrull haft en diskussion om demokrati, hur alla kommer till tals, hur ni fattar beslut mm.
+   - I din patrull ha provat på att ha ett möte med agenda, ordförande och sekreterare.
+   - I din patrull eller scoutgrupp ha provat olika metoder att diskutera och bestämma saker, t ex genom brainstorming.
+

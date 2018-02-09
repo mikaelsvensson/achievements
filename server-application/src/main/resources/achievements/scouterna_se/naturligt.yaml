@@ -1,0 +1,31 @@
+---
+name: Naturligt
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Vet hur du hittar information om andra djur och växter du ser i naturen
+- id: null
+  prerequisite_achievement: null
+  description: Känna till innebörden av allemansrätten, vad vi får och inte får göra i naturen.
+- id: null
+  prerequisite_achievement: null
+  description: Känna igen de vanligaste träden i din närhet
+- id: null
+  prerequisite_achievement: null
+  description: Känna igen de vanligaste djuren i din närhet
+- id: null
+  prerequisite_achievement: null
+  description: Känna igen de vanligaste växterna i din närhet
+id: null
+slug: naturligt
+tags:
+- känsla för naturen
+- egna värderingar
+- fantasi och kreativt uttryck
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_naturligt.jpg
+description: |
+  För att få intressemärket Naturligt ska du känna igen de vanligaste träden, djuren och växterna i din närhet.
+  Eftersom detta skiljer sig mycket beroende på om man bor t.ex. i en stad, i skogen eller i ett odlingslandskap
+  får dina ledare bestämma vilka växter och djur du ska kunna. Du ska också veta hur du hittar information om andra
+  djur och växter du ser i naturen. Du ska känna till innebörden av allemansrätten, vad vi får och inte får göra i
+  naturen och hur vi kan vistas i naturen utan att skada eller lämna onödiga spår efter oss.

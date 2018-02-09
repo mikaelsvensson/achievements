@@ -1,0 +1,23 @@
+---
+name: Hitta
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Kunna din adress och ett telefonnummer till en vuxen anhörig utantill
+- id: null
+  prerequisite_achievement: null
+  description: Veta vad du ska göra om du går vilse och hur du kan öka chansen att bli hittad
+- id: null
+  prerequisite_achievement: null
+  description: Har provat att vara ensam en kort stund i naturen
+id: null
+slug: hitta
+tags:
+- kritiskt tänkande
+- problemlösning
+- känsla för naturen
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_hitta.jpg
+description: |
+  För att få intressemärket Hitta ska du veta vad du ska göra om du går vilse och hur du kan öka chansen att bli hittad.
+  Du ska kunna din adress och ett telefonnummer till en vuxen anhörig utantill och ha provat att vara ensam en kort stund i naturen.

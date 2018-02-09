@@ -36,6 +36,7 @@ import se.devscout.achievements.server.auth.openid.MicrosoftTokenValidator;
 import se.devscout.achievements.server.auth.openid.OpenIdIdentityProvider;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
+import se.devscout.achievements.server.cli.ImportScouternaBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
@@ -144,6 +145,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
+        environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
 
         initCorsHeaders(environment);
     }

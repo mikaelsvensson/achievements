@@ -1,0 +1,23 @@
+---
+name: Tända
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Tända en tändsticka och provat att tända en lykta och en eld
+- id: null
+  prerequisite_achievement: null
+  description: Känna till vilka risker levande ljus och eldar innebär och ha diskuterat
+    hur man ska bete sig i närheten av ljus och eld
+- id: null
+  prerequisite_achievement: null
+  description: Veta vad du ska göra om du bränner dig
+id: null
+tags:
+- problemlösning
+- känsla för naturen
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_tanda.jpg
+description: |+
+  För att få värme, kunna laga mat och skapa en mysig stämning är det bra att veta hur man enkelt och säkert gör upp
+  och underhåller en eld. Genom att jobba med intressemärket Tända övar du på grunderna för att elda.
+

@@ -1,0 +1,41 @@
+---
+name: Miljö Återvinn
+steps:
+- id: null
+  prerequisite_achievement: miljo-sortera
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på vad som händer med soporna efter att du slängt dem i rätt sopkärl
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på var man kan köpa prylar och saker, som någon använt förut,
+    i er närhet och prata om vad ni tycker är okej att använda som varit någon annans
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på hur långt olika matvaror har åkt innan de kommer till er butik och fundera på vad ni vill välja
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på hur mycket resurser (till exempel el och vatten) som krävs
+    för att tillverka olika varor (till exempel mat, kläder, elektroniska prylar)
+    och prata om ni hur kan påverka vad ni använder
+- id: null
+  prerequisite_achievement: null
+  description: Resten av märket
+id: null
+slug: miljo-atervinn
+tags:
+- aktiv i samhället
+- känsla för naturen
+- egna värderingar
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_atervinn.jpg
+description: |
+  För att få intressemärken Miljö: Återvinn ska du gått igenom innehållet i intressemärket Miljö: Sortera.
+
+  Dessutom ska du tillsammans med patrullkompisar och ledare:
+   - Ta reda på vad som händer med soporna efter att du slängt dem i rätt sopkärl.
+   - Ta reda på var man kan köpa prylar och saker, som någon använt förut, i er närhet och prata om vad ni tycker är okej att använda som varit någon annans. Kläder, möbler, sportutrustning, tält, leksaker, tallrikar, glas…
+   - Ta reda på hur långt olika matvaror har åkt innan de kommer till er butik och fundera på vad ni vill välja
+   - Ta reda på hur mycket resurser (till exempel el och vatten) som krävs för att tillverka olika varor (till exempel mat, kläder, elektroniska prylar) och prata om ni hur kan påverka vad ni använder.
+
+  Passa också på att göra komposteringsförsök och gör värderingsövningar på miljötemat. Tips på aktiviteter finns bland
+  annat i aktivitetslådan Love Earth på Scoutshop.

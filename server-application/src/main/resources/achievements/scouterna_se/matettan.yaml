@@ -1,0 +1,27 @@
+---
+name: Matettan
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Med ledarnas hjälp kunna följa ett enkelt recept och vara delaktig i matlagningen från start till dess att disken är klar
+- id: null
+  prerequisite_achievement: null
+  description: Känna till vad som gäller kring hygien i samband med matlagning
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och laga mat inomhus
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och laga mat utomhus på spritkök eller liknande
+id: null
+slug: matettan
+tags:
+- ta hand om sin kropp
+- aktiv i gruppen
+- kritiskt tänkande
+- aktiv i samhället
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_matettan.jpg
+description: |
+  För att få Matettan ska du vara med och laga mat både inomhus och utomhus på spritkök eller liknande. Du ska med
+  ledarnas hjälp kunna följa ett enkelt recept och vara delaktig i matlagningen från start till dess att disken är klar.
+  Du ska även känna till vad som gäller kring hygien i samband med matlagning.

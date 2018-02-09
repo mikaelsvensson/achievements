@@ -1,0 +1,37 @@
+---
+name: Plåstra
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Hur man tar hand om mindre sår som skärsår
+- id: null
+  prerequisite_achievement: null
+  description: Hur man lägger ett tryckförband och placerar skadan i högläge
+- id: null
+  prerequisite_achievement: null
+  description: Hur man på kan förebygga skavsår och ta hand om skavsår om du ändå
+    får ett
+- id: null
+  prerequisite_achievement: null
+  description: Vilka de viktigaste sakerna i sjukvårdväskan är och vad man använder
+    dem till
+- id: null
+  prerequisite_achievement: null
+  description: Hur man ringer efter ambulans, brandkår och polis och vad man ska säga
+    när man ringer
+id: null
+slug: plastra
+tags:
+- problemlösning
+- fysiska utmaningar
+- ta hand om sin kropp
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_plastra.jpg
+description: |+
+  För att få intressemärket Plåstra ska du känna till och kunna visa dina scoutkompisar och din ledare:
+   - Hur man tar hand om mindre sår som skärsår.
+   - Hur man lägger ett tryckförband och placerar skadan i högläge.
+   - Hur man på kan förebygga skavsår och ta hand om skavsår om du ändå får ett.
+   - Vilka de viktigaste sakerna i sjukvårdväskan är och vad man använder dem till.
+   - Hur man ringer efter ambulans, brandkår och polis och vad man ska säga när man ringer.
+

@@ -1,0 +1,37 @@
+---
+name: Internationellt Möta
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: ha kontakt med scouterna före besöket
+- id: null
+  prerequisite_achievement: null
+  description: ha kontakt med scouterna efter besöket
+- id: null
+  prerequisite_achievement: null
+  description: också berätta för dem om Sverige och diskutera vad som skiljer er åt och vad ni har gemensamt
+- id: null
+  prerequisite_achievement: null
+  description: vara med om ett utbyte med scouter från ett annat land, antingen som
+    värd för scouter på besök i Sverige eller som besökare i ett annat land
+- id: null
+  prerequisite_achievement: null
+  description: lära dig mer om de utländska scouternas kultur, vanor, intressen, åsikter,
+    vad de gör på scouterna, i skolan, hemma mm
+- id: null
+  prerequisite_achievement: null
+  description: vara med och planera värdskapet eller resan och aktiviteter ni genomför tillsammans
+id: null
+slug: internationellt-mota
+tags:
+- förståelse för omvärlden
+- relationer
+- självinsikt och självkänsla
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_internationellt-mota.jpg
+description: |
+  För att få Internationellt: Möta ska du vara med om ett utbyte med scouter från ett annat land, antingen som värd för
+  scouter på besök i Sverige eller som besökare i ett annat land. Du ska ha kontakt med scouterna både före och efter
+  besöket och du ska vara med och planera värdskapet eller resan och aktiviteter ni genomför tillsammans. Under utbytet
+  ska du lära dig mer om de utländska scouternas kultur, vanor, intressen, åsikter, vad de gör på scouterna, i skolan,
+  hemma mm. Du ska också berätta för dem om Sverige och diskutera vad som skiljer er åt och vad ni har gemensamt. Efter
+  utbytet är det dags för en reflektion tillsammans med patrullkompisar och ledare om hur utbytet kändes och vad ni varit med om.

@@ -1,0 +1,28 @@
+---
+name: Mattrean
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Vara med och utifrån en bestämd budget planera, köpa och laga mat för ett veckoläger, två helgövernattningar eller motsvarande tid
+- id: null
+  prerequisite_achievement: null
+  description: Kunna välja mat som är nyttig och väl anpassad för tillfället med hänsyn taget till hållbarhet, vikt, tillagningsmetod mm
+- id: null
+  prerequisite_achievement: null
+  description: Kunna välja mat med ett miljö- och rättviseperspektiv
+- id: null
+  prerequisite_achievement: null
+  description: Följa recept och laga mat både inomhus och utomhus och ha koll på hur du hanterar hygienen
+id: null
+slug: mattrean
+tags:
+- ta hand om sin kropp
+- aktiv i gruppen
+- kritiskt tänkande
+- aktiv i samhället
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_mattrean.jpg
+description: |
+  För att få Mattrean ska du kunna följa recept och laga mat både inomhus och utomhus och ha koll på hur du hanterar
+  hygienen. Du ska också vara med och utifrån en bestämd budget planera, köpa och laga mat för ett veckoläger, två
+  helgövernattningar eller motsvarande tid. Du ska välja mat som är nyttig och väl anpassad för tillfället med hänsyn
+  taget till hållbarhet, vikt, tillagningsmetod mm. Du ska också välja mat med ett miljö- och rättviseperspektiv.

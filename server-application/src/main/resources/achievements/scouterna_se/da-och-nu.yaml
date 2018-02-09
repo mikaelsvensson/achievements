@@ -1,0 +1,31 @@
+---
+name: Då och nu
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på mer om WOSM, WAGGGS, Scouterna och din kår
+- id: null
+  prerequisite_achievement: null
+  description: Jämför Lag och Löfte då och nu (t ex 1907, på 50-talet och idag)
+- id: null
+  prerequisite_achievement: null
+  description: Ta reda på vilka scouthögtider som finns och varför vi firar dem
+- id: null
+  prerequisite_achievement: null
+  description: Jämför din scoutkårs historia och utveckling med den hos en annan förening som finns på orten
+id: null
+slug: da-och-nu
+tags:
+- förståelse för omvärlden
+- egna värderingar och kritiskt tänkande
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_da_och_nu.jpg
+description: |+
+  För att få intressemärket Då och Nu ska du ta reda på hur och varför scoutrörelsen startade, vad man gjorde då som
+  finns kvar idag och hur utvecklingen i samhället har påverkat scoutrörelsen sedan starten.
+
+  I det ingår att:
+   - Ta reda på mer om WOSM, WAGGGS, Scouterna och din kår.
+   - Jämför Lag och Löfte då och nu (t ex 1907, på 50-talet och idag). Varför tror du att scoutlagen har förändrats? Hur tror du att den ser ut år 2100?
+   - Ta reda på vilka scouthögtider som finns och varför vi firar dem
+   - Jämför din scoutkårs historia och utveckling med den hos en annan förening som finns på orten
+

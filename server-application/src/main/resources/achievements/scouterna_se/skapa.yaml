@@ -1,0 +1,25 @@
+---
+name: Skapa
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Skapat första föremålet
+- id: null
+  prerequisite_achievement: null
+  description: Skapat andra föremålet
+- id: null
+  prerequisite_achievement: null
+  description: Skapat tredje föremålet
+id: null
+slug: skapa
+tags:
+- fantasi och kreativt uttryck
+- problemlösning
+- fysiska utmaningar
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_skapa.jpg
+description: |
+  För att få intressemärket Skapa ska du tillverka tre olika saker i tre olika material och på tre olika sätt.
+
+  Det kan till exempel vara att tillverka en patrulltröja, en patrullmaskot, en egen kniv eller sölja, bygga en
+  fågelholk, knyta armband, sy packpåsar, scrapbooking mm. Du ska själv vara med och bestämma hur föremålen ska se ut
+  och på vilka sätt du ska skapa dem.

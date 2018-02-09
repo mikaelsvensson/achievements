@@ -1,0 +1,31 @@
+---
+name: Brinna
+steps:
+- id: null
+  prerequisite_achievement: tanda
+- id: null
+  prerequisite_achievement: null
+  description: Vad som behövs för att en eld ska fungera (syre, värme, bränsle) och ha fått testa vad som händer om alla delar inte finns med.
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur man eldar säkert, det vill säga hur man gör en säker eldstad som hindrar elden från att sprida sig och hur du förbereder för att kunna släcka elden.
+- id: null
+  prerequisite_achievement: null
+  description: Kunna göra upp en eld.
+id: null
+tags:
+- problemlösning
+- känsla för naturen
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_brinna.jpg
+description: |+
+  Det här är en fortsättning på intressemärket Tända. Genom att jobba med Brinna lär du dig mer om elden och hur man
+  kan använda den på ett bra sätt. Eld som kan användas till att laga mat på, skapa en mysig stämning eller ge värme.
+
+  För att få det här märket ska du öva på och visa dina scoutkompisar och ledare innehållet för intressemärket Tända, alltså:
+
+  - Tända en tändsticka och provat att tända en lykta och en eld.
+  - Känna till vilka risker levande ljus och eldar innebär och ha diskuterat hur man ska bete sig i närheten av ljus och eld.
+  - Veta vad du ska göra om du bränner dig.
+
+

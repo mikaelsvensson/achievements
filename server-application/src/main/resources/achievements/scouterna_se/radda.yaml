@@ -1,0 +1,50 @@
+---
+name: Rädda
+steps:
+- id: null
+  prerequisite_achievement: hjalpa
+- id: null
+  prerequisite_achievement: null
+  description: 'Kunna överblicka en olyckssituation, prioritera och fördela uppgifter'
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur du hanterar benbrott
+- id: null
+  prerequisite_achievement: null
+  description: Kunna släcka brand på person
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur du hanterar större brännskador
+- id: null
+  prerequisite_achievement: null
+  description: Kunna utföra hjärt- och lungräddning (HLR)
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur du tar hand om en person som blivit medvetslös av berusning,
+    diabetiker med blodsockerfall och en person med epilepsianfall
+- id: null
+  prerequisite_achievement: null
+  description: Veta hur du tar hand om lokala frostskador och vad du ska göra vid
+    symptom på allmän nedkylning
+id: null
+slug: radda
+tags:
+- problemlösning
+- fysiska utmaningar
+- ta hand om sin kropp
+- aktiv i gruppen
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_radda.jpg
+description: |+
+  För att få intressemärket Rädda ska du känna till och kunna visa dina scoutkompisar och ledare innehåller för intressemärket Hjälpa.
+
+  Dessutom ska du
+   - Kunna överblicka en olyckssituation, prioritera och fördela uppgifter .
+   - Veta hur du hanterar benbrott.
+   - Kunna släcka brand på person.
+   - Veta hur du hanterar större brännskador.
+   - Kunna utföra hjärt- och lungräddning (HLR)
+   - Veta hur du tar hand om en person som blivit medvetslös av berusning, diabetiker med blodsockerfall och en person med epilepsianfall.
+   - Veta hur du tar hand om lokala frostskador och vad du ska göra vid symptom på allmän nedkylning.
+
+  För att scouterna ska få den kompetens som krävs för intressemärket Rädda förutsätts det att ledarna antingen har relevant och aktuell sjukvårdsutbildning eller tar hjälp av någon som har det.
+

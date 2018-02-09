@@ -1,0 +1,27 @@
+---
+name: Filma
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i att skapa en film
+- id: null
+  prerequisite_achievement: null
+  description: Visa den färdiga filmen för andra
+- id: null
+  prerequisite_achievement: null
+  description: Utvärdera ert arbete efter att filmen är klar
+id: null
+slug: filma
+tags:
+- fantasi och kreativt uttryck
+- problemlösning
+- självinsikt och självkänsla
+- ledarskap
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_filma.jpg
+description: |
+  För att få intressemärket Filma ska du vara delaktig i att skapa en film. I det ingår att skriva manus, förbereda
+  miljö och rekvisita, öva in repliker, repetera och agera och filma. Antingen är du engagerad i alla dessa saker eller
+  så fördjupar du dig i någon av dem, t.ex. att du skriver manus och regisserar dina kamrater eller att du ansvarar för
+  filmning och lär dig mer om det. Filmen ska vara runt fem minuter lång och spelas in i olika miljöer (t ex både
+  utomhus och inomhus). När filmen är färdig ska den visas för andra och du ska tillsammans med de andra som var med och
+  gjorde den utvärdera ert arbete.

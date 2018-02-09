@@ -1,0 +1,29 @@
+---
+name: Världsförbättrare
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Planera aktiviteten
+- id: null
+  prerequisite_achievement: null
+  description: Genomför aktiviteten
+- id: null
+  prerequisite_achievement: null
+  description: Utvärdera aktiviteten
+id: null
+slug: varldsforbattrare
+tags:
+- aktiv i samhället
+- självinsikt och självkänsla
+- relationer
+- egna värderingar
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_varldsforbattrare.jpg
+description: |
+  För att få Världsförbättrarmärket ska du tillsammans med dina scoutkompisar göra en eller flera aktiviteter där ni
+  gör en god gärning genom att göra något för andra. Det kan till exempel vara att planera och genomföra en insamling,
+  städa ett skogsparti, rensa en badplats, göra en kampanj för mindre bilåkande. Det viktiga är att det blir en
+  aktivitet som påverkar samhället mot en bättre värld.
+
+  Tänk på att ta kontakt med andra organisationer eller myndigheter i god tid om det kan göra insatsen mer effektiv
+  eller bättre. Efter att ni genomfört aktiviteten pratar ni tillsammans i patrullen och med ledarna om hur det kändes
+  och vad resultatet blev för er aktivitet.

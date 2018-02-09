@@ -1,0 +1,24 @@
+---
+name: Klura
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Kan lösa minst två olika typer av chiffer
+- id: null
+  prerequisite_achievement: null
+  description: Kan skriva egna meddelanden med chiffer
+- id: null
+  prerequisite_achievement: null
+  description: Har testat andra typer av kluriga problem, ex. gåtor, skattjakter eller sudoku.
+id: null
+slug: klura
+tags:
+- fantasi och kreativt uttryck
+- problemlösning
+- relationer
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_klura.jpg
+description: |
+  För att få det här märket ska du lära dig att lösa och använda minst två olika sorters chiffer eller "hemliga språk".
+  Du ska inte bara lösa det någon annan gjort utan också visa att du kan göra egna meddelanden med hjälp av chiffret
+  eller det hemliga språket. Du ska också testa att lösa olika typer av problem, till exempel genom gåtor, skattjakter,
+  och soduko.

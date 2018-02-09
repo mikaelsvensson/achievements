@@ -1,0 +1,30 @@
+---
+name: Simning
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Kan simma 200 meter
+- id: null
+  prerequisite_achievement: null
+  description: Kan dyka eller hoppa i vattnet från en brygga eller bassängkant
+- id: null
+  prerequisite_achievement: null
+  description: Känner till och följer de viktigaste badreglerna
+id: null
+tags: null
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_simning1.jpg
+description: |+
+  För att få bevismärke simning ska du kunna visa dina patrullkompisar och din ledare:
+
+   - Att du kan simma 200 meter.
+   - Att du kan dyka eller hoppa i vattnet från en brygga eller bassängkant.
+   - Att du känner till och följer de viktigaste badreglerna.
+
+  Exempel på badregler:
+
+   - Bada alltid tillsammans med minst en kompis.
+   - Knuffa aldrig i någon annan.
+   - Simma inte under hoppställningar.
+   - Dyk aldrig i vattnet om du inte vet hur det ser ut under ytan.
+   - Ropa aldrig på hjälp på skoj.
+

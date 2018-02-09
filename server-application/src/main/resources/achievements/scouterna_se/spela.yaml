@@ -1,0 +1,29 @@
+---
+name: Spela
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i att sätta upp en teaterföreställning eller annan typ av show för publik
+- id: null
+  prerequisite_achievement: null
+  description: Vara delaktig i utvärderingen
+id: null
+slug: spela
+tags:
+- aktiv i gruppen
+- ledarskap
+- självinsikt och självkänsla
+- fantasi och kreativt uttryck
+image: http://www.scouterna.se/ledascouting/files/2012/11/120px-M_spela.jpg
+description: |+
+  För att få intressemärket Spela ska du vara delaktig i att sätta upp en teaterföreställning eller annan typ av show
+  för publik. I det ingår att:
+   - Skapa ett manus, antingen utifrån en egen idé eller utifrån en färdig berättelse.
+   - Förbereda scen, miljö och rekvisita.
+   - Öva in repliker och repetera.
+
+  Antingen är du engagerad i alla dess saker eller så fördjupar du dig i någon av dem, till exempel att du skriver
+  manus och regisserar dina kamrater eller att du ansvarar för scen, dekor och rekvisita.
+
+  Efteråt ska du, tillsammans med de andra som var med, utvärdera er teateruppsättning.
+

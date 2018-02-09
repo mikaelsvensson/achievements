@@ -1,0 +1,27 @@
+---
+name: Fixa
+steps:
+- id: null
+  prerequisite_achievement: null
+  description: Deltaga i planeringen
+- id: null
+  prerequisite_achievement: null
+  description: Deltaga under utförandet
+- id: null
+  prerequisite_achievement: null
+  description: Deltaga i utvärderingen
+id: null
+slug: fixa
+tags:
+- fantasi och kreativt uttryck
+- problemlösning
+- kritiskt tänkande
+image: http://www.scouterna.se/ledascouting/files/2012/11/M_fixa.jpg
+description: |
+  För att få Fixamärket ska du skapa eller göra om något till er scoutlokal, patrullya, scoutstuga eller till någon annan.
+
+  Börja med att spåna idéer om vad ni vill göra för att sedan få till en ordentlig plan för arbetet innan ni skaffar
+  fram det material som behövs. Sedan är det bara sätta igång att klä om möbler, måla om, sy gardiner, dekorera,
+  renovera eller vad ni nu bestämmer er för att göra och lära er mer om.
+
+  När arbetet är klart ska du tillsammans med andra som var med och dina ledare utvärdera din insats och diskutera vad du lärt dig.
