@@ -82,6 +82,36 @@ public class AchievementStepProgressAcceptanceTest {
     }
 
     @Test
+    public void setProgressAndTryToDeleteAchievement_expectFailure() {
+        Client client = RULE.client();
+
+        Response setResponse = TestUtil.request(client,
+                String.format("http://localhost:%d/api/achievements/%s/steps/%s/progress/%s", RULE.getLocalPort(), achievementId, stepId, personId)
+        ).post(Entity.json(new ProgressDTO(true, "Finally completed")));
+        assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        Response deleteAchievementResponse = TestUtil.request(client,
+                String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
+        ).delete();
+        assertThat(deleteAchievementResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
+
+        Response getAchievementResponse = TestUtil.request(client,
+                String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
+        ).get();
+        assertThat(getAchievementResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        Response deleteStepResponse = TestUtil.request(client,
+                String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
+        ).delete();
+        assertThat(deleteStepResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
+
+        Response getStepResponse = TestUtil.request(client,
+                String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
+        ).get();
+        assertThat(getStepResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
+    }
+
+    @Test
     public void setMultipleProgress_happyPath() {
         Client client = RULE.client();
 

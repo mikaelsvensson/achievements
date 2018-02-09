@@ -10,6 +10,7 @@ import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
+import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -109,7 +110,12 @@ public class AchievementStepsResource extends AbstractResource {
                            @PathParam("stepId") Integer id,
                            @Auth User user) {
         try {
-            verifyParent(achievementId.getUUID(), dao.read(id));
+            final AchievementStep step = dao.read(id);
+
+            verifyParent(achievementId.getUUID(), step);
+
+            verifyNotInProgress(step);
+
             dao.delete(id);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
@@ -117,7 +123,14 @@ public class AchievementStepsResource extends AbstractResource {
         }
     }
 
-    private void verifyParent(UUID achievementId, AchievementStep person) throws ObjectNotFoundException {
+    private void verifyNotInProgress(AchievementStep step) {
+        final boolean isInProgressForOnePerson = step.getProgressList().stream().anyMatch(AchievementStepProgressProperties::isCompleted);
+        if (isInProgressForOnePerson) {
+            throw new ClientErrorException(Response.Status.CONFLICT);
+        }
+    }
+
+    private void verifyParent(UUID achievementId, AchievementStep person) {
         Achievement achievement = getAchievement(achievementId);
         if (!person.getAchievement().getId().equals(achievement.getId())) {
             throw new NotFoundException();

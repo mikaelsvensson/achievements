@@ -13,6 +13,7 @@ import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
+import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
@@ -95,10 +96,20 @@ public class AchievementsResource extends AbstractResource {
     @Path("{achievementId}")
     public Response delete(@PathParam("achievementId") UuidString id, @Auth User user) {
         try {
+            verifyNotInProgress(id);
+
             dao.delete(id.getUUID());
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
+        }
+    }
+
+    private void verifyNotInProgress(UuidString id) throws ObjectNotFoundException {
+        final Achievement achievement = dao.read(id.getUUID());
+        final boolean isInProgressForOnePerson = achievement.getSteps().stream().flatMap(step -> step.getProgressList().stream()).anyMatch(AchievementStepProgressProperties::isCompleted);
+        if (isInProgressForOnePerson) {
+            throw new ClientErrorException(Response.Status.CONFLICT);
         }
     }
 }
