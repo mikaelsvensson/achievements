@@ -180,6 +180,12 @@ Add some achievements (scout merit badges from www.scouterna.se):
     ...
     ~ $ curl -X POST http://localhost:9001/tasks/import-badges
 
+### Heroku database backup
+
+Create a database backup and download it using this Bash script:
+
+    $ ./heroku-database-download.sh 
+
 ### More reading
 
 Want to know more about Java and Heroku? Here are some reading suggestions:
