@@ -77,10 +77,10 @@ export function renderAchievement(appPathParams) {
             });
         };
 
-        if (isLoggedIn()) {
-            get('/api/achievements/' + appPathParams[0].key + "/steps", function (steps, responseStatus, jqXHR) {
-                showSteps(null, steps);
+        get('/api/achievements/' + appPathParams[0].key + "/steps", function (steps, responseStatus, jqXHR) {
+            showSteps(null, steps);
 
+            if (isLoggedIn()) {
                 get('/api/my/groups/', function (myGroups, responseStatus, jqXHR) {
 
                     updateView(templateAchievementStepsConfig({
@@ -101,7 +101,7 @@ export function renderAchievement(appPathParams) {
                         }
                     });
                 });
-            });
-        }
+            }
+        });
     });
 }
