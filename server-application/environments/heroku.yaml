@@ -18,6 +18,12 @@ database:
   url: ${JDBC_DATABASE_URL}
   user: ${JDBC_DATABASE_USERNAME}
   password: ${JDBC_DATABASE_PASSWORD}
+
+  # the minimum number of connections to keep open
+  minSize: 4
+  # the maximum number of connections to keep open
+  maxSize: 16
+
   properties:
     hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate.hbm2ddl.auto: none
