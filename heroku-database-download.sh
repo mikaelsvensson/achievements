@@ -10,7 +10,7 @@
 #
 
 # Kill all database connections (the service itself gobbles up all of them otherwise)
-heroku pg:killall
+#heroku pg:killall
 
 heroku pg:backups:capture
 
