@@ -49,4 +49,8 @@ public class CredentialsProperties {
         this.type = type;
     }
 
+    public void apply(CredentialsProperties properties) {
+        this.data = properties.data;
+        this.type = properties.type;
+    }
 }

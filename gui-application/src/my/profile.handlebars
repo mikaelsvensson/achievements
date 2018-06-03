@@ -13,6 +13,20 @@
                     {{#each person.attributes}}
                     <p>{{key}}: {{value}}</p>
                     {{/each}}
+
+                    {{#person.is_password_credential_created}}
+                    <p>Du kan <a href="#minprofil/losenord">ändra ditt lösenord</a> när du loggar in med din
+                        e-postadress.</p>
+                    {{^person.is_password_set}}
+                    <article class="message is-warning">
+                        <div class="message-body">
+                            Du har inte valt ett lösenord. Vi tycker verkligen du ska <a href="#minprofil/losenord">ange
+                            ett lösenord</a> så att ditt
+                            konto bättre skyddas mot klåfingriga personer!
+                        </div>
+                    </article>
+                    {{/person.is_password_set}}
+                    {{/person.is_password_credential_created}}
                 </div>
             </div>
             <div class="column">

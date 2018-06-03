@@ -13,14 +13,13 @@ import se.devscout.achievements.server.api.PersonProfileDTO;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.CredentialsType;
-import se.devscout.achievements.server.data.model.Organization;
-import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.data.model.*;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -40,7 +39,7 @@ public class MyResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao))
+            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao))
             .build();
 
     @Test
@@ -50,10 +49,7 @@ public class MyResourceTest {
         final Organization org2 = mockOrganization("Cyberdyne Systems");
         final Person person2a = mockPerson(org2, "Bob");
         final Person person2b = mockPerson(org2, "Carol");
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = new Credentials("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
-        credentials.setPerson(person2a);
-        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
+        mockCredentials(person2a);
 
         when(peopleDao.getByParent(eq(org1))).thenReturn(Lists.newArrayList(person1));
         when(peopleDao.getByParent(eq(org2))).thenReturn(Lists.newArrayList(person2a, person2b));
@@ -85,10 +81,7 @@ public class MyResourceTest {
     public void getMyProfile_happyPath() throws Exception {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = new Credentials("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
-        credentials.setPerson(person);
-        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
+        mockCredentials(person);
 
         when(peopleDao.getByParent(eq(org))).thenReturn(Lists.newArrayList(person));
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
@@ -108,6 +101,95 @@ public class MyResourceTest {
         assertThat(dto.organization.name).isEqualTo("Cyberdyne Systems");
     }
 
+    @Test
+    public void setPassword_happyPath() throws ObjectNotFoundException, DaoException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("/my/password/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new SetPasswordDTO("pw", "new_password", "new_password")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(credentialsDao).update(any(UUID.class), any(CredentialsProperties.class));
+    }
+
+    @Test
+    public void setPassword_incorrectCurrentPassword() throws ObjectNotFoundException, DaoException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("/my/password/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new SetPasswordDTO("bad_pw", "new_password", "new_password")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(credentialsDao, never()).update(any(UUID.class), any(CredentialsProperties.class));
+    }
+
+    @Test
+    public void setPassword_missingCurrentPassword() throws ObjectNotFoundException, DaoException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("/my/password/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new SetPasswordDTO(null, "new_password", "new_password")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(credentialsDao, never()).update(any(UUID.class), any(CredentialsProperties.class));
+    }
+
+    @Test
+    public void setPassword_nonmatchingPassword() throws ObjectNotFoundException, DaoException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("/my/password/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new SetPasswordDTO("bad_pw", "new_password1", "new_password2")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(credentialsDao, never()).update(any(UUID.class), any(CredentialsProperties.class));
+    }
+
+    private void mockCredentials(Person person) throws ObjectNotFoundException {
+        final PasswordValidator passwordValidator = new PasswordValidator(
+                SecretGenerator.PDKDF2,
+                "pw".toCharArray());
+        final Credentials credentials = new Credentials(
+                "bob",
+                passwordValidator.getCredentialsType(),
+                passwordValidator.getCredentialsData());
+        credentials.setId(UUID.randomUUID());
+        credentials.setPerson(person);
+        when(person.getCredentials()).thenReturn(Collections.singleton(credentials));
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
+    }
 
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
         final Integer uuid = getRandomNonZeroValue();

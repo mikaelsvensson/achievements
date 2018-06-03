@@ -40,7 +40,9 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
 
     @Override
     public Credentials update(UUID uuid, CredentialsProperties properties) throws ObjectNotFoundException {
-        throw new UnsupportedOperationException();
+        final Credentials credentials = read(uuid);
+        credentials.apply(properties);
+        return super.persist(credentials);
     }
 
     @Override

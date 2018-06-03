@@ -15,6 +15,7 @@ import {renderPerson} from "../organizations/person.jsx";
 import {renderGroup} from "../organizations/group.jsx";
 import {renderBatchUpsert} from "../organizations/batchupsert.jsx";
 import {renderMyProfile} from "../my/profile.jsx";
+import {renderMyPassword} from "../my/password.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
 
 export function navigateTo(appPath) {
@@ -35,6 +36,7 @@ function renderRoute(appPath) {
 
     const routes = {
         'statistik': renderStats,
+        'minprofil/losenord': renderMyPassword,
         'minprofil': renderMyProfile,
         'loggaut': renderSignout,
         'loggain': renderSignin,
