@@ -14,9 +14,14 @@ const loadResult = function (responseData) {
     container.find('.achievement').click(function (e) {
         navigateTo('marken/' + this.dataset.achievementId)
     });
+    container.find('span.tag').click(function (e) {
+        const tagName = $(this).text();
+        navigateTo('marken/vy/sok/' + encodeURIComponent('"' + tagName + '"'));
+        return false; // <-- Prevent event bubbling
+    });
 };
 
-export function renderAchievements() {
+export function renderAchievements(appPathParams) {
     const data = {
         breadcrumbs: [
             {label: "Hem", url: '#/'},
@@ -26,23 +31,33 @@ export function renderAchievements() {
     };
     updateView(templateAchievements(data));
 
-    get('/api/achievements', function (responseData, responseStatus, jqXHR) {
-        loadResult(responseData);
-    });
+    if (appPathParams[1]) {
+        get('/api/achievements?filter=' + appPathParams[1].key, function (responseData, responseStatus, jqXHR) {
+            loadResult(responseData);
+        });
+        $('#achievements-search-filter').val(appPathParams[1].key)
+    } else {
+        get('/api/achievements', function (responseData, responseStatus, jqXHR) {
+            loadResult(responseData);
+        });
+    }
 
-    const $app = $('#app');
+
     // $app.find('.create-button').click(function (e) {
     //     const form = $(this).addClass('is-loading').closest('form');
     //     post('/api/achievements', getFormData(form), function (responseData, responseStatus, jqXHR) {
     //         navigateTo('marken/' + responseData.id);
     //     });
     // });
-    $app.find('.search-button').click(function (e) {
-        const button = $(this);
-        const form = button.addClass('is-loading').closest('form');
-        get('/api/achievements?filter=' + getFormData(form).filter, function (responseData, responseStatus, jqXHR) {
-            button.removeClass('is-loading');
-            loadResult(responseData);
-        });
-    });
+    const $searchButton = $('#app').find('.search-button');
+    const $form = $searchButton.closest('form');
+
+    const submitter = function () {
+        const searchQuery = getFormData($form).filter;
+        navigateTo('marken/vy/sok/' + encodeURIComponent(searchQuery));
+        return false;
+    }
+
+    $form.submit(submitter)
+    $searchButton.click(submitter);
 }
