@@ -51,30 +51,32 @@ export function renderAchievement(appPathParams) {
                 achievementId: appPathParams[0].key
             }), $('#achievement-steps-list'));
 
-            get('/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
-                const keys = Object.keys(progressData);
-                for (let i in keys) {
-                    let key = keys[i];
-                    const progress = progressData[key];
-                    $("#progress-toggle-" + key + " i.mdi").addClass(progress.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
-                }
-                $(".progress-switch").click(function () {
-                    const toggleButton = $(this);
-                    toggleButton.addClass('is-loading');
-                    const toggleCompletedUrl = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
+            if (isLoggedIn()) {
+                get('/api/achievements/' + appPathParams[0].key + "/progress", function (progressData, responseStatus, jqXHR) {
+                    const keys = Object.keys(progressData);
+                    for (let i in keys) {
+                        let key = keys[i];
+                        const progress = progressData[key];
+                        $("#progress-toggle-" + key + " i.mdi").addClass(progress.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
+                    }
+                    $(".progress-switch").click(function () {
+                        const toggleButton = $(this);
+                        toggleButton.addClass('is-loading');
+                        const toggleCompletedUrl = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
 
-                    const iconNode = toggleButton.find("i.mdi");
+                        const iconNode = toggleButton.find("i.mdi");
 
-                    const completed = (!iconNode.hasClass('mdi-checkbox-blank-outline') && !iconNode.hasClass('mdi-checkbox-marked')) || iconNode.hasClass('mdi-checkbox-blank-outline');
-                    post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
-                        toggleButton.removeClass('is-loading');
-                        iconNode.removeClass(responseData.completed ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-marked');
-                        iconNode.addClass(responseData.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
+                        const completed = (!iconNode.hasClass('mdi-checkbox-blank-outline') && !iconNode.hasClass('mdi-checkbox-marked')) || iconNode.hasClass('mdi-checkbox-blank-outline');
+                        post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
+                            toggleButton.removeClass('is-loading');
+                            iconNode.removeClass(responseData.completed ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-marked');
+                            iconNode.addClass(responseData.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
+                        });
                     });
+                }, function () {
+                    console.log("Could not load progress");
                 });
-            }, function () {
-                console.log("Could not load progress");
-            });
+            }
         };
 
         get('/api/achievements/' + appPathParams[0].key + "/steps", function (steps, responseStatus, jqXHR) {
