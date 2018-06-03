@@ -2,19 +2,23 @@ package se.devscout.achievements.server.auth.email;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import se.devscout.achievements.server.auth.IdentityProviderException;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
+import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.net.URI;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,54 +34,40 @@ public class EmailIdentityProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = new EmailIdentityProvider(jwtTokenService, emailSender, URI.create("http://gui"));
+        provider = new EmailIdentityProvider(jwtTokenService, emailSender, URI.create("http://gui"), mock(CredentialsDao.class));
     }
 
     @Test
     public void getRedirectUri_happyPath() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
+        when(jwtTokenService.encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
 
-        final URI redirectUri = provider.getRedirectUri("state", URI.create("http://example.com/callback"));
+        final URI redirectUri = provider.getRedirectUri("state", URI.create("http://example.com/callback"), Collections.singletonMap("email", "alice@example.com"));
 
         assertThat(redirectUri.getFragment()).isEqualTo("signin/check-mail-box");
-        verify(jwtTokenService).decode(eq("state"));
-        verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=state"));
-    }
-
-    @Test(expected = IdentityProviderException.class)
-    public void getRedirectUri_tokenProblem() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException {
-        when(jwtTokenService.decode(eq("state"))).thenThrow(new JwtTokenServiceException(new Exception()));
-
-        try {
-            provider.getRedirectUri("state", URI.create("http://example.com/callback"));
-        } finally {
-            verify(jwtTokenService).decode(eq("state"));
-            verify(emailSender, never()).send(anyString(), anyString(), anyString());
-        }
+        verify(jwtTokenService).encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class));
+        verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
     }
 
     @Test(expected = IdentityProviderException.class)
     public void getRedirectUri_emailProblem() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
+        when(jwtTokenService.encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
         doThrow(new EmailSenderException("error", new Exception())).when(emailSender).send(anyString(), anyString(), anyString());
 
         try {
-            provider.getRedirectUri("state", URI.create("http://example.com/callback"));
+            provider.getRedirectUri("state", URI.create("http://example.com/callback"), Collections.singletonMap("email", "alice@example.com"));
         } finally {
-            verify(jwtTokenService).decode(eq("state"));
-            verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=state"));
+            verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
         }
     }
 
     private DecodedJWT mockJwt() {
         final DecodedJWT jwt = mock(DecodedJWT.class);
         final Claim claim1 = mockClaim(new UuidString(UUID.randomUUID()).getValue());
-        final Claim claim2 = mockClaim("alice@example.com");
-        when(jwt.getClaims()).thenReturn(ImmutableMap.of(JwtSignInTokenService.ORGANIZATION_ID, claim1, JwtSignInTokenService.EMAIL, claim2));
         when(jwt.getClaim(eq(JwtSignInTokenService.ORGANIZATION_ID))).thenReturn(claim1);
-        when(jwt.getClaim(eq(JwtSignInTokenService.EMAIL))).thenReturn(claim2);
         return jwt;
     }
 
@@ -92,8 +82,7 @@ public class EmailIdentityProviderTest {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("authorization_code"))).thenReturn(jwt);
         try {
-            final ValidationResult result = provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
-            assertThat(result.getUserEmail()).isEqualTo(jwt.getClaim(JwtSignInTokenService.EMAIL).asString());
+            provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
         } finally {
             verify(jwtTokenService).decode(eq("authorization_code"));
         }

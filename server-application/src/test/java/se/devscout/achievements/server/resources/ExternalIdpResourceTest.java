@@ -22,8 +22,7 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,13 +84,13 @@ public class ExternalIdpResourceTest {
 
     @Test
     public void doSignInRequest_externalIdp_noEmailAddress() throws Exception {
-        when(identityProvider.getRedirectUri(anyString(), any(URI.class))).thenAnswer(invocation -> invocation.getArgument(1));
+        when(identityProvider.getRedirectUri(anyString(), any(URI.class), anyMap())).thenAnswer(invocation -> invocation.getArgument(1));
         final Response response = resources
                 .target("/openid/provider/signin")
                 .request()
-                .get();
+                .post(null);
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://server/api/openid/provider/signin/callback");
 

@@ -111,7 +111,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao));
         environment.jersey().register(new GroupsResource(groupsDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
         environment.jersey().register(new GroupMembershipsResource(groupsDao, peopleDao, organizationsDao, membershipsDao));
-        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao));
+        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao));
         environment.jersey().register(new StatsResource(organizationsDao));
         environment.jersey().register(new SignInResource(signInTokenService, credentialsDao));
         environment.jersey().register(new ExternalIdpResource(
@@ -132,7 +132,11 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                                 new MicrosoftTokenValidator()),
                         "email",
-                        new EmailIdentityProvider(jwtTokenService, new SmtpSender(config.getSmtp()), config.getGuiApplicationHost())),
+                        new EmailIdentityProvider(
+                                jwtTokenService,
+                                new SmtpSender(config.getSmtp()),
+                                config.getGuiApplicationHost(),
+                                credentialsDao)),
                 credentialsDao,
                 peopleDao,
                 organizationsDao,

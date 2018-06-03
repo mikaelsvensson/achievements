@@ -67,4 +67,12 @@ public class Person extends PersonProperties {
     public void setMemberships(Set<GroupMembership> memberships) {
         this.memberships = memberships;
     }
+
+    public Set<Credentials> getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(Set<Credentials> credentials) {
+        this.credentials = credentials;
+    }
 }

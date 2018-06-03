@@ -11,7 +11,7 @@
     </div>
 </section>
 <section class="section">
-    <form method="get">
+    <form method="post">
         <section class="section">
             <div class="columns">
                 <div class="column">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="column">
                     <article class="notification">
-                    <p class="subtitle">...eller din e-postadress</p>
+                        <p class="subtitle">...eller din e-postadress</p>
                         <div class="field">
                             <div class="control">
                                 <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
@@ -54,18 +54,26 @@
                         </div>
 
                         <div class="field">
+                            <div class="control">
+                                <input class="input" type="password" id="password" name="password"
+                                       placeholder="Ditt lösenord, om du har ett.">
+                            </div>
+                        </div>
+
+                        <div class="content is-small">
+                            <p>Om du inte anger ett lösenord så kommer vi skicka en inloggningslänk till din
+                                e-postadress. Klicka på den länken inom fem minuter för att logga in.</p>
+                        </div>
+
+                        <div class="field">
                             <button class="button is-primary is-medium" type="submit"
-                                    formaction="{{host}}"
-                            /api/openid/email/signin">
+                                    formaction="{{host}}/api/openid/email/signin">
                                 Logga in med e-post
                             </button>
                         </div>
 
                         <div class="errors"/>
 
-                        <div class="content is-small">
-                            <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
-                        </div>
                     </article>
                 </div>
             </div>

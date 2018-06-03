@@ -19,6 +19,8 @@ function getMessage(code) {
             return 'Vi fick data vi inte förstod.';
         case 'system-error':
             return 'Vi ber om ursäkt, men det verkar som ett underligt fel har inträffat och det är inte ditt fel.';
+        case 'invalid-credentials':
+            return 'Du verkar ha stavat fel på din e-postadress eller på ditt lösenord.';
         default:
             return 'Ett fel inträffade.';
     }

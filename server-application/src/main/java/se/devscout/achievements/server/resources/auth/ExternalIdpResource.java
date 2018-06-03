@@ -16,11 +16,13 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //TODO: Test this resource!
 @Path("openid/{identityProvider}")
@@ -53,31 +55,33 @@ public class ExternalIdpResource extends AbstractAuthResource {
         this.serverApplicationHost = serverApplicationHost;
     }
 
-    @GET
+    @POST
     @Path("signin")
     @UnitOfWork
     public Response doSignInRequest(@PathParam("identityProvider") String identityProvider,
-                                    @QueryParam("email") String email) throws ExternalIdpCallbackException {
+                                    Form form) throws ExternalIdpCallbackException {
         try {
+            final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
             IdentityProvider idp = getIdentityProvider(identityProvider);
-            final String state = callbackStateTokenService.encode(new JwtSignUpToken(email));
-            return Response.temporaryRedirect(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signin/callback"))).build();
+            final String state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
+            return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signin/callback"), values)).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }
     }
 
-    @GET
+    @POST
     @Path("signup")
     @UnitOfWork
     public Response doSignUpRequest(@PathParam("identityProvider") String identityProvider,
-                                    @QueryParam("organization_id") UuidString organizationId,
-                                    @QueryParam("new_organization_name") String organizationName,
-                                    @QueryParam("email") String email) throws ExternalIdpCallbackException {
+                                    @FormParam("organization_id") UuidString organizationId,
+                                    @FormParam("new_organization_name") String organizationName,
+                                    Form form) throws ExternalIdpCallbackException {
         try {
+            final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
             IdentityProvider idp = getIdentityProvider(identityProvider);
-            final String state = callbackStateTokenService.encode(new JwtSignUpToken(email, organizationId, organizationName));
-            return Response.temporaryRedirect(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signup/callback"))).build();
+            final String state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
+            return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signup/callback"), values)).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }

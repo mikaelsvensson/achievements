@@ -13,6 +13,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Base64;
+import java.util.Map;
 
 public class OpenIdIdentityProvider implements IdentityProvider {
     //    public static final LoggingFeature LOGGING_FEATURE = new LoggingFeature(
@@ -36,7 +37,8 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         this.tokenValidator = tokenValidator;
     }
 
-    public URI getRedirectUri(String callbackState, URI callbackUri) {
+    @Override
+    public URI getRedirectUri(String callbackState, URI callbackUri, Map<String, String> providerData) {
         return UriBuilder.fromUri(authEndpoint)
                 .queryParam("client_id", clientId)
                 .queryParam("response_type", "code")

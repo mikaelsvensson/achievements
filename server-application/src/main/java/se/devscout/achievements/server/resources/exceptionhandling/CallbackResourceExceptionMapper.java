@@ -22,6 +22,6 @@ public class CallbackResourceExceptionMapper implements ExceptionMapper<External
 
         String subPath = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, exception.getType().name());
         final URI location = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin-failed/" + subPath);
-        return Response.temporaryRedirect(location).build();
+        return Response.seeOther(location).build();
     }
 }
