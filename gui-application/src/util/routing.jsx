@@ -11,11 +11,12 @@ import {renderSigninFailed} from "../auth/signin.failed.jsx";
 import {renderRedirect} from "../auth/auth.redirect.jsx";
 import {renderError} from "../error.jsx";
 import {renderSignup} from "../auth/signup.jsx";
+import {renderForgotPassword} from "../auth/forgot-password.jsx";
 import {renderPerson} from "../organizations/person.jsx";
 import {renderGroup} from "../organizations/group.jsx";
 import {renderBatchUpsert} from "../organizations/batchupsert.jsx";
 import {renderMyProfile} from "../my/profile.jsx";
-import {renderMyPassword} from "../my/password.jsx";
+import {renderMyPassword, renderPasswordForgotten} from "../my/password.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
 
 export function navigateTo(appPath) {
@@ -41,6 +42,9 @@ function renderRoute(appPath) {
         'loggaut': renderSignout,
         'loggain': renderSignin,
         'skapa-konto': renderSignup,
+        'glomt-losenord': renderForgotPassword,
+        //TODO: Localize routes
+        'set-password/*': renderPasswordForgotten,
         'karer': renderOrganizations,
         'karer/*': renderOrganization,
         'karer/*/skapa-konto': renderOrganizationSignup,

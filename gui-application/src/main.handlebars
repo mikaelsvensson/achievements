@@ -64,7 +64,7 @@
             <div class="content">
                 <p class="subtitle">Hej ledare</p>
                 <p>Om du vill rapportera hur det går för dina scouter så behöver du <a
-                        href="#skapa-konto" aria-current="page">logga in</a> med någon av de tre
+                        href="#loggain" aria-current="page">logga in</a> med någon av de tre
                     alternativen här nedan.</p>
                 <p>Om din kår ännu inte börjat använda den här vill pröva på den här tjänsten så kan du <a
                         href="#skapa-konto" aria-current="page">skapa en ny kår</a> hos oss.</p>
@@ -120,11 +120,6 @@
                         </div>
                     </div>
 
-                    <div class="content is-small">
-                        <p>Om du inte anger ett lösenord så kommer vi skicka en inloggningslänk till din
-                            e-postadress. Klicka på den länken inom fem minuter för att logga in.</p>
-                    </div>
-
                     <div class="field">
                         <button class="button is-primary is-medium" type="submit"
                                 formaction="{{host}}/api/openid/email/signin">
@@ -135,8 +130,11 @@
                     <div class="errors"/>
 
                     <div class="content is-small">
-                        <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
+                        <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
+                        <p>Inget lösenord? Inga poblem. Om du inte anger ett lösenord så kommer vi skicka en
+                            inloggningslänk till dig.</p>
                     </div>
+
                 </article>
             </div>
         </div>

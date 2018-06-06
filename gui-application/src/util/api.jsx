@@ -13,6 +13,7 @@ function beforeSendHandler(xhr) {
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
     const tokenGoogle = localStorage.getItem("token_google");
+    const onetimePassword = localStorage.getItem("onetime_password");
 
     // console.log(username, password, tokenGoogle, token);
 
@@ -22,6 +23,10 @@ function beforeSendHandler(xhr) {
         xhr.setRequestHeader("Authorization", "JWT " + token);
     } else if (tokenGoogle) {
         xhr.setRequestHeader("Authorization", "Google " + tokenGoogle);
+    } else if (onetimePassword) {
+        xhr.setRequestHeader("Authorization", "OneTime " + btoa(onetimePassword));
+        // TODO: Storing one-time password in Local Storage and then removing it is a hack -- would be better to supply one-time password as an argument of some kind.
+        localStorage.removeItem("onetime_password")
     }
 }
 
@@ -36,6 +41,11 @@ export function setCredentials(username, password) {
     unsetAuth(null);
     localStorage.setItem("username", username);
     localStorage.setItem("password", password);
+}
+
+export function setOneTimePassword(password) {
+    unsetAuth(null);
+    localStorage.setItem("onetime_password", password);
 }
 
 export function setToken(token) {
@@ -61,6 +71,7 @@ export function unsetAuth(googleApiAuth2) {
     localStorage.removeItem("token");
     localStorage.removeItem("token_google");
     localStorage.removeItem("user_organization");
+    localStorage.removeItem("onetime_password");
     if (refreshTokenTimeoutHandle) {
         console.log("Clearing existing refresh timeout handle");
         clearTimeout(refreshTokenTimeoutHandle);

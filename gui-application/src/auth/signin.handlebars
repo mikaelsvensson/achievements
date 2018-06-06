@@ -60,16 +60,17 @@
                             </div>
                         </div>
 
-                        <div class="content is-small">
-                            <p>Om du inte anger ett lösenord så kommer vi skicka en inloggningslänk till din
-                                e-postadress. Klicka på den länken inom fem minuter för att logga in.</p>
-                        </div>
-
                         <div class="field">
                             <button class="button is-primary is-medium" type="submit"
                                     formaction="{{host}}/api/openid/email/signin">
                                 Logga in med e-post
                             </button>
+                        </div>
+
+                        <div class="content is-small">
+                            <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
+                            <p>Inget lösenord? Inga poblem. Om du inte anger ett lösenord så kommer vi skicka en
+                                inloggningslänk till dig.</p>
                         </div>
 
                         <div class="errors"/>
