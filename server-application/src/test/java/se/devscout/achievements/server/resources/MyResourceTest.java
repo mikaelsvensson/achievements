@@ -2,27 +2,31 @@ package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import se.devscout.achievements.server.TestUtil;
+import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.api.PersonProfileDTO;
+import se.devscout.achievements.server.auth.jwt.JwtSignInToken;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.mail.EmailSender;
+import se.devscout.achievements.server.mail.EmailSenderException;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.net.URI;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,12 +38,14 @@ public class MyResourceTest {
     private final GroupsDao groupsDao = mock(GroupsDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final AchievementsDao achievementsDao = mock(AchievementsDao.class);
+    private final EmailSender emailSender = mock(EmailSender.class);
+    private final JwtSignInTokenService signInTokenService = mock(JwtSignInTokenService.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao))
+            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, URI.create("http://gui/"), signInTokenService))
             .build();
 
     @Test
@@ -49,7 +55,7 @@ public class MyResourceTest {
         final Organization org2 = mockOrganization("Cyberdyne Systems");
         final Person person2a = mockPerson(org2, "Bob");
         final Person person2b = mockPerson(org2, "Carol");
-        mockCredentials(person2a);
+        mockRegularPasswordCredentials(person2a);
 
         when(peopleDao.getByParent(eq(org1))).thenReturn(Lists.newArrayList(person1));
         when(peopleDao.getByParent(eq(org2))).thenReturn(Lists.newArrayList(person2a, person2b));
@@ -81,7 +87,7 @@ public class MyResourceTest {
     public void getMyProfile_happyPath() throws Exception {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        mockCredentials(person);
+        mockRegularPasswordCredentials(person);
 
         when(peopleDao.getByParent(eq(org))).thenReturn(Lists.newArrayList(person));
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
@@ -105,7 +111,7 @@ public class MyResourceTest {
     public void setPassword_happyPath() throws ObjectNotFoundException, DaoException {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        mockCredentials(person);
+        mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
@@ -124,7 +130,7 @@ public class MyResourceTest {
     public void setPassword_incorrectCurrentPassword() throws ObjectNotFoundException, DaoException {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        mockCredentials(person);
+        mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
@@ -140,10 +146,10 @@ public class MyResourceTest {
     }
 
     @Test
-    public void setPassword_missingCurrentPassword() throws ObjectNotFoundException, DaoException {
+    public void setPassword_missingCurrentPasswordBasicAuth() throws ObjectNotFoundException, DaoException {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        mockCredentials(person);
+        mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
@@ -159,10 +165,133 @@ public class MyResourceTest {
     }
 
     @Test
+    public void setPassword_forgotPasswordWorkflowUsingOnetimePassword() throws ObjectNotFoundException, DaoException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Set<Credentials> list = Sets.newHashSet();
+        final Person person = mockPerson(org, "Bob");
+        {
+            // Mock credentials to change
+            final PasswordValidator passwordValidator = new PasswordValidator(
+                    SecretGenerator.PDKDF2,
+                    "pw".toCharArray());
+            final Credentials credentials = new Credentials(
+                    "bob",
+                    passwordValidator.getCredentialsType(),
+                    passwordValidator.getCredentialsData());
+            credentials.setId(UUID.randomUUID());
+            credentials.setPerson(person);
+            list.add(credentials);
+            when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq("bob"))).thenReturn(credentials);
+        }
+        {
+            // Mock one-time credentials necessary to change password without specifying the current password
+            final Credentials credentials = new Credentials(
+                    "onetimepassword",
+                    CredentialsType.ONETIME_PASSWORD,
+                    null);
+            credentials.setId(UUID.randomUUID());
+            credentials.setPerson(person);
+            list.add(credentials);
+            when(credentialsDao.get(eq(CredentialsType.ONETIME_PASSWORD), eq("onetimepassword"))).thenReturn(credentials);
+        }
+        when(person.getCredentials()).thenReturn(list);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+        when(signInTokenService.encode(any(JwtSignInToken.class))).thenReturn("token");
+
+        final Response response = resources
+                .target("/my/password/")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword"))
+                .post(Entity.json(new SetPasswordDTO(null, "new_password", "new_password")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final AuthTokenDTO responseDTO = response.readEntity(AuthTokenDTO.class);
+        assertThat(responseDTO.token).isEqualTo("token");
+
+        verify(credentialsDao).update(any(UUID.class), any(CredentialsProperties.class));
+    }
+
+    @Test
+    public void sendSetPasswordLink_userIsSignedIn() throws ObjectNotFoundException, EmailSenderException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockRegularPasswordCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("my/send-set-password-link")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new ForgotPasswordDTO("user@example.com")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+    }
+
+    @Test
+    public void sendSetPasswordLink_otherUsersEmailAddress() throws ObjectNotFoundException, EmailSenderException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockRegularPasswordCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("my/send-set-password-link")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
+                .post(Entity.json(new ForgotPasswordDTO("trudy@example.com")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+    }
+
+    @Test
+    public void sendSetPasswordLink_userIsNotSignedIn() throws ObjectNotFoundException, EmailSenderException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockRegularPasswordCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("my/send-set-password-link")
+                .request()
+                .post(Entity.json(new ForgotPasswordDTO("user@example.com")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+    }
+
+    @Test
+    public void sendSetPasswordLink_incorrectEmail() throws ObjectNotFoundException, EmailSenderException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockRegularPasswordCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        final Response response = resources
+                .target("my/send-set-password-link")
+                .request()
+                .post(Entity.json(new ForgotPasswordDTO("trudy@example.com")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(emailSender, never()).send(anyString(), anyString(), anyString());
+    }
+
+    @Test
     public void setPassword_nonmatchingPassword() throws ObjectNotFoundException, DaoException {
         final Organization org = mockOrganization("Cyberdyne Systems");
         final Person person = mockPerson(org, "Bob");
-        mockCredentials(person);
+        mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
@@ -177,7 +306,11 @@ public class MyResourceTest {
         verify(credentialsDao, never()).update(any(UUID.class), any(CredentialsProperties.class));
     }
 
-    private void mockCredentials(Person person) throws ObjectNotFoundException {
+    private String base64(String str) {
+        return BaseEncoding.base64().encode(str.getBytes(Charsets.UTF_8));
+    }
+
+    private void mockRegularPasswordCredentials(Person person) throws ObjectNotFoundException {
         final PasswordValidator passwordValidator = new PasswordValidator(
                 SecretGenerator.PDKDF2,
                 "pw".toCharArray());
@@ -194,13 +327,16 @@ public class MyResourceTest {
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
         final Integer uuid = getRandomNonZeroValue();
 
+        final String email = "user@example.com";
+
         final Person person = mock(Person.class);
         when(person.getId()).thenReturn(uuid);
         when(person.getOrganization()).thenReturn(org);
         when(person.getName()).thenReturn(name);
-        when(person.getEmail()).thenReturn("user@example.com");
+        when(person.getEmail()).thenReturn(email);
 
         when(peopleDao.read(eq(uuid))).thenReturn(person);
+        when(peopleDao.getByEmail(eq(email))).thenReturn(Collections.singletonList(person));
 
         return person;
     }

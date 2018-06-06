@@ -27,7 +27,8 @@ public class JwtAuthenticator implements Authenticator<String, User> {
                     jwt.getPersonId(),
                     jwt.getCredentialsId(),
                     jwt.getPersonName(),
-                    jwt.getRoles());
+                    jwt.getRoles(),
+                    null);
             return Optional.of(user);
         } catch (JwtTokenServiceException e) {
             LOGGER.error("Exception when trying to validate credentials", e);

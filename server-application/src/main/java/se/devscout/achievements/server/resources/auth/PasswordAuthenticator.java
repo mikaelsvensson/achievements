@@ -40,8 +40,9 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
                 final User user = new User(
                         credentials.getPerson().getId(),
                         credentials.getId(),
-                        basicCredentials.getUsername(),
-                        Sets.union(Collections.singleton(role), Roles.IMPLICIT_ROLES.getOrDefault(role, Collections.emptySet())));
+                        credentials.getPerson().getName(),
+                        Sets.union(Collections.singleton(role), Roles.IMPLICIT_ROLES.getOrDefault(role, Collections.emptySet())),
+                        credentials.getType());
                 return Optional.of(user);
             } else {
                 return Optional.empty();

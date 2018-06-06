@@ -115,7 +115,7 @@ public abstract class AbstractResource {
         }
     }
 
-    OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
+    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
         final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
         for (Achievement achievement : achievements) {
             final int stepCount = achievement.getSteps().size();

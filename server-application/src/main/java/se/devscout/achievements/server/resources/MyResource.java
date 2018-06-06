@@ -1,21 +1,28 @@
 package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Strings;
+import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.ValidationResult;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.Credentials;
-import se.devscout.achievements.server.data.model.CredentialsType;
-import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.mail.EmailSender;
+import se.devscout.achievements.server.mail.EmailSenderException;
+import se.devscout.achievements.server.resources.auth.AbstractAuthResource;
+import se.devscout.achievements.server.resources.auth.ExternalIdpCallbackException;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,17 +30,22 @@ import java.util.stream.Collectors;
 @Path("my")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class MyResource extends AbstractResource {
+public class MyResource extends AbstractAuthResource {
     private PeopleDao peopleDao;
     private GroupsDao groupsDao;
     private AchievementsDao achievementsDao;
     private CredentialsDao credentialsDao;
+    private EmailSender emailSender;
+    private URI guiApplicationHost;
 
-    public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao, CredentialsDao credentialsDao) {
+    public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao, CredentialsDao credentialsDao, EmailSender emailSender, URI guiApplicationHost, JwtSignInTokenService signInTokenService) {
+        super(signInTokenService, credentialsDao);
         this.peopleDao = peopleDao;
         this.groupsDao = groupsDao;
         this.achievementsDao = achievementsDao;
         this.credentialsDao = credentialsDao;
+        this.emailSender = emailSender;
+        this.guiApplicationHost = guiApplicationHost;
     }
 
     @GET
@@ -55,7 +67,8 @@ public class MyResource extends AbstractResource {
     @POST
     @Path("password")
     @UnitOfWork
-    public void setPassword(@Auth User user, SetPasswordDTO payload) {
+    // TODO: Split into smaller methods
+    public Response setPassword(@Auth User user, SetPasswordDTO payload) {
         final Person person = getPerson(user);
         final Optional<Credentials> passwordOpt = person.getCredentials().stream()
                 .filter(c -> c.getType() == CredentialsType.PASSWORD)
@@ -63,7 +76,8 @@ public class MyResource extends AbstractResource {
         if (passwordOpt.isPresent()) {
             final Credentials credentials = passwordOpt.get();
             final byte[] currentPwData = credentials.getData();
-            if (currentPwData != null && currentPwData.length > 0) {
+            final boolean validationOfCurrentPasswordRequired = currentPwData != null && currentPwData.length > 0 && user.getCredentialsTypeUsed() != CredentialsType.ONETIME_PASSWORD;
+            if (validationOfCurrentPasswordRequired) {
                 if (!Strings.isNullOrEmpty(payload.current_password)) {
                     final PasswordValidator currentPwValidator = new PasswordValidator(currentPwData);
                     final ValidationResult currentPwValidationResult = currentPwValidator.validate(payload.current_password.toCharArray());
@@ -83,6 +97,19 @@ public class MyResource extends AbstractResource {
                         credentials.setData(passwordValidator.getCredentialsData());
                         credentials.setType(passwordValidator.getCredentialsType());
                         credentialsDao.update(credentials.getId(), credentials);
+
+                        if (user.getCredentialsTypeUsed() == CredentialsType.ONETIME_PASSWORD) {
+                            try {
+                                return Response
+                                        .ok()
+                                        .entity(createTokenDTO(CredentialsType.PASSWORD, credentials.getUserId()))
+                                        .build();
+                            } catch (ExternalIdpCallbackException e) {
+                                throw new InternalServerErrorException(e);
+                            }
+                        } else {
+                            return Response.noContent().build();
+                        }
                     } catch (ObjectNotFoundException e) {
                         throw new NotFoundException();
                     } catch (DaoException e) {
@@ -96,6 +123,44 @@ public class MyResource extends AbstractResource {
             }
         } else {
             throw new NotFoundException();
+        }
+    }
+
+    @POST
+    @Path("send-set-password-link")
+    @UnitOfWork
+    public void sendResetPasswordLink(@Auth Optional<User> user, ForgotPasswordDTO payload) {
+
+        Person person = null;
+
+        if (user.isPresent()) {
+            person = getPerson(user.get());
+        } else {
+            final List<Person> people = peopleDao.getByEmail(payload.email);
+            if (people != null && people.size() == 1) {
+                person = people.get(0);
+            }
+        }
+
+        if (person != null) {
+            try {
+                final byte[] bytes = new byte[20];
+                new SecureRandom().nextBytes(bytes);
+                final String onetimePassword = BaseEncoding.base32().encode(bytes).toLowerCase();
+                credentialsDao.create(person, new CredentialsProperties(onetimePassword, CredentialsType.ONETIME_PASSWORD, null));
+
+                final URI link = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#set-password/" + onetimePassword);
+
+                emailSender.send(
+                        person.getEmail(),
+                        //TODO: Don't keep mail body, and subject, in source code. Make it localizable.
+                        "You have requested to change your password. Follow these instructions.",
+                        String.format("Click this link to set a new password: %s", link));
+            } catch (DaoException e) {
+                e.printStackTrace();
+            } catch (EmailSenderException e) {
+                e.printStackTrace();
+            }
         }
     }
 
