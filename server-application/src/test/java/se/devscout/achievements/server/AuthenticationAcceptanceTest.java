@@ -9,9 +9,11 @@ import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import se.devscout.achievements.server.api.UnsuccessfulDTO;
 import se.devscout.achievements.server.data.model.CredentialsType;
+import se.devscout.achievements.server.resources.SetPasswordDTO;
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.ws.rs.*;
@@ -50,7 +52,80 @@ public class AuthenticationAcceptanceTest {
             .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signin/callback")
             .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup")
             .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup/callback")
+            .add("http://localhost:9000/api/my/forgot-password")
+            .add("http://localhost:9000/api/my/send-set-password-link")
             .build();
+
+    @Test
+    public void oneTimePassword_successfulFirstFailedSecondRequest() {
+        Client client = RULE.client();
+        Response response1 = client
+                .target("http://localhost:9000/api/my/profile")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
+                .get();
+
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        Response response2 = client
+                .target("http://localhost:9000/api/my/profile")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
+                .get();
+
+        // Verify that second request using same one-time password fails.
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+    }
+
+    @Test
+    public void oneTimePassword_failedFirstFailedSecondRequest() {
+        Client client = RULE.client();
+        Response response1 = client
+                .target("http://localhost:9000/api/my/password")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
+                .post(Entity.json(new SetPasswordDTO(null, "good_password", "bad_password")));
+
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        Response response2 = client
+                .target("http://localhost:9000/api/my/profile")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
+                .get();
+
+        // Verify that second request using same one-time password fails.
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+    }
+
+    @Test
+    @Ignore("We accept the risk that Trudy can change the password of Alice if Trudy gets hold of Alice's one-time password.")
+    public void oneTimePassword_correctPasswordForAnotherUser() {
+        Client client = RULE.client();
+        Response response = client
+                .target("http://localhost:9000/api/my/profile")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword2"))
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+    }
+
+    @Test
+    public void oneTimePassword_incorrectPassword() {
+        Client client = RULE.client();
+        Response response = client
+                .target("http://localhost:9000/api/my/profile")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("the-wrong-password"))
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+    }
+
+    private String base64(String str) {
+        return BaseEncoding.base64().encode(str.getBytes(Charsets.UTF_8));
+    }
 
     @Test
     public void authenticationRequired_httpHeaderMissing_expect401() {
@@ -113,7 +188,7 @@ public class AuthenticationAcceptanceTest {
             Response response = client
                     .target(resource)
                     .request()
-                    .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("user:incorrect-password".getBytes(Charsets.UTF_8)))
+                    .header(HttpHeaders.AUTHORIZATION, "Basic " + base64("user:incorrect-password"))
                     .build(verb, getMockEntity(verb))
                     .invoke();
             if (response.getStatus() != HttpStatus.UNAUTHORIZED_401) {

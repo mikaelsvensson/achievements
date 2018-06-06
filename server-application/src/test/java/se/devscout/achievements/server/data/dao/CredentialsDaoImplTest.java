@@ -112,4 +112,20 @@ public class CredentialsDaoImplTest {
     public void read_missingCredentials_expectException() throws Exception {
         dao.read(UUID.randomUUID());
     }
+
+    @Test(expected = ObjectNotFoundException.class)
+    public void delete_happyPath() throws Exception {
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final Credentials credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
+        database.inTransaction(() -> {
+            try {
+                dao.delete(credentials.getId());
+            } catch (ObjectNotFoundException e) {
+                fail();
+            }
+        });
+
+        // Expect this to fail:
+        dao.read(credentials.getId());
+    }
 }

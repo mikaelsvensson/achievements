@@ -104,6 +104,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
+        final SmtpSender emailSender = new SmtpSender(config.getSmtp());
+
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
@@ -111,7 +113,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao));
         environment.jersey().register(new GroupsResource(groupsDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
         environment.jersey().register(new GroupMembershipsResource(groupsDao, peopleDao, organizationsDao, membershipsDao));
-        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao));
+        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, config.getGuiApplicationHost(), signInTokenService));
         environment.jersey().register(new StatsResource(organizationsDao));
         environment.jersey().register(new SignInResource(signInTokenService, credentialsDao));
         environment.jersey().register(new ExternalIdpResource(
@@ -134,7 +136,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                         "email",
                         new EmailIdentityProvider(
                                 jwtTokenService,
-                                new SmtpSender(config.getSmtp()),
+                                emailSender,
                                 config.getGuiApplicationHost(),
                                 credentialsDao)),
                 credentialsDao,
@@ -161,6 +163,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
     public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService) {
 
         PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
+        OnetimePasswordAuthenticator onetimePasswordAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(OnetimePasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
         final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(new JwtSignInTokenService(jwtTokenService));
 
         final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
@@ -169,6 +172,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 new BasicCredentialAuthFilter.Builder<User>()
                         .setAuthenticator(tokenAuthenticator)
                         .setPrefix("Basic")
+//                        .setRealm("Achievements")
+                        .setAuthorizer(authorizer)
+//                        .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
+                        .buildAuthFilter(),
+                new OAuthCredentialAuthFilter.Builder<User>()
+                        .setAuthenticator(onetimePasswordAuthenticator)
+                        .setPrefix("OneTime")
 //                        .setRealm("Achievements")
                         .setAuthorizer(authorizer)
 //                        .setUnauthorizedHandler(new DefaultUnauthorizedHandler())

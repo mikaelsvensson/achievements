@@ -47,8 +47,7 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
 
     @Override
     public void delete(UUID uuid) throws ObjectNotFoundException {
-        throw new UnsupportedOperationException();
-
+        currentSession().delete(read(uuid));
     }
 
     @Override
