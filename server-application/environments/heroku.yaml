@@ -45,3 +45,7 @@ smtp:
   password: ${SMTP_PASSWORD}
   fromAddress: ${SMTP_FROM}
   ssl: true
+
+rateLimiting:
+  requestsPerMinute: 60
+  grace: 5

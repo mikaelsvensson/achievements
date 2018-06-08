@@ -38,3 +38,7 @@ smtp:
   password: YOUR_GOOGLE_PASSWORD
   fromAddress: YOUR_GOOGLE_EMAIL_ADDRESS
   ssl: true
+
+rateLimiting:
+  requestsPerMinute: 300
+  grace: 5

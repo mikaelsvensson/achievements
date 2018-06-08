@@ -16,6 +16,7 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
     private URI guiApplicationHost;
     private boolean autoMigrateDatabase;
+    private RateLimiting rateLimiting;
 
     public URI getServerApplicationHost() {
         return serverApplicationHost;
@@ -82,6 +83,14 @@ public class AchievementsApplicationConfiguration extends Configuration {
         this.autoMigrateDatabase = autoMigrateDatabase;
     }
 
+    public RateLimiting getRateLimiting() {
+        return rateLimiting;
+    }
+
+    public void setRateLimiting(RateLimiting rateLimiting) {
+        this.rateLimiting = rateLimiting;
+    }
+
     public static class AuthConfig {
         private String googleClientId;
         private String googleClientSecret;
@@ -128,6 +137,27 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
         public void setMicrosoftClientSecret(String microsoftClientSecret) {
             this.microsoftClientSecret = microsoftClientSecret;
+        }
+    }
+
+    public static class RateLimiting {
+        private int requestsPerMinute;
+        private int grace;
+
+        public int getRequestsPerMinute() {
+            return requestsPerMinute;
+        }
+
+        public void setRequestsPerMinute(int requestsPerMinute) {
+            this.requestsPerMinute = requestsPerMinute;
+        }
+
+        public int getGrace() {
+            return grace;
+        }
+
+        public void setGrace(int grace) {
+            this.grace = grace;
         }
     }
 }

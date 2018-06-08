@@ -100,6 +100,15 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
+        if (config.getRateLimiting() != null) {
+            final RateLimitFilterCoarseGrained rateLimitFilterCoarseGrained = new RateLimitFilterCoarseGrained(
+                    config.getRateLimiting().getRequestsPerMinute(),
+                    config.getRateLimiting().getGrace());
+
+            environment.servlets().addFilter("RateLimiter", rateLimitFilterCoarseGrained)
+                    .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/api/*");
+        }
+
         environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
