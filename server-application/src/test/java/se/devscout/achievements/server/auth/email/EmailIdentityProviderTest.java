@@ -47,7 +47,7 @@ public class EmailIdentityProviderTest {
 
         assertThat(redirectUri.getFragment()).isEqualTo("signin/check-mail-box");
         verify(jwtTokenService).encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class));
-        verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
+        verify(emailSender).send(anyString(), eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
     }
 
     @Test(expected = IdentityProviderException.class)
@@ -55,12 +55,12 @@ public class EmailIdentityProviderTest {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
         when(jwtTokenService.encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
-        doThrow(new EmailSenderException("error", new Exception())).when(emailSender).send(anyString(), anyString(), anyString());
+        doThrow(new EmailSenderException("error", new Exception())).when(emailSender).send(anyString(), anyString(), anyString(), anyString());
 
         try {
             provider.getRedirectUri("state", URI.create("http://example.com/callback"), Collections.singletonMap("email", "alice@example.com"));
         } finally {
-            verify(emailSender).send(eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
+            verify(emailSender).send(anyString(), eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
         }
     }
 

@@ -7,6 +7,8 @@ server:
     - type: http
       port: 9001
 
+guiApplicationHost: http://localhost:8080
+
 database:
   driverClass: org.h2.Driver
   url: jdbc:h2:mem:demo
@@ -17,3 +19,12 @@ database:
 authentication:
   googleClientId: YOUR_CLIENT_ID_HERE
   jwtSigningSecret: JWT_SIGNING_SECRET
+
+smtp:
+  host: example.om
+  port: 25
+  username: alice
+  password: alice
+  fromAddress: example.com
+  ssl: true
+  maxMailsPerSenderPerMinute: 1

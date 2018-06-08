@@ -142,7 +142,7 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
     public static class RateLimiting {
         private int requestsPerMinute;
-        private int grace;
+        private int burstLimit;
 
         public int getRequestsPerMinute() {
             return requestsPerMinute;
@@ -152,12 +152,12 @@ public class AchievementsApplicationConfiguration extends Configuration {
             this.requestsPerMinute = requestsPerMinute;
         }
 
-        public int getGrace() {
-            return grace;
+        public int getBurstLimit() {
+            return burstLimit;
         }
 
-        public void setGrace(int grace) {
-            this.grace = grace;
+        public void setBurstLimit(int burstLimit) {
+            this.burstLimit = burstLimit;
         }
     }
 }

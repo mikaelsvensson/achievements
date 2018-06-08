@@ -5,6 +5,7 @@ import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.lang3.StringUtils;
+import se.devscout.achievements.server.RateLimited;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
@@ -18,7 +19,9 @@ import se.devscout.achievements.server.resources.auth.AbstractAuthResource;
 import se.devscout.achievements.server.resources.auth.ExternalIdpCallbackException;
 import se.devscout.achievements.server.resources.auth.User;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -129,7 +132,10 @@ public class MyResource extends AbstractAuthResource {
     @POST
     @Path("send-set-password-link")
     @UnitOfWork
-    public void sendResetPasswordLink(@Auth Optional<User> user, ForgotPasswordDTO payload) {
+    @RateLimited(requestsPerMinute = 1, burstLimit = 0)
+    public void sendResetPasswordLink(@Auth Optional<User> user,
+                                      ForgotPasswordDTO payload,
+                                      @Context HttpServletRequest req) {
 
         Person person = null;
 
@@ -152,6 +158,7 @@ public class MyResource extends AbstractAuthResource {
                 final URI link = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#set-password/" + onetimePassword);
 
                 emailSender.send(
+                        req != null ? req.getRemoteAddr() : "ANONYMOUS",
                         person.getEmail(),
                         //TODO: Don't keep mail body, and subject, in source code. Make it localizable.
                         "You have requested to change your password. Follow these instructions.",

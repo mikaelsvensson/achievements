@@ -7,6 +7,7 @@ public class SmtpSenderConfiguration {
     private String password;
     private String fromAddress;
     private boolean ssl;
+    private int maxMailsPerSenderPerMinute;
 
     public String getHost() {
         return host;
@@ -54,5 +55,13 @@ public class SmtpSenderConfiguration {
 
     public void setSsl(boolean ssl) {
         this.ssl = ssl;
+    }
+
+    public int getMaxMailsPerSenderPerMinute() {
+        return maxMailsPerSenderPerMinute;
+    }
+
+    public void setMaxMailsPerSenderPerMinute(int maxMailsPerSenderPerMinute) {
+        this.maxMailsPerSenderPerMinute = maxMailsPerSenderPerMinute;
     }
 }

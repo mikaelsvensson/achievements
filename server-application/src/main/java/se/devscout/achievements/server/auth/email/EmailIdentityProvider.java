@@ -48,6 +48,7 @@ public class EmailIdentityProvider implements IdentityProvider {
 
             final String email = providerData.get("email");
             final String password = providerData.get("password");
+            final String clientId = providerData.getOrDefault("ip", "ANYNOMOUS");
 
             if (Strings.isNullOrEmpty(email)) {
                 throw new IdentityProviderException("Email not specified.");
@@ -66,7 +67,7 @@ public class EmailIdentityProvider implements IdentityProvider {
                     return URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin-failed/invalid-credentials");
                 }
             } else {
-                sendEmail(email, confirmationUri);
+                sendEmail(clientId, email, confirmationUri);
 
                 return URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin/check-mail-box");
             }
@@ -81,12 +82,12 @@ public class EmailIdentityProvider implements IdentityProvider {
         }
     }
 
-    private void sendEmail(String to, URI confirmationUri) throws EmailSenderException {
+    private void sendEmail(String clientId, String to, URI confirmationUri) throws EmailSenderException {
         final String link = confirmationUri.toString();
         LOGGER.info("Confirmation link: " + link);
 
         //TODO: Localize e-mail
-        emailSender.send(to, "Sign in to Achievements", getMessageBody(link));
+        emailSender.send(clientId, to, "Sign in to Achievements", getMessageBody(link));
 
         LOGGER.info("Sent this link to {}: {}", to, link);
     }

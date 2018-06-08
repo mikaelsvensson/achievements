@@ -15,7 +15,9 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -59,9 +61,11 @@ public class ExternalIdpResource extends AbstractAuthResource {
     @Path("signin")
     @UnitOfWork
     public Response doSignInRequest(@PathParam("identityProvider") String identityProvider,
-                                    Form form) throws ExternalIdpCallbackException {
+                                    Form form,
+                                    @Context HttpServletRequest req) throws ExternalIdpCallbackException {
         try {
             final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
+            values.put("ip", req != null ? req.getRemoteAddr() : "ANONYMOUS");
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
             return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signin/callback"), values)).build();
@@ -76,9 +80,11 @@ public class ExternalIdpResource extends AbstractAuthResource {
     public Response doSignUpRequest(@PathParam("identityProvider") String identityProvider,
                                     @FormParam("organization_id") UuidString organizationId,
                                     @FormParam("new_organization_name") String organizationName,
-                                    Form form) throws ExternalIdpCallbackException {
+                                    Form form,
+                                    @Context HttpServletRequest req) throws ExternalIdpCallbackException {
         try {
             final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
+            values.put("ip", req.getRemoteAddr());
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
             return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signup/callback"), values)).build();

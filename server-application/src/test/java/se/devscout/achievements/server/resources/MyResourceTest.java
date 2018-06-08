@@ -229,7 +229,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+        verify(emailSender).send(anyString(), eq("user@example.com"), anyString(), anyString());
     }
 
     @Test
@@ -248,7 +248,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+        verify(emailSender).send(anyString(), eq("user@example.com"), anyString(), anyString());
     }
 
     @Test
@@ -266,7 +266,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        verify(emailSender).send(eq("user@example.com"), anyString(), anyString());
+        verify(emailSender).send(anyString(), eq("user@example.com"), anyString(), anyString());
     }
 
     @Test
@@ -284,7 +284,27 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        verify(emailSender, never()).send(anyString(), anyString(), anyString());
+        verify(emailSender, never()).send(anyString(), anyString(), anyString(), anyString());
+    }
+
+    @Test
+    public void sendSetPasswordLink_failedToSendEmail() throws ObjectNotFoundException, EmailSenderException {
+        final Organization org = mockOrganization("Cyberdyne Systems");
+        final Person person = mockPerson(org, "Bob");
+        mockRegularPasswordCredentials(person);
+
+        when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
+
+        doThrow(new EmailSenderException("Boom")).when(emailSender).send(anyString(), anyString(), anyString(), anyString());
+
+        final Response response = resources
+                .target("my/send-set-password-link")
+                .request()
+                .post(Entity.json(new ForgotPasswordDTO("user@example.com")));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(emailSender).send(anyString(), anyString(), anyString(), anyString());
     }
 
     @Test

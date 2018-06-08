@@ -45,7 +45,8 @@ smtp:
   password: ${SMTP_PASSWORD}
   fromAddress: ${SMTP_FROM}
   ssl: true
+  maxMailsPerSenderPerMinute: 1
 
 rateLimiting:
   requestsPerMinute: 60
-  grace: 5
+  burstLimit: 5
