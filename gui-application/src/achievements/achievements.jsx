@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, isLoggedIn} from "../util/api.jsx";
+import {get, isLoggedIn, sortBy} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 
@@ -8,6 +8,8 @@ const templateAchievementsResult = require("./achievements.result.handlebars");
 
 const loadResult = function (responseData) {
     const container = $('#achievements-search-result');
+
+    responseData.sort(sortBy('name'));
 
     updateView(templateAchievementsResult({achievements: responseData}), container);
 

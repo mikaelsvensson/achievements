@@ -1,143 +1,129 @@
-<section class="hero is-medium is-primary is-bold">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title">
-                Mina märken
-            </h1>
-            <h2 class="subtitle">
-                Din sida för märkena du inte har på skjortan ännu.
-            </h2>
-        </div>
-    </div>
-</section>
+<section class="section">
 
-{{#if isLoggedIn}}
-<section class="section">
-    <div class="columns">
-        <div class="column has-text-centered">
-            <div class="content">
-                <p>
-                    <a class="button is-primary is-medium" type="submit" href="#minprofil">
-                        Min sida
-                    </a>
-                </p>
-                <p>Dina märken och dina kontaktuppgifter.</p>
-            </div>
-        </div>
-        <div class="column has-text-centered">
-            <div class="content">
-                <p>
-                    <a class="button is-primary is-medium" type="submit" href="#marken">
-                        Alla märken
-                    </a>
-                </p>
-                <p>Vilka märken vill du ta?</p>
-                <p>Vilka märken har dina scouter tagit?</p>
-            </div>
-        </div>
-        <div class="column has-text-centered">
-            <div class="content">
-                <p>
-                    <a class="button is-primary is-medium" type="submit" href="#karer">
-                        Alla kårer
-                    </a>
-                </p>
-                <p>Vilka andra använder den här sidan?</p>
-            </div>
-        </div>
-    </div>
-</section>
-{{> _footer.handlebars}}
-{{else}}
-<section class="section">
-    <div class="columns">
-        <div class="column">
-            <div class="content">
-                <p class="subtitle">Hej scout</p>
-                <p>Om du är är scout eller scoutförälder så vill du nog <a
-                        href="#loggain" aria-current="page">logga in</a> med någon av de tre
-                    alternativen här nedan.</p>
-                <p>Du behöver förstås inte logga in om du bara vill <a href="#marken">se alla märken</a>.</p>
-            </div>
-        </div>
-        <div class="column">
-            <div class="content">
-                <p class="subtitle">Hej ledare</p>
-                <p>Om du vill rapportera hur det går för dina scouter så behöver du <a
-                        href="#loggain" aria-current="page">logga in</a> med någon av de tre
-                    alternativen här nedan.</p>
-                <p>Om din kår ännu inte börjat använda den här vill pröva på den här tjänsten så kan du <a
-                        href="#skapa-konto" aria-current="page">skapa en ny kår</a> hos oss.</p>
-            </div>
-        </div>
-    </div>
-</section>
-<form method="post">
-    <section class="section">
+    <div class="container">
+
         <div class="columns">
+            <div class="column is-two-thirds">
+
+                <h1 class="title">
+                    Märken du vill ta. Märken du redan tagit.
+            </h1>
+
+                <div class="content">
+
+                    <p><strong>Tre</strong> av <a href="#marken">alla <span id="main-achievements-count"/> märken</a>:
+                    </p>
+
+                </div>
+
+                <div id="main-achievements-showcase"></div>
+
+                <div class="content">
+                    <br>
+                    <div class="notification">
+                        <h1>Ny här?</h1>
+                        <p>Om du är <strong>scout</strong> så kan du <a href="#marken">hitta roliga märken</a>. I
+                            framtiden kommer du även kunna se vilka märken du tagit.</p>
+                        <p>Om du är <strong>ledare</strong> så vill du nog <a href="#loggain">logga in</a> så att du kan
+                            rapportera hur det går för dina scouter. Om din kår ännu inte börjat använda den här
+                            tjänsten
+                            så kan du <a href="#skapa-konto" aria-current="page">registrera din kår</a> och komma igång
+                            direkt.</p>
+                    </div>
+
+                </div>
+            </div>
             <div class="column">
-                <article class="notification">
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
-                                    formaction="{{host}}/api/openid/google/signin">
-                                Logga in med Google
-                            </button>
-                        </div>
+                {{#if isLoggedIn}}
+                <article class="notification has-text-centered">
+                    <div class="content">
+                        <p>
+                            <a class="button is-primary is-medium" type="submit" href="#minprofil">
+                                Min sida
+                            </a>
+                        </p>
+                        <p>Dina märken och dina kontaktuppgifter.</p>
+                    </div>
+                </article>
+                <article class="notification has-text-centered">
+                    <div class="content">
+                        <p>
+                            <a class="button is-primary is-medium" type="submit" href="#marken">
+                                Alla märken
+                            </a>
+                        </p>
+                        <p>Vilka märken vill du ta?</p>
+                        <p>Vilka märken har dina scouter tagit?</p>
+                    </div>
+                </article>
+                <!--
+                            <article class="notification has-text-centered">
+                                <div class="content">
+                                    <p>
+                                        <a class="button is-primary is-medium" type="submit" href="#karer">
+                                            Alla kårer
+                                        </a>
+                                    </p>
+                                    <p>Vilka andra använder den här sidan?</p>
+                                </div>
+                            </article>
+                -->
+                {{else}}
+
+                <article class="notification has-text-centered">
+                    <div class="content">
+                        <button class="button is-primary is-medium" type="submit"
+                                formaction="{{host}}/api/openid/google/signin">
+                            Logga in med Google
+                        </button>
                     </div>
                     <div class="content is-small">
                         <p>Det här passar dig som har en Gmail-adress.</p>
                     </div>
                 </article>
-            </div>
-            <div class="column">
-                <article class="notification">
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-medium" type="submit"
-                                    formaction="{{host}}/api/openid/microsoft/signin">
-                                Logga in med Microsoft
-                            </button>
-                        </div>
+                <article class="notification has-text-centered">
+                    <div class="content">
+                        <button class="button is-primary is-medium" type="submit"
+                                formaction="{{host}}/api/openid/microsoft/signin">
+                            Logga in med Microsoft
+                        </button>
                     </div>
                     <div class="content is-small">
                         <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
                     </div>
                 </article>
-            </div>
-            <div class="column">
-                <article class="notification">
-                    <div class="field">
+                <article class="notification has-text-centered">
+                    <div class="content">
                         <div class="control">
                             <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
                         </div>
                     </div>
 
-                    <div class="field">
+                    <div class="content">
                         <div class="control">
                             <input class="input" type="password" id="password" name="password"
                                    placeholder="Ditt lösenord, om du har ett.">
                         </div>
                     </div>
 
-                    <div class="field">
+                    <div class="content">
                         <button class="button is-primary is-medium" type="submit"
                                 formaction="{{host}}/api/openid/email/signin">
                             Logga in med e-post
                         </button>
-                    </div>
-
                     <div class="errors"/>
+                    </div>
 
                     <div class="content is-small">
                         <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
-                        <p>Inget lösenord? Inga poblem. Om du inte anger ett lösenord så kommer vi skicka en
-                            inloggningslänk till dig.</p>
+                        <p>Orkar du inte bry dig om lösenord? Inga poblem. Om du inte anger ett lösenord så skickar vi
+                            en inloggningslänk till dig.</p>
                     </div>
 
                 </article>
+                {{/if}}
             </div>
         </div>
-    </section>
-</form>
-{{/if}}
+    </div>
+</section>
+{{> _footer.handlebars}}
