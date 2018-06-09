@@ -6,78 +6,87 @@
                 Skapa kår
             </h1>
             <h2 class="subtitle">
-                Kom igång genom att skapa en kår. Du blir kårens första användare!
+                Kom igång genom att skapa en kår.
             </h2>
         </div>
     </div>
 </section>
 <section class="section">
-    <p class="subtitle">Vad heter din scoutkår?</p>
-    <input class="input is-large"
-           type="text"
-           id="new_organization_name"
-           name="new_organization_name"
-           placeholder="Namn på scoutkår"/>
-</section>
-<section class="section">
-    <p class="subtitle">Hur vill du logga in?</p>
+    <div class="container">
+        <div class="content">
+            <p class="subtitle">Vad heter din scoutkår?</p>
 
-    <div class="columns">
-        <div class="column">
-            <article class="notification">
-                <div class="field">
-                    <div class="control">
+            <input class="input is-large"
+                   type="text"
+                   id="new_organization_name"
+                   name="new_organization_name"
+                   placeholder="Namn på scoutkår"/>
+        </div>
+        <div class="content">
+            <p class="subtitle">Hur vill du logga in?</p>
+
+            <p>Genom att logga in så skapas ditt konto och din kår. Du kommer samtidigt att bli administratör för
+                kåren.</p>
+        </div>
+
+        <div class="columns">
+            <div class="column">
+                <article class="notification">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="{{host}}/api/openid/google/signup">
+                                Logga in med Google
+                            </button>
+                        </div>
+                    </div>
+                    <div class="content is-small">
+                        <p>Det här passar dig som har en Gmail-adress.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="{{host}}/api/openid/microsoft/signup">
+                                Logga in med Microsoft
+                            </button>
+                        </div>
+                    </div>
+                    <div class="content is-small">
+                        <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                    </div>
+                </article>
+            </div>
+            <div class="column">
+                <article class="notification">
+                    <p class="subtitle">...eller din e-postadress</p>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
+                        </div>
+                    </div>
+
+                    <div class="field">
                         <button class="button is-primary is-medium" type="submit"
-                                formaction="{{host}}/api/openid/google/signup">
-                            Logga in med Google
+                                formaction="{{host}}/api/openid/email/signup">
+                            Logga in med e-post
                         </button>
                     </div>
-                </div>
-                <div class="content is-small">
-                    <p>Det här passar dig som har en Gmail-adress.</p>
-                </div>
-            </article>
-        </div>
-        <div class="column">
-            <article class="notification">
-                <div class="field">
-                    <div class="control">
-                        <button class="button is-primary is-medium" type="submit"
-                                formaction="{{host}}/api/openid/microsoft/signup">
-                            Logga in med Microsoft
-                        </button>
+
+                    <div class="errors"/>
+
+                    <div class="content is-small">
+                        <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
                     </div>
-                </div>
-                <div class="content is-small">
-                    <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
-                </div>
-            </article>
+                </article>
+            </div>
         </div>
-        <div class="column">
-            <article class="notification">
-                <p class="subtitle">...eller din e-postadress</p>
-                <div class="field">
-                    <div class="control">
-                        <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
-                    </div>
-                </div>
-
-                <div class="field">
-                    <button class="button is-primary is-medium" type="submit"
-                            formaction="{{host}}/api/openid/email/signup">
-                        Logga in med e-post
-                    </button>
-                </div>
-
-                <div class="errors"/>
-
-                <div class="content is-small">
-                    <p>Du kommer att få ett e-post med en länk för att skapa kontot.</p>
-                </div>
-            </article>
-        </div>
+        <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a>
+            istället.
+        </p>
     </div>
-    <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a> istället.
-    </p>
 </section>
 </form>
