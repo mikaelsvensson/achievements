@@ -70,57 +70,59 @@
                 -->
                 {{else}}
 
-                <article class="notification has-text-centered">
-                    <div class="content">
-                        <button class="button is-primary is-medium" type="submit"
-                                formaction="{{host}}/api/openid/google/signin">
-                            Logga in med Google
-                        </button>
-                    </div>
-                    <div class="content is-small">
-                        <p>Det här passar dig som har en Gmail-adress.</p>
-                    </div>
-                </article>
-                <article class="notification has-text-centered">
-                    <div class="content">
-                        <button class="button is-primary is-medium" type="submit"
-                                formaction="{{host}}/api/openid/microsoft/signin">
-                            Logga in med Microsoft
-                        </button>
-                    </div>
-                    <div class="content is-small">
-                        <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
-                    </div>
-                </article>
-                <article class="notification has-text-centered">
-                    <div class="content">
-                        <div class="control">
-                            <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
+                <form method="post">
+                    <article class="notification has-text-centered">
+                        <div class="content">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="{{host}}/api/openid/google/signin">
+                                Logga in med Google
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="content">
-                        <div class="control">
-                            <input class="input" type="password" id="password" name="password"
-                                   placeholder="Ditt lösenord, om du har ett.">
+                        <div class="content is-small">
+                            <p>Det här passar dig som har en Gmail-adress.</p>
                         </div>
-                    </div>
+                    </article>
+                    <article class="notification has-text-centered">
+                        <div class="content">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="{{host}}/api/openid/microsoft/signin">
+                                Logga in med Microsoft
+                            </button>
+                        </div>
+                        <div class="content is-small">
+                            <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                        </div>
+                    </article>
+                    <article class="notification has-text-centered">
+                        <div class="content">
+                            <div class="control">
+                                <input class="input" type="text" id="email" name="email" placeholder="Din e-postadress">
+                            </div>
+                        </div>
 
-                    <div class="content">
-                        <button class="button is-primary is-medium" type="submit"
-                                formaction="{{host}}/api/openid/email/signin">
-                            Logga in med e-post
-                        </button>
-                    <div class="errors"/>
-                    </div>
+                        <div class="content">
+                            <div class="control">
+                                <input class="input" type="password" id="password" name="password"
+                                       placeholder="Ditt lösenord, om du har ett.">
+                            </div>
+                        </div>
 
-                    <div class="content is-small">
-                        <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
-                        <p>Orkar du inte bry dig om lösenord? Inga poblem. Om du inte anger ett lösenord så skickar vi
-                            en inloggningslänk till dig.</p>
-                    </div>
+                        <div class="content">
+                            <button class="button is-primary is-medium" type="submit"
+                                    formaction="{{host}}/api/openid/email/signin">
+                                Logga in med e-post
+                            </button>
+                            <div class="errors"/>
+                        </div>
 
-                </article>
+                        <div class="content is-small">
+                            <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
+                            <p>Orkar du inte bry dig om lösenord? Inga poblem. Om du inte anger ett lösenord så skickar vi
+                                en inloggningslänk till dig.</p>
+                        </div>
+
+                    </article>
+                </form>
                 {{/if}}
             </div>
         </div>
