@@ -11,14 +11,16 @@
     </div>
 </section>
 <section class="section">
-    <div class="content">
-        <p><strong>{{message}}</strong></p>
-        <p>Vad sägs om att <a href="/">gå till startsidan</a>?</p>
-        {{#if customerSupportEmail}}
-        <p>Kontakta oss på <a href="mailto:{{customerSupportEmail}}">{{customerSupportEmail}}</a> om problemet inte
-            försvinner.</p>
-        {{else}}
-        <p>Försök gärna en gång till.</p>
-        {{/if}}
+    <div class="container">
+        <div class="content">
+            <p><strong>{{message}}</strong></p>
+            <p>Vad sägs om att <a href="/">gå till startsidan</a>?</p>
+            {{#if customerSupportEmail}}
+            <p>Kontakta oss på <a href="mailto:{{customerSupportEmail}}">{{customerSupportEmail}}</a> om problemet inte
+                försvinner.</p>
+            {{else}}
+            <p>Försök gärna en gång till.</p>
+            {{/if}}
+        </div>
     </div>
 </section>
