@@ -3,21 +3,14 @@
     <div class="field is-grouped is-grouped-multiline">
         <div class="control">
             <div class="tags">
-                <a class="tag is-white"
-                   style="padding-left: 0; font-size: 1rem; height: 1.5rem; color: #3273dc"
-                   href="#marken/{{achievement.id}}"
-                   aria-current="page">{{achievement.name}}</a>
+                {{achievement.name}}
             </div>
         </div>
         {{#if progress_summary.people_completed}}
         <div class="control">
             <div class="tags has-addons">
                 <span class="tag">
-                    <a class="modal-achievement-summary-details-button"
-                       style="padding-left: 0; color: #4a4a4a; text-decoration: underline"
-                       data-element-ref-id="modal-achievement-summary-details-{{@index}}" aria-current="page">
-                        Färdiga
-                    </a>
+                    Färdiga
                 </span>
                 <span class="tag is-success" title="{{progress_summary.people_completed}} har gjort klar allt.">{{progress_summary.people_completed}}</span>
             </div>
@@ -27,44 +20,12 @@
         <div class="control">
             <div class="tags has-addons">
                 <span class="tag">
-                    <a class="modal-achievement-summary-details-button"
-                       style="padding-left: 0; color: #4a4a4a; text-decoration: underline"
-                       data-element-ref-id="modal-achievement-summary-details-{{@index}}" aria-current="page">
-                        Nästan
-                    </a>
+                    Nästan
                 </span>
                 <span class="tag is-warning" title="{{progress_summary.people_started}} har påbörjat.">{{progress_summary.people_started}}</span>
             </div>
         </div>
         {{/if}}
-    </div>
-    <div class="modal" id="modal-achievement-summary-details-{{@index}}">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <p>Så här stor del av märket har scouterna klarat av:</p>
-                <table style="width: auto;">
-                    <tbody>
-                    {{#each progress_detailed}}
-                    <tr>
-                        <td>
-                        <span style="white-space: nowrap;">
-                            <a href="#karer/{{../../org_id}}/personer/{{person.id}}"
-                               aria-current="page">{{person.name}}</a>
-                        </span>
-                        </td>
-                        <td>
-                            <progress style="width: 10rem; margin-top: 0.4rem"
-                                      class="progress is-small {{progress_class}}" value="{{percent}}"
-                                      max="100"></progress>
-                        </td>
-                    </tr>
-                    {{/each}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close"></button>
     </div>
     {{/each}}
 {{else}}

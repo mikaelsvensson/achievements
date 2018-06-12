@@ -1,6 +1,6 @@
 import {renderMain} from "../main.jsx";
 import {renderStats} from "../stats.jsx";
-import {renderOrganization} from "../organizations/organization.jsx";
+import {renderMyOrganization, renderOrganization} from "../organizations/organization.jsx";
 import {renderOrganizations} from "../organizations/organizations.jsx";
 import {renderAchievement} from "../achievements/achievement.jsx";
 import {renderAchievements} from "../achievements/achievements.jsx";
@@ -18,6 +18,7 @@ import {renderBatchUpsert} from "../organizations/batchupsert.jsx";
 import {renderMyProfile} from "../my/profile.jsx";
 import {renderMyPassword, renderPasswordForgotten} from "../my/password.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
+import {renderOrganizationAchievements} from "../organizations/organization.achievements.jsx";
 
 export function navigateTo(appPath) {
     window.location.hash = '#' + appPath;
@@ -39,6 +40,7 @@ function renderRoute(appPath) {
         'statistik': renderStats,
         'minprofil/losenord': renderMyPassword,
         'minprofil': renderMyProfile,
+        'minkar': renderMyOrganization,
         'loggaut': renderSignout,
         'loggain': renderSignin,
         'skapa-konto': renderSignup,
@@ -47,6 +49,7 @@ function renderRoute(appPath) {
         'set-password/*': renderPasswordForgotten,
         'karer': renderOrganizations,
         'karer/*': renderOrganization,
+        'karer/*/marken': renderOrganizationAchievements,
         'karer/*/skapa-konto': renderOrganizationSignup,
         'karer/*/personer/importera': renderBatchUpsert,
         'karer/*/personer/*': renderPerson,

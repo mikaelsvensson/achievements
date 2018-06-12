@@ -1,0 +1,57 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Märken för kår <strong>{{orgName}}</strong>
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+        {{#each achievements}}
+        <div class="box">
+            <article class="media">
+                <div class="media-left">
+                    <figure class="image is-64x64">
+                        <img src="{{achievement.image}}" alt="Image">
+                    </figure>
+                </div>
+                <div class="media-content">
+                    <div class="content">
+                        <p>
+                            <strong><a href="#marken/{{achievement.id}}">{{achievement.name}}</a></strong>
+                        </p>
+                        {{#if progress_summary.people_completed}}
+                        <p class="is-marginless">Scouter som har <strong>tagit</strong> märket:</p>
+
+                        {{#each progress_detailed}}
+                        {{#if is_done}}
+                        <div>
+                            <small><a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+                            </small>
+                        </div>
+                        {{/if}}
+                        {{/each}}
+                        {{/if}}
+                        {{#if progress_summary.people_started}}
+                        <p class="is-marginless">Scouter som har <strong>påbörjat</strong> märket:</p>
+                        {{#each progress_detailed}}
+                        {{#if is_done}}
+                        {{else}}
+                        <div>
+                            <small>
+                                <progress style="width: 10rem; margin-top: 0.4rem"
+                                          class="progress is-small is-pulled-right is-warning is-paddingless is-marginless"
+                                          value="{{percent}}" max="100"></progress>
+                                <a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+                            </small>
+                        </div>
+                        {{/if}}
+                        {{/each}}
+                        {{/if}}
+                    </div>
+                </div>
+            </article>
+        </div>
+        {{/each}}
+    </div>
+</section>
+{{> ../_footer.handlebars}}

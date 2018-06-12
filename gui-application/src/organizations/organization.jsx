@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, post, put} from "../util/api.jsx";
+import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post, put} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 
 const templateOrganization = require("./organization.handlebars");
@@ -9,6 +9,23 @@ const templateOrganizationGroupsList = require("./organizations.groups-list.hand
 const templateOrganizationSummaryList = require("./organization.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 const templateAchievementsResult = require("../achievements/achievements.result.handlebars");
+
+//TODO: Duplicate function
+function achievementSorter(a, b) {
+    if (a.achievement.name < b.achievement.name) {
+        return -1;
+    } else if (a.achievement.name > b.achievement.name) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+export function renderMyOrganization() {
+    return renderOrganization([{
+        key: getUserOrganization()
+    }])
+}
 
 export function renderOrganization(appPathParams) {
     updateView(templateLoading());
@@ -118,26 +135,11 @@ export function renderOrganization(appPathParams) {
         });
 
         get('/api/organizations/' + appPathParams[0].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {
-            responseData.achievements.forEach((achievement => {
-                achievement.progress_detailed.sort((item1, item2) => item2.percent - item1.percent).forEach((item) => {
-                    item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
-                })
-            }));
+            responseData.achievements.sort(achievementSorter);
             updateView(templateOrganizationSummaryList({
                 achievements: responseData.achievements,
                 org_id: appPathParams[0].key
             }), $('#achievements-summary'));
-
-            $('.modal-achievement-summary-details-button').click(function (e) {
-                const $dialog = $(document.getElementById(this.dataset.elementRefId));
-                $dialog.addClass('is-active');
-                $dialog.find('div.modal-background').click(function (e) {
-                    $(this).parent().removeClass('is-active');
-                });
-                $dialog.find('button.modal-close').click(function (e) {
-                    $(this).parent().removeClass('is-active');
-                });
-            });
         });
     });
 }
