@@ -8,6 +8,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.api.PersonDTO;
@@ -25,6 +26,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
@@ -45,8 +47,11 @@ public class MyResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, URI.create("http://gui/"), signInTokenService))
+            .addResource(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, URI.create("http://gui/"), signInTokenService, new I18n("texts.sv.yaml")))
             .build();
+
+    public MyResourceTest() throws IOException {
+    }
 
     @Test
     public void getMyPeople_happyPath() throws Exception {

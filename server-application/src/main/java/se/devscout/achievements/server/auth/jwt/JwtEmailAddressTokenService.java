@@ -4,7 +4,7 @@ import java.time.Duration;
 
 public class JwtEmailAddressTokenService {
 
-    private static final Duration DURATION_15_MINS = Duration.ofMinutes(15);
+    public static final Duration DURATION_15_MINS = Duration.ofMinutes(15);
 
     private final JwtTokenService jwtTokenService;
 

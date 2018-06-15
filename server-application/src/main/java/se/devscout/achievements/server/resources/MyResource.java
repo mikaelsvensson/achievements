@@ -1,10 +1,12 @@
 package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.lang3.StringUtils;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.RateLimited;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.ValidationResult;
@@ -15,6 +17,7 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
+import se.devscout.achievements.server.mail.Template;
 import se.devscout.achievements.server.resources.auth.AbstractAuthResource;
 import se.devscout.achievements.server.resources.auth.ExternalIdpCallbackException;
 import se.devscout.achievements.server.resources.auth.User;
@@ -34,14 +37,16 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class MyResource extends AbstractAuthResource {
+    private final I18n i18n;
     private PeopleDao peopleDao;
     private GroupsDao groupsDao;
     private AchievementsDao achievementsDao;
     private CredentialsDao credentialsDao;
     private EmailSender emailSender;
     private URI guiApplicationHost;
+    private final Template template;
 
-    public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao, CredentialsDao credentialsDao, EmailSender emailSender, URI guiApplicationHost, JwtSignInTokenService signInTokenService) {
+    public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao, CredentialsDao credentialsDao, EmailSender emailSender, URI guiApplicationHost, JwtSignInTokenService signInTokenService, I18n i18n) {
         super(signInTokenService, credentialsDao);
         this.peopleDao = peopleDao;
         this.groupsDao = groupsDao;
@@ -49,6 +54,9 @@ public class MyResource extends AbstractAuthResource {
         this.credentialsDao = credentialsDao;
         this.emailSender = emailSender;
         this.guiApplicationHost = guiApplicationHost;
+
+        this.template = new Template("assets/email.set-password.html");
+        this.i18n = i18n;
     }
 
     @GET
@@ -132,7 +140,7 @@ public class MyResource extends AbstractAuthResource {
     @POST
     @Path("send-set-password-link")
     @UnitOfWork
-    @RateLimited(requestsPerMinute = 1, burstLimit = 0)
+    @RateLimited(requestsPerMinute = 10, burstLimit = 0)
     public void sendResetPasswordLink(@Auth Optional<User> user,
                                       ForgotPasswordDTO payload,
                                       @Context HttpServletRequest req) {
@@ -160,9 +168,8 @@ public class MyResource extends AbstractAuthResource {
                 emailSender.send(
                         req != null ? req.getRemoteAddr() : "ANONYMOUS",
                         person.getEmail(),
-                        //TODO: Don't keep mail body, and subject, in source code. Make it localizable.
-                        "You have requested to change your password. Follow these instructions.",
-                        String.format("Click this link to set a new password: %s", link));
+                        i18n.get("sendResetPasswordLink.subject"),
+                        template.render(ImmutableMap.of("link", link.toString())));
             } catch (DaoException e) {
                 e.printStackTrace();
             } catch (EmailSenderException e) {

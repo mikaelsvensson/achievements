@@ -133,6 +133,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
         final SmtpSender emailSender = new SmtpSender(config.getSmtp());
+        final I18n i18n = new I18n("texts.sv.yaml");
 
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao));
         environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
@@ -141,7 +142,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao));
         environment.jersey().register(new GroupsResource(groupsDao, organizationsDao, achievementsDao, environment.getObjectMapper()));
         environment.jersey().register(new GroupMembershipsResource(groupsDao, peopleDao, organizationsDao, membershipsDao));
-        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, config.getGuiApplicationHost(), signInTokenService));
+        environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, config.getGuiApplicationHost(), signInTokenService, i18n));
         environment.jersey().register(new StatsResource(organizationsDao));
         environment.jersey().register(new SignInResource(signInTokenService, credentialsDao));
         environment.jersey().register(new ExternalIdpResource(

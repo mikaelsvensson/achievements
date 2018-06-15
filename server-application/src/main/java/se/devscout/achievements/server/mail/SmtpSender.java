@@ -1,9 +1,8 @@
 package se.devscout.achievements.server.mail;
 
 import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+import org.apache.commons.mail.HtmlEmail;
 import se.devscout.achievements.server.resources.RateLimiter;
 
 public class SmtpSender implements EmailSender {
@@ -25,18 +24,19 @@ public class SmtpSender implements EmailSender {
             throw new EmailSenderException("Rate limit exceeded.");
         }
         try {
-            Email email = createEmail();
+            HtmlEmail email = createEmail();
             email.addTo(to);
             email.setSubject(subject);
-            email.setMsg(body);
+            email.setCharset("UTF-8"); // Specifying a character set seems to be important for Gmail, otherwise it tends to show a the-message-has-been-cropped-message.
+            email.setHtmlMsg(body);
             email.send();
         } catch (EmailException e) {
             throw new EmailSenderException("Could not send e-mail to " + to, e);
         }
     }
 
-    private Email createEmail() throws EmailException {
-        Email email = new SimpleEmail();
+    private HtmlEmail createEmail() throws EmailException {
+        HtmlEmail email = new HtmlEmail();
         email.setSocketConnectionTimeout(5_000);
         email.setHostName(configuration.getHost());
         email.setSmtpPort(configuration.getPort());

@@ -1,0 +1,6 @@
+ancestor:
+  parent:
+    child:
+      name: Alice
+    name: Bob
+  name: Carol

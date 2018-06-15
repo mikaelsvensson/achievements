@@ -1,0 +1,5 @@
+sendResetPasswordLink:
+  subject: You want to change your password. No problem, just use this link.
+emailIdentityProvider:
+  email:
+    subject: Sign in to Achievements
