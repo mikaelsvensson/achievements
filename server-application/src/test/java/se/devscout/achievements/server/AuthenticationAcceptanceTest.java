@@ -191,8 +191,14 @@ public class AuthenticationAcceptanceTest {
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + base64("user:incorrect-password"))
                     .build(verb, getMockEntity(verb))
                     .invoke();
+            if (response.getHeaderString("WWW-Authenticate") != null) {
+                failedResources.add(verb + " " + resource + " should not have returned the WWW-Authenticate header");
+            }
             if (response.getStatus() != HttpStatus.UNAUTHORIZED_401) {
                 failedResources.add(verb + " " + resource + " returned " + response.getStatus());
+            }
+            if (response.readEntity(UnsuccessfulDTO.class).status != HttpStatus.UNAUTHORIZED_401) {
+                failedResources.add(verb + " " + resource + " returned a payload with the incorrect status code");
             }
 
         }

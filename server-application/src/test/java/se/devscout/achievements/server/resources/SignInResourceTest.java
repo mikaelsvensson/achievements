@@ -10,6 +10,7 @@ import org.junit.Test;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AuthTokenDTO;
+import se.devscout.achievements.server.api.UnsuccessfulDTO;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
@@ -68,7 +69,9 @@ public class SignInResourceTest {
                 .post(null);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
-        assertThat(response.readEntity(String.class)).isEqualTo("Credentials are required to access this resource.");
+        final UnsuccessfulDTO entity = response.readEntity(UnsuccessfulDTO.class);
+        assertThat(entity.status).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+        assertThat(entity.message).contains("You need credentials");
     }
 
     @Test
@@ -81,7 +84,9 @@ public class SignInResourceTest {
                 .post(null);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
-        assertThat(response.readEntity(String.class)).isEqualTo("Credentials are required to access this resource.");
+        final UnsuccessfulDTO entity = response.readEntity(UnsuccessfulDTO.class);
+        assertThat(entity.status).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+        assertThat(entity.message).contains("You need credentials");
     }
 
     @Test
@@ -92,7 +97,9 @@ public class SignInResourceTest {
                 .post(null);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
-        assertThat(response.readEntity(String.class)).isEqualTo("Credentials are required to access this resource.");
+        final UnsuccessfulDTO entity = response.readEntity(UnsuccessfulDTO.class);
+        assertThat(entity.status).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+        assertThat(entity.message).contains("You need credentials");
     }
 
 }

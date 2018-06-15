@@ -4,10 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.auth.AuthDynamicFeature;
-import io.dropwizard.auth.AuthFilter;
-import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.*;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.chained.ChainedAuthFilter;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
@@ -26,6 +23,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.api.UnsuccessfulDTO;
 import se.devscout.achievements.server.auth.email.EmailIdentityProvider;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
@@ -53,6 +51,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.util.EnumSet;
 import java.util.List;
@@ -197,25 +196,31 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
 
+        final UnauthorizedHandler unauthorizedHandler = (prefix, realm) -> Response
+                .status(Response.Status.UNAUTHORIZED.getStatusCode())
+                .entity(new UnsuccessfulDTO(
+                        "Not good enough. You need credentials for this request.",
+                        Response.Status.UNAUTHORIZED.getStatusCode()))
+                .build();
+
         List<AuthFilter> filters = Lists.newArrayList(
                 new BasicCredentialAuthFilter.Builder<User>()
-                        .setAuthenticator(tokenAuthenticator)
                         .setPrefix("Basic")
-//                        .setRealm("Achievements")
+                        .setAuthenticator(tokenAuthenticator)
                         .setAuthorizer(authorizer)
-//                        .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
+                        .setUnauthorizedHandler(unauthorizedHandler)
                         .buildAuthFilter(),
                 new OAuthCredentialAuthFilter.Builder<User>()
-                        .setAuthenticator(onetimePasswordAuthenticator)
                         .setPrefix("OneTime")
-//                        .setRealm("Achievements")
+                        .setAuthenticator(onetimePasswordAuthenticator)
                         .setAuthorizer(authorizer)
-//                        .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
+                        .setUnauthorizedHandler(unauthorizedHandler)
                         .buildAuthFilter(),
                 new OAuthCredentialAuthFilter.Builder<User>()
+                        .setPrefix("JWT")
                         .setAuthenticator(jwtAuthenticator)
                         .setAuthorizer(authorizer)
-                        .setPrefix("JWT")
+                        .setUnauthorizedHandler(unauthorizedHandler)
                         .buildAuthFilter()
         );
         return new AuthDynamicFeature(new ChainedAuthFilter<>(filters));
