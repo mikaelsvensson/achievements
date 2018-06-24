@@ -212,4 +212,48 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="11_audit_log" author="mikael">
+        <createTable tableName="audit_log">
+            <!-- For AbstractAuditRecord -->
+            <column name="type" type="varchar(15)"/>
+            <column name="id" type="integer" autoIncrement="true"></column>
+            <column name="http_method" type="varchar(10)"/>
+            <column name="response_code" type="integer"/>
+            <column name="user_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="datetime"/>
+            <column name="data" type="varchar(10000)"/>
+
+            <!-- For HttpAuditRecord-->
+            <column name="resource_uri" type="varchar(2048)"/>
+
+            <!-- For StepProgressAuditRecord -->
+            <column name="person_id" type="integer"/>
+            <column name="step_id" type="integer"/>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="audit_log"
+                       constraintName="pk_auditlog"/>
+        <createIndex tableName="audit_log"
+                     indexName="idx_auditlog_type">
+            <column name="type"/>
+        </createIndex>
+        <addForeignKeyConstraint baseTableName="audit_log"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_auditlog_user"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="audit_log"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_auditlog_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="audit_log"
+                                 baseColumnNames="step_id"
+                                 constraintName="fk_auditlog_step"
+                                 referencedTableName="achievement_steps"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>
