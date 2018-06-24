@@ -20,6 +20,9 @@ public class SignInResource extends AbstractAuthResource {
         super(signInTokenService, credentialsDao);
     }
 
+    /**
+     * Used to get a new JWT.
+     */
     @POST
     @UnitOfWork
     public Response createToken(@Auth User user) throws ExternalIdpCallbackException {

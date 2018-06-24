@@ -6,11 +6,9 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.AchievementBaseDTO;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.ProgressDTO;
+import se.devscout.achievements.server.api.StepProgressRequestLogRecordDTO;
 import se.devscout.achievements.server.auth.Roles;
-import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
-import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.dao.DaoException;
-import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
@@ -31,10 +29,12 @@ import java.util.stream.Collectors;
 public class AchievementsResource extends AbstractResource {
     private AchievementsDao dao;
     private AchievementStepProgressDao progressDao;
+    private final AuditingDao auditingDao;
 
-    public AchievementsResource(AchievementsDao dao, AchievementStepProgressDao progressDao) {
+    public AchievementsResource(AchievementsDao dao, AchievementStepProgressDao progressDao, AuditingDao auditingDao) {
         this.dao = dao;
         this.progressDao = progressDao;
+        this.auditingDao = auditingDao;
     }
 
     @GET
@@ -47,6 +47,23 @@ public class AchievementsResource extends AbstractResource {
                     .get(achievement)
                     .stream()
                     .collect(Collectors.toMap(key -> key.getStep().getId() + "_" + key.getPerson().getId(), value -> map(value, ProgressDTO.class)));
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        }
+    }
+
+    @GET
+    @RolesAllowed(Roles.EDITOR)
+    @UnitOfWork
+    @Path("{achievementId}/progress-history")
+    public List<StepProgressRequestLogRecordDTO> getProgressHistory(@PathParam("achievementId") UuidString id, @Auth User user) {
+        try {
+            final Achievement achievement = dao.read(id.getUUID());
+            return auditingDao
+                    .readStepProgress(achievement.getId())
+                    .stream()
+                    .map(record -> map(record, StepProgressRequestLogRecordDTO.class))
+                    .collect(Collectors.toList());
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }

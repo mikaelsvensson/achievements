@@ -11,10 +11,7 @@ import org.junit.Test;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.data.dao.AchievementStepProgressDao;
-import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.dao.CredentialsDao;
-import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStep;
@@ -35,13 +32,14 @@ public class AchievementsResourceTest {
 
     private final AchievementsDao dao = mock(AchievementsDao.class);
     private final AchievementStepProgressDao progressDao = mock(AchievementStepProgressDao.class);
+    private final AuditingDao auditingDao = mock(AuditingDao.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
     private final PeopleDao peopleDao = mock(PeopleDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new AchievementsResource(dao, progressDao))
+            .addResource(new AchievementsResource(dao, progressDao, auditingDao))
             .build();
 
     @Before

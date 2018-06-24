@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import org.modelmapper.ModelMapper;
@@ -9,6 +10,7 @@ import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,9 +68,25 @@ public abstract class AbstractResource {
             if (src instanceof PersonProperties && dest instanceof PersonDTO) {
                 mapPersonExtras((PersonProperties) src, (PersonDTO) dest);
             }
+//            if (src instanceof StepProgressRequestLogRecordDTO && dest instanceof StepProgressAuditRecord) {
+//                mapPersonExtras((StepProgressRequestLogRecordDTO) src, (StepProgressAuditRecord) dest);
+//            }
+            if (src instanceof StepProgressAuditRecord && dest instanceof StepProgressRequestLogRecordDTO) {
+                mapAuditExtras((StepProgressAuditRecord) src, (StepProgressRequestLogRecordDTO) dest);
+            }
             return dest;
         } else {
             return null;
+        }
+    }
+
+    private void mapAuditExtras(StepProgressAuditRecord src, StepProgressRequestLogRecordDTO dest) {
+        dest.user = map(src.getUser(), PersonBaseDTO.class);
+        dest.step = map(src.getStep(), AchievementStepDTO.class);
+        try {
+            dest.data = new ObjectMapper().readValue(src.getData(), ProgressDTO.class);
+        } catch (IOException e) {
+            // TODO: Should this exception be accounted for?
         }
     }
 
