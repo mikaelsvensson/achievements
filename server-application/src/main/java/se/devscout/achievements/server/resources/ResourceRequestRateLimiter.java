@@ -1,5 +1,7 @@
 package se.devscout.achievements.server.resources;
 
+import se.devscout.achievements.server.api.UnsuccessfulDTO;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
@@ -10,6 +12,8 @@ import java.util.Optional;
 
 @Provider
 public class ResourceRequestRateLimiter implements ContainerRequestFilter {
+
+    private static final int HTTP_STATUS_TOO_MANY_REQUESTS = 429;
 
     private final RateLimiter rateLimiter;
 
@@ -23,7 +27,10 @@ public class ResourceRequestRateLimiter implements ContainerRequestFilter {
                 .map(Principal::getName)
                 .orElse("ANONYMOUS");
         if (!rateLimiter.accept(user)) {
-            requestContext.abortWith(Response.status(429).build());
+            requestContext.abortWith(Response
+                    .status(HTTP_STATUS_TOO_MANY_REQUESTS)
+                    .entity(new UnsuccessfulDTO("Too many request", HTTP_STATUS_TOO_MANY_REQUESTS))
+                    .build());
         }
     }
 }
