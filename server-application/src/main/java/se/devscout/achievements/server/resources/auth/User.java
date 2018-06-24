@@ -41,4 +41,9 @@ public class User implements Principal {
     public CredentialsType getCredentialsTypeUsed() {
         return credentialsTypeUsed;
     }
+
+    @Override
+    public String toString() {
+        return getName() + " with roles " + getRoles();
+    }
 }

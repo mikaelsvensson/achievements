@@ -6,7 +6,9 @@ import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,6 +19,7 @@ import se.devscout.achievements.server.resources.auth.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
 
@@ -76,9 +79,20 @@ public class TestUtil {
     }
 
     static Invocation.Builder request(Client client, URI location) {
+        return request(client, location, MockUtil.AUTH_FEATURE_EDITOR);
+    }
+
+    static Invocation.Builder request(Client client, URI location, HttpAuthenticationFeature auth) {
         return client
                 .target(location)
-                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .register(auth)
                 .request();
+    }
+
+    static String[] getHttpAuditLog(Client client, int adminPort) {
+        Response getResponse = request(client, String.format("http://localhost:%d/tasks/http-log", adminPort)).post(null);
+
+        final String dto = getResponse.readEntity(String.class);
+        return StringUtils.split(dto, '\n');
     }
 }

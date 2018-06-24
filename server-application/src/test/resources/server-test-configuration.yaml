@@ -2,10 +2,10 @@ server:
   rootPath: /api/
   applicationConnectors:
     - type: http
-      port: 9000
+      port: 0 # Randomize port by setting it to 0
   adminConnectors:
     - type: http
-      port: 9001
+      port: 0 # Randomize port by setting it to 0
 
 guiApplicationHost: http://localhost:8080
 

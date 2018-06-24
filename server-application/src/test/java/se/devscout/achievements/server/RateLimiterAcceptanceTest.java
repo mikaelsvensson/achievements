@@ -36,7 +36,7 @@ public class RateLimiterAcceptanceTest {
         Client client = RULE.client();
         IntStream.rangeClosed(1, BURST_LENGTH + 1).forEach((i) -> {
             Response response = client
-                    .target("http://localhost:9000/api/my/profile")
+                    .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
                     .get();
@@ -50,7 +50,7 @@ public class RateLimiterAcceptanceTest {
 
         IntStream.rangeClosed(1, 3).forEach((i) -> {
             Response response = client
-                    .target("http://localhost:9000/api/my/send-set-password-link")
+                    .target(String.format("http://localhost:%d/api/my/send-set-password-link", RULE.getLocalPort()))
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
                     .post(Entity.json(new ForgotPasswordDTO("alice@example.com")));
@@ -65,7 +65,7 @@ public class RateLimiterAcceptanceTest {
         Client client = RULE.client();
 
         Response response1 = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();
@@ -75,7 +75,7 @@ public class RateLimiterAcceptanceTest {
         pause(REQUEST_DELAY);
 
         Response response2 = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();

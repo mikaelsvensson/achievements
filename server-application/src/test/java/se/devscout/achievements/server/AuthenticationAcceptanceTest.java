@@ -8,6 +8,7 @@ import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpStatus;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,27 +41,32 @@ public class AuthenticationAcceptanceTest {
     private static final String RANDOM_ORG_ID = UuidString.toString(UUID.randomUUID());
     private static final String RANDOM_ACHIEVEMENT_ID = UuidString.toString(UUID.randomUUID());
     private static final String IDENTITY_PROVIDER_NAME = CredentialsType.PASSWORD.name().toLowerCase();
-    private static final ImmutableSet<String> PUBLIC_RESOURCES = ImmutableSet.<String>builder()
-            .add("http://localhost:9000/api/organizations/signup")
-            .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/signup")
-            .add("http://localhost:9000/api/organizations/" + RANDOM_ORG_ID + "/basic")
-            .add("http://localhost:9000/api/achievements")
-            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID)
-            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps")
-            .add("http://localhost:9000/api/achievements/" + RANDOM_ACHIEVEMENT_ID + "/steps/1")
-            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signin")
-            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signin/callback")
-            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup")
-            .add("http://localhost:9000/api/openid/" + IDENTITY_PROVIDER_NAME + "/signup/callback")
-            .add("http://localhost:9000/api/my/forgot-password")
-            .add("http://localhost:9000/api/my/send-set-password-link")
-            .build();
+    private static ImmutableSet<String> PUBLIC_RESOURCES;
+
+    @BeforeClass
+    public static void name() {
+        PUBLIC_RESOURCES = ImmutableSet.<String>builder()
+                .add(String.format("http://localhost:%d/api/organizations/signup", RULE.getLocalPort()))
+                .add(String.format("http://localhost:%d/api/organizations/%s/signup", RULE.getLocalPort(), RANDOM_ORG_ID))
+                .add(String.format("http://localhost:%d/api/organizations/%s/basic", RULE.getLocalPort(), RANDOM_ORG_ID))
+                .add(String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+                .add(String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), RANDOM_ACHIEVEMENT_ID))
+                .add(String.format("http://localhost:%d/api/achievements/%s/steps", RULE.getLocalPort(), RANDOM_ACHIEVEMENT_ID))
+                .add(String.format("http://localhost:%d/api/achievements/%s/steps/1", RULE.getLocalPort(), RANDOM_ACHIEVEMENT_ID))
+                .add(String.format("http://localhost:%d/api/openid/%s/signin", RULE.getLocalPort(), IDENTITY_PROVIDER_NAME))
+                .add(String.format("http://localhost:%d/api/openid/%s/signin/callback", RULE.getLocalPort(), IDENTITY_PROVIDER_NAME))
+                .add(String.format("http://localhost:%d/api/openid/%s/signup", RULE.getLocalPort(), IDENTITY_PROVIDER_NAME))
+                .add(String.format("http://localhost:%d/api/openid/%s/signup/callback", RULE.getLocalPort(), IDENTITY_PROVIDER_NAME))
+                .add(String.format("http://localhost:%d/api/my/forgot-password", RULE.getLocalPort()))
+                .add(String.format("http://localhost:%d/api/my/send-set-password-link", RULE.getLocalPort()))
+                .build();
+    }
 
     @Test
     public void oneTimePassword_successfulFirstFailedSecondRequest() {
         Client client = RULE.client();
         Response response1 = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
                 .get();
@@ -68,7 +74,7 @@ public class AuthenticationAcceptanceTest {
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         Response response2 = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
                 .get();
@@ -81,7 +87,7 @@ public class AuthenticationAcceptanceTest {
     public void oneTimePassword_failedFirstFailedSecondRequest() {
         Client client = RULE.client();
         Response response1 = client
-                .target("http://localhost:9000/api/my/password")
+                .target(String.format("http://localhost:%d/api/my/password", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
                 .post(Entity.json(new SetPasswordDTO(null, "good_password", "bad_password")));
@@ -89,7 +95,7 @@ public class AuthenticationAcceptanceTest {
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
         Response response2 = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
                 .get();
@@ -103,7 +109,7 @@ public class AuthenticationAcceptanceTest {
     public void oneTimePassword_correctPasswordForAnotherUser() {
         Client client = RULE.client();
         Response response = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword2"))
                 .get();
@@ -115,7 +121,7 @@ public class AuthenticationAcceptanceTest {
     public void oneTimePassword_incorrectPassword() {
         Client client = RULE.client();
         Response response = client
-                .target("http://localhost:9000/api/my/profile")
+                .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("the-wrong-password"))
                 .get();
@@ -226,7 +232,7 @@ public class AuthenticationAcceptanceTest {
                     if (method.isAnnotationPresent(Path.class)) {
                         path += (path.length() > 0 ? "/" : "") + UriBuilder.fromMethod(singleton.getClass(), method.getName()).buildFromMap(randomUriParameterValues).toString();
                     }
-                    final Optional<Class<? extends Annotation>> httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(a -> method.isAnnotationPresent(a)).findFirst();
+                    final Optional<Class<? extends Annotation>> httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(method::isAnnotationPresent).findFirst();
                     if (httpVerb.isPresent()) {
                         final String uri = String.format("http://localhost:%d/api/%s", RULE.getLocalPort(), path);
                         if (!PUBLIC_RESOURCES.contains(uri)) {
