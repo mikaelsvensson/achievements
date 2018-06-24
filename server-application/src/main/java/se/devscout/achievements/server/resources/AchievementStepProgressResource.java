@@ -9,6 +9,7 @@ import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
@@ -54,6 +55,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     @POST
     @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
+    @Audited(logRequest = true)
     @Path("{personId}")
     public ProgressDTO set(@PathParam("achievementId") UuidString achievementId,
                            @PathParam("stepId") Integer stepId,
@@ -73,6 +75,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     @DELETE
     @RolesAllowed(Roles.EDITOR)
     @UnitOfWork
+    @Audited(logRequest = true)
     @Path("{personId}")
     public Response unset(@PathParam("achievementId") UuidString achievementId,
                           @PathParam("stepId") Integer stepId,

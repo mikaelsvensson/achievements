@@ -1,5 +1,6 @@
 package se.devscout.achievements.server;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
@@ -33,10 +34,12 @@ import se.devscout.achievements.server.auth.openid.GoogleTokenValidator;
 import se.devscout.achievements.server.auth.openid.MicrosoftTokenValidator;
 import se.devscout.achievements.server.auth.openid.OpenIdIdentityProvider;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
+import se.devscout.achievements.server.cli.HttpAuditTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
 import se.devscout.achievements.server.cli.ImportScouternaBadgesTask;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.filter.audit.AuditFeature;
 import se.devscout.achievements.server.health.IsAliveHealthcheck;
 import se.devscout.achievements.server.mail.SmtpSender;
 import se.devscout.achievements.server.resources.*;
@@ -65,7 +68,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
             Credentials.class,
             Achievement.class,
             AchievementStep.class,
-            AchievementStepProgress.class
+            AchievementStepProgress.class,
+            HttpAuditRecord.class,
+            StepProgressAuditRecord.class
     ) {
         public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -89,6 +94,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final AchievementStepProgressDao progressDao = new AchievementStepProgressDaoImpl(sessionFactory);
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final GroupsDao groupsDao = new GroupsDaoImpl(sessionFactory);
+        final AuditingDao auditingDao = new AuditingDaoImpl(sessionFactory);
         final GroupMembershipsDao membershipsDao = new GroupMembershipsDaoImpl(sessionFactory);
         final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
 
@@ -126,6 +132,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 }
             });
         }
+        environment.jersey().register(new AuditFeature(auditingDao, hibernate));
 
         environment.jersey().register(RolesAllowedDynamicFeature.class);
         //If you want to use @Auth to inject a custom Principal type into your resource
@@ -134,8 +141,10 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final SmtpSender emailSender = new SmtpSender(config.getSmtp());
         final I18n i18n = new I18n("texts.sv.yaml");
 
+        environment.getObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao));
-        environment.jersey().register(new AchievementsResource(achievementsDao, progressDao));
+        environment.jersey().register(new AchievementsResource(achievementsDao, progressDao, auditingDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao));
@@ -180,6 +189,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new BoostrapDataTask(sessionFactory, organizationsDao, peopleDao, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
+        environment.admin().addTask(new HttpAuditTask(sessionFactory, auditingDao));
 
         initCorsHeaders(environment);
     }

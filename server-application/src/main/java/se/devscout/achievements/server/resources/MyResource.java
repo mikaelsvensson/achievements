@@ -15,6 +15,7 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
 import se.devscout.achievements.server.mail.Template;
@@ -62,6 +63,7 @@ public class MyResource extends AbstractAuthResource {
     @GET
     @Path("profile")
     @UnitOfWork
+    @Audited
     public PersonProfileDTO getMyProfile(@Auth User user) {
         final Person person = getPerson(user);
         final PersonProfileDTO dto = new PersonProfileDTO(
@@ -78,6 +80,7 @@ public class MyResource extends AbstractAuthResource {
     @POST
     @Path("password")
     @UnitOfWork
+    @Audited
     // TODO: Split into smaller methods
     public Response setPassword(@Auth User user, SetPasswordDTO payload) {
         final Person person = getPerson(user);
@@ -87,7 +90,9 @@ public class MyResource extends AbstractAuthResource {
         if (passwordOpt.isPresent()) {
             final Credentials credentials = passwordOpt.get();
             final byte[] currentPwData = credentials.getData();
-            final boolean validationOfCurrentPasswordRequired = currentPwData != null && currentPwData.length > 0 && user.getCredentialsTypeUsed() != CredentialsType.ONETIME_PASSWORD;
+            final boolean validationOfCurrentPasswordRequired = currentPwData != null
+                    && currentPwData.length > 0
+                    && user.getCredentialsTypeUsed() != CredentialsType.ONETIME_PASSWORD;
             if (validationOfCurrentPasswordRequired) {
                 if (!Strings.isNullOrEmpty(payload.current_password)) {
                     final PasswordValidator currentPwValidator = new PasswordValidator(currentPwData);
@@ -139,6 +144,7 @@ public class MyResource extends AbstractAuthResource {
 
     @POST
     @Path("send-set-password-link")
+    @Audited
     @UnitOfWork
     @RateLimited(requestsPerMinute = 10, burstLimit = 0)
     public void sendResetPasswordLink(@Auth Optional<User> user,
@@ -171,8 +177,10 @@ public class MyResource extends AbstractAuthResource {
                         i18n.get("sendResetPasswordLink.subject"),
                         template.render(ImmutableMap.of("link", link.toString())));
             } catch (DaoException e) {
+                // TODO: Fix default catch clause
                 e.printStackTrace();
             } catch (EmailSenderException e) {
+                // TODO: Fix default catch clause
                 e.printStackTrace();
             }
         }
