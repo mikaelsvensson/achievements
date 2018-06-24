@@ -47,7 +47,10 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
             } else {
                 return Optional.empty();
             }
-        } catch (HibernateException | ObjectNotFoundException e) {
+        } catch (ObjectNotFoundException e) {
+            LOGGER.warn("Could not find object when authenticating user. " + e.getMessage());
+            return Optional.empty();
+        } catch (HibernateException e) {
             LOGGER.error("Exception when trying to validate credentials", e);
             return Optional.empty();
         }
