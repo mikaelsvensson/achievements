@@ -1,9 +1,12 @@
 import $ from "jquery";
 import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
 import {getFormData, markdown2html, updateView} from "../util/view.jsx";
+import ColorHash from "color-hash";
+import moment from "moment";
 
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementRead = require("./achievement.read.handlebars");
+const templateAchievementProgressHistory = require("./achievement.progress-history.handlebars");
 const templateAchievementStepsList = require("./achievement.steps-list.handlebars");
 const templateAchievementStepsConfig = require("./achievement.steps-config.handlebars");
 const templateLoading = require("../loading.handlebars");
@@ -36,6 +39,22 @@ export function renderAchievement(appPathParams) {
                         }), $('#achievement-steps-list'));
                     });
                 }, createOnFailHandler(form.find('.errors'), button));
+            });
+
+            $('#achievement-progress-history-button').click(function (e) {
+                const button = $(this);
+                button.addClass('is-loading');
+                get('/api/achievements/' + appPathParams[0].key + '/progress-history', function (responseData, responseStatus, jqXHR) {
+                    button.removeClass('is-loading');
+                    const colorizer = new ColorHash({lightness: 0.9});
+                    responseData.map(record => {
+                        record.date_time_relative = moment(record.date_time).locale('sv').fromNow()
+                        record.user.color = colorizer.hex(record.user.name)
+                        record.person.color = colorizer.hex(record.person.name)
+                    });
+                    console.log(responseData);
+                    updateView(templateAchievementProgressHistory(responseData), $('#achievement-progress-history'));
+                }/*, createOnFailHandler(form.find('.errors'), button)*/);
             });
 
             // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?

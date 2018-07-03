@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 
 public class StepProgressRequestLogRecordDTO {
     public PersonBaseDTO user;
+    public PersonBaseDTO person;
     public AchievementStepDTO step;
     public OffsetDateTime date_time;
     public ProgressDTO data;

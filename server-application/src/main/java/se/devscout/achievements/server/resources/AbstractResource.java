@@ -82,6 +82,7 @@ public abstract class AbstractResource {
 
     private void mapAuditExtras(StepProgressAuditRecord src, StepProgressRequestLogRecordDTO dest) {
         dest.user = map(src.getUser(), PersonBaseDTO.class);
+        dest.person = map(src.getPerson(), PersonBaseDTO.class);
         dest.step = map(src.getStep(), AchievementStepDTO.class);
         try {
             dest.data = new ObjectMapper().readValue(src.getData(), ProgressDTO.class);
