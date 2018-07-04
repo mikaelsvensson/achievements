@@ -21,8 +21,7 @@
     "node-sass": "^4.7.2",
     "remarkable": "^1.7.1",
     "sass-loader": "^6.0.6",
-    "color-hash": "^1.0.3",
-    "moment": "^2.22.2"
+    "color-hash": "^1.0.3"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

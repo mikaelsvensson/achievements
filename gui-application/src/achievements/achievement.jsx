@@ -2,7 +2,7 @@ import $ from "jquery";
 import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
 import {getFormData, markdown2html, updateView} from "../util/view.jsx";
 import ColorHash from "color-hash";
-import moment from "moment";
+import {toRelativeTime} from '../util/time.jsx'
 
 const templateAchievement = require("./achievement.handlebars");
 const templateAchievementRead = require("./achievement.read.handlebars");
@@ -48,7 +48,8 @@ export function renderAchievement(appPathParams) {
                     button.removeClass('is-loading');
                     const colorizer = new ColorHash({lightness: 0.9});
                     responseData.map(record => {
-                        record.date_time_relative = moment(record.date_time).locale('sv').fromNow()
+                        const secondsAgo = (new Date().getTime() - new Date(record.date_time).getTime()) / 1000;
+                        record.date_time_relative = toRelativeTime(secondsAgo)
                         record.user.color = colorizer.hex(record.user.name)
                         record.person.color = colorizer.hex(record.person.name)
                     });
