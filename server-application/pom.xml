@@ -16,6 +16,7 @@
         <mainClass>se.devscout.achievements.server.AchievementsApplication</mainClass>
         <heroku.appName>scout-admin</heroku.appName>
         <heroku.configFile>environments/heroku.yaml</heroku.configFile>
+        <jaxb.version>2.2.11</jaxb.version>
     </properties>
 
     <dependencies>
@@ -145,6 +146,31 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
+        </dependency>
+
+        <!-- XML API no longer included in JRE 10. Needs to explicitly included. -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+        <!-- XML API no longer included in JRE 10. Needs to explicitly included. -->
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+        <!-- XML API no longer included in JRE 10. Needs to explicitly included. -->
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+        <!-- XML API no longer included in JRE 10. Needs to explicitly included. -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
     </dependencies>
