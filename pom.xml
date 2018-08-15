@@ -14,7 +14,7 @@
         <module>data-importer</module>
     </modules>
     <properties>
-        <dropwizard.version>1.2.0</dropwizard.version>
+        <dropwizard.version>1.3.5</dropwizard.version>
     </properties>
 
     <build>
@@ -33,21 +33,23 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.0.2</version>
             </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <failBuildOnCVSS>4</failBuildOnCVSS>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+            <!--
+                        <plugin>
+                            <groupId>org.owasp</groupId>
+                            <artifactId>dependency-check-maven</artifactId>
+                            <version>3.0.2</version>
+                            <configuration>
+                                <failBuildOnCVSS>4</failBuildOnCVSS>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>check</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+            -->
 
             <!--
                         <plugin>
