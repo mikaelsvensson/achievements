@@ -9,13 +9,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UuidStringTest {
     @Test
     public void fromUUID() throws Exception {
-        final UUID uuid = UUID.fromString("bb1879bc-9967-4a50-aff1-25ee57a86346");
-        assertThat(new UuidString(uuid).getValue()).isEqualTo("uxh5vJlnSlCv8SXuV6hjRg");
+        final UUID uuid = UUID.fromString("47498aea-4291-43b8-8277-4d480d5ed84a");
+        assertThat(new UuidString(uuid).getValue()).isEqualTo("i5eyv2scsfb3ratxjvea2xwyji");
     }
 
     @Test
     public void toUUID() throws Exception {
-        final UUID uuid = UUID.fromString("bb1879bc-9967-4a50-aff1-25ee57a86346");
-        assertThat(new UuidString("uxh5vJlnSlCv8SXuV6hjRg").getUUID()).isEqualTo(uuid);
+        final UUID uuid = UUID.fromString("47498aea-4291-43b8-8277-4d480d5ed84a");
+        assertThat(new UuidString("i5eyv2scsfb3ratxjvea2xwyji").getUUID()).isEqualTo(uuid);
+    }
+
+    @Test
+    public void nullValues() {
+        assertThat(new UuidString((String) null).getUUID()).isNull();
+        assertThat(new UuidString((String) null).getValue()).isNull();
+        assertThat(new UuidString((UUID) null).getUUID()).isNull();
+        assertThat(new UuidString((UUID) null).getValue()).isNull();
     }
 }
