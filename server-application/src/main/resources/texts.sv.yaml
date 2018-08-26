@@ -2,4 +2,4 @@ sendResetPasswordLink:
   subject: Du vill byta lösenord. Inga problem, klicka bara på den här länken.
 emailIdentityProvider:
   email:
-    subject: Inloggningslänk för Märken
+    subject: Inloggningslänk för Mina Märken
