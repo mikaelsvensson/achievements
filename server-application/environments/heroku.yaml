@@ -1,6 +1,6 @@
 maxOrganizationCount: 10
-serverApplicationHost: http://localhost:8080
-guiApplicationHost: http://localhost:8080
+serverApplicationHost: ${BASE_URI_SERVER:-http://localhost:8080}
+guiApplicationHost: ${BASE_URI_GUI:-http://localhost:8080}
 
 autoMigrateDatabase: true
 
@@ -48,5 +48,5 @@ smtp:
   maxMailsPerSenderPerMinute: 1
 
 rateLimiting:
-  requestsPerMinute: 60
-  burstLimit: 5
+  requestsPerMinute: 150
+  burstLimit: 15
