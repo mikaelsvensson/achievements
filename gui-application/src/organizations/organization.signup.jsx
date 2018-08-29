@@ -13,7 +13,7 @@ export function renderOrganizationSignup(appPathParams) {
     get('/api/organizations/' + appPathParams[0].key + "/basic", function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Kårer", url: '#karer/'},
+            // {label: "Kårer", url: '#karer/'},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();

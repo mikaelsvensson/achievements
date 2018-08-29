@@ -11,7 +11,7 @@ export function renderBatchUpsert(appPathParams) {
     get('/api/organizations/' + appPathParams[0].key + "/basic", function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Kårer", url: '#karer/'},
+            // {label: "Kårer", url: '#karer/'},
             {label: responseData.name, url: '#karer/' + appPathParams[0].key},
             {label: "Importera"}
         ];

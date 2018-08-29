@@ -6,32 +6,36 @@
             <div class="column is-two-thirds">
 
                 <h1 class="title">
-                    Märken du vill ta. Märken du redan tagit.
-            </h1>
+                    Hjälper dig hålla koll på dina scouters framsteg.
+                </h1>
+
+                {{#if isLoggedIn}}
+                {{else}}
+                <div class="content">
+                    <div class="notification is-warning">
+                        <h1>Publik beta för scoutledare</h1>
+                        <p>Alla ska kunna ha nytta av den här sidan men just nu riktar vi oss i första hand till
+                            scoutledare.</p>
+                        <p>Tanken är att du som scoutledare kan använda den här tjänsten för att kryssa för vilka
+                            delmoment som dina scouter klarat av för respektive märke.</p>
+                        <p><strong>Kom igång genom att <a href="#skapa-konto" aria-current="page">berätta vilken kår du
+                            tillhör och hur du vill logga in</a>.</strong></p>
+                        <p>Om du redan har ett konto loggar du in via knapparna <span class="is-hidden-tablet">längst ner</span><span
+                                class="is-hidden-mobile">till höger</span>.</p>
+                    </div>
+                </div>
+                {{/if}}
 
                 <div class="content">
 
-                    <p><strong>Tre</strong> av <a href="#marken">alla <span id="main-achievements-count"/> märken</a>:
+                    <p>
+                        <strong>Tre</strong> av <a href="#marken">alla <span id="main-achievements-count"/> märken</a>:
                     </p>
 
                 </div>
 
                 <div id="main-achievements-showcase"></div>
 
-                <div class="content">
-                    <br>
-                    <div class="notification">
-                        <h1>Ny här?</h1>
-                        <p>Om du är <strong>scout</strong> så kan du <a href="#marken">hitta roliga märken</a>. I
-                            framtiden kommer du även kunna se vilka märken du tagit.</p>
-                        <p>Om du är <strong>ledare</strong> så vill du nog <a href="#loggain">logga in</a> så att du kan
-                            rapportera hur det går för dina scouter. Om din kår ännu inte börjat använda den här
-                            tjänsten
-                            så kan du <a href="#skapa-konto" aria-current="page">registrera din kår</a> och komma igång
-                            direkt.</p>
-                    </div>
-
-                </div>
             </div>
             <div class="column">
                 {{#if isLoggedIn}}

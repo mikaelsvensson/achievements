@@ -34,7 +34,7 @@ export function renderOrganizationAchievements(appPathParams) {
 
             responseData.breadcrumbs = [
                 {label: "Hem", url: '#/'},
-                {label: "Kårer", url: '#karer'},
+                // {label: "Kårer", url: '#karer'},
                 {label: orgResponseData.name, url: '#karer/' + appPathParams[0].key},
                 {label: "Märken"}
             ];

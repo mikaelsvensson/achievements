@@ -13,7 +13,7 @@ export function renderPerson(appPathParams) {
     get('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, function (responseData, responseStatus, jqXHR) {
         responseData.breadcrumbs = [
             {label: "Hem", url: '#/'},
-            {label: "Kårer", url: '#karer'},
+            // {label: "Kårer", url: '#karer'},
             {label: responseData.organization.name, url: '#karer/' + appPathParams[0].key},
             {label: responseData.name}
         ];

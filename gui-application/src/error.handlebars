@@ -2,19 +2,26 @@
     <div class="container">
         <h1 class="title">Oj då</h1>
         <div class="content">
-            <p>{{message}}</p>
             {{#if isAuthFailure}}
             {{#if isLoggedIn}}
             <p>Du har tyvärr inte möjlighet att se den här sidan.</p>
             <p>Om du varit inloggad över en timme så kan det hjälpa att <a href="#loggaut" aria-current="page">logga
                 ut</a> och sedan logga in igen.</p>
             {{else}}
-            <p>Du vill nog <a href="#loggain" aria-current="page">logga in</a>.</p>
+            <p>Du måste vara inloggad för att se den här sidan. Du vill nog <a href="#loggain" aria-current="page">logga
+                in</a>.</p>
             {{/if}}
+            <p>
+                <small>{{message}}</small>
+            </p>
+            {{else}}
+            <p>{{message}}</p>
             {{/if}}
         </div>
-        <div class="content is-small">
-            <p>Resurs som orsakade problemet: {{requestUrl}}</p>
+        <div class="content has-text-grey-light">
+            <p>
+                <small>Resurs som orsakade problemet: {{requestUrl}}</small>
+            </p>
         </div>
     </div>
 </section>
