@@ -10,6 +10,13 @@ export function renderMyProfile(appPathParams) {
     updateView(templateLoading());
     get('/api/my/profile/', function (responseData, responseStatus, jqXHR) {
         responseData.isLoggedIn = isLoggedIn();
+        responseData.gettingStarted = {
+            showYouAreAlone: responseData.getting_started.is_only_person_in_organization,
+            showSetPassword: responseData.getting_started.is_password_credential_created && !responseData.getting_started.is_password_set
+        }
+        responseData.showGettingStarted = Object.keys(responseData.gettingStarted).some(function (prop) {
+            return responseData.gettingStarted[prop] === true
+        })
 
         updateView(templateMyProfile(responseData));
     });

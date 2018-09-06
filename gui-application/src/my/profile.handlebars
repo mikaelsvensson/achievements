@@ -14,22 +14,130 @@
                     <p>{{key}}: {{value}}</p>
                     {{/each}}
 
-                    {{#person.is_password_credential_created}}
-                    <p>Du kan <a href="#minprofil/losenord">ändra ditt lösenord</a> när du loggar in med din
-                        e-postadress.</p>
-                    {{^person.is_password_set}}
-                    <article class="message is-warning">
-                        <div class="message-body">
-                            Du har inte valt ett lösenord. Vi tycker verkligen du ska <a href="#minprofil/losenord">ange
-                            ett lösenord</a> så att ditt
-                            konto bättre skyddas mot klåfingriga personer!
-                        </div>
-                    </article>
-                    {{/person.is_password_set}}
-                    {{/person.is_password_credential_created}}
+                    {{#getting_started.is_password_credential_created}}
+                    <p>
+                        Du kan <a href="#minprofil/losenord">ändra ditt lösenord</a> som du använder
+                        när du loggar in med din e-postadress.
+                    </p>
+                    {{/getting_started.is_password_credential_created}}
                 </div>
             </div>
             <div class="column">
+                {{#showGettingStarted}}
+                <div class="notification is-info">
+                    <h1 class="title">
+                        <strong>
+                            Kom igång
+                        </strong>
+                    </h1>
+                    {{#gettingStarted.showYouAreAlone}}
+                    <div class="box">
+                        <article class="media">
+                            <div class="media-left">
+                                <figure class="image is-48x48">
+                                    <span class="icon is-large">
+                                        <i class="mdi mdi-account-plus mdi-dark mdi-48px"></i>
+                                    </span>
+                                </figure>
+                            </div>
+                            <div class="media-content">
+                                <div class="content">
+                                    <p>
+                                        Du är ensam i kåren. <a href="#minkar" aria-current="page">Lägg till de
+                                        andra</a> en och en eller <a
+                                            href="#karer/{{organization.id}}/personer/importera" aria-current="page">importera
+                                        medlemsregistret</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    {{/gettingStarted.showYouAreAlone}}
+                    {{#gettingStarted.showSetPassword}}
+                    <div class="box">
+                        <article class="media">
+                            <div class="media-left">
+                                <figure class="image is-48x48">
+                                    <span class="icon is-large">
+                                        <i class="mdi mdi-key-variant mdi-dark mdi-48px"></i>
+                                    </span>
+                                </figure>
+                            </div>
+                            <div class="media-content">
+                                <div class="content">
+                                    <p>
+                                        Du har inte valt ett lösenord. Vi tycker verkligen du ska <a
+                                            href="#minprofil/losenord">ange
+                                        ett lösenord</a> så att ditt
+                                        konto bättre skyddas mot klåfingriga personer!
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    {{/gettingStarted.showSetPassword}}
+                    <!--
+                                        <div class="box">
+                                            <article class="media">
+                                                <div class="media-left">
+                                                    <figure class="image is-48x48">
+                                                        <span class="icon is-large">
+                                                            <i class="mdi mdi-compass mdi-dark mdi-48px"></i>
+                                                        </span>
+                                                    </figure>
+                                                </div>
+                                                <div class="media-content">
+                                                    <div class="content">
+                                                        <p>
+                                                            Utforska alla <a href="#marken">märken för äventyrarscouter</a>.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                    -->
+                    <!--
+                                        <div class="box">
+                                            <article class="media">
+                                                <div class="media-left">
+                                                    <figure class="image is-48x48">
+                                                        <span class="icon is-large">
+                                                            <i class="mdi mdi-settings mdi-dark mdi-48px"></i>
+                                                        </span>
+                                                    </figure>
+                                                </div>
+                                                <div class="media-content">
+                                                    <div class="content">
+                                                        <p>
+                                                            Du kan <a href="#minkar">anpassa hur sidan fungerar</a> för medlemmarna i din kår.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                    -->
+                    <!--
+                                        <div class="box">
+                                            <article class="media">
+                                                <div class="media-left">
+                                                    <figure class="image is-48x48">
+                                                        <span class="icon is-large">
+                                                            <i class="mdi mdi-share-variant mdi-dark mdi-48px"></i>
+                                                        </span>
+                                                    </figure>
+                                                </div>
+                                                <div class="media-content">
+                                                    <div class="content">
+                                                        <p>
+                                                            Vi har en funktion för att <a href="#bjudin">skicka välkomstbrev</a> till era medlemmar så att de enkelt kan logga in och hålla koll på sina märken.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        </div>
+                    -->
+                </div>
+                {{/showGettingStarted}}
                 <div class="box">
                     <h2 class="subtitle">Märken</h2>
                     <div id="achievements-summary"></div>

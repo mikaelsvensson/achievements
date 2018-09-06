@@ -13,8 +13,6 @@ public class PersonDTO extends PersonBaseDTO {
     public String role;
     public List<PersonAttributeDTO> attributes;
     public List<GroupBaseDTO> groups;
-    public boolean is_password_credential_created;
-    public boolean is_password_set;
 
     public PersonDTO() {
         super();
@@ -22,13 +20,13 @@ public class PersonDTO extends PersonBaseDTO {
 
     public PersonDTO(Integer id,
                      String name) {
-        this(id, name, null, null, null, null, false, false, null, null);
+        this(id, name, null, null, null, null, null, null);
     }
 
     public PersonDTO(Integer id,
                      String name,
                      String role) {
-        this(id, name, null, null, null, role, false, false, null, null);
+        this(id, name, null, null, null, role, null, null);
     }
 
     public PersonDTO(@JsonProperty("id") Integer id,
@@ -37,8 +35,6 @@ public class PersonDTO extends PersonBaseDTO {
                      @JsonProperty("custom_identifier") String customIdentifier,
                      @JsonProperty("organization") OrganizationBaseDTO organization,
                      @JsonProperty("role") String role,
-                     @JsonProperty("is_password_credential_created") boolean isPasswordCredentialCreated,
-                     @JsonProperty("is_password_set") boolean isPasswordSet,
                      @JsonProperty("attributes") List<PersonAttributeDTO> attributes,
                      @JsonProperty("groups") List<GroupBaseDTO> groups) {
         super(id, name);
@@ -46,8 +42,6 @@ public class PersonDTO extends PersonBaseDTO {
         this.organization = organization;
         this.custom_identifier = customIdentifier;
         this.role = role;
-        this.is_password_credential_created = isPasswordCredentialCreated;
-        this.is_password_set = isPasswordSet;
         this.attributes = attributes;
         this.groups = groups;
     }

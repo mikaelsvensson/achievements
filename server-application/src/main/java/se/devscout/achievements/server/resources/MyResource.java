@@ -66,15 +66,41 @@ public class MyResource extends AbstractAuthResource {
     @Audited
     public PersonProfileDTO getMyProfile(@Auth User user) {
         final Person person = getPerson(user);
-        final PersonProfileDTO dto = new PersonProfileDTO(
-                map(person.getOrganization(), OrganizationDTO.class),
-                map(person, PersonDTO.class));
-        final Optional<Credentials> passwordCredential = person.getCredentials().stream().filter(c -> c.getType() == CredentialsType.PASSWORD).findFirst();
-        dto.person.is_password_credential_created = passwordCredential.isPresent();
-        if (dto.person.is_password_credential_created) {
-            dto.person.is_password_set = passwordCredential.get().getData() != null && passwordCredential.get().getData().length > 0;
-        }
-        return dto;
+
+        final Optional<Credentials> passwordCredential = person
+                .getCredentials()
+                .stream()
+                .filter(c -> c.getType() == CredentialsType.PASSWORD)
+                .findFirst();
+
+        final boolean isPasswordCredentialCreated = passwordCredential.isPresent();
+        final boolean isPasswordSet = isPasswordCredentialCreated &&
+                passwordCredential.get().getData() != null &&
+                passwordCredential.get().getData().length > 0;
+
+        final Organization organization = person.getOrganization();
+
+        // TODO: Implement COUNT(*) query instead of counting the number of result from SELECT
+        final int peopleCount = peopleDao.getByParent(organization).size();
+        final boolean isOnlyPersonInOrganization = 1 == peopleCount;
+
+        // TODO: Implement COUNT(*) query instead of counting the number of result from SELECT
+        final int groupsCount = groupsDao.getByParent(organization).size();
+        final boolean isGroupCreated = groupsCount > 0;
+
+        return new PersonProfileDTO(
+                map(organization, OrganizationDTO.class),
+                map(person, PersonDTO.class),
+                new GettingStartedDTO(
+                        isOnlyPersonInOrganization,
+                        // TODO: Implement support for sending, and counting, welcome letters
+                        true,
+                        // TODO: Implement support for counting "number of progress records"
+                        true,
+                        isPasswordCredentialCreated,
+                        isPasswordSet,
+                        isGroupCreated
+                ));
     }
 
     @POST
