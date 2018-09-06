@@ -8,16 +8,19 @@
 
         <h2 class="subtitle">Importera personer</h2>
 
-        <p>Använd den här funktionen för att importera data från ert medlemsregister.</p>
+        <p>Använd den här funktionen för att importera data från ert medlemsregister. Exportera informationen
+            som en CSV-fil (komma-separerad fil), öppna filen i ett program som kan visa sådana (ex. Excel) och anpassa
+            innehåller så att det uppfyller kraven vi ställer (se nedan). Öppna sedan CSV-filen i en textredigerare (ex.
+            Word, Anteckningar eller TextEdit), markera all text och kopiera den till textfältet här:</p>
 
         <form>
             <div class="field">
                 <div class="control">
                     <textarea class="textarea" type="text" id="import-data" placeholder="Primary textarea"
                               style="height: 20em;">
-custom_identifier,name,email,role
-alice,Alice,alice@example.com,reader
-bob,Bob,bob@example.com,reader</textarea>
+custom_identifier,name,email,role,attr.FavouriteMovie
+alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse
+bob,Bob,bob@example.com,reader,The Last Boy Scout</textarea>
                 </div>
             </div>
 
@@ -51,11 +54,16 @@ bob,Bob,bob@example.com,reader</textarea>
                             <li>custom_identifier: Er egen identifierare för personen.</li>
                             <li>name: Personens namn</li>
                             <li>email: Personens e-postadress</li>
-                            <li>role: Personens roll hos er (tillåtna värden är "editor" och "reader")</li>
+                            <li>role: Personens roll hos er. Tillåtna värden är <code>editor</code> och
+                                <code>reader</code>).
+                                En "editor" kan göra vad som helst medan en "reader" bara kan läsa information.
+                            </li>
                             <li>attr.custom_attribute: Om ni behöver så kan ni lägga in ytterligare information om
                                 personen genom att använda av attr-prefixet. Om kolumnen <em>attr.avdelning</em>
                                 innehåller värdet <em>Tisdagsgruppen</em> för en person så kommer den personen ha ett
-                                attribut som heter <em>avdelning</em> med värdet <em>Tisdagsgruppen</em>.
+                                attribut som heter <em>avdelning</em> med värdet <em>Tisdagsgruppen</em>. Tänk på att
+                                inte
+                                ha komman i namnet på attributet.
                             </li>
                         </ul>
                     </li>
