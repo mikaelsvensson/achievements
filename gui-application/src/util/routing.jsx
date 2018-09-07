@@ -19,6 +19,7 @@ import {renderMyProfile} from "../my/profile.jsx";
 import {renderMyPassword, renderPasswordForgotten} from "../my/password.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
 import {renderOrganizationAchievements} from "../organizations/organization.achievements.jsx";
+import {renderAbout} from "../about.jsx";
 
 export function navigateTo(appPath) {
     window.location.hash = '#' + appPath;
@@ -61,6 +62,7 @@ function renderRoute(appPath) {
         'signin-failed/*': renderSigninFailed,
         'signin/check-mail-box': renderSigninWaitForEmail,
         'signin/*': renderRedirect,
+        'om': renderAbout,
         '': renderMain
     };
 
