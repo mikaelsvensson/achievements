@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
+import se.devscout.achievements.server.data.importer.CsvDataSource;
+import se.devscout.achievements.server.data.importer.PeopleDataSourceException;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -20,6 +22,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -205,28 +208,9 @@ public class PeopleResource extends AbstractResource {
         LoggerFactory.getLogger(PeopleResource.class).info(input);
 
         try {
-            CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
-            final List<Map<String, String>> values1 = Lists.newArrayList(
-                    new CsvMapper().readerFor(Map.class)
-                            .with(schema)
-                            .readValues(input));
-
-            List<PersonDTO> values = values1.stream().map(map -> {
-                final String rawGroups = map.remove("groups");
-                final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
-                dto.attributes = new ArrayList<>();
-                for (Map.Entry<String, String> entry : map.entrySet()) {
-                    if (entry.getKey().startsWith("attr.")) {
-                        dto.attributes.add(new PersonAttributeDTO(entry.getKey().substring("attr.".length()), entry.getValue()));
-                    }
-                }
-                if (rawGroups != null) {
-                    dto.groups = Stream.of(StringUtils.split(rawGroups, ',')).map(grp -> new GroupBaseDTO(null, grp.trim())).collect(Collectors.toList());
-                }
-                return dto;
-            }).collect(Collectors.toList());
+            List<PersonDTO> values = new CsvDataSource(objectMapper).read(new StringReader(input));
             return upsert(organizationId, user, values);
-        } catch (IOException e) {
+        } catch (PeopleDataSourceException e) {
             throw new BadRequestException("Could not read data", e);
         }
     }
