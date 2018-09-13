@@ -121,6 +121,25 @@ export function putCsv(url, data, onSuccess, onFail) {
     internalPut(url, 'text/csv', data, onSuccess, onFail);
 }
 
+export function postFormData(url, data, onSuccess, onFail) {
+    $.ajax({
+        url: API_HOST + url,
+        type: 'POST',
+        data: data,
+        dataType: "json",
+        // contentType: 'multipart/form-data',
+        contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
+        processData: false, // NEEDED, DON'T OMIT THIS
+        beforeSend: beforeSendHandler
+    })
+        .done(onSuccess)
+        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
+                const status = jqXHR.status;
+                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status === 401)
+            }
+        );
+}
+
 function internalPut(url, contentType, data, onSuccess, onFail) {
     $.ajax({
         url: API_HOST + url,
