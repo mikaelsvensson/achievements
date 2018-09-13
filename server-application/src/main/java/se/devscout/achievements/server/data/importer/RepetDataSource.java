@@ -49,6 +49,7 @@ public class RepetDataSource implements PeopleDataSource {
                     match.get().groups.add(group);
                 } else {
                     final PersonDTO person = new PersonDTO();
+                    // TODO: Implement "name simplifier" to make custom_identifier resilient to small changes to names, like one-letter spelling mistakes or accented characters. Similar to making a "url slug" for the name and using that as the custom_identifier.
                     person.name = person.custom_identifier = name;
                     person.role = Roles.READER;
                     final GroupBaseDTO group = new GroupBaseDTO();
