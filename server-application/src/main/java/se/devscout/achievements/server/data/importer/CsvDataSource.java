@@ -47,7 +47,7 @@ public class CsvDataSource implements PeopleDataSource {
                 }
                 return dto;
             }).collect(Collectors.toList());
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             throw new PeopleDataSourceException("Could not read data", e);
         }
     }

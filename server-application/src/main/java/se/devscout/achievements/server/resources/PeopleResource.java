@@ -1,19 +1,24 @@
 package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.importer.CsvDataSource;
+import se.devscout.achievements.server.data.importer.PeopleDataSource;
 import se.devscout.achievements.server.data.importer.PeopleDataSourceException;
+import se.devscout.achievements.server.data.importer.RepetDataSource;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -21,26 +26,29 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.StringReader;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("organizations/{organizationId}/people")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class PeopleResource extends AbstractResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PeopleResource.class);
+
     private PeopleDao dao;
     private OrganizationsDao organizationsDao;
     private AchievementsDao achievementsDao;
     private ObjectMapper objectMapper;
     private GroupsDao groupsDao;
     private GroupMembershipsDao membershipsDao;
+    private PeopleDataSource[] peopleDataSources;
+    private File tempDir;
 
     public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper, GroupsDao groupsDao, GroupMembershipsDao membershipsDao) {
         this.dao = dao;
@@ -49,6 +57,15 @@ public class PeopleResource extends AbstractResource {
         this.objectMapper = objectMapper;
         this.groupsDao = groupsDao;
         this.membershipsDao = membershipsDao;
+        try {
+            this.peopleDataSources = new PeopleDataSource[]{
+                    new CsvDataSource(objectMapper),
+                    new RepetDataSource(),
+            };
+        } catch (ParserConfigurationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        this.tempDir = Files.createTempDir();
     }
 
     @GET
@@ -140,9 +157,17 @@ public class PeopleResource extends AbstractResource {
     public Response upsert(@PathParam("organizationId") UuidString organizationId,
                            @Auth User user,
                            List<PersonDTO> input) {
-        List<PersonBaseDTO> result = new ArrayList<>();
-        Organization organization = getOrganization(organizationId.getUUID());
-        for (PersonDTO dto : input) {
+        final UUID organizationUUID = organizationId.getUUID();
+        List<UpsertPersonResultDTO> result = upsert(user, input, organizationUUID, false);
+        return Response
+                .ok(result.stream().map(r -> r.person).collect(Collectors.toList()))
+                .build();
+    }
+
+    private List<UpsertPersonResultDTO> upsert(@Auth User user, List<PersonDTO> people, UUID organizationUUID, boolean isDryRun) {
+        List<UpsertPersonResultDTO> result = new ArrayList<>();
+        Organization organization = getOrganization(organizationUUID);
+        for (PersonDTO dto : people) {
             try {
                 Person person;
                 final PersonProperties newProperties = map(dto, PersonProperties.class);
@@ -155,13 +180,13 @@ public class PeopleResource extends AbstractResource {
 
                     checkSelfEditing(person.getId(), user);
 
-                    person = dao.update(person.getId(), newProperties);
-                    result.add(new PersonBaseDTO(person.getId(), person.getName()));
+                    person = !isDryRun ? dao.update(person.getId(), newProperties) : map(newProperties, Person.class);
+                    result.add(new UpsertPersonResultDTO(new PersonBaseDTO(person.getId(), person.getName()), false));
                 } catch (ObjectNotFoundException e) {
-                    person = dao.create(organization, newProperties);
-                    result.add(new PersonBaseDTO(person.getId(), person.getName()));
+                    person = !isDryRun ? dao.create(organization, newProperties) : map(newProperties, Person.class);
+                    result.add(new UpsertPersonResultDTO(new PersonBaseDTO(person.getId(), person.getName()), true));
                 }
-                if (dto.groups != null) {
+                if (dto.groups != null && !isDryRun) {
                     for (GroupBaseDTO groupDto : dto.groups) {
                         assignGroup(organization, person, groupDto);
                     }
@@ -174,9 +199,7 @@ public class PeopleResource extends AbstractResource {
                 throw new NotFoundException(e.getMessage());
             }
         }
-        return Response
-                .ok(result)
-                .build();
+        return result;
     }
 
     private void assignGroup(Organization organization, Person person, GroupBaseDTO groupDto) throws ObjectNotFoundException, DaoException {
@@ -196,6 +219,73 @@ public class PeopleResource extends AbstractResource {
             }
             membershipsDao.add(person, group, GroupRole.MEMBER);
         }
+    }
+
+    @POST
+    @RolesAllowed(Roles.EDITOR)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @UnitOfWork
+    public Response upsertFromFormData(@PathParam("organizationId") UuidString organizationId,
+                                       @Auth User user,
+                                       @FormDataParam("importDryRun") boolean isDryRun,
+                                       @FormDataParam("importRawData") FormDataBodyPart importRawData,
+                                       @FormDataParam("importUploadedFileId") FormDataBodyPart importUploadedFileId,
+                                       @FormDataParam("importFile") FormDataContentDisposition importFileDisposition,
+                                       @FormDataParam("importFile") InputStream importFile) {
+        File tempFile = null;
+        UUID tempFileId = null;
+        // TODO: Do we even need to save the uploaded file since the only client is a single-page application and thus quite easily can re-upload the file in case the user wants to do a dry-run before actually importing?
+        if (importFile != null) {
+            tempFileId = UUID.randomUUID();
+            try {
+                tempFile = getTempFile(tempFileId);
+                FileUtils.copyInputStreamToFile(importFile, tempFile);
+                LOGGER.info("Saved uploaded file as %s", tempFile.getAbsolutePath());
+            } catch (Exception e) {
+                throw new InternalServerErrorException("Could not cache uploaded file.", e);
+            }
+        }
+        if (importUploadedFileId != null && !Strings.isNullOrEmpty(importUploadedFileId.getValue())) {
+            try {
+                tempFileId = UUID.fromString(importUploadedFileId.getValue());
+                tempFile = getTempFile(tempFileId);
+                if (!tempFile.isFile()) {
+                    throw new BadRequestException("Referenced upload does not exist.");
+                }
+            } catch (Exception e) {
+                throw new InternalServerErrorException("Could not cache uploaded file.", e);
+            }
+        }
+        if (tempFile == null) {
+            throw new BadRequestException("No data");
+        }
+        List<PersonDTO> people = null;
+        for (PeopleDataSource dataSource : peopleDataSources) {
+            // BOMInputStream required since Java normally does not support the BOM first in XML files exported from Repet
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(tempFile))))) {
+                List<PersonDTO> tempValues = dataSource.read(reader);
+                if (people == null || tempValues.size() > people.size()) {
+                    people = tempValues;
+                }
+            } catch (PeopleDataSourceException e) {
+                LOGGER.info(e.getMessage());
+            } catch (IOException e) {
+                throw new BadRequestException("Could not read data", e);
+            }
+        }
+        if (people != null && !people.isEmpty()) {
+            final UUID organizationUUID = organizationId.getUUID();
+            List<UpsertPersonResultDTO> result = upsert(user, people, organizationUUID, isDryRun);
+            return Response
+                    .ok(new UpsertResultDTO(result, tempFileId.toString()))
+                    .build();
+        } else {
+            throw new BadRequestException("Could not read data. No records found.");
+        }
+    }
+
+    private File getTempFile(UUID uuid) {
+        return new File(tempDir, "achievements-upload-temp-" + uuid.toString());
     }
 
     @PUT
@@ -285,4 +375,5 @@ public class PeopleResource extends AbstractResource {
             throw new NotFoundException();
         }
     }
+
 }

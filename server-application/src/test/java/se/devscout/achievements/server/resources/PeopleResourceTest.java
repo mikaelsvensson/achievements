@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,6 +24,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +40,7 @@ import static se.devscout.achievements.server.MockUtil.*;
 public class PeopleResourceTest {
 
     private static final int ZERO = 0;
+    private static final int UUID_STRING_LENGTH = UUID.randomUUID().toString().length();
     private final PeopleDao dao = mock(PeopleDao.class);
 
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
@@ -50,6 +55,7 @@ public class PeopleResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
+            .addProvider(MultiPartFeature.class)
             .addResource(new PeopleResource(dao, organizationsDao, achievementsDao, new ObjectMapper(), groupsDao, membershipsDao))
             .build();
 
@@ -617,6 +623,72 @@ public class PeopleResourceTest {
         verify(membershipsDao).add(eq(alice), eq(groupDev), any());
         verify(membershipsDao).add(eq(carol), eq(groupDev), any());
         verify(membershipsDao).add(eq(carol), eq(groupMgr), any());
+    }
+
+    // TODO: Add tests for incorrect/bad data.
+    @Test
+    public void batchUpdate_repet_happyPath() throws Exception {
+        //
+        // MOCK STUFF
+        //
+        final Organization org = mockOrganization("Acme Inc.");
+
+        when(dao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
+        final Person carol = mockPerson(org, "Person");
+        when(dao.create(any(Organization.class), any())).thenReturn(carol);
+
+        when(groupsDao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
+        final Group groupDev = mockGroup(org, "Group");
+        when(groupsDao.create(eq(org), any())).thenReturn(groupDev);
+
+        //
+        // REQUEST 1: Upload an XML file with data from Repet.
+        //
+
+        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+                "importFile",
+                new File(getClass().getClassLoader().getResource("batchupsert-repet-narvarolista.xml").getFile()));
+        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+                .bodyPart(fileDataBodyPart);
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq1, multiPartReq1.getMediaType()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        // These assertions are essentially just to validate that the returned JSON is in the expected format. The data itself is incorrect since it is all mocked.
+        final UpsertResultDTO dto = response.readEntity(UpsertResultDTO.class);
+        assertThat(dto.uploadId).hasSize(UUID_STRING_LENGTH);
+        assertThat(dto.people).hasSize(36);
+        assertThat(dto.people.stream().allMatch(p -> p.isNew)).isTrue();
+        assertThat(dto.people.stream().allMatch(p -> p.person.name.length() > 0)).isTrue();
+
+        //
+        // REQUEST 2: Import the same data once more, but this time by referencing the previously uploaded file instead of uploading it again.
+        //
+
+        final FormDataMultiPart multiPartReq2 = new FormDataMultiPart()
+                .field("importUploadedFileId", dto.uploadId);
+        final Response response2 = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq2, multiPartReq2.getMediaType()));
+
+        assertThat(response2.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        // These assertions are essentially just to validate that the returned JSON is in the expected format.
+        final UpsertResultDTO dto2 = response2.readEntity(UpsertResultDTO.class);
+        assertThat(dto2.uploadId).isEqualTo(dto.uploadId);
+        // Asserting the number of people returned is important as it validates that we reused the file previously uploaded by just referencing it this time.
+        assertThat(dto2.people).hasSize(36);
+        assertThat(dto2.people.stream().allMatch(p -> p.person.name.length() > 0)).isTrue();
+        // Assert that the isNew flags are present, even though their values are all incorrect since all persons would actually exist when uploading the same file a second time.
+        assertThat(dto2.people.stream().allMatch(p -> p.isNew)).isTrue();
     }
 
     @Test

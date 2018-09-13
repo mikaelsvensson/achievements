@@ -13,6 +13,7 @@ import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.migrations.MigrationsBundle;
@@ -266,6 +267,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
                         new EnvironmentVariableSubstitutor(false)
                 )
         );
+        bootstrap.addBundle(new MultiPartBundle());
     }
 
     public static void main(String[] args) throws Exception {
