@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.apache.commons.io.input.BOMInputStream;
 import org.junit.Test;
+import se.devscout.achievements.dataimporter.SlugGenerator;
 import se.devscout.achievements.server.api.PersonDTO;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepetDataSourceTest {
 
+    private final SlugGenerator slugGenerator = new SlugGenerator();
+
     @Test
     public void read() throws ParserConfigurationException, PeopleDataSourceException, IOException {
         final List<PersonDTO> people = new RepetDataSource().read(
@@ -28,26 +31,28 @@ public class RepetDataSourceTest {
                                 ),
                                 Charsets.UTF_8)));
 
-        // TODO: Encode non-ASCII characters in source code?
-
         // Assert some of the people in the import file.
-        assertPerson(people, "Backman, Edla", "Spårare");
-        assertPerson(people, "Hammarström Donner, Astrid", "Spårare", "Tonår");
-        assertPerson(people, "Nylén Almén, Ulla-Britta", "Spårare");
-        assertPerson(people, "Lindborg Vikman, Malin", "Upptäckare");
-        assertPerson(people, "Appelqvist Almström, Egil", "Upptäckare");
-        assertPerson(people, "Söderlind, Karoline", "Upptäckare");
-        assertPerson(people, "von Albert, Stina", "Tonår");
-        assertPerson(people, "Grönstedt, Ebba", "Tonår");
-        assertPerson(people, "Edman, Karl-Axel", "Tonår");
+        assertPerson(people, "Backman, Edla", "Sp\u00e5rare");
+        assertPerson(people, "Hammarstr\u00f6m Donner, Astrid", "Sp\u00e5rare", "Ton\u00e5r");
+        assertPerson(people, "Nyl\u00e9n Alm\u00e9n, Ulla-Britta", "Sp\u00e5rare");
+        assertPerson(people, "Lindborg Vikman, Malin", "Uppt\u00e4ckare");
+        assertPerson(people, "Appelqvist Almstr\u00f6m, Egil", "Uppt\u00e4ckare");
+        assertPerson(people, "S\u00f6derlind, Karoline", "Uppt\u00e4ckare");
+        assertPerson(people, "von Albert, Stina", "Ton\u00e5r");
+        assertPerson(people, "Gr\u00f6nstedt, Ebba", "Ton\u00e5r");
+        assertPerson(people, "Edman, Karl-Axel", "Ton\u00e5r");
     }
 
     private void assertPerson(List<PersonDTO> people, String name, String... groups) {
-        final List<PersonDTO> matches = people.stream().filter(p -> p.name.equals(name)).collect(Collectors.toList());
+        final List<PersonDTO> matches = people.stream()
+                .filter(p -> p.name.equals(name))
+                .collect(Collectors.toList());
+
         assertThat(matches).hasSize(1);
+
         final PersonDTO person = matches.get(0);
         assertThat(person.name).isEqualTo(name);
-        assertThat(person.custom_identifier).isEqualTo(name);
+        assertThat(person.custom_identifier).isEqualTo(slugGenerator.toSlug(name));
         assertThat(person.groups).hasSize(groups.length);
         for (int i = 0; i < groups.length; i++) {
             assertThat(person.groups.get(i).name).isEqualTo(groups[i]);

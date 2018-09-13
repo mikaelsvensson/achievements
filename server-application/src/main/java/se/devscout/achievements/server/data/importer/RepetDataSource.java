@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import se.devscout.achievements.dataimporter.SlugGenerator;
 import se.devscout.achievements.server.api.GroupBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.Roles;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 public class RepetDataSource implements PeopleDataSource {
 
+    private final SlugGenerator slugGenerator = new SlugGenerator();
     private DocumentBuilder documentBuilder;
 
     public RepetDataSource() throws ParserConfigurationException {
@@ -33,24 +35,23 @@ public class RepetDataSource implements PeopleDataSource {
     public List<PersonDTO> read(Reader reader) throws PeopleDataSourceException {
         final ArrayList<PersonDTO> people = Lists.newArrayList();
         final Document document = readXml(reader);
-        // TODO: Encode non-ASCII characters in source code?
-        final NodeList groupElements = document.getDocumentElement().getElementsByTagNameNS("G7_närvarolista", "table2");
+        final NodeList groupElements = document.getDocumentElement().getElementsByTagNameNS("G7_n\u00e4rvarolista", "table2");
         for (int i = 0; i < groupElements.getLength(); i++) {
             final Element groupElement = (Element) groupElements.item(i);
             final String groupName = groupElement.getAttribute("textbox188");
-            final NodeList peopleElements = groupElement.getElementsByTagNameNS("G7_närvarolista", "Detail");
+            final NodeList peopleElements = groupElement.getElementsByTagNameNS("G7_n\u00e4rvarolista", "Detail");
             for (int x = 0; x < peopleElements.getLength(); x++) {
                 final Element personElement = (Element) peopleElements.item(x);
                 final String name = personElement.getAttribute("textbox171");
-                final Optional<PersonDTO> match = people.stream().filter(p -> p.custom_identifier.equals(name)).findFirst();
+                final Optional<PersonDTO> match = people.stream().filter(p -> p.custom_identifier.equals(toCustomIdentifier(name))).findFirst();
                 if (match.isPresent()) {
                     final GroupBaseDTO group = new GroupBaseDTO();
                     group.name = groupName;
                     match.get().groups.add(group);
                 } else {
                     final PersonDTO person = new PersonDTO();
-                    // TODO: Implement "name simplifier" to make custom_identifier resilient to small changes to names, like one-letter spelling mistakes or accented characters. Similar to making a "url slug" for the name and using that as the custom_identifier.
-                    person.name = person.custom_identifier = name;
+                    person.name = name;
+                    person.custom_identifier = toCustomIdentifier(name);
                     person.role = Roles.READER;
                     final GroupBaseDTO group = new GroupBaseDTO();
                     group.name = groupName;
@@ -60,6 +61,10 @@ public class RepetDataSource implements PeopleDataSource {
             }
         }
         return people;
+    }
+
+    private String toCustomIdentifier(String text) {
+        return slugGenerator.toSlug(text);
     }
 
     private Document readXml(Reader reader) throws PeopleDataSourceException {
