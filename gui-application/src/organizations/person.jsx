@@ -1,5 +1,6 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, put} from "../util/api.jsx";
+import {createOnFailHandler, get, isLoggedIn, put, remove} from "../util/api.jsx";
+import {navigateTo} from "../util/routing.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 import {unflatten} from 'flat';
 
@@ -72,6 +73,17 @@ export function renderPerson(appPathParams) {
                 button.removeClass('is-loading');
                 renderPerson(appPathParams);
             }, createOnFailHandler(form.find('.errors'), button));
+        });
+
+        $('#person-delete-button').click(function (e) {
+            if (confirm('Är du säker på att du vill ta bort ' + responseData.name + '?')) {
+                const button = $(this);
+                const form = button.addClass('is-loading').closest('form');
+                remove('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, null, function (responseData, responseStatus, jqXHR) {
+                    button.removeClass('is-loading');
+                    navigateTo('karer/' + appPathParams[0].key);
+                }, createOnFailHandler(form.find('.errors'), button));
+            }
         });
 
     });

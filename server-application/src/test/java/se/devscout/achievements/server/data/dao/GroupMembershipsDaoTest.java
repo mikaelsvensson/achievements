@@ -21,6 +21,10 @@ public class GroupMembershipsDaoTest {
             .addEntityClass(Credentials.class)
             .addEntityClass(GroupMembership.class)
             .addEntityClass(Group.class)
+            .addEntityClass(Achievement.class)
+            .addEntityClass(AchievementStep.class)
+            .addEntityClass(AchievementStepProgress.class)
+            .addEntityClass(StepProgressAuditRecord.class)
             .build();
 
     private GroupMembershipsDaoImpl dao;

@@ -24,6 +24,7 @@ public class AchievementStepsDaoImplTest {
             .addEntityClass(Group.class)
             .addEntityClass(Organization.class)
             .addEntityClass(Credentials.class)
+            .addEntityClass(StepProgressAuditRecord.class)
             .build();
 
     private AchievementStepsDao dao;

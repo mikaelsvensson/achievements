@@ -27,6 +27,10 @@ public class CredentialsDaoImplTest {
             .addEntityClass(PersonAttribute.class)
             .addEntityClass(GroupMembership.class)
             .addEntityClass(Group.class)
+            .addEntityClass(Achievement.class)
+            .addEntityClass(AchievementStep.class)
+            .addEntityClass(AchievementStepProgress.class)
+            .addEntityClass(StepProgressAuditRecord.class)
             .build();
 
     private CredentialsDaoImpl dao;

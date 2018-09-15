@@ -49,6 +49,7 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
             throw new IllegalArgumentException("Both achievement step and person must be specified.");
         }
         final AchievementStepProgress progress = get(achievementStep, person);
+        person.getAchievementStepProgress().remove(progress);
         currentSession().delete(progress);
     }
 }
