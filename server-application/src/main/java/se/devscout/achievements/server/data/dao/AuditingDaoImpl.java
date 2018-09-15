@@ -38,14 +38,16 @@ public class AuditingDaoImpl extends DaoImpl<AbstractAuditRecord, Integer> imple
 
     @Override
     public StepProgressAuditRecord create(UUID trackingId, Integer userId, Integer stepId, Integer personId, String data, String httpMethod, int responseCode) {
+        final Person person = currentSession().getReference(Person.class, userId);
         final StepProgressAuditRecord record = new StepProgressAuditRecord(
-                currentSession().getReference(Person.class, userId),
+                person,
                 data,
                 currentSession().getReference(AchievementStep.class, stepId),
                 currentSession().getReference(Person.class, personId),
                 httpMethod,
                 responseCode
         );
+        person.getAuditRecords().add(record);
         return (StepProgressAuditRecord) persist(record);
     }
 

@@ -32,6 +32,12 @@ public class Person extends PersonProperties {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupMembership> memberships = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<AchievementStepProgress> achievementStepProgress = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<StepProgressAuditRecord> auditRecords = new HashSet<>();
+
     public Person() {
     }
 
@@ -74,5 +80,21 @@ public class Person extends PersonProperties {
 
     public void setCredentials(Set<Credentials> credentials) {
         this.credentials = credentials;
+    }
+
+    public Set<AchievementStepProgress> getAchievementStepProgress() {
+        return achievementStepProgress;
+    }
+
+    public void setAchievementStepProgress(Set<AchievementStepProgress> achievementStepProgress) {
+        this.achievementStepProgress = achievementStepProgress;
+    }
+
+    public Set<StepProgressAuditRecord> getAuditRecords() {
+        return auditRecords;
+    }
+
+    public void setAuditRecords(Set<StepProgressAuditRecord> auditRecords) {
+        this.auditRecords = auditRecords;
     }
 }

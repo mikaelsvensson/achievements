@@ -10,6 +10,7 @@ import se.devscout.achievements.server.data.model.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +22,10 @@ public class PeopleDaoImplTest {
     public DAOTestRule database = DAOTestRule.newBuilder()
             .setShowSql(true)
             .addEntityClass(Organization.class)
+            .addEntityClass(Achievement.class)
+            .addEntityClass(AchievementStep.class)
+            .addEntityClass(AchievementStepProgress.class)
+            .addEntityClass(StepProgressAuditRecord.class)
             .addEntityClass(Person.class)
             .addEntityClass(GroupMembership.class)
             .addEntityClass(Group.class)
@@ -99,17 +104,37 @@ public class PeopleDaoImplTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        Integer id = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bob", Roles.READER))).getId();
+        final Person personAliceWithProgress = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER)));
+
+        // Setup: Create achievements
+        AchievementsDaoImpl achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
+        final Achievement achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
+
+        // Setup: Create achievement steps
+        AchievementStepsDaoImpl stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
+        AchievementStep achievement1Step1 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package")));
+        AchievementStep achievement1Step2 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Clean up afterwards")));
+
+        // Setup: Create progress records
+        AuditingDaoImpl auditingDao = new AuditingDaoImpl(database.getSessionFactory());
+        AchievementStepProgressDaoImpl progressDao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
+        database.inTransaction(() -> {
+            progressDao.set(achievement1Step1, personAliceWithProgress, new AchievementStepProgressProperties(true, "Finally done"));
+            auditingDao.create(UUID.randomUUID(), 1, achievement1Step1.getId(), personAliceWithProgress.getId(),null, "PUT", 200);
+            return null;
+        });
+        database.inTransaction(() -> progressDao.set(achievement1Step2, personAliceWithProgress, new AchievementStepProgressProperties(false, "Still eating the egg")));
+
         database.inTransaction(() -> {
             try {
-                dao.delete(id);
+                dao.delete(personAliceWithProgress.getId());
             } catch (ObjectNotFoundException e) {
                 fail();
             }
         });
         database.inTransaction(() -> {
             try {
-                dao.read(id);
+                dao.read(personAliceWithProgress.getId());
                 fail();
             } catch (ObjectNotFoundException e) {
             }
