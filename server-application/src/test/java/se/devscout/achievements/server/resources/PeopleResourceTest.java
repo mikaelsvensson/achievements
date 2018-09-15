@@ -3,7 +3,9 @@ package se.devscout.achievements.server.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.apache.commons.text.RandomStringGenerator;
 import org.eclipse.jetty.http.HttpStatus;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -625,7 +627,6 @@ public class PeopleResourceTest {
         verify(membershipsDao).add(eq(carol), eq(groupMgr), any());
     }
 
-    // TODO: Add tests for incorrect/bad data.
     @Test
     public void batchUpdate_repet_happyPath() throws Exception {
         //
@@ -689,6 +690,66 @@ public class PeopleResourceTest {
         assertThat(dto2.people.stream().allMatch(p -> p.person.name.length() > 0)).isTrue();
         // Assert that the isNew flags are present, even though their values are all incorrect since all persons would actually exist when uploading the same file a second time.
         assertThat(dto2.people.stream().allMatch(p -> p.isNew)).isTrue();
+    }
+
+    @Test
+    public void batchUpdate_repet_randomDataShouldNotBeAccepted() throws Exception {
+        final Organization org = mockOrganization("Acme Inc.");
+
+        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+                .bodyPart(new FormDataBodyPart("importFile", new RandomStringGenerator.Builder().build().generate(100)));
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq1, multiPartReq1.getMediaType()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+        verify(dao, never()).update(any(Integer.class), any(PersonProperties.class));
+    }
+
+    @Test
+    public void batchUpdate_repet_emptyXmlFileShouldNotBeAccepted() throws Exception {
+        final Organization org = mockOrganization("Acme Inc.");
+
+        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+                "importFile",
+                new File(getClass().getClassLoader().getResource("batchupsert-repet-narvarolista-empty.xml").getFile()));
+        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+                .bodyPart(fileDataBodyPart);
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq1, multiPartReq1.getMediaType()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+        verify(dao, never()).update(any(Integer.class), any(PersonProperties.class));
+    }
+
+    @Test
+    public void batchUpdate_repet_xmlBombShouldNotBeAccepted() throws Exception {
+        final Organization org = mockOrganization("Acme Inc.");
+
+        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+                "importFile",
+                new File(getClass().getClassLoader().getResource("xml-bomb.xml").getFile()));
+        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+                .bodyPart(fileDataBodyPart);
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq1, multiPartReq1.getMediaType()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+        verify(dao, never()).create(any(Organization.class), any(PersonProperties.class));
+        verify(dao, never()).update(any(Integer.class), any(PersonProperties.class));
     }
 
     @Test
