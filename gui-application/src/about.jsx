@@ -9,5 +9,5 @@ export function renderAbout() {
     const domain = 'gmail.com';
     const user = 'minamarken';
 
-    $('#mail-link').attr('href', ['mailto:', user, '@', domain].join('')).text([user, '@', domain].join(''));
+    $('.mail-link').attr('href', ['mailto:', user, '@', domain].join('')).text([user, '@', domain].join(''));
 }
