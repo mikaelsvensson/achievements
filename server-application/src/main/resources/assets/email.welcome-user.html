@@ -1,0 +1,45 @@
+<div style="margin: 0; padding: 0; font-family: sans-serif;">
+    <div style="background-color: #003C69; color: #ffffff; margin: 0; padding: 4em 1em 1em 1em">
+        <h1 style="padding: 0; margin: 0;">Du kan nu använda Mina märken</h1>
+    </div>
+    <div style="background-color: #ffffff; color: #000000; margin: 0; padding: 1em">
+        <p style="margin-top: 0">
+            <strong>Du kan nu logga in till Mina Märken. </strong>Detta är en tjänst för att hålla ordning på vilka delsteg som scouter
+            klarat av på vägen mot något av scouternas olika märken.
+        </p>
+        {{#isGoogleAccount}}
+        <p>Gör så här för att logga in med ditt Gmail-konto:</p>
+        <ol>
+            <li>Surfa till <a href="{{{loginLink}}}">{{{loginLink}}}</a>.</li>
+            <li>Klicka på knappen <em>Logga in med Google</em>.</li>
+            <li>Du kommer nu till Googles egen inloggning och du loggar in med ditt Google-konto.</li>
+            <li>Därefter kommer du automatiskt tillbaka till Mina märken och du är inloggad även här.</li>
+        </ol>
+        {{/isGoogleAccount}}
+        {{#isMicrosoftAccount}}
+        <p>Gör så här för att logga in med ditt Microsoft-konto:</p>
+        <ol>
+            <li>Surfa till <a href="{{{loginLink}}}">{{{loginLink}}}</a>.</li>
+            <li>Klicka på knappen <em>Logga in med Microsoft</em>.</li>
+            <li>Du kommer nu till Microsofts egen inloggning och du loggar in med ditt Microsoft-konto.</li>
+            <li>Därefter kommer du automatiskt tillbaka till Mina märken och du är inloggad även här.</li>
+        </ol>
+        {{/isMicrosoftAccount}}
+        {{#isEmailAccount}}
+        <p>Gör så här för att logga in:</p>
+        <ol>
+            <li>Surfa till <a href="{{{loginLink}}}">{{{loginLink}}}</a>.</li>
+            <li>Fyll i din e-postadress, <em>{{{emailAddress}}}</em>, i fältet <em>Din e-postadress</em>. Lämna lösenordsfältet tomt.</li>
+            <li>Klicka på knappen <em>Logga in med e-post</em>.</li>
+            <li>Vi skickar nu en inloggningslänk till dig via e-post.</li>
+            <li>När du klickar på länken i brevet kommer du loggas in i Mina märken utan att du behöver ange något lösenord. Vi litar på att du är du eftersom inloggningslänken skickades till just din e-postlåda.</li>
+        </ol>
+        {{/isEmailAccount}}
+        <p>
+            Vi hoppas du kommer ha mycket nytta av Mina Märken i framtiden. Hör gärna av dig om du har synpunkter och förslag kring tjänsten!
+        </p>
+        <p>
+            <small>Om du undrar något så kan du läsa mer om tjänsten på <a href="{{{aboutLink}}}">{{{aboutLink}}}</a>. Du kan också svara på detta brev.</small>
+        </p>
+    </div>
+</div>

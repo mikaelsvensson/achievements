@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, put, remove} from "../util/api.jsx";
+import {createOnFailHandler, get, isLoggedIn, put, remove, post} from "../util/api.jsx";
 import {navigateTo} from "../util/routing.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 import {unflatten} from 'flat';
@@ -72,6 +72,14 @@ export function renderPerson(appPathParams) {
             put('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key, payload, function (responseData, responseStatus, jqXHR) {
                 button.removeClass('is-loading');
                 renderPerson(appPathParams);
+            }, createOnFailHandler(form.find('.errors'), button));
+        });
+
+        $('#person-send-welcome-mail-button').click(function (e) {
+            const button = $(this);
+            const form = button.addClass('is-loading').closest('form');
+            post('/api/organizations/' + appPathParams[0].key + '/people/' + appPathParams[1].key + '/mails/welcome', null, function (responseData, responseStatus, jqXHR) {
+                button.removeClass('is-loading');
             }, createOnFailHandler(form.find('.errors'), button));
         });
 

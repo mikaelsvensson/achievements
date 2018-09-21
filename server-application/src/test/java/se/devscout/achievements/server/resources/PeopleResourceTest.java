@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.*;
@@ -21,6 +22,8 @@ import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.mail.EmailSender;
+import se.devscout.achievements.server.mail.EmailSenderException;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
@@ -28,6 +31,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -53,17 +57,31 @@ public class PeopleResourceTest {
 
     private final GroupsDao groupsDao = mock(GroupsDao.class);
 
+    private final EmailSender emailSender = mock(EmailSender.class);
+
+    private final I18n i18n = mock(I18n.class);
+
     private final GroupMembershipsDao membershipsDao = mock(GroupMembershipsDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
             .addProvider(MultiPartFeature.class)
-            .addResource(new PeopleResource(dao, organizationsDao, achievementsDao, new ObjectMapper(), groupsDao, membershipsDao))
+            .addResource(new PeopleResource(
+                    dao,
+                    organizationsDao,
+                    achievementsDao,
+                    new ObjectMapper(),
+                    groupsDao,
+                    membershipsDao,
+                    URI.create("http://gui/"),
+                    emailSender,
+                    i18n))
             .build();
 
     @Before
     public void setUp() throws Exception {
         MockUtil.setupDefaultCredentials(credentialsDao);
+        when(i18n.get(anyString())).thenReturn("default i18n string");
     }
 
 
@@ -85,6 +103,98 @@ public class PeopleResourceTest {
         assertThat(dto.id).isNotEqualTo(ZERO);
 
         verify(dao).read(eq(person.getId()));
+    }
+
+    @Test
+    public void welcomeMail_happyPath() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+        when(person.getEmail()).thenReturn("alice@example.com");
+
+        when(i18n.get(anyString())).thenReturn("the subject");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(dao).read(eq(person.getId()));
+        verify(emailSender).send(
+                anyString(),
+                anyString(),
+                eq("the subject"),
+                contains("Du kan nu anv\u00e4nda Mina m\u00e4rken"));
+    }
+
+    @Test
+    public void welcomeMail_noEmail() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+        when(person.getEmail()).thenReturn(null);
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(emailSender, never()).send(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString());
+    }
+
+    @Test
+    public void welcomeMail_sendException() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+        when(person.getEmail()).thenReturn("<script>alert('Trudy was here')</script>");
+        doThrow(new EmailSenderException("Error")).when(emailSender).send(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString());
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
+
+        verify(emailSender).send(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString());
+    }
+
+    @Test
+    public void welcomeMail_emptyEmail() throws Exception {
+        final Organization org = mockOrganization("org");
+        final Person person = mockPerson(org, "Alice");
+        when(person.getEmail()).thenReturn("   ");
+
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(emailSender, never()).send(
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString());
     }
 
     @Test

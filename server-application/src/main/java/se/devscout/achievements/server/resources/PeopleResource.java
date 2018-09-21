@@ -7,11 +7,13 @@ import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
@@ -20,10 +22,15 @@ import se.devscout.achievements.server.data.importer.PeopleDataSource;
 import se.devscout.achievements.server.data.importer.PeopleDataSourceException;
 import se.devscout.achievements.server.data.importer.RepetDataSource;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.mail.EmailSender;
+import se.devscout.achievements.server.mail.EmailSenderException;
+import se.devscout.achievements.server.mail.Template;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,8 +56,12 @@ public class PeopleResource extends AbstractResource {
     private GroupMembershipsDao membershipsDao;
     private PeopleDataSource[] peopleDataSources;
     private File tempDir;
+    private final Template template;
+    private URI guiApplicationHost;
+    private EmailSender emailSender;
+    private I18n i18n;
 
-    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper, GroupsDao groupsDao, GroupMembershipsDao membershipsDao) {
+    public PeopleResource(PeopleDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper, GroupsDao groupsDao, GroupMembershipsDao membershipsDao, URI guiApplicationHost, EmailSender emailSender, I18n i18n) {
         this.dao = dao;
         this.organizationsDao = organizationsDao;
         this.achievementsDao = achievementsDao;
@@ -66,6 +77,10 @@ public class PeopleResource extends AbstractResource {
             throw new IllegalArgumentException(e);
         }
         this.tempDir = Files.createTempDir();
+        this.guiApplicationHost = guiApplicationHost;
+        this.template = new Template("assets/email.set-password.html");
+        this.emailSender = emailSender;
+        this.i18n = i18n;
     }
 
     @GET
@@ -90,20 +105,75 @@ public class PeopleResource extends AbstractResource {
                          @PathParam("personId") String id,
                          @Auth User user) {
         try {
-            final Person person;
-            if (id.startsWith("c:")) {
-                final Organization organization = getOrganization(organizationId.getUUID());
-                person = dao.read(organization, id.substring(2));
-            } else {
-                person = dao.read(Integer.parseInt(id));
-                verifyParent(organizationId.getUUID(), person);
-            }
+            final Person person = getPerson(organizationId, id);
             final PersonDTO personDTO = map(person, PersonDTO.class);
             personDTO.organization = map(person.getOrganization(), OrganizationBaseDTO.class);
             return personDTO;
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
+    }
+
+    private Person getPerson(UuidString organizationId, String id) throws ObjectNotFoundException {
+        final Person person;
+        if (id.startsWith("c:")) {
+            final Organization organization = getOrganization(organizationId.getUUID());
+            person = dao.read(organization, id.substring(2));
+        } else {
+            person = dao.read(Integer.parseInt(id));
+            verifyParent(organizationId.getUUID(), person);
+        }
+        return person;
+    }
+
+    // TODO: Move to separate class
+    @POST
+    @Path("{personId}/mails/welcome")
+    @RolesAllowed(Roles.EDITOR)
+    @UnitOfWork
+    public void postMail(@PathParam("organizationId") UuidString organizationId,
+                         @PathParam("personId") String id,
+                         @Auth User user,
+                         @Context HttpServletRequest req) {
+        try {
+            final Person person = getPerson(organizationId, id);
+
+            final String email = person.getEmail();
+            final boolean isEmailSet = !Strings.isNullOrEmpty(StringUtils.trim(email));
+            if (!isEmailSet) {
+                // TODO: Provide better error message to user when e-mail is not set.
+                throw new BadRequestException();
+            }
+
+            final URI loginLink = guiApplicationHost;
+            final URI aboutLink = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om");
+            final boolean isGoogleAccount = isCredentialOfTypeSet(person, CredentialsType.GOOGLE);
+            final boolean isMicrosoftAccount = isCredentialOfTypeSet(person, CredentialsType.MICROSOFT);
+
+            final String body = new WelcomeUserTemplate().render(
+                    aboutLink,
+                    email,
+                    isGoogleAccount,
+                    isMicrosoftAccount,
+                    // It is by definition an "e-mail account" since the person has an e-mail address.
+                    true,
+                    loginLink);
+
+            emailSender.send(
+                    req != null ? req.getRemoteAddr() : "ANONYMOUS",
+                    email,
+                    i18n.get("sendWelcomeMail.subject"),
+                    body);
+            // TODO: Save e-mail in database
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        } catch (EmailSenderException e) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+    private boolean isCredentialOfTypeSet(Person person, CredentialsType type) {
+        return person.getCredentials().stream().anyMatch(c -> c.getType() == type);
     }
 
     @GET
