@@ -199,6 +199,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
         return credentialsDao.create(person, credentialsProperties);
     }
 
+    // TODO: existingOrganizationSignup and newSignup are almost identical in functionality (only difference is organization identifier check? and what good does that check actually do?)
     public AuthTokenDTO existingOrganizationSignup(UuidString id,
                                                    ValidationResult validationResult) throws ExternalIdpCallbackException {
         try {
