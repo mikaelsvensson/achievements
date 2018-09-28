@@ -109,29 +109,10 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
+        initFilterCorsHeaders(environment);
+
         if (config.getRateLimiting() != null) {
-            final RateLimiter rateLimiter = new RateLimiter(config.getRateLimiting().getRequestsPerMinute(), config.getRateLimiting().getBurstLimit());
-
-            final ServletRequestRateLimiter servletRequestRateLimiter = new ServletRequestRateLimiter(rateLimiter);
-
-            environment.servlets()
-                    .addFilter("RateLimiter", servletRequestRateLimiter)
-                    .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/api/*");
-
-            environment.jersey().register(new DynamicFeature() {
-                @Override
-                public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-                    if (resourceInfo.getResourceMethod().isAnnotationPresent(RateLimited.class)) {
-                        final RateLimited annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
-
-                        final RateLimiter rateLimiter = new RateLimiter(
-                                annotation.requestsPerMinute(),
-                                annotation.burstLimit());
-
-                        context.register(new ResourceRequestRateLimiter(rateLimiter));
-                    }
-                }
-            });
+            initFilterRateLimiter(environment, config.getRateLimiting());
         }
         environment.jersey().register(new AuditFeature(auditingDao, hibernate));
 
@@ -191,8 +172,31 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new HttpAuditTask(sessionFactory, auditingDao));
+    }
 
-        initCorsHeaders(environment);
+    private void initFilterRateLimiter(Environment environment, AchievementsApplicationConfiguration.RateLimiting config) {
+        final RateLimiter rateLimiter = new RateLimiter(config.getRequestsPerMinute(), config.getBurstLimit());
+
+        final ServletRequestRateLimiter servletRequestRateLimiter = new ServletRequestRateLimiter(rateLimiter);
+
+        environment.servlets()
+                .addFilter("RateLimiter", servletRequestRateLimiter)
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/api/*");
+
+        environment.jersey().register(new DynamicFeature() {
+            @Override
+            public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+                if (resourceInfo.getResourceMethod().isAnnotationPresent(RateLimited.class)) {
+                    final RateLimited annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
+
+                    final RateLimiter rateLimiter = new RateLimiter(
+                            annotation.requestsPerMinute(),
+                            annotation.burstLimit());
+
+                    context.register(new ResourceRequestRateLimiter(rateLimiter));
+                }
+            }
+        });
     }
 
     protected CredentialsDao getCredentialsDao(SessionFactory sessionFactory) {
@@ -237,7 +241,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new AuthDynamicFeature(new ChainedAuthFilter<>(filters));
     }
 
-    private void initCorsHeaders(Environment env) {
+    private void initFilterCorsHeaders(Environment env) {
         FilterRegistration.Dynamic filter = env.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
         filter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, env.getApplicationContext().getContextPath() + "*");
         filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
