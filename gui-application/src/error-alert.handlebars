@@ -1,0 +1,27 @@
+<div class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <article class="message is-warning">
+            <div class="message-header">
+                <p>Oj, nu blev det inte som tänkt.</p>
+                <button id="error-alert-button-close" class="delete" aria-label="delete"></button>
+            </div>
+            <div class="message-body">
+                <div class="content">
+                    {{message}}
+                </div>
+                {{#if showLoginLink}}
+                    <p>Jag vill <a id="error-alert-login-link" href="#loggain" aria-current="page">logga in</a>.</p>
+                {{/if}}
+                <div class="buttons is-right">
+                    <span id="error-alert-button-ok" class="button is-primary">Okej, jag fattar</span>
+                </div>
+<!--
+                <div class="content is-small">
+                    <a href="">Rapportera problem...</a>
+                </div>
+-->
+            </div>
+        </article>
+    </div>
+</div>
