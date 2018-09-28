@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, post} from "../util/api.jsx";
+import {get, isLoggedIn, post} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 
@@ -22,20 +22,19 @@ export function renderOrganizations() {
     const $app = $('#app');
 
     $app.find('.create-button').click(function (e) {
-        const form = $(this).addClass('is-loading').closest('form');
+        const form = $(this).closest('form');
         post('/api/organizations', getFormData(form), function (responseData, responseStatus, jqXHR) {
             navigateTo('organizations/' + responseData.id);
-        }, createOnFailHandler(form.find('.errors'), button));
+        }, $(this));
     });
 
     $app.find('.search-button').click(function (e) {
         const button = $(this);
-        const form = button.addClass('is-loading').closest('form');
+        const form = button.closest('form');
         const url = '/api/organizations?filter=' + getFormData(form).filter;
         console.log(url);
         get(url, function (responseData, responseStatus, jqXHR) {
-            button.removeClass('is-loading')
             updateView(templateOrganizationsResult({organizations: responseData}), $('#organizations-search-result'));
-        });
+        }, button);
     });
 }

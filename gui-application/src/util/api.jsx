@@ -1,6 +1,5 @@
 import $ from "jquery";
-import {renderError} from "../error.jsx";
-import {renderErrorBlock} from "../error-block.jsx";
+import {renderErrorAlert} from "../error-alert.jsx";
 
 const jwtDecode = require('jwt-decode');
 
@@ -8,7 +7,28 @@ const API_HOST = process.env.API_HOST;
 
 let refreshTokenTimeoutHandle = null;
 
-function beforeSendHandler(xhr) {
+function createBeforeSendHandler(button) {
+    return function (xhr) {
+        addAuthHeaders(xhr);
+        if (button) {
+            button.addClass('is-loading');
+        }
+    }
+}
+
+function createAlwaysHandler(button) {
+    return function () {
+        // Remove the "page level" loading animation if it is shown:
+        $('#app').find('div.loader').closest('#app').empty();
+
+        // Remove the "button" loading animation if it is shown:
+        if (button) {
+            button.removeClass('is-loading');
+        }
+    }
+}
+
+function addAuthHeaders(xhr) {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
     const token = localStorage.getItem("token");
@@ -79,49 +99,39 @@ export function unsetAuth(googleApiAuth2) {
     }
 }
 
-export function post(url, dataObject, onSuccess, onFail) {
+export function post(url, dataObject, onSuccess, button) {
     $.ajax({
         url: API_HOST + url,
         type: "POST",
         data: JSON.stringify(dataObject),
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler
+        beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)
-        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
-                const status = jqXHR.status;
-                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
-            }
-        );
+        .always(createAlwaysHandler(button))
+        .fail(createOnFailHandler(`Kan inte skapa ${url}.`));
 }
 
-export function remove(url, dataObject, onSuccess, onFail) {
+export function remove(url, dataObject, onSuccess, button) {
     $.ajax({
         url: API_HOST + url,
         type: "DELETE",
         data: JSON.stringify(dataObject),
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler
+        beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)
-        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
-                const status = jqXHR.status;
-                renderError(`Kan inte ta bort ${url} eftersom servern svarade med felkod ${status}.`, status == 401)
-            }
-        );
+        .always(createAlwaysHandler(button))
+        .fail(createOnFailHandler(`Kan inte ta bort ${url}.`));
 }
 
-export function put(url, dataObject, onSuccess, onFail) {
-    internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, onFail);
+export function put(url, dataObject, onSuccess, button) {
+    internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, button);
 }
 
-export function putCsv(url, data, onSuccess, onFail) {
-    internalPut(url, 'text/csv', data, onSuccess, onFail);
-}
-
-export function postFormData(url, data, onSuccess, onFail) {
+export function postFormData(url, data, onSuccess, button) {
     $.ajax({
         url: API_HOST + url,
         type: 'POST',
@@ -130,74 +140,64 @@ export function postFormData(url, data, onSuccess, onFail) {
         // contentType: 'multipart/form-data',
         contentType: false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
         processData: false, // NEEDED, DON'T OMIT THIS
-        beforeSend: beforeSendHandler
+        beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)
-        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
-                const status = jqXHR.status;
-                renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status === 401)
-            }
-        );
+        .always(createAlwaysHandler(button))
+        .fail(createOnFailHandler(`Kan inte skapa ${url}.`));
 }
 
-function internalPut(url, contentType, data, onSuccess, onFail) {
+function internalPut(url, contentType, data, onSuccess, button) {
     $.ajax({
         url: API_HOST + url,
         type: "PUT",
         data: data,
         dataType: "json",
         contentType: contentType,
-        beforeSend: beforeSendHandler
+        beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)
-        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
-                const status = jqXHR.status;
-            renderError(`Kan inte skapa ${url} eftersom servern svarade med felkod ${status}.`, status === 401)
-            }
-        );
+        .always(createAlwaysHandler(button))
+        .fail(createOnFailHandler(`Kan inte uppdatera ${url}.`));
 }
 
-export function get(url, onSuccess, onFail) {
+export function get(url, onSuccess, button) {
     $.ajax({
         url: API_HOST + url,
         type: "GET",
         dataType: "json",
         contentType: "application/json; charset=utf-8",
-        beforeSend: beforeSendHandler
+        beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)
-        .fail(typeof onFail === 'function' ? onFail : function (jqXHR, textStatus, errorThrown) {
-                const status = jqXHR.status;
-                const isAuthFailure = status == 401 || status == 403;
-                let requestOrganizationId;
-                if (isAuthFailure) {
-                    const matches = /organizations\/([a-zA-Z0-9-]{22})/.exec(url);
-                    if (matches && matches.length >= 2) {
-                        requestOrganizationId = matches[1];
-                    }
-                }
-                renderError(`Kan inte visa sidan pga. fel ${status}.`,
-                    isAuthFailure,
-                    requestOrganizationId,
-                    url,
-                    status,
-                    isLoggedIn())
-            }
-        );
+        // TODO: Replace with createOnFailHandler
+        .always(createAlwaysHandler(button))
+        .fail(createOnFailHandler(`Kan inte visa sidan.`));
 }
 
-export function createOnFailHandler(container, button) {
+function createOnFailHandler(message) {
     return function (jqXHR, textStatus, errorThrown) {
-        if (button) {
-            button.removeClass('is-loading');
-        }
         //TODO: Add this kind of error handling to all post, put and get calls.
-        if (container && container.length == 1) {
-            renderErrorBlock(jqXHR.responseJSON.message, container);
+
+        const responseMessage = jqXHR.responseJSON && jqXHR.responseJSON.message ? jqXHR.responseJSON.message : null
+
+        if (400 <= jqXHR.status && jqXHR.status < 500) {
+            if (jqXHR.status === 400) {
+                renderErrorAlert('Något verkar var galet i det du fyllde i.')
+            } else if (jqXHR.status === 401) {
+                renderErrorAlert('Du måste vara inloggad för att se den här sidan.', true)
+            } else if (jqXHR.status === 403) {
+                renderErrorAlert('Du har tyvärr inte möjlighet att se den här sidan.')
+            } else if (jqXHR.status === 429) {
+                renderErrorAlert('Vi tycker det är för högt tryck på vår server just nu så just nu kan du inte göra det du vill. Vi ber om ursäkt för detta och ber dig försöka igen om en liten stund.')
+            } else {
+                renderErrorAlert('Vår server gillade inte vad du försökte göra men vi vet tyvärr inte riktigt varför.')
+            }
+        } else if (500 <= jqXHR.status && jqXHR.status < 600) {
+            renderErrorAlert('Vår server misslyckades med det du vill få gjort. Vi ber om ursäkt för detta.')
         } else {
-            renderError(jqXHR.responseJSON.message);
+            renderErrorAlert('Tyvärr hände något som vi inte riktigt kan förklara. Därför kan vi heller inte ge något förslag på vad du kan göra för att undvika detta fel.')
         }
-        console.log("ERROR: " + errorThrown);
     }
 }
 

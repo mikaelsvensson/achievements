@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
+import {get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
 import {getFormData, markdown2html, updateView} from "../util/view.jsx";
 import ColorHash from "color-hash";
 import {toRelativeTime} from '../util/time.jsx'
@@ -29,23 +29,20 @@ export function renderAchievement(appPathParams) {
         if (isLoggedIn()) {
             $('#app').find('.create-step-button').click(function (e) {
                 const button = $(this);
-                const form = button.addClass('is-loading').closest('form');
+                const form = button.closest('form');
                 post('/api/achievements/' + appPathParams[0].key + '/steps', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                    button.removeClass('is-loading');
                     get('/api/achievements/' + appPathParams[0].key + "/steps", function (responseData, responseStatus, jqXHR) {
                         updateView(templateAchievementStepsList({
                             steps: responseData,
                             achievementId: appPathParams[0].key
                         }), $('#achievement-steps-list'));
                     });
-                }, createOnFailHandler(form.find('.errors'), button));
+                }, button);
             });
 
             $('#achievement-progress-history-button').click(function (e) {
                 const button = $(this);
-                button.addClass('is-loading');
                 get('/api/achievements/' + appPathParams[0].key + '/progress-history', function (responseData, responseStatus, jqXHR) {
-                    button.removeClass('is-loading');
                     const colorizer = new ColorHash({lightness: 0.9});
                     responseData.map(record => {
                         const secondsAgo = (new Date().getTime() - new Date(record.date_time).getTime()) / 1000;
@@ -55,7 +52,7 @@ export function renderAchievement(appPathParams) {
                     });
                     console.log(responseData);
                     updateView(templateAchievementProgressHistory(responseData), $('#achievement-progress-history'));
-                }/*, createOnFailHandler(form.find('.errors'), button)*/);
+                }, button);
             });
 
             // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
@@ -81,20 +78,16 @@ export function renderAchievement(appPathParams) {
                     }
                     $(".progress-switch").click(function () {
                         const toggleButton = $(this);
-                        toggleButton.addClass('is-loading');
                         const toggleCompletedUrl = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
 
                         const iconNode = toggleButton.find("i.mdi");
 
                         const completed = (!iconNode.hasClass('mdi-checkbox-blank-outline') && !iconNode.hasClass('mdi-checkbox-marked')) || iconNode.hasClass('mdi-checkbox-blank-outline');
                         post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
-                            toggleButton.removeClass('is-loading');
                             iconNode.removeClass(responseData.completed ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-marked');
                             iconNode.addClass(responseData.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
-                        });
+                        }, toggleButton);
                     });
-                }, function () {
-                    console.log("Could not load progress");
                 });
             }
         };

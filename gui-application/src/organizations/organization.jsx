@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, getUserOrganization, isLoggedIn, post, put} from "../util/api.jsx";
+import {get, getUserOrganization, isLoggedIn, post, put} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 
 const templateOrganization = require("./organization.handlebars");
@@ -44,39 +44,36 @@ export function renderOrganization(appPathParams) {
         const $app = $('#app');
         $app.find('.create-person-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             post('/api/organizations/' + appPathParams[0].key + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
                 get('/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
                     updateView(templateOrganizationPeopleList({
                         people: responseData,
                         orgId: appPathParams[0].key
                     }), $('#organization-people-list'));
                 });
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
         $app.find('.create-group-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             post('/api/organizations/' + appPathParams[0].key + '/groups', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
                 get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
                     updateView(templateOrganizationPeopleList({
                         groups: responseData,
                         orgId: appPathParams[0].key
                     }), $('#organization-groups-list'));
                 });
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
         $('#organization-save-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             put('/api/organizations/' + appPathParams[0].key, getFormData(form), function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
                 renderOrganization(appPathParams);
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
         /*

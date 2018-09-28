@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, post, setOneTimePassword, setToken} from "../util/api.jsx";
+import {get, isLoggedIn, post, setOneTimePassword, setToken} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 import {navigateTo} from "../util/routing.jsx";
 
@@ -20,11 +20,10 @@ export function renderMyPassword(appPathParams) {
 
         $('#set-password-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             post('/api/my/password', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
                 navigateTo('minprofil')
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
     });
@@ -44,14 +43,13 @@ export function renderPasswordForgotten(appPathParams) {
 
     $('#set-password-button').click(function (e) {
         const button = $(this);
-        const form = button.addClass('is-loading').closest('form');
+        const form = button.closest('form');
         setOneTimePassword(appPathParams[0].key)
         post('/api/my/password', getFormData(form), function (responseData, responseStatus, jqXHR) {
-            button.removeClass('is-loading');
             if (responseData.token) {
                 setToken(responseData.token);
                 navigateTo('minprofil')
             }
-        }, createOnFailHandler(form.find('.errors'), button));
+        }, button);
     });
 }

@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, post, put, remove} from "../util/api.jsx";
+import {get, isLoggedIn, post, put, remove} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 
 const templateGroup = require("./group.handlebars");
@@ -27,12 +27,11 @@ export function renderGroup(appPathParams) {
 
         $('#group-save-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             const payload = getFormData(form);
             put('/api/organizations/' + appPathParams[0].key + '/groups/' + appPathParams[1].key, payload, function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading');
                 renderGroup(appPathParams);
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
         const $app = $('#app');
@@ -57,10 +56,9 @@ export function renderGroup(appPathParams) {
 
         $app.find('#memberships-search-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             const url = '/api/organizations/' + appPathParams[0].key + '/people?filter=' + getFormData(form).filter;
             get(url, function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading')
                 const container = $('#memberships-search-result');
                 updateView(templateSearchPeopleList({people: responseData}), container);
 
@@ -70,7 +68,7 @@ export function renderGroup(appPathParams) {
                         refreshMembershipsList();
                     });
                 });
-            });
+            }, button);
         });
 
 

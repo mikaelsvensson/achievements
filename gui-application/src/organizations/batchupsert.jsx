@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {createOnFailHandler, get, isLoggedIn, postFormData} from "../util/api.jsx";
+import {get, isLoggedIn, postFormData} from "../util/api.jsx";
 import {updateView} from "../util/view.jsx";
 
 const templateLoading = require("../loading.handlebars");
@@ -34,12 +34,10 @@ export function renderBatchUpsert(appPathParams) {
 
         $app.find('#import-preview-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             const data = new FormData(form[0]);
             data.append('importDryRun', 'true')
             postFormData('/api/organizations/' + appPathParams[0].key + "/people", data, function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading')
-
                 if (responseData.uploadId) {
                     $('#import-uploaded-file-id').val(responseData.uploadId)
                 }
@@ -50,15 +48,14 @@ export function renderBatchUpsert(appPathParams) {
                 };
 
                 updateView(templateBatchUpsertPreviewResult(props), $('#batchupsert-preview-result'));
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
 
         $app.find('#import-button').click(function (e) {
             const button = $(this);
-            const form = button.addClass('is-loading').closest('form');
+            const form = button.closest('form');
             const data = new FormData(form[0]);
             postFormData('/api/organizations/' + appPathParams[0].key + "/people", data, function (responseData, responseStatus, jqXHR) {
-                button.removeClass('is-loading')
 
                 if (responseData.uploadId) {
                     $('#import-uploaded-file-id').val(responseData.uploadId)
@@ -70,7 +67,7 @@ export function renderBatchUpsert(appPathParams) {
                 };
 
                 updateView(templateBatchUpsertResult(props), $('#batchupsert-result'));
-            }, createOnFailHandler(form.find('.errors'), button));
+            }, button);
         });
     });
 }
