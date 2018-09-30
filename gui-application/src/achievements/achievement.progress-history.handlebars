@@ -7,11 +7,14 @@
         <span class="tag is-small" style="background-color: {{user.color}}">{{user.name}}</span>
         att
         <span class="tag is-small" style="background-color: {{person.color}}">{{person.name}}</span>
-        {{#if data.completed}}
+        {{#if data.is_completed}}
         <span class="tag is-small is-success">klarat av</span>
         {{/if}}
-        {{^if data.completed}}
-        <span class="tag is-small is-danger">inte gjort klart</span>
+        {{#if data.is_started}}
+        <span class="tag is-small is-warning">påbörjat</span>
+        {{/if}}
+        {{#if data.is_not_started}}
+        <span class="tag is-small is-danger">inte påbörjat</span>
         {{/if}}
         steget
         <em>{{step.description}}</em>.

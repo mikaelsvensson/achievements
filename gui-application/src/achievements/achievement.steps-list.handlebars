@@ -2,20 +2,23 @@
 <p><strong>Moment:</strong></p>
 <div class="is-hidden-desktop">
     {{#each steps}}
-    <div class="notification">
-        <p>
-            {{#if prerequisite_achievement}}
-            <a href="#marken/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
-            {{else}}
-            {{description}}
-            {{/if}}
-        </p>
+    <div class="box">
+        <div class="content">
+            <p>
+                {{#if prerequisite_achievement}}
+                <a href="#marken/{{prerequisite_achievement}}" aria-current="page">Förkunskapskrav</a>
+                {{else}}
+                {{description}}
+                {{/if}}
+            </p>
+        </div>
+        {{#if ../people}}
         <div class="is-grouped buttons">
             {{#each ../people}}
             <button class="button is-white is-small progress-switch" id="progress-toggle-{{../id}}_{{id}}"
                     data-person-id="{{id}}" data-step-id="{{../id}}">
                     <span class="icon is-small has-text-info">
-                        <i class="mdi mdi-checkbox-blank-outline mdi-dark mdi-24px"></i>
+                        <i class="mdi mdi-circle-outline mdi-flip-h mdi-dark mdi-24px"></i>
                     </span>
                 <span>
                         {{name}}
@@ -23,6 +26,7 @@
             </button>
             {{/each}}
         </div>
+        {{/if}}
     </div>
     {{/each}}
 </div>
@@ -50,7 +54,7 @@
         <td>
             <button class="button is-white progress-switch" id="progress-toggle-{{../id}}_{{id}}" data-person-id="{{id}}" data-step-id="{{../id}}">
                         <span class="icon has-text-info">
-                            <i class="mdi mdi-checkbox-blank-outline mdi-dark mdi-24px"></i>
+                            <i class="mdi mdi-circle-outline mdi-flip-h mdi-dark mdi-24px"></i>
                         </span>
             </button>
         </td>

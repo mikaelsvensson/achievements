@@ -17,7 +17,7 @@
     "handlebars": "4.0.10",
     "jquery": "3.2.1",
     "jwt-decode": "^2.2.0",
-    "mdi": "^2.1.19",
+    "@mdi/font": "^2.8.94",
     "node-sass": "^4.7.2",
     "remarkable": "^1.7.1",
     "sass-loader": "^6.0.6",

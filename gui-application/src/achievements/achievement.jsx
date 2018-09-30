@@ -49,6 +49,10 @@ export function renderAchievement(appPathParams) {
                         record.date_time_relative = toRelativeTime(secondsAgo)
                         record.user.color = colorizer.hex(record.user.name)
                         record.person.color = colorizer.hex(record.person.name)
+                        // TODO: is_completed is more reliable than completed (which is returned by the API)
+                        record.data.is_completed = record.data.value === 100
+                        record.data.is_started = record.data.value === 50
+                        record.data.is_not_started = record.data.value === 0
                     });
                     console.log(responseData);
                     updateView(templateAchievementProgressHistory(responseData), $('#achievement-progress-history'));
@@ -74,18 +78,41 @@ export function renderAchievement(appPathParams) {
                     for (let i in keys) {
                         let key = keys[i];
                         const progress = progressData[key];
-                        $("#progress-toggle-" + key + " i.mdi").addClass(progress.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
+                        const iconNode = $("#progress-toggle-" + key + " i.mdi");
+                        if (0 <= progress.value && progress.value < 50) {
+                            iconNode.addClass('mdi-circle-outline');
+                        } else if (50 <= progress.value && progress.value < 100) {
+                            iconNode.addClass('mdi-circle-slice-4');
+                        } else {
+                            iconNode.addClass('mdi-circle-slice-8');
+                        }
                     }
                     $(".progress-switch").click(function () {
                         const toggleButton = $(this);
-                        const toggleCompletedUrl = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
+                        const progressURL = '/api/achievements/' + appPathParams[0].key + '/steps/' + this.dataset.stepId + '/progress/' + this.dataset.personId;
 
+                        // TODO: Save progress value in node dataSet instead of relying on the presens of a CSS class
+                        const enablePartiallyCompleted = $('#steps-config-enable-partially-completed').find("i.mdi").hasClass('mdi-checkbox-marked');
+
+                        // TODO: Save progress value in node dataSet instead of relying on the presens of a CSS class
                         const iconNode = toggleButton.find("i.mdi");
 
-                        const completed = (!iconNode.hasClass('mdi-checkbox-blank-outline') && !iconNode.hasClass('mdi-checkbox-marked')) || iconNode.hasClass('mdi-checkbox-blank-outline');
-                        post(toggleCompletedUrl, {"completed": completed}, function (responseData, responseStatus, jqXHR) {
-                            iconNode.removeClass(responseData.completed ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-marked');
-                            iconNode.addClass(responseData.completed ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline');
+                        let nextProgress = 0;
+                        let nextClass = 'mdi-circle-outline';
+                        if (iconNode.hasClass('mdi-circle-slice-8')) {
+                            nextProgress = 0;
+                            nextClass = 'mdi-circle-outline';
+                        } else if (iconNode.hasClass('mdi-circle-slice-4')) {
+                            nextProgress = 100;
+                            nextClass = 'mdi-circle-slice-8';
+                        } else {
+                            nextProgress = enablePartiallyCompleted ? 50 : 100;
+                            nextClass = enablePartiallyCompleted ? 'mdi-circle-slice-4' : 'mdi-circle-slice-8';
+                        }
+
+                        post(progressURL, {"value": nextProgress}, function (responseData, responseStatus, jqXHR) {
+                            iconNode.removeClass('mdi-circle-outline mdi-circle-slice-4 mdi-circle-slice-8');
+                            iconNode.addClass(nextClass);
                         }, toggleButton);
                     });
                 });
@@ -102,6 +129,14 @@ export function renderAchievement(appPathParams) {
                         groups: myGroups,
                         achievementId: appPathParams[0].key
                     }), $('#achievement-steps-config'));
+
+                    $('#steps-config-enable-partially-completed').click(function (e) {
+                        $(this)
+                            .find("i.mdi")
+                            .toggleClass('mdi-checkbox-blank-outline')
+                            .toggleClass('mdi-checkbox-marked')
+                        return false;
+                    });
 
                     $('#app').find('#people-filter-group').change(function (e) {
                         const selectedGroupId = $(this).val();
