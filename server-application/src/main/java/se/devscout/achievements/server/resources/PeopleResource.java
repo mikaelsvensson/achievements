@@ -188,7 +188,7 @@ public class PeopleResource extends AbstractResource {
 
             final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
 
-            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, id);
+            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, id, organizationId.getUUID());
 
             return summary;
         } catch (ObjectNotFoundException e) {

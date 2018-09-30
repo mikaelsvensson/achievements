@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public abstract class AbstractResource {
@@ -134,12 +135,13 @@ public abstract class AbstractResource {
         }
     }
 
-    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter) {
+    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter, UUID organizationId) {
         final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
         for (Achievement achievement : achievements) {
             final int stepCount = achievement.getSteps().size();
             final Map<Person, Integer> progressSumByPerson = achievement.getSteps().stream()
                     .flatMap(achievementStep -> achievementStep.getProgressList().stream())
+                    .filter(progress -> progress.getPerson().getOrganization().getId().equals(organizationId))
                     .filter(progress -> personFilter == null || progress.getPerson().getId().equals(personFilter))
                     .filter(progress -> progress.getValue() > 0)
                     .collect(Collectors.toMap(

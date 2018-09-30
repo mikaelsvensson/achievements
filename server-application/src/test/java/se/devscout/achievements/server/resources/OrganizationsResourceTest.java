@@ -116,6 +116,9 @@ public class OrganizationsResourceTest {
 
     @Test
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
+        final Organization orgOther = mockOrganization("Trudy's Organization");
+        final Person personOther = mockPerson(orgOther, "Trudy", Roles.READER);
+
         final Organization org = mockOrganization("Alice's Organization");
         when(dao.read(eq(org.getId()))).thenReturn(org);
         final Person person1 = mockPerson(org, "Alice", Roles.READER);
@@ -125,8 +128,9 @@ public class OrganizationsResourceTest {
         final AchievementStepProgress a1p2 = mockProgress(false, person2);
         final AchievementStepProgress a1p3 = mockProgress(true, person1);
         final AchievementStepProgress a1p4 = mockProgress(true, person2);
+        final AchievementStepProgress a1p5 = mockProgress(true, personOther);
         final AchievementStep a1s1 = mockStep(a1p1, a1p2);
-        final AchievementStep a1s2 = mockStep(a1p3, a1p4);
+        final AchievementStep a1s2 = mockStep(a1p3, a1p4, a1p5);
         final Achievement a1 = mockAchievement("Climb mountain", a1s1, a1s2);
 
         final AchievementStepProgress a2p1 = mockProgress(false, person2);

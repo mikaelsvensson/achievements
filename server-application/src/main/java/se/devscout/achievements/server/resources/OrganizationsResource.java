@@ -86,7 +86,7 @@ public class OrganizationsResource extends AbstractResource {
 
             final List<Achievement> achievements = achievementsDao.findWithProgressForOrganization(organization);
 
-            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null);
+            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null, organization.getId());
 
             return summary;
         } catch (ObjectNotFoundException e) {
