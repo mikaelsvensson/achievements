@@ -32,11 +32,15 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
         try {
             final AchievementStepProgress progress = get(achievementStep, person);
             progress.setNote(properties.getNote());
-            progress.setCompleted(properties.isCompleted());
+            progress.setValue(properties.getValue());
             person.getAchievementStepProgress().add(progress);
             return progress;
         } catch (ObjectNotFoundException e) {
-            final AchievementStepProgress progress = new AchievementStepProgress(properties.isCompleted(), properties.getNote(), achievementStep, person);
+            final AchievementStepProgress progress = new AchievementStepProgress(
+                    properties.getValue(),
+                    properties.getNote(),
+                    achievementStep,
+                    person);
             persist(progress);
             person.getAchievementStepProgress().add(progress);
             return progress;

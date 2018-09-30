@@ -31,8 +31,8 @@ public class AchievementStepProgress extends AchievementStepProgressProperties {
     public AchievementStepProgress() {
     }
 
-    public AchievementStepProgress(boolean completed, String note, AchievementStep step, Person person) {
-        super(completed, note);
+    public AchievementStepProgress(int value, String note, AchievementStep step, Person person) {
+        super(value, note);
         this.step = step;
         this.person = person;
         this.id = new Key(step, person);

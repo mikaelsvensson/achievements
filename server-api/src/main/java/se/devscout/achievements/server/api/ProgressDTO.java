@@ -7,12 +7,15 @@ public class ProgressDTO {
     public ProgressDTO() {
     }
 
-    public ProgressDTO(@JsonProperty("completed") boolean completed,
+    public ProgressDTO(@JsonProperty("completed") Boolean completed,
+                       @JsonProperty("progress") Integer value,
                        @JsonProperty("note") String note) {
         this.completed = completed;
+        this.value = value;
         this.note = note;
     }
 
-    public boolean completed;
+    public Boolean completed;
+    public Integer value;
     public String note;
 }

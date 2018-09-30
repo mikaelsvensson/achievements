@@ -256,4 +256,21 @@
                                  referencedColumnNames="id"/>
     </changeSet>
 
+    <changeSet id="12_progress_percent" author="mikael.svensson">
+        <addColumn tableName="achievement_step_progress">
+            <column name="value" type="integer" afterColumn="completed">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <update tableName="achievement_step_progress">
+            <column name="value" value="100"/>
+            <where>completed = true</where>
+        </update>
+        <update tableName="achievement_step_progress">
+            <column name="value" value="0"/>
+            <where>completed = false</where>
+        </update>
+        <rollback/>
+    </changeSet>
+
 </databaseChangeLog>

@@ -138,31 +138,31 @@ public abstract class AbstractResource {
         final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
         for (Achievement achievement : achievements) {
             final int stepCount = achievement.getSteps().size();
-            final Map<Person, Long> completedStepsByPerson = achievement.getSteps().stream()
+            final Map<Person, Integer> progressSumByPerson = achievement.getSteps().stream()
                     .flatMap(achievementStep -> achievementStep.getProgressList().stream())
                     .filter(progress -> personFilter == null || progress.getPerson().getId().equals(personFilter))
-                    .filter(AchievementStepProgressProperties::isCompleted)
+                    .filter(progress -> progress.getValue() > 0)
                     .collect(Collectors.toMap(
                             AchievementStepProgress::getPerson,
-                            progressValue -> 1L,
+                            AchievementStepProgress::getValue,
                             (u, u2) -> u + u2));
 
             if (stepCount > 0) {
                 final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
 
-                progressSummary.people_completed = (int) completedStepsByPerson.entrySet().stream()
-                        .filter(entry -> entry.getValue() == stepCount)
+                progressSummary.people_completed = (int) progressSumByPerson.entrySet().stream()
+                        .filter(entry -> entry.getValue() == stepCount * AchievementStepProgress.PROGRESS_COMPLETED)
                         .count();
 
-                progressSummary.people_started = (int) completedStepsByPerson.entrySet().stream()
-                        .filter(entry -> entry.getValue() < stepCount)
+                progressSummary.people_started = (int) progressSumByPerson.entrySet().stream()
+                        .filter(entry -> 0 < entry.getValue() && entry.getValue() < stepCount * AchievementStepProgress.PROGRESS_COMPLETED)
                         .count();
 
                 if (progressSummary.people_started + progressSummary.people_completed > 0) {
                     List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = null;
-                    progressDetailed = completedStepsByPerson.entrySet().stream().map(entry -> {
+                    progressDetailed = progressSumByPerson.entrySet().stream().map(entry -> {
                         final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
-                        personProgress.percent = (int) Math.round(100.0 * entry.getValue() / stepCount);
+                        personProgress.percent = (int) Math.round(1.0 * entry.getValue() / stepCount);
                         personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
                         return personProgress;
                     }).collect(Collectors.toList());

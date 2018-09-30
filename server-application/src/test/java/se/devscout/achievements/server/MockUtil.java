@@ -85,8 +85,13 @@ public class MockUtil {
     }
 
     public static AchievementStepProgress mockProgress(boolean completed, Person person) {
+        return mockProgress(completed ? AchievementStepProgressProperties.PROGRESS_COMPLETED : AchievementStepProgressProperties.PROGRESS_NOT_STARTED, person);
+    }
+
+    public static AchievementStepProgress mockProgress(Integer value, Person person) {
         final AchievementStepProgress progressMock = mock(AchievementStepProgress.class);
-        when(progressMock.isCompleted()).thenReturn(completed);
+        when(progressMock.isCompleted()).thenReturn(value == AchievementStepProgressProperties.PROGRESS_COMPLETED);
+        when(progressMock.getValue()).thenReturn(value);
         when(progressMock.getPerson()).thenReturn(person);
         return progressMock;
     }

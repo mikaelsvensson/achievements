@@ -132,7 +132,7 @@ public class OrganizationsResourceTest {
         final AchievementStepProgress a2p1 = mockProgress(false, person2);
         final AchievementStepProgress a2p2 = mockProgress(true, person3);
         final AchievementStepProgress a2p3 = mockProgress(false, person2);
-        final AchievementStepProgress a2p4 = mockProgress(true, person3);
+        final AchievementStepProgress a2p4 = mockProgress(50, person3);
         final AchievementStep s2 = mockStep(a2p1, a2p2);
         final AchievementStep s3 = mockStep(a2p3, a2p4);
         final Achievement a2 = mockAchievement("Cook egg", s2, s3);
@@ -157,10 +157,10 @@ public class OrganizationsResourceTest {
         assertThat(dto.achievements.get(0).progress_detailed.get(1).person.name).isEqualTo("Bob");
         assertThat(dto.achievements.get(0).progress_detailed.get(1).percent).isEqualTo(50);
         assertThat(dto.achievements.get(1).achievement.name).isEqualTo("Cook egg");
-        assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(1);
-        assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(0);
+        assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(0);
+        assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(1);
         assertThat(dto.achievements.get(1).progress_detailed.get(0).person.name).isEqualTo("Carol");
-        assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(100);
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(75);
     }
 
 }

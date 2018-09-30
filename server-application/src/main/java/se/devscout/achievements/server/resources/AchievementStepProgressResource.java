@@ -65,10 +65,31 @@ public class AchievementStepProgressResource extends AbstractResource {
         try {
             final AchievementStep step = stepsDao.read(stepId);
             verifyParent(achievementId.getUUID(), step);
+            verifyCompletedProgress(dto);
             final Person person = peopleDao.read(personId);
-            return map(dao.set(step, person, new AchievementStepProgressProperties(dto.completed, dto.note)), ProgressDTO.class);
+            final AchievementStepProgressProperties properties =
+                    dto.completed != null ?
+                            new AchievementStepProgressProperties(dto.completed, dto.note) :
+                            new AchievementStepProgressProperties(dto.value, dto.note);
+            return map(dao.set(step, person, properties), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
+        }
+    }
+
+    private void verifyCompletedProgress(ProgressDTO progress) {
+        if (progress.completed == null && progress.value == null) {
+            throw new BadRequestException("Either completed or progress must be set.");
+        }
+        if (progress.completed != null && progress.value != null) {
+            if (AchievementStepProgressProperties.toProgress(progress.completed) != progress.value) {
+                throw new BadRequestException("Properties completed and progress do not match.");
+            }
+        }
+        if (progress.value != null) {
+            if (progress.value < AchievementStepProgressProperties.PROGRESS_NOT_STARTED || progress.value > AchievementStepProgressProperties.PROGRESS_COMPLETED) {
+                throw new BadRequestException("Progress must be between " + AchievementStepProgressProperties.PROGRESS_NOT_STARTED + " and " + AchievementStepProgressProperties.PROGRESS_COMPLETED);
+            }
         }
     }
 
