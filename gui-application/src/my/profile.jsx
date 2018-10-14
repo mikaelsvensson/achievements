@@ -19,16 +19,19 @@ export function renderMyProfile(appPathParams) {
         })
 
         updateView(templateMyProfile(responseData));
-    });
-    get('/api/my/achievement-summary', function (responseData, responseStatus, jqXHR) {
-        responseData.achievements.forEach((achievement => {
-            achievement.progress_detailed.sort((item1, item2) => item2.percent - item1.percent).forEach((item) => {
-                item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
-            })
-        }));
-        updateView(templatePersonSummary({
-            achievements: responseData.achievements,
-            org_id: appPathParams[0].key
-        }), $('#achievements-summary'));
+
+        const orgId = responseData.organization.id;
+
+        get('/api/my/achievement-summary', function (responseData, responseStatus, jqXHR) {
+            responseData.achievements.forEach((achievement => {
+                achievement.progress_detailed.sort((item1, item2) => item2.percent - item1.percent).forEach((item) => {
+                    item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
+                })
+            }));
+            updateView(templatePersonSummary({
+                achievements: responseData.achievements && responseData.achievements.length > 0 ? responseData.achievements : null,
+                org_id: orgId
+            }), $('#achievements-summary'));
+        });
     });
 }
