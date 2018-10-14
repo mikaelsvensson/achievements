@@ -133,11 +133,11 @@
                 <div id="tab-textfield" class="content" style="display: none;">
                     <div class="field">
                         <div class="control">
-                    <textarea class="textarea" id="import-data" placeholder="Primary textarea"
+                    <textarea class="textarea" id="import-data" name="importRawData"
                               style="height: 20em;">
-custom_identifier,name,email,role,attr.FavouriteMovie
-alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse
-bob,Bob,bob@example.com,reader,The Last Boy Scout</textarea>
+custom_identifier,name,email,role,attr.FavouriteMovie,groups
+alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse,"Zombie Hunters,Trackers"
+bob,Bob,bob@example.com,reader,The Last Boy Scout,Trackers</textarea>
                         </div>
                     </div>
                 </div>
@@ -158,7 +158,27 @@ bob,Bob,bob@example.com,reader,The Last Boy Scout</textarea>
 
                 <div id="batchupsert-preview-result"/>
 
-                <h2>4. Importera data</h2>
+                <h2>4. Övriga inställningar</h2>
+
+                <div class="field">
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" name="importClearGroups" value="true">
+                            Synkronisera patrullmedlemmar
+                        </label>
+                    </div>
+                    <p class="help">Genom att synkronisera patrullmedlemmar så kommer de patruller som nämns i datat
+                        att, efter importen, enbart att bestå av personer i från det importerade datat. Detta innebär
+                        att scouter som i dagsläget är med i en patrull men som inte är med i patrullen enligt det data
+                        som du är på väg att importera kommer att plockas bort från patrullen.</p>
+                    <p class="help">Observera att
+                        synkroniseringen av patrullmedlemmar inte tar bort några scouter ur systemet. Synkroniseringen
+                        är till för att säkerställa att de patrullerna som nämns i importen enbart består av scouter
+                        i importen. Observera också att patruller som inte nämns i importen kommer vara oförändrade.
+                    </p>
+                </div>
+
+                <h2>5. Importera data</h2>
 
                 <p>Nu är du redo att importera data.</p>
 

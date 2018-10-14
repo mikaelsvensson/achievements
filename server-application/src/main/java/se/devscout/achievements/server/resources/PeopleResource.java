@@ -1,6 +1,7 @@
 package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import io.dropwizard.auth.Auth;
@@ -9,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +40,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -257,13 +258,13 @@ public class PeopleResource extends AbstractResource {
                            @Auth User user,
                            List<PersonDTO> input) {
         final UUID organizationUUID = organizationId.getUUID();
-        List<UpsertPersonResultDTO> result = upsert(user, input, organizationUUID, false);
+        List<UpsertPersonResultDTO> result = upsert(user, input, organizationUUID, false, false);
         return Response
                 .ok(result.stream().map(r -> r.person).collect(Collectors.toList()))
                 .build();
     }
 
-    private List<UpsertPersonResultDTO> upsert(@Auth User user, List<PersonDTO> people, UUID organizationUUID, boolean isDryRun) {
+    private List<UpsertPersonResultDTO> upsert(@Auth User user, List<PersonDTO> people, UUID organizationUUID, boolean isDryRun, boolean clearGroups) {
         List<UpsertPersonResultDTO> result = new ArrayList<>();
         Organization organization = getOrganization(organizationUUID);
         for (PersonDTO dto : people) {
@@ -298,7 +299,37 @@ public class PeopleResource extends AbstractResource {
                 throw new NotFoundException(e.getMessage());
             }
         }
+        if (clearGroups) {
+            clearGroupsOfNonImportedPeople(organization, people);
+        }
         return result;
+    }
+
+    private void clearGroupsOfNonImportedPeople(Organization organization, List<PersonDTO> people) {
+        final Set<String> groupNames = people.stream().flatMap(p -> p.groups.stream()).map(g -> g.name).collect(Collectors.toSet());
+        for (String groupName : groupNames) {
+            try {
+                final Group group = groupsDao.read(organization, groupName);
+                final List<GroupMembership> groupMemberships = membershipsDao.getMemberships(group);
+                for (GroupMembership groupMembership : groupMemberships) {
+                    boolean shouldBeMember = people.stream()
+                            // Look for people in the import matching the group membership in question (should result in zero or one match):
+                            .filter(p -> StringUtils.equalsIgnoreCase(p.custom_identifier, groupMembership.getPerson().getCustomIdentifier())
+                                    || StringUtils.equalsIgnoreCase(p.name, groupMembership.getPerson().getName()))
+
+                            // Get the names of the groups that this person should be a member of:
+                            .flatMap(p -> p.groups.stream()).map(g -> g.name)
+
+                            // Check if any of the groups match the group membership in question:
+                            .anyMatch(s -> StringUtils.equalsIgnoreCase(s, groupName));
+                    if (!shouldBeMember) {
+                        membershipsDao.remove(groupMembership.getPerson(), groupMembership.getGroup());
+                    }
+                }
+            } catch (ObjectNotFoundException e) {
+                // TODO: Handle exception?
+            }
+        }
     }
 
     private void assignGroup(Organization organization, Person person, GroupBaseDTO groupDto) throws ObjectNotFoundException, DaoException {
@@ -327,41 +358,18 @@ public class PeopleResource extends AbstractResource {
     public Response upsertFromFormData(@PathParam("organizationId") UuidString organizationId,
                                        @Auth User user,
                                        @FormDataParam("importDryRun") boolean isDryRun,
+                                       @FormDataParam("importClearGroups") boolean clearGroups,
                                        @FormDataParam("importRawData") FormDataBodyPart importRawData,
                                        @FormDataParam("importUploadedFileId") FormDataBodyPart importUploadedFileId,
-                                       @FormDataParam("importFile") FormDataContentDisposition importFileDisposition,
+//                                       @FormDataParam("importFile") FormDataContentDisposition importFileDisposition,
                                        @FormDataParam("importFile") InputStream importFile) {
-        File tempFile = null;
-        UUID tempFileId = null;
-        // TODO: Do we even need to save the uploaded file since the only client is a single-page application and thus quite easily can re-upload the file in case the user wants to do a dry-run before actually importing?
-        if (importFile != null) {
-            tempFileId = UUID.randomUUID();
-            try {
-                tempFile = getTempFile(tempFileId);
-                FileUtils.copyInputStreamToFile(importFile, tempFile);
-                LOGGER.info("Saved uploaded file as %s", tempFile.getAbsolutePath());
-            } catch (Exception e) {
-                throw new InternalServerErrorException("Could not cache uploaded file.", e);
-            }
-        }
-        if (importUploadedFileId != null && !Strings.isNullOrEmpty(importUploadedFileId.getValue())) {
-            try {
-                tempFileId = UUID.fromString(importUploadedFileId.getValue());
-                tempFile = getTempFile(tempFileId);
-                if (!tempFile.isFile()) {
-                    throw new BadRequestException("Referenced upload does not exist.");
-                }
-            } catch (Exception e) {
-                throw new InternalServerErrorException("Could not cache uploaded file.", e);
-            }
-        }
-        if (tempFile == null) {
-            throw new BadRequestException("No data");
-        }
+
+        UUID tempFileId = getUploadedDataFileId(importRawData, importUploadedFileId, importFile);
+
         List<PersonDTO> people = null;
         for (PeopleDataSource dataSource : peopleDataSources) {
             // BOMInputStream required since Java normally does not support the BOM first in XML files exported from Repet
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(tempFile))))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(getTempFile(tempFileId)))))) {
                 List<PersonDTO> tempValues = dataSource.read(reader);
                 if (people == null || tempValues.size() > people.size()) {
                     people = tempValues;
@@ -374,13 +382,46 @@ public class PeopleResource extends AbstractResource {
         }
         if (people != null && !people.isEmpty()) {
             final UUID organizationUUID = organizationId.getUUID();
-            List<UpsertPersonResultDTO> result = upsert(user, people, organizationUUID, isDryRun);
+            List<UpsertPersonResultDTO> result = upsert(user, people, organizationUUID, isDryRun, clearGroups);
             return Response
                     .ok(new UpsertResultDTO(result, tempFileId.toString()))
                     .build();
         } else {
             throw new BadRequestException("Could not read data. No records found.");
         }
+    }
+
+    private UUID getUploadedDataFileId(FormDataBodyPart importRawData, FormDataBodyPart importUploadedFileId, InputStream importFile) {
+        UUID tempFileId;
+        // TODO: Do we even need to save the uploaded file since the only client is a single-page application and thus quite easily can re-upload the file in case the user wants to do a dry-run before actually importing?
+        if (importUploadedFileId != null && !Strings.isNullOrEmpty(importUploadedFileId.getValue())) {
+            try {
+                tempFileId = UUID.fromString(importUploadedFileId.getValue());
+                if (!getTempFile(tempFileId).isFile()) {
+                    throw new BadRequestException("Referenced upload does not exist.");
+                }
+            } catch (Exception e) {
+                throw new InternalServerErrorException("Could not cache uploaded file.", e);
+            }
+        } else if (importFile != null) {
+            tempFileId = UUID.randomUUID();
+            try {
+                FileUtils.copyInputStreamToFile(importFile, getTempFile(tempFileId));
+                LOGGER.info("Saved uploaded file as %s", getTempFile(tempFileId).getAbsolutePath());
+            } catch (Exception e) {
+                throw new InternalServerErrorException("Could not cache uploaded file.", e);
+            }
+        } else if (!Strings.isNullOrEmpty(importRawData.getValue())) {
+            tempFileId = UUID.randomUUID();
+            try {
+                Files.write(importRawData.getValue(), getTempFile(tempFileId), Charsets.UTF_8);
+            } catch (IOException e) {
+                throw new InternalServerErrorException("Could not cache uploaded data.", e);
+            }
+        } else {
+            throw new BadRequestException("No data");
+        }
+        return tempFileId;
     }
 
     private File getTempFile(UUID uuid) {

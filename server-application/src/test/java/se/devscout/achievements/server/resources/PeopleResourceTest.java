@@ -1,7 +1,9 @@
 package se.devscout.achievements.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.apache.commons.text.RandomStringGenerator;
 import org.eclipse.jetty.http.HttpStatus;
@@ -745,7 +747,7 @@ public class PeopleResourceTest {
     }
 
     @Test
-    public void batchUpdate_repet_happyPath() throws Exception {
+    public void batchUpdate_repetFileAndFileId_happyPath() throws Exception {
         //
         // MOCK STUFF
         //
@@ -807,6 +809,66 @@ public class PeopleResourceTest {
         assertThat(dto2.people.stream().allMatch(p -> p.person.name.length() > 0)).isTrue();
         // Assert that the isNew flags are present, even though their values are all incorrect since all persons would actually exist when uploading the same file a second time.
         assertThat(dto2.people.stream().allMatch(p -> p.isNew)).isTrue();
+    }
+
+    @Test
+    public void batchUpdate_repetRawData_clearGroups_happyPath() throws Exception {
+        //
+        // MOCK STUFF
+        //
+        final Organization org = mockOrganization("Acme Inc.");
+
+        when(dao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
+        final Person mockedImportedPerson = mockPerson(org, "Person");
+        when(dao.create(any(Organization.class), any())).thenReturn(mockedImportedPerson);
+
+        final Group groupTracker = mockGroup(org, "Sp\u00e5rare");
+        when(groupsDao.read(eq(org), eq("Sp\u00e5rare"))).thenReturn(groupTracker);
+
+        final Group groupDiscoverer = mockGroup(org, "Uppt\u00e4ckare");
+        when(groupsDao.read(eq(org), eq("Uppt\u00e4ckare"))).thenReturn(groupDiscoverer);
+
+        final Group groupAdventurer = mockGroup(org, "Ton\u00e5r");
+        when(groupsDao.create(eq(org), any())).thenReturn(groupAdventurer);
+        when(groupsDao.read(eq(org), eq("Ton\u00e5r"))).thenThrow(new ObjectNotFoundException());
+
+        final Person trackerInImport = mockPerson(org, "Edla Backman");
+        final Person trackerNotInImport = mockPerson(org, "OLD TRACKER");
+        final Person discovererInImport = mockPerson(org, "B-A", "abrahamsson-boel");
+        final Person discovererNotInImport = mockPerson(org, "OLD DISCOVERER");
+        when(membershipsDao.getMemberships(eq(groupTracker))).thenReturn(Arrays.asList(
+                new GroupMembership(groupTracker, trackerInImport, GroupRole.MEMBER),
+                new GroupMembership(groupTracker, trackerNotInImport, GroupRole.MEMBER)
+        ));
+        when(membershipsDao.getMemberships(eq(groupDiscoverer))).thenReturn(Arrays.asList(
+                new GroupMembership(groupDiscoverer, discovererInImport, GroupRole.MEMBER),
+                new GroupMembership(groupDiscoverer, discovererNotInImport, GroupRole.MEMBER)
+        ));
+
+        //
+        // Upload an XML file with data from Repet.
+        //
+
+        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+                .field("importClearGroups", "true")
+                .field("importRawData", Resources.toString(Resources.getResource("batchupsert-repet-narvarolista.xml"), Charsets.UTF_8));
+        final Response response = resources
+                .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
+                .register(MultiPartFeature.class)
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(Entity.entity(multiPartReq1, multiPartReq1.getMediaType()));
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        verify(groupsDao, times(16 + 1)).read(eq(org), eq("Sp\u00e5rare"));
+        verify(groupsDao, times(15 + 1)).read(eq(org), eq("Uppt\u00e4ckare"));
+        verify(membershipsDao).getMemberships(eq(groupTracker));
+        verify(membershipsDao).getMemberships(eq(groupDiscoverer));
+        verify(membershipsDao, never()).remove(eq(trackerInImport), eq(groupTracker));
+        verify(membershipsDao).remove(eq(trackerNotInImport), eq(groupTracker));
+        verify(membershipsDao, never()).remove(eq(discovererInImport), eq(groupDiscoverer));
+        verify(membershipsDao).remove(eq(discovererNotInImport), eq(groupDiscoverer));
     }
 
     @Test

@@ -32,15 +32,15 @@ public class RepetDataSourceTest {
         final List<PersonDTO> people = dataSource.read(getReader(getTestDataStream()));
 
         // Assert some of the people in the import file.
-        assertPerson(people, "Backman, Edla", "Sp\u00e5rare");
-        assertPerson(people, "Hammarstr\u00f6m Donner, Astrid", "Sp\u00e5rare", "Ton\u00e5r");
-        assertPerson(people, "Nyl\u00e9n Alm\u00e9n, Ulla-Britta", "Sp\u00e5rare");
-        assertPerson(people, "Lindborg Vikman, Malin", "Uppt\u00e4ckare");
-        assertPerson(people, "Appelqvist Almstr\u00f6m, Egil", "Uppt\u00e4ckare");
-        assertPerson(people, "S\u00f6derlind, Karoline", "Uppt\u00e4ckare");
-        assertPerson(people, "von Albert, Stina", "Ton\u00e5r");
-        assertPerson(people, "Gr\u00f6nstedt, Ebba", "Ton\u00e5r");
-        assertPerson(people, "Edman, Karl-Axel", "Ton\u00e5r");
+        assertPerson(people, "Edla Backman", "backman-edla", "Sp\u00e5rare");
+        assertPerson(people, "Astrid Hammarstr\u00f6m Donner", "hammarstrom-donner-astrid", "Sp\u00e5rare", "Ton\u00e5r");
+        assertPerson(people, "Ulla-Britta Nyl\u00e9n Alm\u00e9n", "nylen-almen-ulla-britta", "Sp\u00e5rare");
+        assertPerson(people, "Malin Lindborg Vikman", "lindborg-vikman-malin", "Uppt\u00e4ckare");
+        assertPerson(people, "Egil Appelqvist Almstr\u00f6m", "appelqvist-almstrom-egil", "Uppt\u00e4ckare");
+        assertPerson(people, "Karoline S\u00f6derlind", "soderlind-karoline", "Uppt\u00e4ckare");
+        assertPerson(people, "Stina von Albert", "von-albert-stina", "Ton\u00e5r");
+        assertPerson(people, "Ebba Gr\u00f6nstedt", "gronstedt-ebba", "Ton\u00e5r");
+        assertPerson(people, "Karl-Axel Edman", "edman-karl-axel", "Ton\u00e5r");
     }
 
     @Test(expected = PeopleDataSourceException.class)
@@ -72,7 +72,7 @@ public class RepetDataSourceTest {
                 Resources.getResource("batchupsert-repet-narvarolista.xml").openStream());
     }
 
-    private void assertPerson(List<PersonDTO> people, String name, String... groups) {
+    private void assertPerson(List<PersonDTO> people, String name, String customId, String... groups) {
         final List<PersonDTO> matches = people.stream()
                 .filter(p -> p.name.equals(name))
                 .collect(Collectors.toList());
@@ -81,7 +81,7 @@ public class RepetDataSourceTest {
 
         final PersonDTO person = matches.get(0);
         assertThat(person.name).isEqualTo(name);
-        assertThat(person.custom_identifier).isEqualTo(slugGenerator.toSlug(name));
+        assertThat(person.custom_identifier).isEqualTo(customId);
         assertThat(person.groups).hasSize(groups.length);
         for (int i = 0; i < groups.length; i++) {
             assertThat(person.groups.get(i).name).isEqualTo(groups[i]);

@@ -99,7 +99,7 @@ public class RepetDataSource implements PeopleDataSource {
                     match.get().groups.add(group);
                 } else {
                     final PersonDTO person = new PersonDTO();
-                    person.name = name;
+                    person.name = toFirstLastName(name);
                     person.custom_identifier = toCustomIdentifier(name);
                     person.role = Roles.READER;
                     final GroupBaseDTO group = new GroupBaseDTO();
@@ -110,6 +110,14 @@ public class RepetDataSource implements PeopleDataSource {
             }
         }
         return people;
+    }
+
+    private String toFirstLastName(String sourceName) {
+        int pos = sourceName.indexOf(", ");
+        if (pos >= 0) {
+            return sourceName.substring(pos + 2) + " " + sourceName.substring(0, pos);
+        }
+        return sourceName;
     }
 
     private String toCustomIdentifier(String text) {
