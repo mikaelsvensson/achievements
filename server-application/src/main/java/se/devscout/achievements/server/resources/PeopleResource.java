@@ -28,6 +28,8 @@ import se.devscout.achievements.server.mail.Template;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -147,16 +149,24 @@ public class PeopleResource extends AbstractResource {
 
             final URI loginLink = guiApplicationHost;
             final URI aboutLink = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om");
-            final boolean isGoogleAccount = isCredentialOfTypeSet(person, CredentialsType.GOOGLE);
-            final boolean isMicrosoftAccount = isCredentialOfTypeSet(person, CredentialsType.MICROSOFT);
+
+            final boolean isGoogleAccount = isProvidedBy(email, "gmail.com")
+                    || isCredentialOfTypeSet(person, CredentialsType.GOOGLE);
+
+            final boolean isMicrosoftAccount = !isGoogleAccount &&
+                    (isProvidedBy(email, "outlook.com", "hotmail.com")
+                            || isCredentialOfTypeSet(person, CredentialsType.MICROSOFT));
+
+            final boolean isEmailAccount = !isGoogleAccount
+                    && !isMicrosoftAccount
+                    && isEmailSet;
 
             final String body = new WelcomeUserTemplate().render(
                     aboutLink,
                     email,
                     isGoogleAccount,
                     isMicrosoftAccount,
-                    // It is by definition an "e-mail account" since the person has an e-mail address.
-                    true,
+                    isEmailAccount,
                     loginLink);
 
             emailSender.send(
@@ -169,6 +179,25 @@ public class PeopleResource extends AbstractResource {
             throw new NotFoundException();
         } catch (EmailSenderException e) {
             throw new InternalServerErrorException();
+        }
+    }
+
+    private boolean isProvidedBy(String email, String... hosts) {
+        try {
+            // TODO: Move parsing (attempt) to data model validation instead.
+            final InternetAddress[] addresses = InternetAddress.parse(email);
+            if (addresses.length != 1) {
+                throw new InternalServerErrorException("Invalid e-mail address.");
+            }
+            InternetAddress address = addresses[0];
+            for (String host : hosts) {
+                if (address.getAddress().endsWith(host)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (AddressException e) {
+            throw new InternalServerErrorException("Invalid e-mail address.");
         }
     }
 

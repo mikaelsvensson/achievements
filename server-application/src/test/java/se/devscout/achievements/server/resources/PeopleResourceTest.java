@@ -109,9 +109,12 @@ public class PeopleResourceTest {
     public void welcomeMail_happyPath() throws Exception {
         final Organization org = mockOrganization("org");
         final Person person = mockPerson(org, "Alice");
-        when(person.getEmail()).thenReturn("alice@example.com");
+        when(person.getEmail()).thenReturn("alice@gmail.com");
+        when(person.getCredentials()).thenReturn(Collections.emptySet());
 
         when(i18n.get(anyString())).thenReturn("the subject");
+        final ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+        doNothing().when(emailSender).send(anyString(), anyString(), anyString(), bodyCaptor.capture());
 
         final Response response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
@@ -126,7 +129,11 @@ public class PeopleResourceTest {
                 anyString(),
                 anyString(),
                 eq("the subject"),
-                contains("Du kan nu anv\u00e4nda Mina m\u00e4rken"));
+                anyString());
+        assertThat(bodyCaptor.getValue()).contains("Du kan nu anv\u00e4nda Mina m\u00e4rken");
+        assertThat(bodyCaptor.getValue()).contains("Logga in med Google");
+        assertThat(bodyCaptor.getValue()).doesNotContain("Logga in med Microsoft");
+        assertThat(bodyCaptor.getValue()).doesNotContain("Logga in med e-post");
     }
 
     @Test
@@ -169,7 +176,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
 
-        verify(emailSender).send(
+        verify(emailSender, never()).send(
                 anyString(),
                 anyString(),
                 anyString(),
