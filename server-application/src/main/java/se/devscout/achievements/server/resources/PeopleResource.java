@@ -177,9 +177,9 @@ public class PeopleResource extends AbstractResource {
                     body);
             // TODO: Save e-mail in database
         } catch (ObjectNotFoundException e) {
-            throw new NotFoundException();
+            throw new NotFoundException(e);
         } catch (EmailSenderException e) {
-            throw new InternalServerErrorException();
+            throw new InternalServerErrorException(e);
         }
     }
 

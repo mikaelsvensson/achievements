@@ -19,6 +19,7 @@ import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.sentry.Sentry;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
@@ -111,6 +112,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         initFilterCorsHeaders(environment);
 
+        initSentry();
+
         if (config.getRateLimiting() != null) {
             initFilterRateLimiter(environment, config.getRateLimiting());
         }
@@ -172,6 +175,10 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new HttpAuditTask(sessionFactory, auditingDao));
+    }
+
+    private void initSentry() {
+        Sentry.init();
     }
 
     private void initFilterRateLimiter(Environment environment, AchievementsApplicationConfiguration.RateLimiting config) {

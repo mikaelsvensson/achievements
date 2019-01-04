@@ -47,6 +47,21 @@ smtp:
   ssl: true
   maxMailsPerSenderPerMinute: 1
 
+logging:
+  appenders:
+    - type: console
+      threshold: INFO
+      target: stdout
+  loggers:
+    "io.dropwizard.jersey.errors.LoggingExceptionMapper":
+      appenders:
+        - type: sentry
+          threshold: WARN
+    "se.devscout.achievements.server":
+      appenders:
+        - type: sentry
+          threshold: WARN
+
 rateLimiting:
   requestsPerMinute: 150
   burstLimit: 15

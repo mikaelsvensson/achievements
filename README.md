@@ -253,3 +253,26 @@ Subsequest authorized request:
         }
       }
     }
+
+## Log to Sentry
+
+The application supports logging exceptions to the cloud-based error reporting service Sentry.
+
+First, set the environment variable `SENTRY_DSN` to your Sentry DSN value (retrieved from the Sentry web console)
+
+Then, set this logging configuration in your application configuration file:
+
+    logging:
+      loggers:
+        "io.dropwizard.jersey.errors.LoggingExceptionMapper":
+          appenders:
+            - type: sentry
+              threshold: WARN
+        "se.devscout.achievements.server":
+          appenders:
+            - type: sentry
+              threshold: WARN
+    
+Optionally, start the application with the Sentry `environment` parameter to enable better filtering in Sentry:
+ 
+    java ... -Dsentry.environment=production ... se.devscout.achievements.server.AchievementsApplication server
