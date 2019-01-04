@@ -45,15 +45,6 @@ logging:
     - type: console
       threshold: INFO
       target: stdout
-  loggers:
-    "io.dropwizard.jersey.errors.LoggingExceptionMapper":
-      appenders:
-        - type: sentry
-          threshold: WARN
-    "se.devscout.achievements.server":
-      appenders:
-        - type: sentry
-          threshold: WARN
 
 rateLimiting:
   requestsPerMinute: 300
