@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.mail;
+package se.devscout.achievements.server.mail.template;
 
 import com.google.common.collect.ImmutableMap;
 

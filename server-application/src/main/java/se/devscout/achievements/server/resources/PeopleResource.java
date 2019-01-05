@@ -24,7 +24,7 @@ import se.devscout.achievements.server.data.importer.RepetDataSource;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
-import se.devscout.achievements.server.mail.Template;
+import se.devscout.achievements.server.mail.template.WelcomeUserTemplate;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
@@ -59,7 +59,6 @@ public class PeopleResource extends AbstractResource {
     private GroupMembershipsDao membershipsDao;
     private PeopleDataSource[] peopleDataSources;
     private File tempDir;
-    private final Template template;
     private URI guiApplicationHost;
     private EmailSender emailSender;
     private I18n i18n;
@@ -81,7 +80,6 @@ public class PeopleResource extends AbstractResource {
         }
         this.tempDir = Files.createTempDir();
         this.guiApplicationHost = guiApplicationHost;
-        this.template = new Template("assets/email.set-password.html");
         this.emailSender = emailSender;
         this.i18n = i18n;
     }

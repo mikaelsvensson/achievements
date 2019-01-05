@@ -1,7 +1,6 @@
-package se.devscout.achievements.server.resources;
+package se.devscout.achievements.server.mail.template;
 
 import com.google.common.collect.ImmutableMap;
-import se.devscout.achievements.server.mail.Template;
 
 import java.net.URI;
 

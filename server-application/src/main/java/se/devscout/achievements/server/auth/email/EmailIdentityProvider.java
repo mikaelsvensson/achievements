@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.auth.email;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
-import se.devscout.achievements.server.mail.Template;
+import se.devscout.achievements.server.mail.template.SigninTemplate;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import java.util.Map;
 public class EmailIdentityProvider implements IdentityProvider {
 
     private final JwtEmailAddressTokenService jwtEmailAddressTokenService;
-    private final Template template;
+    private final SigninTemplate template = new SigninTemplate();
     private final I18n i18n;
     private EmailSender emailSender;
 
@@ -44,7 +43,6 @@ public class EmailIdentityProvider implements IdentityProvider {
         this.credentialsDao = credentialsDao;
         this.jwtEmailAddressTokenService = new JwtEmailAddressTokenService(jwtTokenService);
 
-        template = new Template("assets/email.signin-email.html");
         this.i18n = new I18n("texts.sv.yaml");
     }
 
@@ -92,25 +90,16 @@ public class EmailIdentityProvider implements IdentityProvider {
     }
 
     private void sendEmail(String clientId, String to, URI confirmationUri) throws EmailSenderException {
-        final String link = confirmationUri.toString();
-        LOGGER.info("Confirmation link: " + link);
+        LOGGER.info("Confirmation link: " + confirmationUri.toString());
 
-        //TODO: Localize e-mail
         emailSender.send(
                 clientId,
                 to,
                 i18n.get("emailIdentityProvider.email.subject"),
-                getMessageBody(link));
+                //TODO: Localize e-mail
+                template.render(confirmationUri, JwtEmailAddressTokenService.DURATION_15_MINS));
 
-        LOGGER.info("Sent this link to {}: {}", to, link);
-    }
-
-    private String getMessageBody(String link) {
-        final Map<String, String> parameters = ImmutableMap.of(
-                "link", link,
-                "validTime", String.valueOf(JwtEmailAddressTokenService.DURATION_15_MINS.toMinutes()));
-
-        return template.render(parameters);
+        LOGGER.info("Sent this link to {}: {}", to, confirmationUri.toString());
     }
 
     private URI getSignInLink(URI path, String callbackState, String email) {

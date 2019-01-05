@@ -1,4 +1,4 @@
-package se.devscout.achievements.server.resources;
+package se.devscout.achievements.server.mail.template;
 
 import org.junit.Before;
 import org.junit.Test;

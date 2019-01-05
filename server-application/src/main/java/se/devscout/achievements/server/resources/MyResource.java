@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.resources;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -18,7 +17,7 @@ import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
-import se.devscout.achievements.server.mail.Template;
+import se.devscout.achievements.server.mail.template.SetPasswordTemplate;
 import se.devscout.achievements.server.resources.auth.AbstractAuthResource;
 import se.devscout.achievements.server.resources.auth.ExternalIdpCallbackException;
 import se.devscout.achievements.server.resources.auth.User;
@@ -39,13 +38,13 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class MyResource extends AbstractAuthResource {
     private final I18n i18n;
-    private PeopleDao peopleDao;
-    private GroupsDao groupsDao;
-    private AchievementsDao achievementsDao;
-    private CredentialsDao credentialsDao;
-    private EmailSender emailSender;
-    private URI guiApplicationHost;
-    private final Template template;
+    private final PeopleDao peopleDao;
+    private final GroupsDao groupsDao;
+    private final AchievementsDao achievementsDao;
+    private final CredentialsDao credentialsDao;
+    private final EmailSender emailSender;
+    private final URI guiApplicationHost;
+    private final SetPasswordTemplate template = new SetPasswordTemplate();
 
     public MyResource(PeopleDao peopleDao, GroupsDao groupsDao, AchievementsDao achievementsDao, CredentialsDao credentialsDao, EmailSender emailSender, URI guiApplicationHost, JwtSignInTokenService signInTokenService, I18n i18n) {
         super(signInTokenService, credentialsDao);
@@ -56,7 +55,6 @@ public class MyResource extends AbstractAuthResource {
         this.emailSender = emailSender;
         this.guiApplicationHost = guiApplicationHost;
 
-        this.template = new Template("assets/email.set-password.html");
         this.i18n = i18n;
     }
 
@@ -201,7 +199,7 @@ public class MyResource extends AbstractAuthResource {
                         req != null ? req.getRemoteAddr() : "ANONYMOUS",
                         person.getEmail(),
                         i18n.get("sendResetPasswordLink.subject"),
-                        template.render(ImmutableMap.of("link", link.toString())));
+                        template.render(link));
             } catch (DaoException e) {
                 // TODO: Fix default catch clause
                 e.printStackTrace();

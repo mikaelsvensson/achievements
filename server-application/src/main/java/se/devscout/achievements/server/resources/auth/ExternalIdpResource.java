@@ -18,7 +18,7 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
-import se.devscout.achievements.server.mail.WelcomeOrganizationTemplate;
+import se.devscout.achievements.server.mail.template.WelcomeOrganizationTemplate;
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.servlet.http.HttpServletRequest;
