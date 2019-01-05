@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.io.UnsupportedEncodingException;
@@ -50,6 +51,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     public DecodedJWT decode(String token) throws JwtTokenServiceException {
         try {
             return verifier.verify(token);
+        } catch (TokenExpiredException e) {
+            throw new JwtTokenExpiredException(e);
         } catch (JWTVerificationException e) {
             throw new JwtTokenServiceException(e);
         }

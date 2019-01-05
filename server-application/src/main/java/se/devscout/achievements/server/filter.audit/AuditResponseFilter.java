@@ -46,7 +46,7 @@ class AuditResponseFilter implements ContainerResponseFilter {
                     responseContext.getStatus());
             LOGGER.info(msg);
         } catch (Exception e) {
-            LOGGER.error("Could not log request", e);
+            LOGGER.warn("Could not log request", e);
         }
     }
 

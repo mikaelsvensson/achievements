@@ -86,7 +86,7 @@ public class EmailIdentityProvider implements IdentityProvider {
             throw new IdentityProviderException("Could not send link by mail", e);
         } catch (ObjectNotFoundException e) {
             //TODO: Unit test for when ObjectNotFoundException happens
-            LOGGER.warn("Could not perform authentication", e);
+            LOGGER.info("Could not perform authentication", e);
             throw new IdentityProviderException("Could not perform authentication", e);
         }
     }

@@ -44,7 +44,7 @@ public class OnetimePasswordAuthenticator implements Authenticator<String, User>
 
             return Optional.of(user);
         } catch (ObjectNotFoundException e) {
-            LOGGER.warn("Could not find object when authenticating user. Message: " + e.getMessage());
+            LOGGER.info("Could not find object when authenticating user. Message: " + e.getMessage());
             return Optional.empty();
         } catch (HibernateException e) {
             LOGGER.error("Exception when trying to validate credentials", e);

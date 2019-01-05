@@ -78,7 +78,7 @@ public class GroupMembershipsResource extends AbstractResource {
             throw new BadRequestException("Identifiers do not match.");
         }
         if (group != null && organization.getId() != group.getOrganization().getId()) {
-            LOGGER.warn("User/client tries to mix use group from another organizations. Not cool.");
+            LOGGER.warn("User/client tries to use group from another organizations. Not cool.");
             throw new BadRequestException("Identifiers do not match.");
         }
     }

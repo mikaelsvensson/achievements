@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.jwt.JwtSignInToken;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
+import se.devscout.achievements.server.auth.jwt.JwtTokenExpiredException;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 
 import java.util.Optional;
@@ -30,8 +31,11 @@ public class JwtAuthenticator implements Authenticator<String, User> {
                     jwt.getRoles(),
                     null);
             return Optional.of(user);
+        } catch (JwtTokenExpiredException e) {
+            LOGGER.info("Authentication token has expired", e);
+            return Optional.empty();
         } catch (JwtTokenServiceException e) {
-            LOGGER.error("Exception when trying to validate credentials", e);
+            LOGGER.warn("Exception when trying to validate credentials", e);
             return Optional.empty();
         }
     }
