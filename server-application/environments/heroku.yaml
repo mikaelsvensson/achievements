@@ -45,7 +45,7 @@ smtp:
   password: ${SMTP_PASSWORD}
   fromAddress: ${SMTP_FROM}
   ssl: true
-  maxMailsPerSenderPerMinute: 1
+  maxMailsPerSenderPerMinute: 5
 
 logging:
   appenders:

@@ -111,6 +111,7 @@ public class OrganizationsResource extends AbstractResource {
                            @Auth User user) {
         try {
             final Organization organization = dao.create(map(input, OrganizationProperties.class));
+            // TODO: Send welcome mail?
             final URI location = uriInfo.getRequestUriBuilder().path(UuidString.toString(organization.getId())).build();
             return Response
                     .created(location)

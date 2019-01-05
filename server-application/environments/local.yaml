@@ -37,7 +37,7 @@ smtp:
   password: YOUR_GOOGLE_PASSWORD
   fromAddress: YOUR_GOOGLE_EMAIL_ADDRESS
   ssl: true
-  maxMailsPerSenderPerMinute: 1
+  maxMailsPerSenderPerMinute: 10
 
 logging:
   appenders:

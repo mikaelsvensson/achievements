@@ -167,7 +167,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 config.getGuiApplicationHost(),
                 config.getServerApplicationHost(),
                 signInTokenService,
-                signUpTokenService));
+                signUpTokenService,
+                emailSender,
+                i18n));
 
         environment.healthChecks().register("alive", new IsAliveHealthcheck());
 

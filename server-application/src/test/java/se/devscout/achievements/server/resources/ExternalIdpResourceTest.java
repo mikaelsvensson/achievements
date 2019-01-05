@@ -6,6 +6,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
@@ -15,6 +16,7 @@ import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.OrganizationsDao;
 import se.devscout.achievements.server.data.dao.PeopleDao;
+import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.resources.auth.ExternalIdpResource;
 
 import javax.ws.rs.core.Response;
@@ -32,6 +34,8 @@ public class ExternalIdpResourceTest {
     private final PeopleDao peopleDao = mock(PeopleDao.class);
     private final OrganizationsDao organizationsDao = mock(OrganizationsDao.class);
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
+    private final EmailSender emailSender = mock(EmailSender.class);
+    private final I18n i18n = mock(I18n.class);
 
     private final IdentityProvider identityProvider = mock(IdentityProvider.class);
 
@@ -45,7 +49,9 @@ public class ExternalIdpResourceTest {
                     URI.create("http://gui"),
                     URI.create("http://server"),
                     new JwtSignInTokenService(tokenService),
-                    new JwtSignUpTokenService(tokenService)))
+                    new JwtSignUpTokenService(tokenService),
+                    emailSender,
+                    i18n))
             .build();
 
     @Test

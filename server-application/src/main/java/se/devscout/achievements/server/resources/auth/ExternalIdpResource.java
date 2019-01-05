@@ -3,6 +3,9 @@ package se.devscout.achievements.server.resources.auth;
 import com.google.common.base.Strings;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.api.AuthTokenDTO;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.Roles;
@@ -13,6 +16,9 @@ import se.devscout.achievements.server.auth.jwt.JwtSignUpTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.mail.EmailSender;
+import se.devscout.achievements.server.mail.EmailSenderException;
+import se.devscout.achievements.server.mail.WelcomeOrganizationTemplate;
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,12 +30,14 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 //TODO: Test this resource!
 @Path("openid/{identityProvider}")
 public class ExternalIdpResource extends AbstractAuthResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalIdpResource.class);
     private final Map<String, IdentityProvider> identityProviders;
     //TODO: Two utility classes for dealing with tokens seems a bit much, doesn't it?
     private JwtSignUpTokenService callbackStateTokenService;
@@ -38,6 +46,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
     private OrganizationsDao organizationsDao;
     private URI guiApplicationHost;
     private URI serverApplicationHost;
+    private EmailSender emailSender;
+    private I18n i18n;
 
     public ExternalIdpResource(Map<String, IdentityProvider> identityProviders,
                                CredentialsDao credentialsDao,
@@ -46,7 +56,9 @@ public class ExternalIdpResource extends AbstractAuthResource {
                                URI guiApplicationHost,
                                URI serverApplicationHost,
                                JwtSignInTokenService signInTokenService,
-                               JwtSignUpTokenService signUpTokenService) {
+                               JwtSignUpTokenService signUpTokenService,
+                               EmailSender emailSender,
+                               I18n i18n) {
         super(signInTokenService, credentialsDao);
         this.identityProviders = identityProviders;
         this.callbackStateTokenService = signUpTokenService;
@@ -55,6 +67,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
         this.organizationsDao = organizationsDao;
         this.guiApplicationHost = guiApplicationHost;
         this.serverApplicationHost = serverApplicationHost;
+        this.emailSender = emailSender;
+        this.i18n = i18n;
     }
 
     @POST
@@ -129,7 +143,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
     @UnitOfWork
     public Response handleSignUpCallback(@PathParam("identityProvider") String identityProvider,
                                          @QueryParam("code") String authCode,
-                                         @QueryParam("state") String callbackState) throws ExternalIdpCallbackException {
+                                         @QueryParam("state") String callbackState,
+                                         @Context HttpServletRequest req) throws ExternalIdpCallbackException {
         try {
             final JwtSignUpToken jwt = callbackStateTokenService.decode(callbackState);
 
@@ -139,7 +154,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
                 final AuthTokenDTO tokenDTO = existingOrganizationSignup(jwt.getOrganizationId(), result);
                 return createSignedInResponse(tokenDTO);
             } else if (jwt.getOrganizationName() != null) {
-                final AuthTokenDTO tokenDTO = newOrganizationSignup(jwt.getOrganizationName(), result);
+                final AuthTokenDTO tokenDTO = newOrganizationSignup(jwt.getOrganizationName(), result, req);
                 return createSignedInResponse(tokenDTO);
             } else {
                 final AuthTokenDTO tokenDTO = newSignup(result);
@@ -167,7 +182,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     public AuthTokenDTO newOrganizationSignup(String newOrganizationName,
-                                              ValidationResult validationResult) throws ExternalIdpCallbackException {
+                                              ValidationResult validationResult,
+                                              HttpServletRequest request) throws ExternalIdpCallbackException {
 
         if (Strings.isNullOrEmpty(newOrganizationName)) {
             throw new BadRequestException("Name of new organization was not specified.");
@@ -183,6 +199,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
                 final String name = StringUtils.substringBefore(email, "@");
                 final Person person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.EDITOR));
 
+                sendOrganizationWelcomeMail(email, request, organization.getId());
+
                 final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                 return generateTokenResponse(credentials);
@@ -191,6 +209,26 @@ public class ExternalIdpResource extends AbstractAuthResource {
             }
         } else {
             throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.ORGANIZATION_EXISTS, "Organization " + newOrganizationName + " already exists.");
+        }
+    }
+
+    private void sendOrganizationWelcomeMail(String to, HttpServletRequest request, UUID orgId) {
+        try {
+            final String body = new WelcomeOrganizationTemplate().render(
+                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#marken"),
+                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId)),
+                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId) + "/personer/importera"),
+                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId)),
+                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om"));
+
+            emailSender.send(
+                    request != null ? request.getRemoteAddr() : "ANONYMOUS",
+                    to,
+                    i18n.get("sendOrganizationWelcomeMail.subject"),
+                    body);
+            // TODO: Save e-mail in database
+        } catch (EmailSenderException e) {
+            LOGGER.warn("Could not send welcome mail to " + to, e);
         }
     }
 
