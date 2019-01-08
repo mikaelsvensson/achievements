@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {get, getUserOrganization, isLoggedIn, post} from "../util/api.jsx";
+import {get, getUserOrganization, isLoggedIn, post, remove} from "../util/api.jsx";
 import {getFormData, markdown2html, updateView} from "../util/view.jsx";
 import ColorHash from "color-hash";
 import {toRelativeTime} from '../util/time.jsx'
@@ -114,6 +114,36 @@ export function renderAchievement(appPathParams) {
                             iconNode.removeClass('mdi-circle-outline mdi-circle-slice-4 mdi-circle-slice-8');
                             iconNode.addClass(nextClass);
                         }, toggleButton);
+                    });
+                });
+                get('/api/achievements/' + appPathParams[0].key + "/awards", function (awardedToList, responseStatus, jqXHR) {
+                    for (let i in awardedToList) {
+                        let personId = awardedToList[i].id;
+                        $("#awarded-toggle_" + personId + " i.mdi")
+                            .addClass('mdi-check-decagram')
+                            .removeClass('mdi-decagram-outline');
+                    }
+                    $(".awarded-switch").click(function () {
+                        const toggleButton = $(this);
+                        const awardsURL = '/api/achievements/' + appPathParams[0].key + '/awards/' + this.dataset.personId;
+
+                        // TODO: Save progress value in node dataSet instead of relying on the presens of a CSS class
+                        const iconNode = toggleButton.find("i.mdi");
+
+                        let nextIsAwarded = iconNode.hasClass('mdi-decagram-outline');
+                        let nextClass = nextIsAwarded ? 'mdi-check-decagram' : 'mdi-decagram-outline';
+
+                        if (nextIsAwarded) {
+                            post(awardsURL, null, function (responseData, responseStatus, jqXHR) {
+                                iconNode.removeClass('mdi-check-decagram mdi-decagram-outline');
+                                iconNode.addClass(nextClass);
+                            }, toggleButton);
+                        } else {
+                            remove(awardsURL, null, function (responseData, responseStatus, jqXHR) {
+                                iconNode.removeClass('mdi-check-decagram mdi-decagram-outline');
+                                iconNode.addClass(nextClass);
+                            }, toggleButton);
+                        }
                     });
                 });
             }

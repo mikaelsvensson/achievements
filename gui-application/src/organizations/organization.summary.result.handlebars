@@ -6,23 +6,33 @@
                 {{achievement.name}}
             </div>
         </div>
-        {{#if progress_summary.people_completed}}
+        {{#if count_category_awarded}}
         <div class="control">
-            <div class="tags has-addons">
+            <div class="tags has-addons" title="{{count_category_awarded}} har fått märket.">
                 <span class="tag">
-                    Färdiga
+                    Fått
                 </span>
-                <span class="tag is-success" title="{{progress_summary.people_completed}} har gjort klar allt.">{{progress_summary.people_completed}}</span>
+                <span class="tag is-success">{{count_category_awarded}}</span>
             </div>
         </div>
         {{/if}}
-        {{#if progress_summary.people_started}}
+        {{#if count_category_done}}
         <div class="control">
-            <div class="tags has-addons">
+            <div class="tags has-addons" title="{{count_category_done}} har gjort klar allt men har inte fått märket.">
                 <span class="tag">
-                    Nästan
+                    Klara
                 </span>
-                <span class="tag is-warning" title="{{progress_summary.people_started}} har påbörjat.">{{progress_summary.people_started}}</span>
+                <span class="tag is-success">{{count_category_done}}</span>
+            </div>
+        </div>
+        {{/if}}
+        {{#if count_category_started}}
+        <div class="control">
+            <div class="tags has-addons" title="{{count_category_started}} har påbörjat märket.">
+                <span class="tag">
+                    Börjat
+                </span>
+                <span class="tag is-primary">{{count_category_started}}</span>
             </div>
         </div>
         {{/if}}

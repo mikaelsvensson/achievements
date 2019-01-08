@@ -42,9 +42,16 @@ export function renderOrganizationAchievements(appPathParams) {
             responseData.orgId = appPathParams[0].key;
             responseData.orgName = orgResponseData.name;
             responseData.achievements.sort(achievementSorter).forEach((achievement => {
+                achievement.count_category_awarded = 0
+                achievement.count_category_done = 0
+                achievement.count_category_started = 0
                 achievement.progress_detailed.sort(personSorter).forEach((item) => {
-                    item.progress_class = item.percent == 100 ? 'is-success' : 'is-warning'
-                    item.is_done = item.percent == 100
+                    item.is_category_awarded = item.awarded
+                    item.is_category_done = !item.awarded && item.percent == 100
+                    item.is_category_started = !item.awarded && item.percent != 100
+                    achievement.count_category_awarded += item.is_category_awarded ? 1 : 0
+                    achievement.count_category_done += item.is_category_done ? 1 : 0
+                    achievement.count_category_started += item.is_category_started ? 1 : 0
                 })
             }));
             updateView(templateOrganizationAchievements(responseData));

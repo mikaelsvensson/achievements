@@ -1,6 +1,26 @@
 {{#if steps}}
 <p><strong>Moment:</strong></p>
 <div class="is-hidden-desktop">
+    <div class="box">
+        <div class="content">
+            <p>Märket är utdelat</p>
+        </div>
+        {{#if people}}
+        <div class="is-grouped buttons">
+            {{#each people}}
+            <button class="button is-white is-small awarded-switch" id="awarded-toggle_{{id}}"
+                    data-person-id="{{id}}">
+                    <span class="icon is-small has-text-info">
+                        <i class="mdi mdi-decagram-outline mdi-dark mdi-24px"></i>
+                    </span>
+                <span>
+                    {{name}}
+                </span>
+            </button>
+            {{/each}}
+        </div>
+        {{/if}}
+    </div>
     {{#each steps}}
     <div class="box">
         <div class="content">
@@ -41,6 +61,18 @@
     </tr>
     </thead>
     <tbody>
+    <tr>
+        <td>Märket är utdelat</td>
+        {{#each people}}
+        <td>
+            <button class="button is-white awarded-switch" id="awarded-toggle_{{id}}" data-person-id="{{id}}">
+                <span class="icon has-text-info">
+                    <i class="mdi mdi-decagram-outline mdi-dark mdi-24px"></i>
+                </span>
+            </button>
+        </td>
+        {{/each}}
+    </tr>
     {{#each steps}}
     <tr>
         <td>

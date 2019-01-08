@@ -19,27 +19,47 @@
                         <p>
                             <strong><a href="#marken/{{achievement.id}}">{{achievement.name}}</a></strong>
                         </p>
-                        {{#if progress_summary.people_completed}}
-                        <p class="is-marginless">Scouter som har <strong>tagit</strong> märket:</p>
 
+                        {{#if count_category_awarded}}
+                        <p class="is-marginless">Scouter som har <strong>fått</strong> märket:</p>
                         {{#each progress_detailed}}
-                        {{#if is_done}}
+                        {{#if is_category_awarded}}
                         <div>
-                            <small><a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+                            <small>
+                                <progress style="width: 10rem; margin-top: 0.4rem"
+                                          class="progress is-small is-pulled-right is-success is-paddingless is-marginless"
+                                          value="{{percent}}" max="100"></progress>
+                                <a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
                             </small>
                         </div>
                         {{/if}}
                         {{/each}}
                         {{/if}}
-                        {{#if progress_summary.people_started}}
-                        <p class="is-marginless">Scouter som har <strong>påbörjat</strong> märket:</p>
+
+                        {{#if count_category_done}}
+                        <p class="is-marginless">Scouter som har <strong>gjort klart</strong> märket:</p>
                         {{#each progress_detailed}}
-                        {{#if is_done}}
-                        {{else}}
+                        {{#if is_category_done}}
                         <div>
                             <small>
                                 <progress style="width: 10rem; margin-top: 0.4rem"
-                                          class="progress is-small is-pulled-right is-warning is-paddingless is-marginless"
+                                          class="progress is-small is-pulled-right is-success is-paddingless is-marginless"
+                                          value="{{percent}}" max="100"></progress>
+                                <a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+                            </small>
+                        </div>
+                        {{/if}}
+                        {{/each}}
+                        {{/if}}
+
+                        {{#if count_category_started}}
+                        <p class="is-marginless">Scouter som har <strong>påbörjat</strong> märket:</p>
+                        {{#each progress_detailed}}
+                        {{#if is_category_started}}
+                        <div>
+                            <small>
+                                <progress style="width: 10rem; margin-top: 0.4rem"
+                                          class="progress is-small is-pulled-right is-primary is-paddingless is-marginless"
                                           value="{{percent}}" max="100"></progress>
                                 <a href="#karer/{{../../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
                             </small>
