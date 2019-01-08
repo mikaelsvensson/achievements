@@ -3,15 +3,13 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import se.devscout.achievements.server.api.AchievementBaseDTO;
-import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.api.ProgressDTO;
-import se.devscout.achievements.server.api.StepProgressRequestLogRecordDTO;
+import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
+import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
@@ -21,6 +19,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("achievements")
@@ -30,11 +29,13 @@ public class AchievementsResource extends AbstractResource {
     private AchievementsDao dao;
     private AchievementStepProgressDao progressDao;
     private final AuditingDao auditingDao;
+    private final PeopleDao peopleDao;
 
-    public AchievementsResource(AchievementsDao dao, AchievementStepProgressDao progressDao, AuditingDao auditingDao) {
+    public AchievementsResource(AchievementsDao dao, AchievementStepProgressDao progressDao, AuditingDao auditingDao, PeopleDao peopleDao) {
         this.dao = dao;
         this.progressDao = progressDao;
         this.auditingDao = auditingDao;
+        this.peopleDao = peopleDao;
     }
 
     @GET
@@ -66,6 +67,69 @@ public class AchievementsResource extends AbstractResource {
                     .collect(Collectors.toList());
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
+        }
+    }
+
+    @GET
+    @RolesAllowed(Roles.READER)
+    @UnitOfWork
+    @Path("{achievementId}/awards")
+    public List<PersonBaseDTO> getAwardedTo(@PathParam("achievementId") UuidString id,
+                                            @Auth User user) {
+        try {
+            final Person userPerson = peopleDao.read(user.getPersonId());
+            final Achievement achievement = dao.read(id.getUUID());
+            return peopleDao.getByAwardedAchievement(userPerson.getOrganization(), achievement).stream()
+                    .map(person -> map(person, PersonBaseDTO.class))
+                    .collect(Collectors.toList());
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException(e);
+        }
+    }
+
+    @POST
+    @RolesAllowed(Roles.EDITOR)
+    @UnitOfWork
+    @Path("{achievementId}/awards/{personId}")
+    public void addAwardedTo(@PathParam("achievementId") UuidString id,
+                             @PathParam("personId") Integer personId,
+                             @Auth User user) {
+        try {
+            final Person person = peopleDao.read(personId);
+            verifySameOrganization(user, person);
+
+            final Achievement achievement = dao.read(id.getUUID());
+
+            dao.addAwardedTo(achievement, person);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException(e);
+        }
+    }
+
+    @DELETE
+    @RolesAllowed(Roles.EDITOR)
+    @UnitOfWork
+    @Path("{achievementId}/awards/{personId}")
+    public void removeAwardedTo(@PathParam("achievementId") UuidString id,
+                                @PathParam("personId") Integer personId,
+                                @Auth User user) {
+        try {
+            final Person person = peopleDao.read(personId);
+            verifySameOrganization(user, person);
+
+            final Achievement achievement = dao.read(id.getUUID());
+
+            dao.removeAwardedTo(achievement, person);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException(e);
+        }
+    }
+
+    private void verifySameOrganization(@Auth User user, Person person) throws ObjectNotFoundException {
+        final UUID personOrgId = person.getOrganization().getId();
+        final UUID userOrdId = peopleDao.read(user.getPersonId()).getOrganization().getId();
+        if (userOrdId != personOrgId) {
+            throw new NotFoundException("Person " + person.getId() + " not found in your organization.");
         }
     }
 

@@ -11,13 +11,14 @@ import org.junit.Test;
 import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.api.AchievementDTO;
+import se.devscout.achievements.server.api.PersonBaseDTO;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.data.model.AchievementStep;
+import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static se.devscout.achievements.server.MockUtil.*;
 
 public class AchievementsResourceTest {
 
@@ -39,7 +41,7 @@ public class AchievementsResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new AchievementsResource(dao, progressDao, auditingDao))
+            .addResource(new AchievementsResource(dao, progressDao, auditingDao, peopleDao))
             .build();
 
     @Before
@@ -148,6 +150,134 @@ public class AchievementsResourceTest {
         assertThat(response.getLocation().getPath()).isEqualTo("/achievements/" + UuidString.toString(achievement.getId()));
         assertThat(dto.id).isEqualTo(UuidString.toString(achievement.getId()));
         assertThat(dto.name).isEqualTo("abc");
+    }
+
+    @Test
+    public void awards_get_happyPath() throws ObjectNotFoundException {
+        final Person mockedReader = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_READER).getPerson();
+        when(peopleDao.read(eq(mockedReader.getId()))).thenReturn(mockedReader);
+
+        final Achievement achievement = mockAchievement("The Achievement");
+        when(dao.read(eq(achievement.getId()))).thenReturn(achievement);
+
+        final Person person = mockPerson(mockedReader.getOrganization(), "Carol", Roles.READER);
+        when(peopleDao.read(eq(person.getId()))).thenReturn(person);
+
+        when(peopleDao.getByAwardedAchievement(eq(mockedReader.getOrganization()), eq(achievement))).thenReturn(Collections.singletonList(person));
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
+
+        final List<PersonBaseDTO> dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        });
+        assertThat(dto).hasSize(1);
+        assertThat(dto.get(0).name).isEqualTo("Carol");
+    }
+
+    @Test
+    public void awards_get_achievementNotFound() throws ObjectNotFoundException {
+        final Person mockedReader = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_READER).getPerson();
+        when(peopleDao.read(eq(mockedReader.getId()))).thenReturn(mockedReader);
+
+        final Achievement achievement = mockAchievement("The Achievement");
+        when(dao.read(eq(achievement.getId()))).thenThrow(new ObjectNotFoundException());
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards")
+                .register(MockUtil.AUTH_FEATURE_READER)
+                .request()
+                .get();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
+
+        verify(peopleDao, never()).getByAwardedAchievement(any(Organization.class), any(Achievement.class));
+    }
+
+    @Test
+    public void awards_add_happyPath() throws ObjectNotFoundException {
+        final Person mockedEditor = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+
+        final Organization organization = mockedEditor.getOrganization();
+        final Achievement achievement = mockAchievement("The Achievement");
+        final Person person = mockPerson(organization, "Alice", Roles.EDITOR);
+
+        when(peopleDao.read(eq(mockedEditor.getId()))).thenReturn(mockedEditor);
+        when(peopleDao.read(eq(person.getId()))).thenReturn(person);
+        when(dao.read(eq(achievement.getId()))).thenReturn(achievement);
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+        verify(dao).addAwardedTo(eq(achievement), eq(person));
+    }
+
+    @Test
+    public void awards_add_otherOrganization() throws ObjectNotFoundException {
+        final Person mockedEditor = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+
+        final Organization otherOrg = mockOrganization("Other Org");
+        final Achievement achievement = mockAchievement("The Achievement");
+        final Person person = mockPerson(otherOrg, "Carol", Roles.EDITOR);
+
+        when(peopleDao.read(eq(mockedEditor.getId()))).thenReturn(mockedEditor);
+        when(peopleDao.read(eq(person.getId()))).thenReturn(person);
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .post(null);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
+        verify(dao, never()).addAwardedTo(any(Achievement.class), any(Person.class));
+
+    }
+
+    @Test
+    public void awards_delete_happyPath() throws ObjectNotFoundException {
+        final Person mockedEditor = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+
+        final Organization organization = mockedEditor.getOrganization();
+        final Achievement achievement = mockAchievement("The Achievement");
+        final Person person = mockPerson(organization, "Alice", Roles.EDITOR);
+
+        when(peopleDao.read(eq(mockedEditor.getId()))).thenReturn(mockedEditor);
+        when(peopleDao.read(eq(person.getId()))).thenReturn(person);
+        when(dao.read(eq(achievement.getId()))).thenReturn(achievement);
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .delete();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+        verify(dao).removeAwardedTo(eq(achievement), eq(person));
+    }
+
+    @Test
+    public void awards_delete_otherOrganization() throws ObjectNotFoundException {
+        final Person mockedEditor = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+
+        final Organization otherOrg = mockOrganization("Other Org");
+        final Achievement achievement = mockAchievement("The Achievement");
+        final Person person = mockPerson(otherOrg, "Carol", Roles.EDITOR);
+
+        when(peopleDao.read(eq(mockedEditor.getId()))).thenReturn(mockedEditor);
+        when(peopleDao.read(eq(person.getId()))).thenReturn(person);
+
+        final Response response = resources
+                .target("/achievements/" + UuidString.toString(achievement.getId()) + "/awards/" + person.getId())
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .delete();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
+        verify(dao, never()).removeAwardedTo(any(Achievement.class), any(Person.class));
+
     }
 
 }
