@@ -13,6 +13,8 @@ th.rotate > div {
 }
 
 th.rotate > div > span {
-    /*border-bottom: 1px solid #ccc;*/
-    /*padding: 5px 10px;*/
+    max-width: 190px;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
 }
