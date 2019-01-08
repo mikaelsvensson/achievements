@@ -10,6 +10,7 @@ import javax.persistence.*;
                 query = "" +
                         "SELECT p " +
                         "FROM StepProgressAuditRecord p " +
+                        // TODO: Also limit to progress for people in user's organization
                         "WHERE p.step.achievement.id = :achievementId"
         )
 })

@@ -118,4 +118,16 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
 
         return list;
     }
+
+    @Override
+    public void addAwardedTo(Achievement achievement, Person person) {
+        achievement.addAwardFor(person);
+        super.persist(achievement);
+    }
+
+    @Override
+    public void removeAwardedTo(Achievement achievement, Person person) {
+        achievement.removeAwardFor(person);
+        super.persist(achievement);
+    }
 }

@@ -5,9 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "achievements")
@@ -42,6 +40,9 @@ public class Achievement extends AchievementProperties {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "achievement")
     private List<AchievementStep> steps = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "awards")
+    private Set<Person> awardedTo = new HashSet<>();
+
     public UUID getId() {
         return id;
     }
@@ -56,6 +57,24 @@ public class Achievement extends AchievementProperties {
 
     public void setSteps(List<AchievementStep> steps) {
         this.steps = steps;
+    }
+
+    public Set<Person> getAwardedTo() {
+        return awardedTo;
+    }
+
+    public void setAwardedTo(Set<Person> awardedTo) {
+        this.awardedTo = awardedTo;
+    }
+
+    public void addAwardFor(Person person) {
+        awardedTo.add(person);
+        person.getAwards().add(this);
+    }
+
+    public void removeAwardFor(Person person) {
+        awardedTo.remove(person);
+        person.getAwards().remove(this);
     }
 
     @Override

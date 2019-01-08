@@ -3,6 +3,7 @@ package se.devscout.achievements.server.data.dao;
 import com.google.api.client.util.Strings;
 import org.hibernate.SessionFactory;
 import org.modelmapper.ModelMapper;
+import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.data.model.PersonProperties;
@@ -85,6 +86,26 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
         return namedQuery("Person.getByEmail")
                 .setParameter("email", email)
                 .getResultList();
+    }
+
+    @Override
+    public List<Person> getByAwardedAchievement(Organization organization, Achievement achievement) {
+        return namedQuery("Person.hasBeenAwarded")
+                .setParameter("achievement", achievement)
+                .setParameter("organization", organization)
+                .getResultList();
+    }
+
+    @Override
+    public void addAwardFor(Person person, Achievement achievement) {
+        person.addAwardFor(achievement);
+        super.persist(person);
+    }
+
+    @Override
+    public void removeAwardFor(Person person, Achievement achievement) {
+        person.removeAwardFor(achievement);
+        super.persist(person);
     }
 
     @Override

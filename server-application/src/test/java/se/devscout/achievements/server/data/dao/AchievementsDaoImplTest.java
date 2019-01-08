@@ -31,10 +31,12 @@ public class AchievementsDaoImplTest {
             .build();
 
     private AchievementsDaoImpl dao;
+    private PeopleDaoImpl peopleDao;
 
     @Before
     public void setUp() throws Exception {
         dao = new AchievementsDaoImpl(database.getSessionFactory());
+        peopleDao = new PeopleDaoImpl(database.getSessionFactory());
     }
 
     @Test
@@ -244,6 +246,61 @@ public class AchievementsDaoImplTest {
         final Achievement actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Cook Spagetti");
+    }
+
+    @Test
+    public void awardedTo_happyPath() throws Exception {
+        // Setup: Create achievements
+        final Achievement achievementPasta = database.inTransaction(() -> dao.create(new AchievementProperties("Cook Pasta")));
+        final Achievement achievementEgg = database.inTransaction(() -> dao.create(new AchievementProperties("Cook Egg")));
+
+        // Setup: Create organization
+        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        Organization org = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
+
+        // Setup: Crate people
+        Person personAlice = database.inTransaction(() -> peopleDao.create(org, new PersonProperties("Alice", Roles.READER)));
+        Person personBob = database.inTransaction(() -> peopleDao.create(org, new PersonProperties("Bob", Roles.READER)));
+
+        // TEST addAwardedTo
+        database.inTransaction(() -> dao.addAwardedTo(achievementEgg, personAlice));
+        database.inTransaction(() -> dao.addAwardedTo(achievementEgg, personBob));
+        database.inTransaction(() -> dao.addAwardedTo(achievementPasta, personAlice));
+
+        verifyIsAwardedTo(achievementEgg.getId(), personAlice, personBob);
+        verifyIsAwardedTo(achievementPasta.getId(), personAlice);
+        verifyHasBeenAwarded(personAlice.getId(), achievementEgg, achievementPasta);
+        verifyHasBeenAwarded(personBob.getId(), achievementEgg);
+
+        // TEST addAwardedTo
+        database.inTransaction(() -> dao.addAwardedTo(achievementPasta, personBob));
+
+        verifyIsAwardedTo(achievementEgg.getId(), personAlice, personBob);
+        verifyIsAwardedTo(achievementPasta.getId(), personAlice, personBob);
+        verifyHasBeenAwarded(personAlice.getId(), achievementEgg, achievementPasta);
+        verifyHasBeenAwarded(personBob.getId(), achievementEgg, achievementPasta);
+
+        // TEST removeAwardedTo
+        database.inTransaction(() -> dao.removeAwardedTo(achievementPasta, personAlice));
+        database.inTransaction(() -> dao.removeAwardedTo(achievementPasta, personBob));
+        database.inTransaction(() -> dao.removeAwardedTo(achievementEgg, personBob));
+
+        verifyIsAwardedTo(achievementEgg.getId(), personAlice);
+        verifyIsAwardedTo(achievementPasta.getId());
+        verifyHasBeenAwarded(personAlice.getId(), achievementEgg);
+        verifyHasBeenAwarded(personBob.getId());
+    }
+
+    private void verifyHasBeenAwarded(int id, Achievement... achievements) {
+        final Person actual = database.inTransaction(() -> peopleDao.read(id));
+        assertThat(actual.getId()).isEqualTo(id);
+        assertThat(actual.getAwards()).containsOnly(achievements);
+    }
+
+    private void verifyIsAwardedTo(UUID id, Person... people) {
+        final Achievement actual = database.inTransaction(() -> dao.read(id));
+        assertThat(actual.getId()).isEqualTo(id);
+        assertThat(actual.getAwardedTo()).containsOnly(people);
     }
 
     @Test

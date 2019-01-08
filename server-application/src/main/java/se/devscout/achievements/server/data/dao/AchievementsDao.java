@@ -14,4 +14,8 @@ public interface AchievementsDao extends CrudRootDao<Achievement, AchievementPro
     List<Achievement> findWithProgressForOrganization(Organization organization);
 
     List<Achievement> findWithProgressForPerson(Person person);
+
+    void addAwardedTo(Achievement achievement, Person person);
+
+    void removeAwardedTo(Achievement achievement, Person person);
 }

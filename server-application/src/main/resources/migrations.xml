@@ -273,4 +273,28 @@
         <rollback/>
     </changeSet>
 
+    <changeSet id="13_awarded_achievements" author="mikael">
+        <createTable tableName="person_awardedachievements">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="achievement_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="person_id,achievement_id"
+                       tableName="person_awardedachievements"
+                       constraintName="pk_personawardedachievements"/>
+        <addForeignKeyConstraint baseTableName="person_awardedachievements"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_personawardedachievements_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="person_awardedachievements"
+                                 baseColumnNames="achievement_id"
+                                 constraintName="fk_personawardedachievements_achievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
 </databaseChangeLog>
