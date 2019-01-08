@@ -1,5 +1,6 @@
 package se.devscout.achievements.server.data.model;
 
+import com.google.common.base.Objects;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -43,5 +44,18 @@ public class Organization extends OrganizationProperties {
     public Organization(UUID id, String name) {
         super(name);
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Organization)) return false;
+        Organization that = (Organization) o;
+        return Objects.equal(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

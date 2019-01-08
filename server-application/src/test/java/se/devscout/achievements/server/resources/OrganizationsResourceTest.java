@@ -42,7 +42,7 @@ public class OrganizationsResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new OrganizationsResource(dao, achievementsDao/*, authResourceUtil*/))
+            .addResource(new OrganizationsResource(dao, achievementsDao,/*, authResourceUtil*/peopleDao))
             .build();
 
     @Before
@@ -141,30 +141,50 @@ public class OrganizationsResourceTest {
         final AchievementStep s3 = mockStep(a2p3, a2p4);
         final Achievement a2 = mockAchievement("Cook egg", s2, s3);
 
+        final AchievementStep a3s1 = mockStep();
+        final Achievement a3 = mockAchievement("Peel a banana", a3s1);
+
         when(achievementsDao.findWithProgressForOrganization(any(Organization.class)))
-                .thenReturn(Arrays.asList(a1, a2));
+                .thenReturn(Arrays.asList(a1, a2, a3));
+
+        when(peopleDao.getByAwardedAchievement(eq(org), eq(a1))).thenReturn(Collections.emptyList());
+        when(peopleDao.getByAwardedAchievement(eq(org), eq(a2))).thenReturn(Collections.singletonList(person3));
+        when(peopleDao.getByAwardedAchievement(eq(org), eq(a3))).thenReturn(Collections.singletonList(person3));
 
         final OrganizationAchievementSummaryDTO dto = resources.client()
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/achievement-summary")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get(OrganizationAchievementSummaryDTO.class);
-        assertThat(dto.achievements).hasSize(2);
+        assertThat(dto.achievements).hasSize(3);
+
+        dto.achievements.get(0).progress_detailed.sort(Comparator.comparing(o -> o.person.name));
         assertThat(dto.achievements.get(0).achievement.name).isEqualTo("Climb mountain");
         assertThat(dto.achievements.get(0).progress_summary.people_completed).isEqualTo(1);
         assertThat(dto.achievements.get(0).progress_summary.people_started).isEqualTo(1);
-
-        dto.achievements.get(0).progress_detailed.sort(Comparator.comparing(o -> o.person.name));
-
+        assertThat(dto.achievements.get(0).progress_summary.people_awarded).isEqualTo(0);
         assertThat(dto.achievements.get(0).progress_detailed.get(0).person.name).isEqualTo("Alice");
         assertThat(dto.achievements.get(0).progress_detailed.get(0).percent).isEqualTo(100);
+        assertThat(dto.achievements.get(0).progress_detailed.get(0).awarded).isFalse();
         assertThat(dto.achievements.get(0).progress_detailed.get(1).person.name).isEqualTo("Bob");
         assertThat(dto.achievements.get(0).progress_detailed.get(1).percent).isEqualTo(50);
+        assertThat(dto.achievements.get(0).progress_detailed.get(1).awarded).isFalse();
+
         assertThat(dto.achievements.get(1).achievement.name).isEqualTo("Cook egg");
         assertThat(dto.achievements.get(1).progress_summary.people_completed).isEqualTo(0);
         assertThat(dto.achievements.get(1).progress_summary.people_started).isEqualTo(1);
+        assertThat(dto.achievements.get(1).progress_summary.people_awarded).isEqualTo(1);
         assertThat(dto.achievements.get(1).progress_detailed.get(0).person.name).isEqualTo("Carol");
         assertThat(dto.achievements.get(1).progress_detailed.get(0).percent).isEqualTo(75);
+        assertThat(dto.achievements.get(1).progress_detailed.get(0).awarded).isTrue();
+
+        assertThat(dto.achievements.get(2).achievement.name).isEqualTo("Peel a banana");
+        assertThat(dto.achievements.get(2).progress_summary.people_completed).isEqualTo(0);
+        assertThat(dto.achievements.get(2).progress_summary.people_started).isEqualTo(0);
+        assertThat(dto.achievements.get(2).progress_summary.people_awarded).isEqualTo(1);
+        assertThat(dto.achievements.get(2).progress_detailed.get(0).person.name).isEqualTo("Carol");
+        assertThat(dto.achievements.get(2).progress_detailed.get(0).percent).isEqualTo(0);
+        assertThat(dto.achievements.get(2).progress_detailed.get(0).awarded).isTrue();
     }
 
 }

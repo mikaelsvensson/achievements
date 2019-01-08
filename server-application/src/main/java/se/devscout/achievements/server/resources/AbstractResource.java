@@ -3,17 +3,19 @@ package se.devscout.achievements.server.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import se.devscout.achievements.server.api.*;
+import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractResource {
@@ -135,14 +137,29 @@ public abstract class AbstractResource {
         }
     }
 
-    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Integer personFilter, UUID organizationId) {
+    protected OrganizationAchievementSummaryDTO createAchievementSummaryDTO(List<Achievement> achievements, Person personFilter, Organization organization, PeopleDao peopleDao) {
+        final Map<UUID, Set<Person>> peopleAwardedByAchievement;
+        if (personFilter == null) {
+            peopleAwardedByAchievement = achievements.stream()
+                    .collect(Collectors.toMap(
+                            Achievement::getId,
+                            achievement -> Sets.newHashSet(peopleDao.getByAwardedAchievement(organization, achievement))));
+        } else {
+            final Set<UUID> awarded = personFilter.getAwards().stream()
+                    .map(Achievement::getId)
+                    .collect(Collectors.toSet());
+            peopleAwardedByAchievement = achievements.stream()
+                    .collect(Collectors.toMap(
+                            Achievement::getId,
+                            achievement -> awarded.contains(achievement.getId()) ? Collections.singleton(personFilter) : Collections.emptySet()));
+        }
         final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
         for (Achievement achievement : achievements) {
             final int stepCount = achievement.getSteps().size();
             final Map<Person, Integer> progressSumByPerson = achievement.getSteps().stream()
                     .flatMap(achievementStep -> achievementStep.getProgressList().stream())
-                    .filter(progress -> progress.getPerson().getOrganization().getId().equals(organizationId))
-                    .filter(progress -> personFilter == null || progress.getPerson().getId().equals(personFilter))
+                    .filter(progress -> progress.getPerson().getOrganization().equals(organization))
+                    .filter(progress -> personFilter == null || progress.getPerson().equals(personFilter))
                     .filter(progress -> progress.getValue() > 0)
                     .collect(Collectors.toMap(
                             AchievementStepProgress::getPerson,
@@ -160,18 +177,33 @@ public abstract class AbstractResource {
                         .filter(entry -> 0 < entry.getValue() && entry.getValue() < stepCount * AchievementStepProgress.PROGRESS_COMPLETED)
                         .count();
 
-                if (progressSummary.people_started + progressSummary.people_completed > 0) {
-                    List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = null;
-                    progressDetailed = progressSumByPerson.entrySet().stream().map(entry -> {
+                final Set<Person> peopleAwardedThisAchievement = peopleAwardedByAchievement.getOrDefault(achievement.getId(), Sets.newHashSet());
+
+                progressSummary.people_awarded = peopleAwardedThisAchievement.size();
+
+                if (progressSummary.people_started + progressSummary.people_completed > 0 || progressSummary.people_awarded > 0) {
+                    List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = progressSumByPerson.entrySet().stream().map(entry -> {
                         final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
                         personProgress.percent = (int) Math.round(1.0 * entry.getValue() / stepCount);
                         personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
+                        personProgress.awarded = peopleAwardedThisAchievement.stream().anyMatch(person -> person.getId().equals(entry.getKey().getId()));
                         return personProgress;
                     }).collect(Collectors.toList());
+
+                    final List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailedOnlyAwarded = peopleAwardedThisAchievement.stream()
+                            .filter(person -> progressDetailed.stream().noneMatch(dto -> person.getId().equals(dto.person.id)))
+                            .map(person -> {
+                                final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
+                                personProgress.percent = 0;
+                                personProgress.person = new PersonBaseDTO(person.getId(), person.getName());
+                                personProgress.awarded = true;
+                                return personProgress;
+                            }).collect(Collectors.toList());
+
                     final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
                     achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
                     achievementSummary.progress_summary = progressSummary;
-                    achievementSummary.progress_detailed = progressDetailed;
+                    achievementSummary.progress_detailed = Lists.newArrayList(Iterables.concat(progressDetailed, progressDetailedOnlyAwarded));
                     summary.achievements.add(achievementSummary);
                 }
             }

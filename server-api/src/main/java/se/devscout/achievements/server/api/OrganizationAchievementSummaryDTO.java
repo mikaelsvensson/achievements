@@ -13,12 +13,15 @@ public class OrganizationAchievementSummaryDTO {
     }
 
     public static class ProgressSummaryDTO {
+        // TODO: How many of these properties are actually used by the GUI?
         public int people_completed;
         public int people_started;
+        public int people_awarded;
     }
 
     public static class PersonProgressDTO {
         public PersonBaseDTO person;
         public int percent;
+        public boolean awarded;
     }
 }

@@ -34,7 +34,7 @@ public class OrganizationsSignUpResourceTest {
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class)/*, authResourceUtil*/))
+            .addResource(new OrganizationsResource(organizationsDao, mock(AchievementsDao.class),/*, authResourceUtil*/peopleDao))
             .build();
 
     public OrganizationsSignUpResourceTest() throws UnsupportedEncodingException {

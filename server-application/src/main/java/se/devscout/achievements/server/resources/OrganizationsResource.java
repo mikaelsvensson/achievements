@@ -26,12 +26,14 @@ import java.util.stream.Collectors;
 public class OrganizationsResource extends AbstractResource {
     private OrganizationsDao dao;
     private AchievementsDao achievementsDao;
+    private PeopleDao peopleDao;
 //    private AuthResourceUtil authResourceUtil;
 
-    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao/*, AuthResourceUtil authResourceUtil*/) {
+    public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao,/*, AuthResourceUtil authResourceUtil*/PeopleDao peopleDao) {
         this.dao = dao;
         this.achievementsDao = achievementsDao;
 //        this.authResourceUtil = authResourceUtil;
+        this.peopleDao = peopleDao;
     }
 
     @GET
@@ -86,7 +88,7 @@ public class OrganizationsResource extends AbstractResource {
 
             final List<Achievement> achievements = achievementsDao.findWithProgressForOrganization(organization);
 
-            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null, organization.getId());
+            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null, organization, peopleDao);
 
             return summary;
         } catch (ObjectNotFoundException e) {

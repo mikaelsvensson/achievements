@@ -247,7 +247,7 @@ public class MyResource extends AbstractAuthResource {
 
         final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
 
-        final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, person.getId(), person.getOrganization().getId());
+        final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, person, person.getOrganization(), peopleDao);
 
         return summary;
     }

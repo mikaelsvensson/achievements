@@ -71,6 +71,7 @@ public class MockUtil {
 
     public static Achievement mockAchievement(String name, AchievementStep... steps) {
         final Achievement achievementMock = mock(Achievement.class);
+        when(achievementMock.getId()).thenReturn(UUID.randomUUID());
         when(achievementMock.getName()).thenReturn(name);
         when(achievementMock.getSteps()).thenReturn(Arrays.asList(
                 steps
