@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.10.3</version>
+            <version>1.12.1</version>
         </dependency>
         <dependency>
             <groupId>se.devscout.achievements</groupId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.8.0</version>
+            <version>3.12.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -8,7 +8,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -22,13 +21,8 @@ public class JwtTokenServiceImpl implements JwtTokenService {
     private final JWTVerifier verifier;
 
     public JwtTokenServiceImpl(String secret) {
-        try {
-            algorithm = Algorithm.HMAC512(secret);
-            verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
+        algorithm = Algorithm.HMAC512(secret);
+        verifier = JWT.require(algorithm).withIssuer(ISSUER).build();
     }
 
     @Override

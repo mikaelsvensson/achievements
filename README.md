@@ -50,13 +50,14 @@ Start back-end
 Set the CUSTOMER_SUPPORT_EMAIL to your customer support e-mail address in order to show it on error pages:
 
     $ export CUSTOMER_SUPPORT_EMAIL=achievements@example.com
+    $ export API_HOST=http://localhost:8080
 
 Start front-end
 
     gui-application$ npm run start
     
     
-Visit http://localhost:9090/
+Visit http://localhost:8081/
 
 ## Debug Locally
 

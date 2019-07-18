@@ -14,8 +14,8 @@
   "dependencies": {
     "bulma": "^0.6.1",
     "flat": "^4.0.0",
-    "handlebars": "4.0.10",
-    "jquery": "3.2.1",
+    "handlebars": ">=4.0.14",
+    "jquery": ">=3.4.0",
     "jwt-decode": "^2.2.0",
     "@mdi/font": "^2.8.94",
     "node-sass": "^4.7.2",
