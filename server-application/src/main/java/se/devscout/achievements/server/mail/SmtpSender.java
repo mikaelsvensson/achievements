@@ -38,6 +38,7 @@ public class SmtpSender implements EmailSender {
     private HtmlEmail createEmail() throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setSocketConnectionTimeout(5_000);
+        email.setSocketTimeout(5_000);
         email.setHostName(configuration.getHost());
         email.setSmtpPort(configuration.getPort());
         email.setSslSmtpPort(String.valueOf(configuration.getPort()));
