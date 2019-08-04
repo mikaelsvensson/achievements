@@ -102,7 +102,7 @@ public class ExternalIdpResourceTest {
                 .request()
                 .post(Entity.form(data));
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin/check-mail-box");
     }
@@ -121,7 +121,7 @@ public class ExternalIdpResourceTest {
                 .request()
                 .post(null);
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://server/api/auth/provider/signin/callback");
     }
@@ -183,7 +183,7 @@ public class ExternalIdpResourceTest {
 
         verify(identityProvider).handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
@@ -210,7 +210,7 @@ public class ExternalIdpResourceTest {
 
         verify(identityProvider).handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
         final URI redirectURI = URI.create(response.getHeaderString("Location"));
@@ -248,7 +248,7 @@ public class ExternalIdpResourceTest {
         verify(identityProvider).handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(credentialsDao).get(eq(CredentialsType.PASSWORD), eq(email));
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
         final URI redirectURI = URI.create(response.getHeaderString("Location"));

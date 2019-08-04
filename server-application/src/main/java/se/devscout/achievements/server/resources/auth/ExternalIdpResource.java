@@ -96,7 +96,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
         try {
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
-            return Response.temporaryRedirect(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signin/callback"))).build();
+            return Response.seeOther(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signin/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }
@@ -113,7 +113,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
         try {
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
-            return Response.temporaryRedirect(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signup/callback"))).build();
+            return Response.seeOther(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signup/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }
@@ -191,7 +191,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     private Response createSignedInResponse(AuthTokenDTO tokenDTO) {
-        return Response.temporaryRedirect(guiUri("signin/" + tokenDTO.token)).build();
+        return Response.seeOther(guiUri("signin/" + tokenDTO.token)).build();
     }
 
     private IdentityProvider getIdentityProvider(String identityProvider) {

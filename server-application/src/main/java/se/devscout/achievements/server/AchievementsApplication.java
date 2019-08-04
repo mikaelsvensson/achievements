@@ -52,6 +52,7 @@ import se.devscout.achievements.server.resources.exceptionhandling.JerseyViolati
 import se.devscout.achievements.server.resources.exceptionhandling.ValidationExceptionMapper;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.container.DynamicFeature;
@@ -113,11 +114,14 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
         initFilterCorsHeaders(environment);
 
+        initJerseyParameterFix(environment);
+
         initSentry();
 
         if (config.getRateLimiting() != null) {
             initFilterRateLimiter(environment, config.getRateLimiting());
         }
+
         environment.jersey().register(new AuditFeature(auditingDao, hibernate));
 
         environment.jersey().register(RolesAllowedDynamicFeature.class);
@@ -181,6 +185,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new ImportScoutBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new HttpAuditTask(sessionFactory, auditingDao));
+    }
+
+    private void initJerseyParameterFix(Environment environment) {
+        final Filter filter = new JerseyParameterFixFilter();
+        environment.servlets()
+                .addFilter("JerseyParameterFixFilter", filter)
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/api/*");
     }
 
     private void initSentry() {
