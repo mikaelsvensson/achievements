@@ -10,13 +10,19 @@ public class ValidationResult {
     public static final ValidationResult INVALID = new ValidationResult(null, null, false, null, new byte[0]);
     private byte[] credentialsData;
     private CredentialsType credentialsType;
+    private String callbackState;
 
     public ValidationResult(String userEmail, String userId, boolean isValid, CredentialsType credentialsType, byte[] credentialsData) {
+        this(userEmail, userId, isValid, credentialsType, credentialsData, null);
+    }
+
+    public ValidationResult(String userEmail, String userId, boolean isValid, CredentialsType credentialsType, byte[] credentialsData, String callbackState) {
         this.userEmail = userEmail;
         this.userId = userId;
         this.isValid = isValid;
         this.credentialsType = credentialsType;
         this.credentialsData = credentialsData;
+        this.callbackState = callbackState;
     }
 
     public CredentialsType getCredentialsType() {
@@ -37,5 +43,14 @@ public class ValidationResult {
 
     public boolean isValid() {
         return isValid;
+    }
+
+    public String getCallbackState() {
+        return callbackState;
+    }
+
+    public ValidationResult withCallbackState(String callbackState) {
+        this.callbackState = callbackState;
+        return this;
     }
 }

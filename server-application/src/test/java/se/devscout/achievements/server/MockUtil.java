@@ -65,6 +65,18 @@ public class MockUtil {
         return mock;
     }
 
+    public static Credentials mockCredentials(Person person, String username) {
+        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+
+        final Credentials mock = mock(Credentials.class);
+        when(mock.getPerson()).thenReturn(person);
+        when(mock.getId()).thenReturn(UUID.randomUUID());
+        when(mock.getData()).thenReturn(passwordValidator.getCredentialsData());
+        when(mock.getType()).thenReturn(passwordValidator.getCredentialsType());
+        when(mock.getUserId()).thenReturn(username);
+        return mock;
+    }
+
     private static int getRandomNonZeroValue() {
         return new Random().nextInt(10000) + 1;
     }
@@ -99,21 +111,17 @@ public class MockUtil {
 
     public static void setupDefaultCredentials(CredentialsDao credentialsDao) throws ObjectNotFoundException {
         {
-            final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
             final Organization organization = mockOrganization("Acme Inc.");
             final Person person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
-            final Credentials credentials = new Credentials(USERNAME_READER, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
-            credentials.setId(UUID.randomUUID());
+            final Credentials credentials = mockCredentials(person, USERNAME_READER);
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_READER))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
 
         {
-            final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
             final Organization organization = mockOrganization("Acme Inc.");
             final Person person = mockPerson(organization, "Alice Editor", "alice_editor", Roles.EDITOR);
-            final Credentials credentials = new Credentials(USERNAME_EDITOR, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), person);
-            credentials.setId(UUID.randomUUID());
+            final Credentials credentials = mockCredentials(person, USERNAME_EDITOR);
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_EDITOR))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }

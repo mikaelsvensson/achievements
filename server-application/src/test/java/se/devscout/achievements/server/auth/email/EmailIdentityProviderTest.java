@@ -5,19 +5,27 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.auth.IdentityProviderException;
+import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
+import se.devscout.achievements.server.data.model.Credentials;
+import se.devscout.achievements.server.data.model.CredentialsType;
+import se.devscout.achievements.server.data.model.Organization;
+import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
 import se.devscout.achievements.server.resources.UuidString;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,23 +39,53 @@ public class EmailIdentityProviderTest {
 
     private JwtTokenService jwtTokenService = mock(JwtTokenService.class);
     private EmailSender emailSender = mock(EmailSender.class);
+    private HttpServletRequest req = mock(HttpServletRequest.class);
+    private HttpServletResponse resp = mock(HttpServletResponse.class);
+    private CredentialsDao credentialsDao;
 
     @Before
     public void setUp() throws Exception {
-        provider = new EmailIdentityProvider(jwtTokenService, emailSender, URI.create("http://gui"), mock(CredentialsDao.class));
+        credentialsDao = mock(CredentialsDao.class);
+        provider = new EmailIdentityProvider(jwtTokenService, emailSender, URI.create("http://gui"), credentialsDao);
     }
 
     @Test
-    public void getRedirectUri_happyPath() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException {
+    public void getRedirectUri_sendEmail_happyPath() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException, ObjectNotFoundException {
+        final String email = "alice@example.com";
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
-        when(jwtTokenService.encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
+        when(jwtTokenService.encode(eq(email), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
+        when(req.getParameter(eq("email"))).thenReturn(email);
+        when(req.getParameter(eq("password"))).thenReturn(null);
+        final Organization organization = MockUtil.mockOrganization("Acme");
+        final Person person = MockUtil.mockPerson(organization, "Alice", null, email, Roles.READER);
+        final Credentials credentials = MockUtil.mockCredentials(person, email);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenReturn(credentials);
 
-        final URI redirectUri = provider.getRedirectUri("state", URI.create("http://example.com/callback"), Collections.singletonMap("email", "alice@example.com"));
+        final URI redirectUri = provider.getRedirectUri(req, resp, "state", URI.create("http://example.com/callback"));
 
         assertThat(redirectUri.getFragment()).isEqualTo("signin/check-mail-box");
-        verify(jwtTokenService).encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class));
-        verify(emailSender).send(anyString(), eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
+        verify(jwtTokenService).encode(eq(email), Matchers.isNull(Map.class), any(Duration.class));
+        verify(emailSender).send(anyString(), eq(email), anyString(), contains("?code=emailToken&state=state"));
+    }
+
+    @Test
+    public void getRedirectUri_checkPassword_happyPath() throws IdentityProviderException, JwtTokenServiceException, EmailSenderException, ObjectNotFoundException {
+        final String email = "alice@example.com";
+        final DecodedJWT jwt = mockJwt();
+        when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
+        when(jwtTokenService.encode(eq(email), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
+        when(req.getParameter(eq("email"))).thenReturn(email);
+        when(req.getParameter(eq("password"))).thenReturn("password");
+        final Organization organization = MockUtil.mockOrganization("Acme");
+        final Person person = MockUtil.mockPerson(organization, "Alice", null, email, Roles.READER);
+        final Credentials credentials = MockUtil.mockCredentials(person, email);
+        when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenReturn(credentials);
+
+        final URI redirectUri = provider.getRedirectUri(req, resp, "state", URI.create("http://example.com/callback"));
+
+        assertThat(redirectUri.toString()).isEqualTo("http://example.com/callback?code=emailToken&state=state");
+        verify(jwtTokenService).encode(eq(email), Matchers.isNull(Map.class), any(Duration.class));
     }
 
     @Test(expected = IdentityProviderException.class)
@@ -55,10 +93,11 @@ public class EmailIdentityProviderTest {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("state"))).thenReturn(jwt);
         when(jwtTokenService.encode(eq("alice@example.com"), Matchers.isNull(Map.class), any(Duration.class))).thenReturn("emailToken");
+        when(req.getParameter(eq("email"))).thenReturn("alice@example.com");
         doThrow(new EmailSenderException("error", new Exception())).when(emailSender).send(anyString(), anyString(), anyString(), anyString());
 
         try {
-            provider.getRedirectUri("state", URI.create("http://example.com/callback"), Collections.singletonMap("email", "alice@example.com"));
+            provider.getRedirectUri(req, resp, "state", URI.create("http://example.com/callback"));
         } finally {
             verify(emailSender).send(anyString(), eq("alice@example.com"), anyString(), contains("?code=emailToken&state=state"));
         }
@@ -81,8 +120,9 @@ public class EmailIdentityProviderTest {
     public void handleCallback_happyPath() throws JwtTokenServiceException {
         final DecodedJWT jwt = mockJwt();
         when(jwtTokenService.decode(eq("authorization_code"))).thenReturn(jwt);
+        when(req.getParameter(eq("code"))).thenReturn("authorization_code");
         try {
-            provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
+            provider.handleCallback(req, resp);
         } finally {
             verify(jwtTokenService).decode(eq("authorization_code"));
         }
@@ -91,7 +131,8 @@ public class EmailIdentityProviderTest {
     @Test
     public void handleCallback_tokenProblem() throws JwtTokenServiceException {
         when(jwtTokenService.decode(eq("authorization_code"))).thenThrow(new JwtTokenServiceException(new Exception()));
-        final ValidationResult result = provider.handleCallback("authorization_code", URI.create("http://example.com/callback"));
+        when(req.getParameter(eq("code"))).thenReturn("authorization_code");
+        final ValidationResult result = provider.handleCallback(req, resp);
         assertThat(result.isValid()).isFalse();
         verify(jwtTokenService).decode(eq("authorization_code"));
     }

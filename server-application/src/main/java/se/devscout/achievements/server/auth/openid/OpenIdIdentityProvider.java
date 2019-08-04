@@ -7,15 +7,19 @@ import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.IdentityProviderException;
 import se.devscout.achievements.server.auth.ValidationResult;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Base64;
-import java.util.Map;
 
 public class OpenIdIdentityProvider implements IdentityProvider {
+    private static final String OPENID_APP_STATE_PARAM = "state";
+    private static final String OPENID_IDP_STATE_PARAM = "code";
     //    public static final LoggingFeature LOGGING_FEATURE = new LoggingFeature(
 //            Logger.getLogger(OpenIdIdentityProvider.class.getName()),
 //            Level.INFO,
@@ -38,28 +42,28 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public URI getRedirectUri(String callbackState, URI callbackUri, Map<String, String> providerData) {
+    public URI getRedirectUri(HttpServletRequest req, HttpServletResponse resp, String callbackState, URI callbackUri) {
         return UriBuilder.fromUri(authEndpoint)
                 .queryParam("client_id", clientId)
-                .queryParam("response_type", "code")
+                .queryParam("response_type", OPENID_IDP_STATE_PARAM)
                 .queryParam("scope", "openid email")
                 .queryParam("redirect_uri", callbackUri.toString())
-                .queryParam("state", callbackState)
+                .queryParam(OPENID_APP_STATE_PARAM, callbackState)
                 //TODO: How and when is this nonce validated?
                 .queryParam("nonce", Base64.getUrlEncoder().encodeToString(RandomUtils.nextBytes(30)))
                 .build();
     }
 
     @Override
-    public ValidationResult handleCallback(String authCode, URI callbackUri) throws IdentityProviderException {
+    public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) throws IdentityProviderException {
         final URI tokenUri = URI.create(tokenEndpoint);
 
         final MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
         data.putSingle("client_id", clientId);
         data.putSingle("scope", "openid email");
         data.putSingle("grant_type", "authorization_code");
-        data.putSingle("code", authCode);
-        data.putSingle("redirect_uri", callbackUri.toString());
+        data.putSingle(OPENID_IDP_STATE_PARAM, req.getParameter(OPENID_IDP_STATE_PARAM));
+        data.putSingle("redirect_uri", req.getRequestURI());
         data.putSingle("client_secret", clientSecret);
 
         final OpenIdTokenResponse openIdTokenResponse = client
@@ -71,10 +75,15 @@ public class OpenIdIdentityProvider implements IdentityProvider {
 
         if (Strings.isNullOrEmpty(openIdTokenResponse.error)) {
             final String idToken = openIdTokenResponse.id_token;
-            return parseToken(idToken);
+            return parseToken(idToken).withCallbackState(req.getParameter(OPENID_APP_STATE_PARAM));
         } else {
             throw new IdentityProviderException("Error when handling callback: " + openIdTokenResponse.error);
         }
+    }
+
+    @Override
+    public Response getMetadataResponse() {
+        return null;
     }
 
     protected ValidationResult parseToken(String idToken) {

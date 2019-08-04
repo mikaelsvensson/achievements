@@ -22,19 +22,20 @@ import se.devscout.achievements.server.mail.template.WelcomeOrganizationTemplate
 import se.devscout.achievements.server.resources.UuidString;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Form;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static se.devscout.achievements.server.resources.auth.ExternalIdpCallbackExceptionType.*;
 
 //TODO: Test this resource!
-@Path("openid/{identityProvider}")
+@Path("auth/{identityProvider}")
 public class ExternalIdpResource extends AbstractAuthResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalIdpResource.class);
@@ -71,18 +72,31 @@ public class ExternalIdpResource extends AbstractAuthResource {
         this.i18n = i18n;
     }
 
+    @GET
+    @Path("metadata")
+    @UnitOfWork
+    public Response doMetadataRequest(@PathParam("identityProvider") String identityProvider,
+                                      @Context HttpServletRequest req,
+                                      @Context HttpServletResponse res) throws ExternalIdpCallbackException {
+        try {
+            IdentityProvider idp = getIdentityProvider(identityProvider);
+            final Response response = idp.getMetadataResponse();
+            return response != null ? response : Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e) {
+            throw new ExternalIdpCallbackException(e);
+        }
+    }
+
     @POST
     @Path("signin")
     @UnitOfWork
     public Response doSignInRequest(@PathParam("identityProvider") String identityProvider,
-                                    Form form,
-                                    @Context HttpServletRequest req) throws ExternalIdpCallbackException {
+                                    @Context HttpServletRequest req,
+                                    @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
-            values.put("ip", req != null ? req.getRemoteAddr() : "ANONYMOUS");
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
-            return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signin/callback"), values)).build();
+            return Response.temporaryRedirect(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signin/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }
@@ -94,14 +108,12 @@ public class ExternalIdpResource extends AbstractAuthResource {
     public Response doSignUpRequest(@PathParam("identityProvider") String identityProvider,
                                     @FormParam("organization_id") UuidString organizationId,
                                     @FormParam("new_organization_name") String organizationName,
-                                    Form form,
-                                    @Context HttpServletRequest req) throws ExternalIdpCallbackException {
+                                    @Context HttpServletRequest req,
+                                    @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            final Map<String, String> values = form.asMap().keySet().stream().collect(Collectors.toMap(s -> s, s -> form.asMap().getFirst(s)));
-            values.put("ip", req.getRemoteAddr());
             IdentityProvider idp = getIdentityProvider(identityProvider);
             final String state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
-            return Response.seeOther(idp.getRedirectUri(state, getCallbackUri(identityProvider, "signup/callback"), values)).build();
+            return Response.temporaryRedirect(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signup/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
         }
@@ -112,16 +124,16 @@ public class ExternalIdpResource extends AbstractAuthResource {
     @Path("signin/callback")
     @UnitOfWork
     public Response handleSignInCallback(@PathParam("identityProvider") String identityProvider,
-                                         @QueryParam("code") String authCode) throws ExternalIdpCallbackException {
+                                         @Context HttpServletRequest req,
+                                         @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         IdentityProvider idp = getIdentityProvider(identityProvider);
         try {
-            final ValidationResult result = idp.handleCallback(authCode, getCallbackUri(identityProvider, "signin/callback"));
+            final ValidationResult result = idp.handleCallback(req, res);
             try {
                 final AuthTokenDTO tokenDTO = createTokenDTO(result.getCredentialsType(), result.getUserId());
                 return createSignedInResponse(tokenDTO);
             } catch (ExternalIdpCallbackException e) {
-                if (e.getCause() instanceof ObjectNotFoundException) {
-                    ObjectNotFoundException cause = (ObjectNotFoundException) e.getCause();
+                if (e.getType() == UNKNOWN_USER) {
                     final AuthTokenDTO tokenDTO = newSignup(result);
                     return createSignedInResponse(tokenDTO);
                 }
@@ -134,22 +146,30 @@ public class ExternalIdpResource extends AbstractAuthResource {
         }
     }
 
+    @POST
+    @Path("signin/callback")
+    @UnitOfWork
+    public Response handlePostedSignInCallback(@PathParam("identityProvider") String identityProvider,
+                                               @Context HttpServletRequest req,
+                                               @Context HttpServletResponse res) throws ExternalIdpCallbackException {
+        return handleSignInCallback(identityProvider, req, res);
+    }
+
     private URI getCallbackUri(final String identityProvider, String path) {
-        return URI.create(StringUtils.appendIfMissing(serverApplicationHost.toString(), "/") + "api/openid/" + identityProvider + "/" + path);
+        return URI.create(StringUtils.appendIfMissing(serverApplicationHost.toString(), "/") + "api/auth/" + identityProvider + "/" + path);
     }
 
     @GET
     @Path("signup/callback")
     @UnitOfWork
     public Response handleSignUpCallback(@PathParam("identityProvider") String identityProvider,
-                                         @QueryParam("code") String authCode,
-                                         @QueryParam("state") String callbackState,
-                                         @Context HttpServletRequest req) throws ExternalIdpCallbackException {
+                                         @Context HttpServletRequest req,
+                                         @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            final JwtSignUpToken jwt = callbackStateTokenService.decode(callbackState);
 
             IdentityProvider idp = getIdentityProvider(identityProvider);
-            final ValidationResult result = idp.handleCallback(authCode, getCallbackUri(identityProvider, "signup/callback"));
+            final ValidationResult result = idp.handleCallback(req, res);
+            final JwtSignUpToken jwt = callbackStateTokenService.decode(result.getCallbackState());
             if (jwt.getOrganizationId() != null) {
                 final AuthTokenDTO tokenDTO = existingOrganizationSignup(jwt.getOrganizationId(), result);
                 return createSignedInResponse(tokenDTO);
@@ -157,6 +177,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
                 final AuthTokenDTO tokenDTO = newOrganizationSignup(jwt.getOrganizationName(), result, req);
                 return createSignedInResponse(tokenDTO);
             } else {
+                // When does this happen? Signing up for the site without an organization? Visiting the home page and logging in using an email already in the system?
                 final AuthTokenDTO tokenDTO = newSignup(result);
                 return createSignedInResponse(tokenDTO);
             }
@@ -170,7 +191,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     private Response createSignedInResponse(AuthTokenDTO tokenDTO) {
-        return Response.temporaryRedirect(URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin/" + tokenDTO.token)).build();
+        return Response.temporaryRedirect(guiUri("signin/" + tokenDTO.token)).build();
     }
 
     private IdentityProvider getIdentityProvider(String identityProvider) {
@@ -181,9 +202,9 @@ public class ExternalIdpResource extends AbstractAuthResource {
         }
     }
 
-    public AuthTokenDTO newOrganizationSignup(String newOrganizationName,
-                                              ValidationResult validationResult,
-                                              HttpServletRequest request) throws ExternalIdpCallbackException {
+    private AuthTokenDTO newOrganizationSignup(String newOrganizationName,
+                                               ValidationResult validationResult,
+                                               HttpServletRequest request) throws ExternalIdpCallbackException {
 
         if (Strings.isNullOrEmpty(newOrganizationName)) {
             throw new BadRequestException("Name of new organization was not specified.");
@@ -205,21 +226,21 @@ public class ExternalIdpResource extends AbstractAuthResource {
 
                 return generateTokenResponse(credentials);
             } catch (DaoException e) {
-                throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.SYSTEM_ERROR, "Could not create organization '" + newOrganizationName + "'.", e);
+                throw new ExternalIdpCallbackException(SYSTEM_ERROR, "Could not create organization '" + newOrganizationName + "'.", e);
             }
         } else {
-            throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.ORGANIZATION_EXISTS, "Organization " + newOrganizationName + " already exists.");
+            throw new ExternalIdpCallbackException(ORGANIZATION_EXISTS, "Organization " + newOrganizationName + " already exists.");
         }
     }
 
     private void sendOrganizationWelcomeMail(String to, HttpServletRequest request, UUID orgId) {
         try {
             final String body = new WelcomeOrganizationTemplate().render(
-                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#marken"),
-                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId)),
-                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId) + "/personer/importera"),
-                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#karer/" + UuidString.toString(orgId)),
-                    URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om"));
+                    guiUri("marken"),
+                    guiUri("karer/" + UuidString.toString(orgId)),
+                    guiUri("karer/" + UuidString.toString(orgId) + "/personer/importera"),
+                    guiUri("karer/" + UuidString.toString(orgId)),
+                    guiUri("om"));
 
             emailSender.send(
                     request != null ? request.getRemoteAddr() : "ANONYMOUS",
@@ -232,48 +253,59 @@ public class ExternalIdpResource extends AbstractAuthResource {
         }
     }
 
+    private URI guiUri(String fragment) {
+        return URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#" + fragment);
+    }
+
     private Credentials createCredentials(Person person, String userName, CredentialsType credentialsType, byte[] secret) throws DaoException {
         final CredentialsProperties credentialsProperties = new CredentialsProperties(StringUtils.defaultString(userName, person.getEmail()), credentialsType, secret);
         return credentialsDao.create(person, credentialsProperties);
     }
 
     // TODO: existingOrganizationSignup and newSignup are almost identical in functionality (only difference is organization identifier check? and what good does that check actually do?)
-    public AuthTokenDTO existingOrganizationSignup(UuidString id,
-                                                   ValidationResult validationResult) throws ExternalIdpCallbackException {
+    private AuthTokenDTO existingOrganizationSignup(UuidString id,
+                                                    ValidationResult validationResult) throws ExternalIdpCallbackException {
         try {
             if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
-                throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.INVALID_INPUT, "E-mail cannot be empty");
+                throw new ExternalIdpCallbackException(INVALID_INPUT, "E-mail cannot be empty");
             }
             try {
                 final List<Person> people = peopleDao.getByEmail(validationResult.getUserEmail());
-                if (people.size() == 1) {
-                    final Person person = people.get(0);
-
+                if (people.size() <= 1) {
                     Organization organization = organizationsDao.read(id.getUUID());
-                    if (person.getOrganization().getId() == organization.getId()) {
 
-                        final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
-
-                        return generateTokenResponse(credentials);
+                    final Person person;
+                    if (people.size() == 0) {
+                        // (1) Create new person and...
+                        final String email = validationResult.getUserEmail();
+                        final String name = StringUtils.substringBefore(email, "@");
+                        person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.READER));
                     } else {
-                        throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.UNKNOWN_USER, validationResult.getUserEmail() + " is already registered with another organization.");
+                        // (1) Use existing person and...
+                        person = people.get(0);
+                        if (person.getOrganization().getId() != organization.getId()) {
+                            throw new ExternalIdpCallbackException(UNKNOWN_USER, validationResult.getUserEmail() + " is already registered with another organization.");
+                        }
                     }
-                } else if (people.isEmpty()) {
-                    throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.INVALID_INPUT, "Cannot find " + validationResult.getUserEmail());
+
+                    // (2) ...associate credentials with this person.
+                    final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
+
+                    return generateTokenResponse(credentials);
                 } else {
-                    throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
+                    throw new ExternalIdpCallbackException(SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
                 }
             } catch (DaoException e) {
-                throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.SYSTEM_ERROR, "Could not configure user with credentials", e);
+                throw new ExternalIdpCallbackException(SYSTEM_ERROR, "Could not configure user with credentials", e);
             }
         } catch (ObjectNotFoundException e) {
-            throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.UNKNOWN_ORGANIZATION, "Could not find organization " + id, e);
+            throw new ExternalIdpCallbackException(UNKNOWN_ORGANIZATION, "Could not find organization " + id, e);
         }
     }
 
-    public AuthTokenDTO newSignup(ValidationResult validationResult) throws ExternalIdpCallbackException {
+    private AuthTokenDTO newSignup(ValidationResult validationResult) throws ExternalIdpCallbackException {
         if (Strings.isNullOrEmpty(validationResult.getUserEmail())) {
-            throw new BadRequestException("Email cannot be empty");
+            throw new ExternalIdpCallbackException(INVALID_INPUT, "E-mail cannot be empty");
         }
         try {
             final List<Person> people = peopleDao.getByEmail(validationResult.getUserEmail());
@@ -284,12 +316,12 @@ public class ExternalIdpResource extends AbstractAuthResource {
 
                 return generateTokenResponse(credentials);
             } else if (people.isEmpty()) {
-                throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.UNKNOWN_USER, "Cannot find " + validationResult.getUserEmail());
+                throw new ExternalIdpCallbackException(UNKNOWN_USER, "Cannot find " + validationResult.getUserEmail());
             } else {
-                throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
+                throw new ExternalIdpCallbackException(SYSTEM_ERROR, "E-mail address cannot be used to sign up as multiple people share the same e-mail address.");
             }
         } catch (DaoException e) {
-            throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.SYSTEM_ERROR, "Could not configure user with credentials", e);
+            throw new ExternalIdpCallbackException(SYSTEM_ERROR, "Could not configure user with credentials", e);
         }
     }
 }

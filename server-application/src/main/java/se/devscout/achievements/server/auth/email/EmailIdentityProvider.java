@@ -21,10 +21,12 @@ import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
 import se.devscout.achievements.server.mail.template.SigninTemplate;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 
 public class EmailIdentityProvider implements IdentityProvider {
 
@@ -47,15 +49,11 @@ public class EmailIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public URI getRedirectUri(String callbackState, URI callbackUri, Map<String, String> providerData) throws IdentityProviderException {
+    public URI getRedirectUri(HttpServletRequest req, HttpServletResponse resp, String callbackState, URI callbackUri) throws IdentityProviderException {
         try {
-            if (providerData == null) {
-                throw new IdentityProviderException("Email or password not specified.");
-            }
-
-            final String email = providerData.get("email");
-            final String password = providerData.get("password");
-            final String clientId = providerData.getOrDefault("ip", "ANYNOMOUS");
+            final String email = req.getParameter("email");
+            final String password = req.getParameter("password");
+            final String clientId = req.getRemoteAddr() != null ? req.getRemoteAddr() : "ANONYMOUS";
 
             if (Strings.isNullOrEmpty(email)) {
                 throw new IdentityProviderException("Email not specified.");
@@ -110,13 +108,20 @@ public class EmailIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public ValidationResult handleCallback(String authCode, URI callbackUri) {
+    public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            String authCode = req.getParameter("code");
+            String callbackState = req.getParameter("state");
             final String email = jwtEmailAddressTokenService.decode(authCode).getEmail();
-            return new ValidationResult(email, email, true, CredentialsType.PASSWORD, new byte[0]);
+            return new ValidationResult(email, email, true, CredentialsType.PASSWORD, new byte[0], callbackState);
         } catch (JwtTokenServiceException e) {
             return ValidationResult.INVALID;
         }
+    }
+
+    @Override
+    public Response getMetadataResponse() {
+        return null;
     }
 
 }
