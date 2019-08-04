@@ -35,6 +35,7 @@ import se.devscout.achievements.server.auth.jwt.JwtTokenServiceImpl;
 import se.devscout.achievements.server.auth.openid.GoogleTokenValidator;
 import se.devscout.achievements.server.auth.openid.MicrosoftTokenValidator;
 import se.devscout.achievements.server.auth.openid.OpenIdIdentityProvider;
+import se.devscout.achievements.server.auth.saml.ScoutIdIdentityProvider;
 import se.devscout.achievements.server.cli.BoostrapDataTask;
 import se.devscout.achievements.server.cli.HttpAuditTask;
 import se.devscout.achievements.server.cli.ImportScoutBadgesTask;
@@ -160,7 +161,10 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 jwtTokenService,
                                 emailSender,
                                 config.getGuiApplicationHost(),
-                                credentialsDao)),
+                                credentialsDao),
+                        "scoutid",
+                        new ScoutIdIdentityProvider(
+                                config.getServerApplicationHost())),
                 credentialsDao,
                 peopleDao,
                 organizationsDao,

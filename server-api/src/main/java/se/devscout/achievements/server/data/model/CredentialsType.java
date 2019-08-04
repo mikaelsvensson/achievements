@@ -4,5 +4,6 @@ public enum CredentialsType {
     PASSWORD,
     MICROSOFT,
     GOOGLE,
+    SCOUT_ID,
     ONETIME_PASSWORD
 }

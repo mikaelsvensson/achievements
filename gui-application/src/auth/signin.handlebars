@@ -14,7 +14,7 @@
                         <div class="field">
                             <div class="control">
                                 <button class="button is-primary is-medium" type="submit"
-                                        formaction="{{host}}/api/openid/google/signin">
+                                        formaction="{{host}}/api/auth/google/signin">
                                     Logga in med Google
                                 </button>
                             </div>
@@ -29,13 +29,30 @@
                         <div class="field">
                             <div class="control">
                                 <button class="button is-primary is-medium" type="submit"
-                                        formaction="{{host}}/api/openid/microsoft/signin">
+                                        formaction="{{host}}/api/auth/microsoft/signin">
                                     Logga in med Microsoft
                                 </button>
                             </div>
                         </div>
                         <div class="content is-small">
                             <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="column">
+                    <article class="notification">
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-primary is-medium" type="submit"
+                                        formaction="{{host}}/api/auth/scoutid/signin">
+                                    Logga in med Scoutnet &nbsp;
+                                    <span class="tag is-light">Beta</span>
+
+                                </button>
+                            </div>
+                        </div>
+                        <div class="content is-small">
+                            <p>Möjligheten att logga in med ditt Scoutnet-konto är under utveckling. Hör gärna av dig med dina frågor och synpunkter.</p>
                         </div>
                     </article>
                 </div>
@@ -57,7 +74,7 @@
 
                         <div class="field">
                             <button class="button is-primary is-medium" type="submit"
-                                    formaction="{{host}}/api/openid/email/signin">
+                                    formaction="{{host}}/api/auth/email/signin">
                                 Logga in med e-post
                             </button>
                         </div>

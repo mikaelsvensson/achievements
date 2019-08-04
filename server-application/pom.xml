@@ -189,6 +189,37 @@
             <artifactId>sentry-logback</artifactId>
             <version>1.7.24</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.onelogin</groupId>
+            <artifactId>java-saml</artifactId>
+            <version>2.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Grizzly is used to test http endpoints with support for @Context annotation. -->
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <version>2.25.1</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
