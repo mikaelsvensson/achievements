@@ -2,6 +2,7 @@ package se.devscout.achievements.server.auth.openid;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.IdentityProviderException;
@@ -31,14 +32,16 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     private String clientSecret;
     private Client client;
     private CredentialsValidator tokenValidator;
+    private final URI serverApplicationHost;
 
-    public OpenIdIdentityProvider(String authEndpoint, String clientId, String clientSecret, Client client, String tokenEndpoint, CredentialsValidator tokenValidator) {
+    public OpenIdIdentityProvider(String authEndpoint, String clientId, String clientSecret, Client client, String tokenEndpoint, CredentialsValidator tokenValidator, URI serverApplicationHost) {
         this.authEndpoint = authEndpoint;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.client = client;
         this.tokenEndpoint = tokenEndpoint;
         this.tokenValidator = tokenValidator;
+        this.serverApplicationHost = serverApplicationHost;
     }
 
     @Override
@@ -56,16 +59,22 @@ public class OpenIdIdentityProvider implements IdentityProvider {
 
     @Override
     public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) throws IdentityProviderException {
-        final URI tokenUri = URI.create(tokenEndpoint);
+        // invokedCallbackUri needs to match what we sent in getRedirectUri(...)
+        final String invokedCallbackUri = UriBuilder
+                .fromUri(this.serverApplicationHost)
+                .path(req.getRequestURI())
+                .build()
+                .toString();
 
         final MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
         data.putSingle("client_id", clientId);
         data.putSingle("scope", "openid email");
         data.putSingle("grant_type", "authorization_code");
         data.putSingle(OPENID_IDP_STATE_PARAM, req.getParameter(OPENID_IDP_STATE_PARAM));
-        data.putSingle("redirect_uri", req.getRequestURI());
+        data.putSingle("redirect_uri", invokedCallbackUri);
         data.putSingle("client_secret", clientSecret);
 
+        final URI tokenUri = URI.create(tokenEndpoint);
         final OpenIdTokenResponse openIdTokenResponse = client
                 .target(tokenUri)
 //                .register(LOGGING_FEATURE)
@@ -73,11 +82,12 @@ public class OpenIdIdentityProvider implements IdentityProvider {
                 .post(Entity.form(data))
                 .readEntity(OpenIdTokenResponse.class);
 
-        if (Strings.isNullOrEmpty(openIdTokenResponse.error)) {
+        final String error = StringUtils.defaultString(openIdTokenResponse.error_description, openIdTokenResponse.error);
+        if (Strings.isNullOrEmpty(error)) {
             final String idToken = openIdTokenResponse.id_token;
             return parseToken(idToken).withCallbackState(req.getParameter(OPENID_APP_STATE_PARAM));
         } else {
-            throw new IdentityProviderException("Error when handling callback: " + openIdTokenResponse.error);
+            throw new IdentityProviderException("Error when handling callback: " + error);
         }
     }
 

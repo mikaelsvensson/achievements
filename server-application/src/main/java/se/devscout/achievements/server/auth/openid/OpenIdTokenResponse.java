@@ -9,4 +9,5 @@ public class OpenIdTokenResponse {
     public String refresh_token;
     public String id_token;
     public String error;
+    public String error_description;
 }

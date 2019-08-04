@@ -151,7 +151,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 config.getAuthentication().getGoogleClientSecret(),
                                 ClientBuilder.newClient(),
                                 "https://www.googleapis.com/oauth2/v4/token",
-                                new GoogleTokenValidator(config.getAuthentication().getGoogleClientId())),
+                                new GoogleTokenValidator(config.getAuthentication().getGoogleClientId()),
+                                config.getServerApplicationHost()),
                         "microsoft",
                         new OpenIdIdentityProvider(
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
@@ -159,7 +160,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 config.getAuthentication().getMicrosoftClientSecret(),
                                 ClientBuilder.newClient(),
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-                                new MicrosoftTokenValidator()),
+                                new MicrosoftTokenValidator(),
+                                config.getServerApplicationHost()),
                         "email",
                         new EmailIdentityProvider(
                                 jwtTokenService,
