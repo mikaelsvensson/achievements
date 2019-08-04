@@ -54,7 +54,6 @@ import se.devscout.achievements.server.resources.exceptionhandling.ValidationExc
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
@@ -143,13 +142,13 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(new MyResource(peopleDao, groupsDao, achievementsDao, credentialsDao, emailSender, config.getGuiApplicationHost(), signInTokenService, i18n));
         environment.jersey().register(new StatsResource(organizationsDao));
         environment.jersey().register(new SignInResource(signInTokenService, credentialsDao));
+
         environment.jersey().register(new ExternalIdpResource(
                 ImmutableMap.of("google",
                         new OpenIdIdentityProvider(
                                 "https://accounts.google.com/o/oauth2/v2/auth",
                                 config.getAuthentication().getGoogleClientId(),
                                 config.getAuthentication().getGoogleClientSecret(),
-                                ClientBuilder.newClient(),
                                 "https://www.googleapis.com/oauth2/v4/token",
                                 new GoogleTokenValidator(config.getAuthentication().getGoogleClientId()),
                                 config.getServerApplicationHost()),
@@ -158,7 +157,6 @@ public class AchievementsApplication extends Application<AchievementsApplication
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
                                 config.getAuthentication().getMicrosoftClientId(),
                                 config.getAuthentication().getMicrosoftClientSecret(),
-                                ClientBuilder.newClient(),
                                 "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                                 new MicrosoftTokenValidator(),
                                 config.getServerApplicationHost()),

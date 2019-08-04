@@ -1,8 +1,13 @@
 package se.devscout.achievements.server.auth.openid;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.client.ClientConfig;
+//import org.glassfish.jersey.logging.LoggingFeature;
 import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.IdentityProviderException;
@@ -11,12 +16,15 @@ import se.devscout.achievements.server.auth.ValidationResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Base64;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 public class OpenIdIdentityProvider implements IdentityProvider {
     private static final String OPENID_APP_STATE_PARAM = "state";
@@ -30,18 +38,24 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     private String authEndpoint;
     private String clientId;
     private String clientSecret;
-    private Client client;
+    private Client httpClient;
     private CredentialsValidator tokenValidator;
     private final URI serverApplicationHost;
 
-    public OpenIdIdentityProvider(String authEndpoint, String clientId, String clientSecret, Client client, String tokenEndpoint, CredentialsValidator tokenValidator, URI serverApplicationHost) {
+    public OpenIdIdentityProvider(String authEndpoint, String clientId, String clientSecret, String tokenEndpoint, CredentialsValidator tokenValidator, URI serverApplicationHost) {
         this.authEndpoint = authEndpoint;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.client = client;
+        this.httpClient = createHttpClient();
         this.tokenEndpoint = tokenEndpoint;
         this.tokenValidator = tokenValidator;
         this.serverApplicationHost = serverApplicationHost;
+    }
+
+    private Client createHttpClient() {
+        final JacksonJsonProvider jacksonJsonProvider = new JacksonJaxbJsonProvider()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
     }
 
     @Override
@@ -75,7 +89,7 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         data.putSingle("client_secret", clientSecret);
 
         final URI tokenUri = URI.create(tokenEndpoint);
-        final OpenIdTokenResponse openIdTokenResponse = client
+        final OpenIdTokenResponse openIdTokenResponse = httpClient
                 .target(tokenUri)
 //                .register(LOGGING_FEATURE)
                 .request()
