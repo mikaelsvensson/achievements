@@ -3,10 +3,13 @@ package se.devscout.achievements.server.mail;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.resources.RateLimiter;
 
 public class SmtpSender implements EmailSender {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpSender.class);
     private RateLimiter rateLimiter;
 
     private SmtpSenderConfiguration configuration;
@@ -29,7 +32,8 @@ public class SmtpSender implements EmailSender {
             email.setSubject(subject);
             email.setCharset("UTF-8"); // Specifying a character set seems to be important for Gmail, otherwise it tends to show a the-message-has-been-cropped-message.
             email.setHtmlMsg(body);
-            email.send();
+            final String messageId = email.send();
+            LOGGER.info("Sent e-mail {}.", messageId);
         } catch (EmailException e) {
             throw new EmailSenderException("Could not send e-mail to " + to, e);
         }

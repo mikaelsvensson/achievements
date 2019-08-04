@@ -405,7 +405,7 @@ public class PeopleResource extends AbstractResource {
             tempFileId = UUID.randomUUID();
             try {
                 FileUtils.copyInputStreamToFile(importFile, getTempFile(tempFileId));
-                LOGGER.info("Saved uploaded file as %s", getTempFile(tempFileId).getAbsolutePath());
+                LOGGER.info("Saved uploaded file as {}", getTempFile(tempFileId).getAbsolutePath());
             } catch (Exception e) {
                 throw new InternalServerErrorException("Could not cache uploaded file.", e);
             }
