@@ -43,7 +43,7 @@ public class CsvDataSource implements PeopleDataSource {
         }
     }
 
-    private PersonDTO mapColumns(Map<String, String> map) {
+    protected PersonDTO mapColumns(Map<String, String> map) {
         final String rawGroups = map.remove("groups");
         final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
         dto.attributes = new ArrayList<>();

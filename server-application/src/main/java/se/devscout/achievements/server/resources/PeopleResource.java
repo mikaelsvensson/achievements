@@ -17,10 +17,7 @@ import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.importer.CsvDataSource;
-import se.devscout.achievements.server.data.importer.PeopleDataSource;
-import se.devscout.achievements.server.data.importer.PeopleDataSourceException;
-import se.devscout.achievements.server.data.importer.RepetDataSource;
+import se.devscout.achievements.server.data.importer.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
@@ -73,6 +70,7 @@ public class PeopleResource extends AbstractResource {
         try {
             this.peopleDataSources = new PeopleDataSource[]{
                     new CsvDataSource(objectMapper),
+                    new ScoutnetDataSource(objectMapper),
                     new RepetDataSource(),
             };
         } catch (ParserConfigurationException e) {
@@ -359,7 +357,6 @@ public class PeopleResource extends AbstractResource {
                                        @FormDataParam("importClearGroups") boolean clearGroups,
                                        @FormDataParam("importRawData") FormDataBodyPart importRawData,
                                        @FormDataParam("importUploadedFileId") FormDataBodyPart importUploadedFileId,
-//                                       @FormDataParam("importFile") FormDataContentDisposition importFileDisposition,
                                        @FormDataParam("importFile") InputStream importFile) {
 
         UUID tempFileId = getUploadedDataFileId(importRawData, importUploadedFileId, importFile);
