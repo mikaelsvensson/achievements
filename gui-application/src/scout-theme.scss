@@ -17,6 +17,10 @@ $primary-invert: findColorInvert($scout-blue);
 $family-header-strong: 'scouterna_dinmedium';
 $family-header: 'scouterna_dinextralight';
 
+$modal-card-body-padding: 1em 1.25em;
+$modal-card-head-padding: 0.5em 0.75em;
+$modal-card-title-size: $size-6;
+
 //$family-primary: 'Garamond,Baskerville,Baskerville Old Face,Hoefler Text,Times New Roman,serif';
 //$body-size: 1.1rem;
 
@@ -26,6 +30,10 @@ $blue: lighten($scout-blue, 20%);
 $info: lighten($scout-blue, 20%);
 
 @import "~bulma/bulma";
+
+//
+// Generic stuff
+//
 
 h1, h2 {
   font-family: $family-header;
@@ -71,4 +79,40 @@ h2.subtitle {
   height: 3em;
   animation-duration: 1s;
   margin: 0 auto;
+}
+
+//
+// Modal dialogs
+//
+
+.modal-card-head,
+.modal-card-foot {
+  border: 1px solid $primary
+}
+
+.modal-card-foot {
+  border-color: $border $primary $primary $primary;
+}
+
+.modal-card-head {
+  background-color: $primary;
+  color: white;
+}
+
+.modal-card-title {
+  color: white;
+}
+
+.modal-card-body {
+  border: 1px solid $primary;
+  border-width: 0 1px;
+}
+
+.message-header,
+.message-body {
+  border-color: $primary;
+}
+
+.message-header {
+  background-color: $primary;
 }

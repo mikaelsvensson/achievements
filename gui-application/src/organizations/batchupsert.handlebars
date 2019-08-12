@@ -6,113 +6,11 @@
 
         {{> ../_breadcrumbs.handlebars}}
 
+
         <form enctype="multipart/form-data" method="post">
             <div class="content">
 
-                <p>Använd den här funktionen för att importera data från ert medlemsregister.</p>
-
-                <p>Så här hanteras ny, uppdaterad och saknad information:</p>
-
-                <ul>
-                    <li>Informationen om personer som redan existerar i systemet kommer att uppdateras.</li>
-                    <li>Nya personer kommer läggas in i systemet.</li>
-                    <li>Personer som redan finns i systemet men som inte finns bland de personer du importerar kommer
-                        att
-                        inte att påverkas av importen (importfunktionen tar aldrig bort några personer ur systemet).
-                    </li>
-                </ul>
-
-                <h2>1. Exportera ditt medlemsregister</h2>
-
-                <p>Vi stödjer två olika dataformat. Välj ett för att läsa mer:</p>
-
-            </div>
-            <div class="tabs-container">
-                <div class="tabs is-toggle">
-                    <ul>
-                        <li><a data-tab-content="tab-csv">Egen komma-separerad textfil</a></li>
-                        <li><a data-tab-content="tab-repet">XML-fil från Repet</a></li>
-                    </ul>
-                </div>
-                <div id="tab-csv" class="content" style="display: none;">
-
-                    <p>Gör så här:</p>
-
-                    <ol>
-                        <li>Exportera information från ert medlemsregister i CSV-format (komma-separerad fil).</li>
-                        <li>Öppna filen i ett program som kan visa sådana, ex. Excel, och anpassa innehållet så att
-                            kolumnrubrikerna på första raden har rätt namn (se nedan)
-                        </li>
-                        <li>Spara filen. Kom ihåg att spara i CSV-format och inte i Excel-format.</li>
-                    </ol>
-
-                    <p>För att det ska fungera ställs följande krav på CSV-filen:</p>
-                    <ul>
-                        <li>Första raden ska ange vilka kolumner som används i filen.</li>
-                        <li>Varje rad ska motsvara en person.</li>
-                        <li>Följande kolumner kan användas:
-                            <ul>
-                                <li><code>custom_identifier</code>: Er egen identifierare för personen. Kan vara
-                                    medlemsnummer, telefonnummer, e-postadress, namn eller liknande. Det viktigaste är
-                                    att det är något som unikt identifierar personen. Om en person byter e-postadress,
-                                    namn eller liknande så måste <code>custom_identifier</code> vara oförändrad för att
-                                    importeraren ska uppdatera personen istället för att skapa en ny person.
-                                </li>
-                                <li><code>name</code>: Personens namn.</li>
-                                <li><code>email</code>: Personens e-postadress.</li>
-                                <li><code>role</code>: Personens roll i Mina märken. Tillåtna värden är
-                                    <code>editor</code> och <code>reader</code>). En "editor" kan göra vad som helst
-                                    medan en "reader" bara kan läsa information.
-                                </li>
-                                <li><code>groups</code>: Komma-separerad lista av grupper som personen är med i. Notera
-                                    att detta kolumnvärde måste skrivas inom citationstecken om personen är med i flera
-                                    grupper, ex. <code>"Spårarledare,Utmanarscout"</code>.
-                                </li>
-                                <li><code>attr.custom_attribute</code>: Om ni behöver så kan ni lägga in ytterligare
-                                    information om personen genom att använda av attr-prefixet. Om kolumnen <em>attr.avdelning</em>
-                                    innehåller värdet <em>Tisdagsgruppen</em> för en person så kommer den personen ha
-                                    ett attribut som heter <em>avdelning</em> med värdet <em>Tisdagsgruppen</em>. Tänk
-                                    på att inte ha komman i namnet på attributet.
-                                </li>
-                            </ul>
-                        </li>
-                        <li>Kolumnen <code>id</code> eller <code>custom_identifier</code> måste ha ett värde för varje
-                            person. Det är dessa båda kolumner som används för att avgöra om en person redan finns i
-                            systemet eller ej. Oftast används <code>custom_identifier</code>.
-                        </li>
-                    </ul>
-
-                    <p>Exempel på hur en CSV-fil kan se ut:</p>
-                    <pre>custom_identifier,name,email,role,attr.FavouriteMovie,groups
-alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse,"Zombie Hunters,Trackers"
-bob,Bob,bob@example.com,reader,The Last Boy Scout,Trackers</pre>
-                </div>
-                <div id="tab-repet" class="content" style="display: none;">
-
-                    <p>Gör så här:</p>
-
-                    <ol>
-                        <li>Logga in i Repet.</li>
-                        <li>Gå till <em>Rapporter</em> och välj <em>Närvarokort</em>.</li>
-                        <li>Sätt <em>Huvudgrupp</em> till <em>Alla huvudgrupper</em>.</li>
-                        <li>Klicka på <em>Kör rapport</em>.</li>
-                        <li>Klicka på den "blå diskettikonen" högst upp i knapplistan i fönstret som öppnas.</li>
-                        <li>Klicka på <em>XML file with report data</em>.</li>
-                        <li>Nu skapas en XML-fil baserat på rapporten. Spara denna fil på din dator.</li>
-                    </ol>
-
-                    <p>Den XML-fil som skapas av Repet innehåller mer information än vad Mina Märken behöver men den
-                        onödiga information kommer inte sparas i Mina Märken.</p>
-                </div>
-            </div>
-
-            <div class="content">
-
-                <h2>2. Ladda upp data</h2>
-
-                <p>När du har exporterat data i något av de två formaten så ska du ladda upp den till Mina märken.</p>
-
-                <p>Du kan antingen skriva in data direkt eller så kan du ladda upp en fil med data:</p>
+                <p>Använd den här funktionen för att importera ert medlemsregister.</p>
 
             </div>
             <div class="tabs-container">
@@ -122,15 +20,44 @@ bob,Bob,bob@example.com,reader,The Last Boy Scout,Trackers</pre>
                         <li><a data-tab-content="tab-textfield">Skriv direkt i webbläsaren</a></li>
                     </ul>
                 </div>
-                <div id="tab-upload" class="content">
+                <div id="tab-upload" class="tab-content">
                     <div class="field">
                         <div class="control">
-                            <input type="file" id="import-file" name="importFile">
+                            <div class="file has-name is-fullwidth is-primary">
+                                <label class="file-label">
+                                    <input class="file-input" type="file" id="import-file" name="importFile">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <i class="mdi mdi-upload mdi-light mdi-24px"></i>
+                                        </span>
+                                        <span class="file-label">Välj fil från din dator...</span>
+                                    </span>
+                                    <span class="file-name"><em>Ingen fil vald</em></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <input type="hidden" id="import-uploaded-file-id" name="importUploadedFileId" value="">
+                    <div class="content">
+                        <p>Du kan ladda upp dessa typer av filer:</p>
+                        <ul>
+                            <li>CSV-filer från Scoutnet. <a class="info-alert-link"
+                                                                 data-long="yes"
+                                                            data-template="organizations/batchupsert.help-scoutnet-csv.handlebars">Hur
+                                exporterar jag en CSV-fil från Scoutnet?</a></li>
+                            <li>XML-filer från Repet. <a class="info-alert-link"
+                                                                 data-long="yes"
+                                                         data-template="organizations/batchupsert.help-repet-xml.handlebars">Hur
+                                exporterar jag en XML-fil från Repet?</a></li>
+                            <li>Mina Märkens eget CSV-format. <a class="info-alert-link"
+                                                                 data-long="yes"
+                                                                 data-template="organizations/batchupsert.help-custom-csv.handlebars">Hur
+                                skapar jag en sådan CSV-fil?</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <div id="tab-textfield" class="content" style="display: none;">
+                <div id="tab-textfield" class="tab-content" style="display: none;">
+                    <p>Här skriver du in en CSV-fil för hand:</p>
                     <div class="field">
                         <div class="control">
                     <textarea class="textarea" id="import-data" name="importRawData"
@@ -140,53 +67,44 @@ alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse,"Zomb
 bob,Bob,bob@example.com,reader,The Last Boy Scout,Trackers</textarea>
                         </div>
                     </div>
+                    <div class="content">
+                        <p>
+                            <a class="info-alert-link"
+                               data-long="yes"
+                               data-template="organizations/batchupsert.help-type-csv.handlebars">
+                                Vad kan jag skriva här?
+                            </a>
+                        </p>
+                    </div>
+
                 </div>
             </div>
 
             <div class="content">
-
-                <h2>3. Förhandsgranska</h2>
-
-                <p>Du kan nu se vilka personer som kommer läggas till, ändras respektive tas bort i samband med
-                    importen. Genom att trycka på <em>Förhandsgranska</em> så gör du alltså inga faktiska ändringar</p>
-
-                <div class="control">
-                    <button class="button is-primary is-outlined" type="button" id="import-preview-button">
-                        Förhandsgranska
-                    </button>
-                </div>
-
-                <div id="batchupsert-preview-result"/>
-
-                <h2>4. Övriga inställningar</h2>
-
                 <div class="field">
                     <div class="control">
                         <label class="checkbox">
                             <input type="checkbox" name="importClearGroups" value="true">
                             Synkronisera patrullmedlemmar
                         </label>
+                        <a class="info-alert-link"
+                           data-template="organizations/batchupsert.help-sync-groups.handlebars">Vad innebär detta?</a>
                     </div>
-                    <p class="help">Genom att synkronisera patrullmedlemmar så kommer de patruller som nämns i datat
-                        att, efter importen, enbart att bestå av personer i från det importerade datat. Detta innebär
-                        att scouter som i dagsläget är med i en patrull men som inte är med i patrullen enligt det data
-                        som du är på väg att importera kommer att plockas bort från patrullen.</p>
-                    <p class="help">Observera att
-                        synkroniseringen av patrullmedlemmar inte tar bort några scouter ur systemet. Synkroniseringen
-                        är till för att säkerställa att de patrullerna som nämns i importen enbart består av scouter
-                        i importen. Observera också att patruller som inte nämns i importen kommer vara oförändrade.
-                    </p>
+                    <p></p>
                 </div>
 
-                <h2>5. Importera data</h2>
-
-                <p>Nu är du redo att importera data.</p>
-
-                <div class="control">
-                    <button class="button is-primary" type="button" id="import-button">Importera</button>
+                <div class="is-grouped buttons">
+                    <button class="button is-primary is-outlined" type="button" id="import-preview-button">
+                        Förhandsgranska import
+                    </button>
+                    <button class="button is-primary" type="button" id="import-button">Importera nu</button>
                 </div>
 
-                <div id="batchupsert-result"/>
+                <p>
+                    <a class="info-alert-link" data-template="organizations/batchupsert.help-about.handlebars">
+                        Hur hanteras nya, uppdaterade och borttagna personer?
+                    </a>
+                </p>
             </div>
 
         </form>

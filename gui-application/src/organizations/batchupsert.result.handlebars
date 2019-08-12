@@ -1,7 +1,7 @@
 <p>De här {{ result.people.length }} personerna skapades och uppdaterades:</p>
 <ul>
     {{#each result.people}}
-    <li><a href="#karer/{{../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+    <li><a href="#karer/{{../orgId}}/personer/{{person.id}}" aria-current="page" class="action-close-modal">{{person.name}}</a>
         <span class="tag {{#if isNew}}is-success{{else}}is-warning{{/if}}">
           {{#if isNew}}Ny{{else}}Uppdaterad{{/if}}
         </span>

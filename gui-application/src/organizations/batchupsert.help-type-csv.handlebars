@@ -1,0 +1,36 @@
+<p>Första raden ska ange vilka kolumner som du vill använda. Exempel: <code>name,email</code>.</p>
+<p>Varje rad ska motsvara en person. Exempel: <code>Alice,alice@example.com</code>.</p>
+<p>Följande kolumner kan användas:</p>
+<ul>
+    <li><code>custom_identifier</code>: Er egen identifierare för personen. Kan vara
+        medlemsnummer, telefonnummer, e-postadress, namn eller liknande. Det viktigaste är
+        att det är något som unikt identifierar personen. Om en person byter e-postadress,
+        namn eller liknande så måste <code>custom_identifier</code> vara oförändrad för att
+        importeraren ska uppdatera personen istället för att skapa en ny person.
+    </li>
+    <li><code>name</code>: Personens namn.</li>
+    <li><code>email</code>: Personens e-postadress.</li>
+    <li><code>role</code>: Personens roll i Mina märken. Tillåtna värden är
+        <code>editor</code> och <code>reader</code>). En "editor" kan göra vad som helst
+        medan en "reader" bara kan läsa information.
+    </li>
+    <li><code>groups</code>: Komma-separerad lista av grupper som personen är med i. Notera
+        att detta kolumnvärde måste skrivas inom citationstecken om personen är med i flera
+        grupper, ex. <code>"Spårarledare,Utmanarscout"</code>.
+    </li>
+    <li><code>attr.<em>custom_attribute</em></code>: Om ni behöver så kan ni lägga in ytterligare
+        information om personen genom att använda av attr-prefixet. Om kolumnen <code>attr.avdelning</code>
+        innehåller värdet <em>Tisdagsgruppen</em> för en person så kommer den personen ha
+        ett attribut som heter <em>avdelning</em> med värdet <em>Tisdagsgruppen</em>. Tänk
+        på att inte ha komman i namnet på attributet.
+    </li>
+</ul>
+<p>Kolumnen <code>id</code> eller <code>custom_identifier</code> måste ha ett värde för varje
+    person. Det är dessa båda kolumner som används för att avgöra om en person redan finns i
+    systemet eller ej. Oftast används <code>custom_identifier</code>.
+</p>
+
+<p>Exempel:</p>
+<pre>custom_identifier,name,email,role,attr.FavouriteMovie,groups
+alice,Alice,alice@example.com,reader,Scouts Guide to the Zombie Apocalypse,"Zombie Hunters,Trackers"
+bob,Bob,bob@example.com,reader,The Last Boy Scout,Trackers</pre>

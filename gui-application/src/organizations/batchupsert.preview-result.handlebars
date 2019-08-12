@@ -1,7 +1,7 @@
 <p>De här {{ result.people.length }} personerna kommer skapas och uppdateras om du trycker på Importera:</p>
 <ul>
     {{#each result.people}}
-    <li><a href="#karer/{{../orgId}}/personer/{{person.id}}" aria-current="page">{{person.name}}</a>
+    <li>{{person.name}}
         <span class="tag {{#if isNew}}is-success{{else}}is-warning{{/if}}">
           {{#if isNew}}Kommer skapas{{else}}Kommer uppdateras{{/if}}
         </span>
