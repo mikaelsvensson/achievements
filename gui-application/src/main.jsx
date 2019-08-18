@@ -2,6 +2,7 @@ import {updateView} from "./util/view.jsx";
 import {get, isLoggedIn} from "./util/api.jsx";
 import $ from "jquery";
 import {navigateTo} from "./util/routing.jsx";
+import {initContactUsLinks} from "./util/mail.jsx";
 
 const templateAchievementsResult = require("./achievements/achievements.result.handlebars");
 
@@ -20,6 +21,8 @@ const loadResult = function (responseData) {
 
     $('#main-achievements-count').text(responseData.length)
 
+    const $app = $('#app');
+    initContactUsLinks($app);
     container.find('.achievement').click(function (e) {
         navigateTo('marken/' + this.dataset.achievementId)
     });

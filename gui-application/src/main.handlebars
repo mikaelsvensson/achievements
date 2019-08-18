@@ -100,14 +100,15 @@
                     <article class="notification has-text-centered">
                         <div class="content">
                             <div class="control">
-                                <input class="input" type="email" id="email" name="email" placeholder="Din e-postadress">
+                                <input class="input" type="email" id="email" name="email"
+                                       placeholder="Din e-postadress">
                             </div>
                         </div>
 
                         <div class="content">
                             <div class="control">
                                 <input class="input" type="password" id="password" name="password"
-                                       placeholder="Ditt lösenord, om du har ett.">
+                                       placeholder="Ditt lösenord, om du vill.">
                             </div>
                         </div>
 
@@ -119,11 +120,30 @@
                         </div>
 
                         <div class="content is-small">
+                            <p>Orkar du inte bry dig om lösenord? Inga problem. Vi skickar en inloggningslänk till din
+                                e-postadress om du hoppar över lösenordet.</p>
                             <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
-                            <p>Orkar du inte bry dig om lösenord? Inga poblem. Om du inte anger ett lösenord så skickar vi
-                                en inloggningslänk till dig.</p>
                         </div>
 
+                    </article>
+                    <article class="notification has-text-centered">
+                        <div class="content">
+                            <div class="field">
+                                <div class="control">
+                                    <button class="button is-medium is-disabled is-light" type="submit"
+                                            formaction="{{host}}/api/auth/scoutid/signin">
+                                        Logga in med Scoutnet &nbsp;
+                                        <span class="tag is-light">Beta</span>
+
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content is-small">
+                            <p>Möjligheten att logga in med ditt Scoutnet-konto är under utveckling. Hör gärna
+                                av dig till <a class="mail-link" href="mailaddresshere"></a> om du är intresserad av att
+                                testa.</p>
+                        </div>
                     </article>
                 </form>
                 {{/if}}

@@ -6,91 +6,101 @@
         <h2 class="subtitle">
             Det finns ett par olika sätt att logga in.
         </h2>
-    <form method="post">
-        <section class="section">
-            <div class="columns">
-                <div class="column">
-                    <article class="notification">
-                        <div class="field">
-                            <div class="control">
-                                <button class="button is-primary is-medium" type="submit"
-                                        formaction="{{host}}/api/auth/google/signin">
-                                    Logga in med Google
-                                </button>
-                            </div>
-                        </div>
-                        <div class="content is-small">
-                            <p>Det här passar dig som har en Gmail-adress.</p>
-                        </div>
-                    </article>
+        <form method="post">
+            <section class="section">
+                <div class="tile is-ancestor">
+                    <div class="tile is-6 is-parent">
+                        <article class="tile is-child notification">
+                            <article>
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-primary is-medium" type="submit"
+                                                formaction="{{host}}/api/auth/google/signin">
+                                            Logga in med Google
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="content is-small">
+                                    <p>Det här passar dig som har en Gmail-adress.</p>
+                                </div>
+                            </article>
+                        </article>
+                    </div>
+                    <div class="tile is-6 is-parent">
+                        <article class="tile is-child notification">
+                            <article>
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-primary is-medium" type="submit"
+                                                formaction="{{host}}/api/auth/microsoft/signin">
+                                            Logga in med Microsoft
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="content is-small">
+                                    <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
+                                </div>
+                            </article>
+                        </article>
+                    </div>
                 </div>
-                <div class="column">
-                    <article class="notification">
-                        <div class="field">
-                            <div class="control">
-                                <button class="button is-primary is-medium" type="submit"
-                                        formaction="{{host}}/api/auth/microsoft/signin">
-                                    Logga in med Microsoft
-                                </button>
-                            </div>
-                        </div>
-                        <div class="content is-small">
-                            <p>Det här passar dig som har en Outlook-, Hotmail- eller Live-adress.</p>
-                        </div>
-                    </article>
+                <div class="tile is-ancestor">
+                    <div class="tile is-6 is-parent">
+                        <article class="tile is-child notification">
+                            <article>
+                                <p class="subtitle">...eller din e-postadress</p>
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input" type="email" id="email" name="email"
+                                               placeholder="Din e-postadress">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input" type="password" id="password" name="password"
+                                               placeholder="Ditt lösenord, om du känner för det.">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <button class="button is-primary is-medium" type="submit"
+                                            formaction="{{host}}/api/auth/email/signin">
+                                        Logga in med e-post
+                                    </button>
+                                </div>
+
+                                <div class="content is-small">
+                                    <p>Orkar du inte bry dig om lösenord? Inga problem. Vi skickar en inloggningslänk till din e-postadress om du hoppar över lösenordet.</p>
+                                    <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
+                                </div>
+
+                            </article>
+                        </article>
+                    </div>
+                    <div class="tile is-6 is-parent">
+                        <article class="tile is-child notification">
+                            <article>
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-medium is-disabled is-light" type="submit"
+                                                formaction="{{host}}/api/auth/scoutid/signin">
+                                            Logga in med Scoutnet &nbsp;
+                                            <span class="tag is-light">Beta</span>
+
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="content is-small">
+                                    <p>Möjligheten att logga in med ditt Scoutnet-konto är under utveckling. Hör gärna
+                                        av dig till <a class="mail-link" href="mailaddresshere"></a> om du är intresserad av att testa.</p>
+                                </div>
+                            </article>
+                        </article>
+                    </div>
                 </div>
-                <div class="column">
-                    <article class="notification">
-                        <div class="field">
-                            <div class="control">
-                                <button class="button is-primary is-medium" type="submit"
-                                        formaction="{{host}}/api/auth/scoutid/signin">
-                                    Logga in med Scoutnet &nbsp;
-                                    <span class="tag is-light">Beta</span>
-
-                                </button>
-                            </div>
-                        </div>
-                        <div class="content is-small">
-                            <p>Möjligheten att logga in med ditt Scoutnet-konto är under utveckling. Hör gärna av dig med dina frågor och synpunkter.</p>
-                        </div>
-                    </article>
-                </div>
-                <div class="column">
-                    <article class="notification">
-                        <p class="subtitle">...eller din e-postadress</p>
-                        <div class="field">
-                            <div class="control">
-                                <input class="input" type="email" id="email" name="email" placeholder="Din e-postadress">
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <div class="control">
-                                <input class="input" type="password" id="password" name="password"
-                                       placeholder="Ditt lösenord, om du har ett.">
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <button class="button is-primary is-medium" type="submit"
-                                    formaction="{{host}}/api/auth/email/signin">
-                                Logga in med e-post
-                            </button>
-                        </div>
-
-                        <div class="content is-small">
-                            <p><a href="#glomt-losenord" aria-current="page">Glömt lösenordet?</a></p>
-                            <p>Orkar du inte bry dig om lösenord? Inga poblem. Om du inte anger ett lösenord så skickar
-                                vi
-                                en inloggningslänk till dig.</p>
-                        </div>
-
-                    </article>
-                </div>
-            </div>
-        </section>
-    </form>
+            </section>
+        </form>
         <!--
             <div class="content">
                 <p>Först gången du är här? Antingen kan du <a href="#skapa-konto" aria-current="page">skapa en ny kår</a> eller
@@ -98,7 +108,8 @@
                 </p>
             </div>
         -->
-    <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a> istället.
-    </p>
+        <p>Nej, det här var inte riktigt min grej. Jag vill gå till <a href="#" aria-current="page">startsidan</a>
+            istället.
+        </p>
     </div>
 </section>
