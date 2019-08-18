@@ -23,7 +23,7 @@ public class ScoutnetDataSource extends CsvDataSource {
     protected PersonDTO mapColumns(Map<String, String> map) {
 
         final PersonDTO dto = new PersonDTO();
-        dto.name = map.getOrDefault("F\u00f6rnamn", "") + " " + map.getOrDefault("Efternamn", "");
+        dto.name = StringUtils.trim(map.getOrDefault("F\u00f6rnamn", "") + " " + map.getOrDefault("Efternamn", ""));
         dto.custom_identifier = map.get("Medlemsnr.");
         dto.email = map.get("Prim\u00e4r e-postadress");
         dto.role = Roles.READER;
