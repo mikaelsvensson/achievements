@@ -13,8 +13,10 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
+import se.devscout.achievements.server.data.dao.AuditingDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.model.Achievement;
+import se.devscout.achievements.server.filter.audit.AuditFeature;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.ws.rs.client.Client;
@@ -39,15 +41,20 @@ public class TestUtil {
     }
 
     public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, Boolean followRedirects) {
+        return resourceTestRule(credentialsDao, followRedirects, mock(AuditingDao.class));
+    }
+
+    public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, Boolean followRedirects, AuditingDao auditingDao) {
+        final HibernateBundle<AchievementsApplicationConfiguration> hibernateBundle = mockHibernateBundle();
         final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
-                mockHibernateBundle(),
+                hibernateBundle,
                 credentialsDao,
                 mock(JwtTokenService.class)
         );
-
         return ResourceTestRule.builder()
                 .setClientConfigurator(clientConfig -> clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects))
                 .addProvider(authFeature)
+                .addProvider(new AuditFeature(auditingDao, hibernateBundle))
                 .addProvider(RolesAllowedDynamicFeature.class)
                 .addProvider(new AuthValueFactoryProvider.Binder<>(User.class));
     }

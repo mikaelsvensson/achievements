@@ -50,26 +50,36 @@ class AuditResponseFilter implements ContainerResponseFilter {
         }
     }
 
-    private AbstractAuditRecord createRecord(ContainerRequestContext requestContext, String data, ContainerResponseContext responseContext) {
+    private AbstractAuditRecord createRecord(ContainerRequestContext requestContext, String data, ContainerResponseContext responseContext) throws Exception {
         final UriInfo uriInfo = requestContext.getUriInfo();
-        if (responseContext.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL && uriInfo.getMatchedResources().stream().anyMatch(AchievementStepProgressResource.class::isInstance)) {
-            return dao.create(
-                    null,
-                    Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal()).map(principal -> ((User) principal).getPersonId()).orElse(null),
-                    Optional.ofNullable(uriInfo.getPathParameters().getFirst("stepId")).map(Integer::valueOf).orElse(null),
-                    Optional.ofNullable(uriInfo.getPathParameters().getFirst("personId")).map(Integer::valueOf).orElse(null),
-                    data,
-                    requestContext.getMethod(),
-                    responseContext.getStatus());
+        final Integer userId = Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal())
+                .map(principal -> ((User) principal).getPersonId())
+                .orElse(null);
+
+        if (userId != null) {
+            final boolean isSuccessfulHttpStatus = responseContext.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
+            final boolean isStepProgressRequest = uriInfo.getMatchedResources().stream().anyMatch(AchievementStepProgressResource.class::isInstance);
+            if (isSuccessfulHttpStatus && isStepProgressRequest) {
+                return dao.create(
+                        null,
+                        userId,
+                        Optional.ofNullable(uriInfo.getPathParameters().getFirst("stepId")).map(Integer::valueOf).orElse(null),
+                        Optional.ofNullable(uriInfo.getPathParameters().getFirst("personId")).map(Integer::valueOf).orElse(null),
+                        data,
+                        requestContext.getMethod(),
+                        responseContext.getStatus());
+            } else {
+                return dao.create(
+                        null,
+                        userId,
+                        uriInfo,
+                        data,
+                        requestContext.getMethod(),
+                        requestContext.getUriInfo().getRequestUri().toString(),
+                        responseContext.getStatus());
+            }
         } else {
-            return dao.create(
-                    null,
-                    Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal()).map(principal -> (int) ((User) principal).getPersonId()).orElse(null),
-                    uriInfo,
-                    data,
-                    requestContext.getMethod(),
-                    requestContext.getUriInfo().getRequestUri().toString(),
-                    responseContext.getStatus());
+            throw new Exception("No user");
         }
     }
 }
