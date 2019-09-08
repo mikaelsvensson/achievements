@@ -11,6 +11,8 @@ import se.devscout.achievements.server.MockUtil;
 import se.devscout.achievements.server.TestUtil;
 import se.devscout.achievements.server.data.dao.AuditingDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
+import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
+import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -25,20 +27,27 @@ import javax.ws.rs.core.UriInfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class AuditFeatureTest {
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
 
-    @Path("the/path")
+    @Path("endpoint/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public static class TestResource {
         @GET
+        @Path("private")
         @Audited(logRequest = true)
         public Response goodResource(@Auth User user) {
+            return Response.noContent().build();
+        }
+
+        @GET
+        @Path("public")
+        @Audited(logRequest = true)
+        public Response goodResource() {
             return Response.noContent().build();
         }
     }
@@ -57,9 +66,9 @@ public class AuditFeatureTest {
 
 
     @Test
-    public void goodCredentials_happyPath() throws Exception {
+    public void credentialsRequired_goodCredentials_happyPath() throws Exception {
         final Response response = resources
-                .target("/the/path")
+                .target("/endpoint/private")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .get();
@@ -70,23 +79,68 @@ public class AuditFeatureTest {
     }
 
     @Test
-    public void badCredentials_happyPath() throws Exception {
+    public void credentialsRequired_badCredentials_happyPath() throws Exception {
+
+        doThrow(new ObjectNotFoundException()).when(credentialsDao).get(eq(CredentialsType.PASSWORD), eq("invalid_user"));
+
         final Response response = resources
-                .target("/the/path")
+                .target("/endpoint/private")
+                .register(HttpAuthenticationFeature.basic("invalid_user", "password"))
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+
+        verify(auditingDao, never()).create(any(), any(Integer.class), any(UriInfo.class), any(String.class), any(String.class), any(String.class), anyInt());
+    }
+
+    @Test
+    public void credentialsRequired_noCredentials_happyPath() throws Exception {
+        final Response response = resources
+                .target("/endpoint/private")
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+
+        verify(auditingDao, never()).create(any(), any(Integer.class), any(UriInfo.class), any(String.class), any(String.class), any(String.class), anyInt());
+    }
+
+    @Test
+    public void credentialsOptional_goodCredentials_happyPath() throws Exception {
+        final Response response = resources
+                .target("/endpoint/public")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(auditingDao, never()).create(any(), any(Integer.class), any(UriInfo.class), any(String.class), any(String.class), any(String.class), anyInt());
+    }
+
+    @Test
+    public void credentialsOptional_badCredentials_happyPath() throws Exception {
+        final Response response = resources
+                .target("/endpoint/public")
                 .register(HttpAuthenticationFeature.basic("invalid_user", "password"))
                 .request()
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(auditingDao, never()).create(any(), any(Integer.class), any(UriInfo.class), any(String.class), any(String.class), any(String.class), anyInt());
     }
 
     @Test
-    public void noCredentials_happyPath() throws Exception {
+    public void credentialsOptional_noCredentials_happyPath() throws Exception {
         final Response response = resources
-                .target("/the/path")
+                .target("/endpoint/public")
                 .request()
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+
+        verify(auditingDao, never()).create(any(), any(Integer.class), any(UriInfo.class), any(String.class), any(String.class), any(String.class), anyInt());
     }
 }
