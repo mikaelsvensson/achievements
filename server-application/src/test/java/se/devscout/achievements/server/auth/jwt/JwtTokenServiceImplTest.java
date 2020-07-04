@@ -22,21 +22,21 @@ public class JwtTokenServiceImplTest {
 
     @Test
     public void encodeDecode_happyPath() throws JwtTokenServiceException {
-        final String token = tokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofHours(1));
-        final DecodedJWT jwt = tokenService.decode(token);
+        final var token = tokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofHours(1));
+        final var jwt = tokenService.decode(token);
         assertThat(jwt.getSubject()).isEqualTo("subject");
         assertThat(jwt.getClaim("key").asString()).isEqualTo("value");
     }
 
     @Test(expected = JwtTokenServiceException.class)
     public void encodeDecode_wrongSecret() throws JwtTokenServiceException {
-        final String token = badTokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofHours(1));
+        final var token = badTokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofHours(1));
         tokenService.decode(token);
     }
 
     @Test(expected = JwtTokenServiceException.class)
     public void encodeDecode_expiredToken() throws JwtTokenServiceException {
-        final String token = tokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofMinutes(-1));
+        final var token = tokenService.encode("subject", Collections.singletonMap("key", "value"), Duration.ofMinutes(-1));
         tokenService.decode(token);
     }
 }

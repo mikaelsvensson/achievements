@@ -13,7 +13,7 @@ public class DaoImpl<E, ID extends Serializable> extends AbstractDAO<E> {
     }
 
     protected E getEntity(ID id) throws ObjectNotFoundException {
-        final E organization = get(id);
+        final var organization = get(id);
         if (organization != null) {
             return organization;
         } else {
@@ -22,7 +22,7 @@ public class DaoImpl<E, ID extends Serializable> extends AbstractDAO<E> {
     }
 
     protected List<E> readAll(Class<E> entityClass) {
-        final CriteriaQuery<E> query = criteriaQuery();
+        final var query = criteriaQuery();
         return currentSession().createQuery(query.select(query.from(entityClass))).getResultList();
     }
 }

@@ -18,14 +18,14 @@ public enum SecretGenerator {
         // See https://www.owasp.org/index.php/Hashing_Java
         final byte[] generateSecret(final char[] plainTextPassword) {
             try {
-                SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-                byte[] salt = new byte[32];
+                var skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+                var salt = new byte[32];
                 new SecureRandom().nextBytes(salt);
-                final int iterations = 1000;
-                final int keyLength = 256;
-                PBEKeySpec spec = new PBEKeySpec(plainTextPassword, salt, iterations, keyLength);
-                SecretKey key = skf.generateSecret(spec);
-                final ByteArrayDataOutput output = ByteStreams.newDataOutput();
+                final var iterations = 1000;
+                final var keyLength = 256;
+                var spec = new PBEKeySpec(plainTextPassword, salt, iterations, keyLength);
+                var key = skf.generateSecret(spec);
+                final var output = ByteStreams.newDataOutput();
                 output.write(salt);
                 output.writeInt(iterations);
                 output.writeInt(keyLength);
@@ -39,18 +39,18 @@ public enum SecretGenerator {
         @Override
         boolean validatePassword(char[] plainTextPassword, byte[] storedSecret) {
             try {
-                final byte[] salt = new byte[32];
-                final ByteArrayDataInput input = ByteStreams.newDataInput(storedSecret);
+                final var salt = new byte[32];
+                final var input = ByteStreams.newDataInput(storedSecret);
                 input.readFully(salt, 0, salt.length);
-                final int interations = input.readInt();
-                final int keyLength = input.readInt();
-                final byte[] storedKey = new byte[storedSecret.length - 4 - 4 - salt.length];
+                final var interations = input.readInt();
+                final var keyLength = input.readInt();
+                final var storedKey = new byte[storedSecret.length - 4 - 4 - salt.length];
                 input.readFully(storedKey);
 
-                PBEKeySpec spec = new PBEKeySpec(plainTextPassword, salt, interations, keyLength);
-                SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-                SecretKey key = skf.generateSecret(spec);
-                final byte[] passwordKey = key.getEncoded();
+                var spec = new PBEKeySpec(plainTextPassword, salt, interations, keyLength);
+                var skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+                var key = skf.generateSecret(spec);
+                final var passwordKey = key.getEncoded();
                 return Arrays.equals(passwordKey, storedKey);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 return false;

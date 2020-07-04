@@ -23,7 +23,7 @@ public class ResourceRequestRateLimiter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        final String user = Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal())
+        final var user = Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal())
                 .map(Principal::getName)
                 .orElse("ANONYMOUS");
         if (!rateLimiter.accept(user)) {

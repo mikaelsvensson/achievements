@@ -46,22 +46,22 @@ public class GroupsDaoImplTest {
 
     @Test
     public void read_happyPath() {
-        final Group expected = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
-        final Group actual = database.inTransaction(() -> dao.read(expected.getId()));
+        final var expected = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
+        final var actual = database.inTransaction(() -> dao.read(expected.getId()));
         assertThat(actual.getId()).isEqualTo(expected.getId());
         assertThat(actual.getName()).isEqualTo(expected.getName());
     }
 
     @Test
     public void readAll_happyPath() {
-        Organization organization2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Org 2")));
-        Group group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
-        Group group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
-        Group group3 = database.inTransaction(() -> dao.create(organization2, new GroupProperties("name3")));
+        var organization2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Org 2")));
+        var group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
+        var group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
+        var group3 = database.inTransaction(() -> dao.create(organization2, new GroupProperties("name3")));
 
-        final List<Group> groups = dao.readAll();
+        final var groups = dao.readAll();
 
-        assertThat(groups.stream().map(g -> g.getId()).collect(Collectors.toList())).containsExactlyInAnyOrder(
+        assertThat(groups.stream().map(Group::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(
                 group1.getId(),
                 group2.getId(),
                 group3.getId());
@@ -69,7 +69,7 @@ public class GroupsDaoImplTest {
 
     @Test
     public void create_happyPath() {
-        Group group = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
+        var group = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
 
         assertThat(group.getId()).isGreaterThan(0);
     }
@@ -88,18 +88,18 @@ public class GroupsDaoImplTest {
 
     @Test
     public void update_happyPath() throws DaoException, ObjectNotFoundException {
-        Group group = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
+        var group = database.inTransaction(() -> dao.create(organization, new GroupProperties("name")));
 
         dao.update(group.getId(), new GroupProperties("updated name"));
 
-        Group actual = database.inTransaction(() -> dao.read(group.getId()));
+        var actual = database.inTransaction(() -> dao.read(group.getId()));
         assertThat(actual.getName()).isEqualTo("updated name");
     }
 
     @Test
     public void delete_happyPath() throws ObjectNotFoundException {
-        Group group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
-        Group group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
+        var group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
+        var group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
 
         dao.delete(group2.getId());
 
@@ -114,14 +114,14 @@ public class GroupsDaoImplTest {
 
     @Test
     public void getByParent_happyPath() {
-        Organization organization2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Org 2")));
-        Group group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
-        Group group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
-        Group group3 = database.inTransaction(() -> dao.create(organization2, new GroupProperties("name3")));
+        var organization2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Org 2")));
+        var group1 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name1")));
+        var group2 = database.inTransaction(() -> dao.create(organization, new GroupProperties("name2")));
+        var group3 = database.inTransaction(() -> dao.create(organization2, new GroupProperties("name3")));
 
-        final List<Group> groups = dao.getByParent(organization);
+        final var groups = dao.getByParent(organization);
 
-        assertThat(groups.stream().map(g -> g.getId()).collect(Collectors.toList())).containsExactlyInAnyOrder(
+        assertThat(groups.stream().map(Group::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(
                 group1.getId(),
                 group2.getId());
     }

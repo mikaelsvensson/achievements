@@ -51,20 +51,20 @@ public class EmailIdentityProvider implements IdentityProvider {
     @Override
     public URI getRedirectUri(HttpServletRequest req, HttpServletResponse resp, String callbackState, URI callbackUri) throws IdentityProviderException {
         try {
-            final String email = req.getParameter("email");
-            final String password = req.getParameter("password");
-            final String clientId = req.getRemoteAddr() != null ? req.getRemoteAddr() : "ANONYMOUS";
+            final var email = req.getParameter("email");
+            final var password = req.getParameter("password");
+            final var clientId = req.getRemoteAddr() != null ? req.getRemoteAddr() : "ANONYMOUS";
 
             if (Strings.isNullOrEmpty(email)) {
                 throw new IdentityProviderException("Email not specified.");
             }
 
-            final URI confirmationUri = getSignInLink(callbackUri, callbackState, email);
+            final var confirmationUri = getSignInLink(callbackUri, callbackState, email);
 
             if (!Strings.isNullOrEmpty(password)) {
-                final Credentials credentials = credentialsDao.get(CredentialsType.PASSWORD, email);
-                final PasswordValidator validator = new PasswordValidator(credentials.getData());
-                final ValidationResult validationResult = validator.validate(password.toCharArray());
+                final var credentials = credentialsDao.get(CredentialsType.PASSWORD, email);
+                final var validator = new PasswordValidator(credentials.getData());
+                final var validationResult = validator.validate(password.toCharArray());
 
                 if (validationResult.isValid()) {
                     return confirmationUri;
@@ -110,9 +110,9 @@ public class EmailIdentityProvider implements IdentityProvider {
     @Override
     public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            String authCode = req.getParameter("code");
-            String callbackState = req.getParameter("state");
-            final String email = jwtEmailAddressTokenService.decode(authCode).getEmail();
+            var authCode = req.getParameter("code");
+            var callbackState = req.getParameter("state");
+            final var email = jwtEmailAddressTokenService.decode(authCode).getEmail();
             return new ValidationResult(email, email, true, CredentialsType.PASSWORD, new byte[0], callbackState);
         } catch (JwtTokenServiceException e) {
             return ValidationResult.INVALID;

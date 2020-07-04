@@ -39,7 +39,7 @@ public class GroupsResource extends AbstractResource {
     @UnitOfWork
     public List<GroupDTO> getByOrganization(@PathParam("organizationId") UuidString organizationId,
                                             @Auth User user) {
-        final Organization organization = getOrganization(organizationId.getUUID());
+        final var organization = getOrganization(organizationId.getUUID());
         return dao.getByParent(organization).stream().map(p -> map(p, GroupDTO.class)).collect(Collectors.toList());
     }
 
@@ -50,9 +50,9 @@ public class GroupsResource extends AbstractResource {
                         @PathParam("groupId") Integer id,
                         @Auth User user) {
         try {
-            final Group group = dao.read(id);
+            final var group = dao.read(id);
             verifyParent(organizationId.getUUID(), group);
-            final GroupDTO groupDTO = map(group, GroupDTO.class);
+            final var groupDTO = map(group, GroupDTO.class);
 //            groupDTO.people = group.getMembers().stream().map(membership -> map(membership.getPerson(), PersonBaseDTO.class)).collect(Collectors.toList());
             groupDTO.organization = map(group.getOrganization(), OrganizationBaseDTO.class);
             return groupDTO;
@@ -68,10 +68,10 @@ public class GroupsResource extends AbstractResource {
                            @Auth User user,
                            GroupDTO input) {
         try {
-            Organization organization = getOrganization(organizationId.getUUID());
-            final GroupProperties properties = map(input, GroupProperties.class);
-            final Group group = dao.create(organization, properties);
-            final URI location = uriInfo.getRequestUriBuilder().path(group.getId().toString()).build();
+            var organization = getOrganization(organizationId.getUUID());
+            final var properties = map(input, GroupProperties.class);
+            final var group = dao.create(organization, properties);
+            final var location = uriInfo.getRequestUriBuilder().path(group.getId().toString()).build();
             return Response
                     .created(location)
                     .entity(map(group, GroupDTO.class))
@@ -102,7 +102,7 @@ public class GroupsResource extends AbstractResource {
                            GroupDTO input,
                            @Auth User user) {
         try {
-            final Group group = dao.update(id, map(input, GroupProperties.class));
+            final var group = dao.update(id, map(input, GroupProperties.class));
             return Response
                     .ok()
                     .entity(map(group, GroupDTO.class))
@@ -133,7 +133,7 @@ public class GroupsResource extends AbstractResource {
     }
 
     private void verifyParent(UUID organizationId, Group group) {
-        Organization organization = getOrganization(organizationId);
+        var organization = getOrganization(organizationId);
         if (!group.getOrganization().getId().equals(organization.getId())) {
             throw new NotFoundException();
         }

@@ -12,18 +12,18 @@ public class JwtSignInTokenServiceTest {
 
     @Test
     public void generateTokenAndAuthenticate_happyPath() throws Exception {
-        final JwtSignInTokenService signInTokenService = new JwtSignInTokenService(new JwtTokenServiceImpl("secret"));
-        final UUID credentialsId = UUID.randomUUID();
-        final UUID organizationId = UUID.randomUUID();
+        final var signInTokenService = new JwtSignInTokenService(new JwtTokenServiceImpl("secret"));
+        final var credentialsId = UUID.randomUUID();
+        final var organizationId = UUID.randomUUID();
 
-        final JwtSignInToken signInToken = new JwtSignInToken(
+        final var signInToken = new JwtSignInToken(
                 "username",
                 1337,
                 credentialsId,
                 Collections.singleton(Roles.EDITOR), organizationId);
 
-        final String token = signInTokenService.encode(signInToken);
-        final JwtSignInToken user = signInTokenService.decode(token);
+        final var token = signInTokenService.encode(signInToken);
+        final var user = signInTokenService.decode(token);
 
         assertThat(user.getPersonName()).isEqualTo("username");
         assertThat(user.getPersonId()).isEqualTo(1337);

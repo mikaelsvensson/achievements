@@ -131,7 +131,7 @@ public class Person extends PersonProperties {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Person)) return false;
-        Person that = (Person) o;
+        var that = (Person) o;
         return Objects.equal(id, that.id);
     }
 

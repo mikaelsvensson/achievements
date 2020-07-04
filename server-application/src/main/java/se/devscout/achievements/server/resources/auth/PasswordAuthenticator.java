@@ -32,12 +32,12 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
     @UnitOfWork
     public Optional<User> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
         try {
-            final Credentials credentials = credentialsDao.get(CredentialsType.PASSWORD, basicCredentials.getUsername());
-            final PasswordValidator validator = new PasswordValidator(credentials.getData());
-            final ValidationResult validationResult = validator.validate(basicCredentials.getPassword().toCharArray());
+            final var credentials = credentialsDao.get(CredentialsType.PASSWORD, basicCredentials.getUsername());
+            final var validator = new PasswordValidator(credentials.getData());
+            final var validationResult = validator.validate(basicCredentials.getPassword().toCharArray());
             if (validationResult.isValid()) {
-                final String role = credentials.getPerson().getRole();
-                final User user = new User(
+                final var role = credentials.getPerson().getRole();
+                final var user = new User(
                         credentials.getPerson().getId(),
                         credentials.getId(),
                         credentials.getPerson().getName(),

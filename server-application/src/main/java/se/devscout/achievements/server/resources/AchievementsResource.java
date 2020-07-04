@@ -43,7 +43,7 @@ public class AchievementsResource extends AbstractResource {
     @Path("{achievementId}/progress")
     public Map<String, ProgressDTO> getProgress(@PathParam("achievementId") UuidString id, @Auth User user) {
         try {
-            final Achievement achievement = dao.read(id.getUUID());
+            final var achievement = dao.read(id.getUUID());
             return progressDao
                     .get(achievement)
                     .stream()
@@ -59,7 +59,7 @@ public class AchievementsResource extends AbstractResource {
     @Path("{achievementId}/progress-history")
     public List<StepProgressRequestLogRecordDTO> getProgressHistory(@PathParam("achievementId") UuidString id, @Auth User user) {
         try {
-            final Achievement achievement = dao.read(id.getUUID());
+            final var achievement = dao.read(id.getUUID());
             return auditingDao
                     .readStepProgress(achievement.getId())
                     .stream()
@@ -77,8 +77,8 @@ public class AchievementsResource extends AbstractResource {
     public List<PersonBaseDTO> getAwardedTo(@PathParam("achievementId") UuidString id,
                                             @Auth User user) {
         try {
-            final Person userPerson = peopleDao.read(user.getPersonId());
-            final Achievement achievement = dao.read(id.getUUID());
+            final var userPerson = peopleDao.read(user.getPersonId());
+            final var achievement = dao.read(id.getUUID());
             return peopleDao.getByAwardedAchievement(userPerson.getOrganization(), achievement).stream()
                     .map(person -> map(person, PersonBaseDTO.class))
                     .collect(Collectors.toList());
@@ -95,10 +95,10 @@ public class AchievementsResource extends AbstractResource {
                              @PathParam("personId") Integer personId,
                              @Auth User user) {
         try {
-            final Person person = peopleDao.read(personId);
+            final var person = peopleDao.read(personId);
             verifySameOrganization(user, person);
 
-            final Achievement achievement = dao.read(id.getUUID());
+            final var achievement = dao.read(id.getUUID());
 
             dao.addAwardedTo(achievement, person);
         } catch (ObjectNotFoundException e) {
@@ -114,10 +114,10 @@ public class AchievementsResource extends AbstractResource {
                                 @PathParam("personId") Integer personId,
                                 @Auth User user) {
         try {
-            final Person person = peopleDao.read(personId);
+            final var person = peopleDao.read(personId);
             verifySameOrganization(user, person);
 
-            final Achievement achievement = dao.read(id.getUUID());
+            final var achievement = dao.read(id.getUUID());
 
             dao.removeAwardedTo(achievement, person);
         } catch (ObjectNotFoundException e) {
@@ -126,8 +126,8 @@ public class AchievementsResource extends AbstractResource {
     }
 
     private void verifySameOrganization(@Auth User user, Person person) throws ObjectNotFoundException {
-        final UUID personOrgId = person.getOrganization().getId();
-        final UUID userOrdId = peopleDao.read(user.getPersonId()).getOrganization().getId();
+        final var personOrgId = person.getOrganization().getId();
+        final var userOrdId = peopleDao.read(user.getPersonId()).getOrganization().getId();
         if (userOrdId != personOrgId) {
             throw new NotFoundException("Person " + person.getId() + " not found in your organization.");
         }
@@ -148,7 +148,7 @@ public class AchievementsResource extends AbstractResource {
     @UnitOfWork
     public List<AchievementBaseDTO> find(@QueryParam("filter") String filter) {
         try {
-            final List<Achievement> achievements = Strings.isNullOrEmpty(filter) ? dao.readAll() : dao.find(filter);
+            final var achievements = Strings.isNullOrEmpty(filter) ? dao.readAll() : dao.find(filter);
             return achievements.stream().map(o -> map(o, AchievementBaseDTO.class)).collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
@@ -160,8 +160,8 @@ public class AchievementsResource extends AbstractResource {
     @UnitOfWork
     public Response create(AchievementDTO input, @Auth User user) {
         try {
-            final Achievement achievement = dao.create(map(input, AchievementProperties.class));
-            final URI location = uriInfo.getRequestUriBuilder().path(UuidString.toString(achievement.getId())).build();
+            final var achievement = dao.create(map(input, AchievementProperties.class));
+            final var location = uriInfo.getRequestUriBuilder().path(UuidString.toString(achievement.getId())).build();
             return Response
                     .created(location)
                     .entity(map(achievement, AchievementDTO.class))
@@ -187,8 +187,8 @@ public class AchievementsResource extends AbstractResource {
     }
 
     private void verifyNotInProgress(UuidString id) throws ObjectNotFoundException {
-        final Achievement achievement = dao.read(id.getUUID());
-        final boolean isInProgressForOnePerson = achievement.getSteps().stream().flatMap(step -> step.getProgressList().stream()).anyMatch(AchievementStepProgressProperties::isCompleted);
+        final var achievement = dao.read(id.getUUID());
+        final var isInProgressForOnePerson = achievement.getSteps().stream().flatMap(step -> step.getProgressList().stream()).anyMatch(AchievementStepProgressProperties::isCompleted);
         if (isInProgressForOnePerson) {
             throw new ClientErrorException(Response.Status.CONFLICT);
         }

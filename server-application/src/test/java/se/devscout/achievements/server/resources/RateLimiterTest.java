@@ -28,7 +28,7 @@ public class RateLimiterTest {
     @Test
     public void rateLimit_longBurst() {
         IntStream.rangeClosed(1, BURST_LENGTH + 5).forEach((i) -> {
-            final boolean isAccepted = rateLimiter.accept(ALICE);
+            final var isAccepted = rateLimiter.accept(ALICE);
 
             assertThat(isAccepted).isEqualTo(i <= BURST_LENGTH);
         });
@@ -37,7 +37,7 @@ public class RateLimiterTest {
     @Test
     public void rateLimit_twoShortBurstsWithDelayInbetween() {
         IntStream.rangeClosed(1, BURST_LENGTH).forEach((i) -> {
-            final boolean isAccepted = rateLimiter.accept(ALICE);
+            final var isAccepted = rateLimiter.accept(ALICE);
 
             assertThat(isAccepted).isTrue();
         });
@@ -45,7 +45,7 @@ public class RateLimiterTest {
         pause(REQUEST_DELAY);
 
         IntStream.rangeClosed(1, BURST_LENGTH).forEach((i) -> {
-            final boolean isAccepted = rateLimiter.accept(ALICE);
+            final var isAccepted = rateLimiter.accept(ALICE);
 
             assertThat(isAccepted).isTrue();
         });
@@ -55,11 +55,11 @@ public class RateLimiterTest {
     @Ignore("Exponential back-off not yet implemented")
     public void rateLimit_backOff() {
         IntStream.rangeClosed(1, BURST_LENGTH + 5).forEach((i) -> {
-            final long wait = i > BURST_LENGTH ? (long) (Math.pow(1.5, i - BURST_LENGTH - 1) * REQUEST_DELAY) : 0;
+            final var wait = i > BURST_LENGTH ? (long) (Math.pow(1.5, i - BURST_LENGTH - 1) * REQUEST_DELAY) : 0;
 
             pause(wait);
 
-            final boolean isAccepted = rateLimiter.accept(ALICE);
+            final var isAccepted = rateLimiter.accept(ALICE);
 
             assertThat(isAccepted).isTrue();
         });

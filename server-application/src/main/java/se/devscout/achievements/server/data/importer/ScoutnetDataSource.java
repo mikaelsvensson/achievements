@@ -22,20 +22,20 @@ public class ScoutnetDataSource extends CsvDataSource {
     @Override
     protected PersonDTO mapColumns(Map<String, String> map) {
 
-        final PersonDTO dto = new PersonDTO();
+        final var dto = new PersonDTO();
         dto.name = StringUtils.trim(map.getOrDefault("F\u00f6rnamn", "") + " " + map.getOrDefault("Efternamn", ""));
         dto.custom_identifier = map.get("Medlemsnr.");
         dto.email = map.get("Prim\u00e4r e-postadress");
         dto.role = Roles.READER;
 
-        String group = map.get("Patrull");
+        var group = map.get("Patrull");
         if (StringUtils.isNotEmpty(group)) {
             dto.groups = Collections.singletonList(new GroupBaseDTO(null, group));
         } else {
             dto.groups = new ArrayList<>();
         }
 
-        String department = map.get("Avdelning");
+        var department = map.get("Avdelning");
         if (StringUtils.isNotEmpty(department)) {
             dto.attributes = Collections.singletonList(new PersonAttributeDTO("Avdelning", department));
         }

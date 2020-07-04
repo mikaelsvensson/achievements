@@ -24,7 +24,7 @@ public class JwtSignInTokenService {
     }
 
     public String encode(JwtSignInToken token) {
-        final ImmutableMap<String, String> claims = ImmutableMap.of(
+        final var claims = ImmutableMap.of(
                 "credentials", token.getCredentialsId().toString(),
                 "id", String.valueOf(token.getPersonId()),
                 "organization", new UuidString(token.getOrganizationId()).getValue(),
@@ -35,9 +35,9 @@ public class JwtSignInTokenService {
 
     public JwtSignInToken decode(String token) throws JwtTokenServiceException {
 
-        final DecodedJWT jwt = jwtTokenService.decode(token);
+        final var jwt = jwtTokenService.decode(token);
 
-        final HashSet<String> roles = Sets.newHashSet(Splitter.on(' ').split(jwt.getClaim("roles").asString()));
+        final var roles = Sets.newHashSet(Splitter.on(' ').split(jwt.getClaim("roles").asString()));
         return new JwtSignInToken(
                 jwt.getSubject(),
                 Integer.parseInt(jwt.getClaim("id").asString()),

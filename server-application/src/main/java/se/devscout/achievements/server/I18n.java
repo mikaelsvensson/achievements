@@ -14,14 +14,14 @@ public class I18n {
     private final JsonNode tree;
 
     public I18n(String resourcePath) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        var mapper = new ObjectMapper(new YAMLFactory());
         tree = mapper.readTree(Resources.toString(Resources.getResource(resourcePath), Charsets.UTF_8));
     }
 
     public String get(String path) {
-        final String[] fields = StringUtils.split(path, '.');
-        JsonNode node = tree;
-        for (String field : fields) {
+        final var fields = StringUtils.split(path, '.');
+        var node = tree;
+        for (var field : fields) {
             node = node.path(field);
         }
         if (node != null && !node.isMissingNode() && node.isValueNode()) {

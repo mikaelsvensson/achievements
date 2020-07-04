@@ -34,8 +34,8 @@ public class RateLimiter {
     }
 
     public boolean accept(String client) {
-        final long now = System.currentTimeMillis();
-        final Record record = cache.getIfPresent(client);
+        final var now = System.currentTimeMillis();
+        final var record = cache.getIfPresent(client);
         if (record == null) {
             cache.put(client, new Record(
                     now + minimumMillisecondsBetweenRequests,

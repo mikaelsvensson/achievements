@@ -40,8 +40,8 @@ public class AchievementStepsDaoImplTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        Integer stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
-        final AchievementStep actual = dao.read(stepId);
+        var stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
+        final var actual = dao.read(stepId);
         assertThat(actual.getId()).isEqualTo(stepId);
         assertThat(actual.getDescription()).isEqualTo("Follow instrucions on package");
     }
@@ -53,7 +53,7 @@ public class AchievementStepsDaoImplTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        Integer stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Serve with ketchup"))).getId();
+        var stepId = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Serve with ketchup"))).getId();
         database.inTransaction(() -> {
             try {
                 dao.delete(stepId);
@@ -77,17 +77,17 @@ public class AchievementStepsDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        Achievement achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
-        Integer step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
-        Integer step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
+        var achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
+        var step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
+        var step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
 
-        final AchievementStep actual1 = database.inTransaction(() -> dao.read(step1Id));
+        final var actual1 = database.inTransaction(() -> dao.read(step1Id));
         assertThat(actual1.getId()).isNotNull();
         assertThat(actual1.getAchievement().getId()).isEqualTo(achievement.getId());
         assertThat(actual1.getPrerequisiteAchievement().getId()).isEqualTo(achievement2.getId());
         assertThat(actual1.getDescription()).isNull();
 
-        final AchievementStep actual2 = database.inTransaction(() -> dao.read(step2Id));
+        final var actual2 = database.inTransaction(() -> dao.read(step2Id));
         assertThat(actual2.getId()).isNotNull();
         assertThat(actual2.getAchievement().getId()).isEqualTo(achievement.getId());
         assertThat(actual2.getPrerequisiteAchievement()).isNull();
@@ -96,11 +96,11 @@ public class AchievementStepsDaoImplTest {
 
     @Test
     public void getByParent_happyPath() throws Exception {
-        Achievement achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
-        Integer step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
-        Integer step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
+        var achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
+        var step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
+        var step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
 
-        final List<AchievementStep> actual = database.inTransaction(() -> dao.getByParent(achievement));
+        final var actual = database.inTransaction(() -> dao.getByParent(achievement));
 
         assertThat(actual).hasSize(2);
 
@@ -115,12 +115,12 @@ public class AchievementStepsDaoImplTest {
 
     @Test
     public void update_changeReferenceToDescription_happyPath() throws Exception {
-        Achievement achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
-        Integer step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
+        var achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
+        var step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
 
         database.inTransaction(() -> dao.update(step1Id, new AchievementStepProperties("Get food"))).getId();
 
-        final AchievementStep actual = database.inTransaction(() -> dao.read(step1Id));
+        final var actual = database.inTransaction(() -> dao.read(step1Id));
         assertThat(actual.getId()).isEqualTo(step1Id);
         assertThat(actual.getPrerequisiteAchievement()).isNull();
         assertThat(actual.getDescription()).isEqualTo("Get food");

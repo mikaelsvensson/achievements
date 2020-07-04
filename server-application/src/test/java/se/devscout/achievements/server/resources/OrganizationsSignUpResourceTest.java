@@ -15,7 +15,6 @@ import se.devscout.achievements.server.data.dao.*;
 import se.devscout.achievements.server.data.model.*;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.UUID;
@@ -43,7 +42,7 @@ public class OrganizationsSignUpResourceTest {
     @Test
     @Ignore(value = "Ignored test should be reimplemented in OpenIdResourceTest")
     public void signup_noOrganization_expectBadRequest() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/signup")
                 .request()
                 .post(Entity.json(new SignupDTO()));
@@ -59,21 +58,21 @@ public class OrganizationsSignUpResourceTest {
     @Test
     @Ignore(value = "Ignored test should be reimplemented in OpenIdResourceTest")
     public void signup_newOrganization_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
         when(organizationsDao.create(any(OrganizationProperties.class))).thenReturn(org);
         when(organizationsDao.find(anyString())).thenReturn(Collections.EMPTY_LIST);
         when(peopleDao.create(any(Organization.class), any(PersonProperties.class))).thenAnswer(invocation -> mockPerson(
                 invocation.getArgument(0),
                 ((PersonProperties) invocation.getArgument(1)).getName(),
                 ((PersonProperties) invocation.getArgument(1)).getEmail()));
-        final Response response = resources
+        final var response = resources
                 .target("organizations/signup")
                 .request()
                 .post(Entity.json(new SignupDTO("alice@example.com", "password", org.getName(), CredentialsType.PASSWORD)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final AuthTokenDTO responseDTO = response.readEntity(AuthTokenDTO.class);
+        final var responseDTO = response.readEntity(AuthTokenDTO.class);
         assertThat(responseDTO.token).isNotEmpty();
 
         verify(organizationsDao).find(anyString());
@@ -85,18 +84,18 @@ public class OrganizationsSignUpResourceTest {
     @Test
     @Ignore(value = "Ignored test should be reimplemented in OpenIdResourceTest")
     public void signup_existingOrganization_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "alice", "alice@example.com");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "alice", "alice@example.com");
         when(peopleDao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
         when(peopleDao.getByEmail(eq(person.getEmail()))).thenReturn(Collections.singletonList(person));
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/signup")
                 .request()
                 .post(Entity.json(new SignupBaseDTO("alice@example.com", "password", CredentialsType.PASSWORD)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final AuthTokenDTO responseDTO = response.readEntity(AuthTokenDTO.class);
+        final var responseDTO = response.readEntity(AuthTokenDTO.class);
         assertThat(responseDTO.token).isNotEmpty();
 
         verify(organizationsDao).read(eq(org.getId()));
@@ -110,9 +109,9 @@ public class OrganizationsSignUpResourceTest {
     @Test
     @Ignore(value = "Ignored test should be reimplemented in OpenIdResourceTest")
     public void signup_tryToCreateAlreadyExistingOrganization_expectConflict() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
         when(organizationsDao.find(eq("org"))).thenReturn(Collections.singletonList(org));
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/signup/")
                 .request()
                 .post(Entity.json(new SignupDTO("password", "alice@example.com", org.getName(), CredentialsType.PASSWORD)));
@@ -127,7 +126,7 @@ public class OrganizationsSignUpResourceTest {
     }
 
     private Person mockPerson(Organization org, String name, String email) throws ObjectNotFoundException {
-        final Person person = MockUtil.mockPerson(org, name, null, email, Roles.READER);
+        final var person = MockUtil.mockPerson(org, name, null, email, Roles.READER);
 
         when(peopleDao.read(eq(person.getId()))).thenReturn(person);
 
@@ -135,7 +134,7 @@ public class OrganizationsSignUpResourceTest {
     }
 
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
-        final Organization org = MockUtil.mockOrganization(name);
+        final var org = MockUtil.mockOrganization(name);
 
         when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
 

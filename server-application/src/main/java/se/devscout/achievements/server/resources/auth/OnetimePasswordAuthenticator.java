@@ -30,9 +30,9 @@ public class OnetimePasswordAuthenticator implements Authenticator<String, User>
     @UnitOfWork
     public Optional<User> authenticate(String password) throws AuthenticationException {
         try {
-            final Credentials credentials = credentialsDao.get(CredentialsType.ONETIME_PASSWORD, Base64.decodeAsString(password));
-            final String role = credentials.getPerson().getRole();
-            final User user = new User(
+            final var credentials = credentialsDao.get(CredentialsType.ONETIME_PASSWORD, Base64.decodeAsString(password));
+            final var role = credentials.getPerson().getRole();
+            final var user = new User(
                     credentials.getPerson().getId(),
                     credentials.getId(),
                     credentials.getPerson().getName(),

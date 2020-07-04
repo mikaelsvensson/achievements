@@ -13,8 +13,8 @@ public class MicrosoftTokenValidator implements CredentialsValidator {
 
     @Override
     public ValidationResult validate(char[] data) {
-        final String token = new String(data);
-        final DecodedJWT jwt = JWT.decode(token);
+        final var token = new String(data);
+        final var jwt = JWT.decode(token);
         //TODO: Look into how to guarantee that the e-mail claim is returned
         return new ValidationResult(jwt.getClaim("email").asString(), jwt.getSubject(), true, CredentialsType.MICROSOFT, new byte[0]);
     }

@@ -30,7 +30,6 @@ import se.devscout.achievements.server.mail.EmailSenderException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -41,7 +40,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static se.devscout.achievements.server.MockUtil.*;
 
@@ -89,10 +87,10 @@ public class PeopleResourceTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -100,7 +98,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final PersonDTO dto = response.readEntity(PersonDTO.class);
+        final var dto = response.readEntity(PersonDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.id).isNotEqualTo(ZERO);
 
@@ -109,16 +107,16 @@ public class PeopleResourceTest {
 
     @Test
     public void welcomeMail_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
         when(person.getEmail()).thenReturn("alice@gmail.com");
         when(person.getCredentials()).thenReturn(Collections.emptySet());
 
         when(i18n.get(anyString())).thenReturn("the subject");
-        final ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
+        final var bodyCaptor = ArgumentCaptor.forClass(String.class);
         doNothing().when(emailSender).send(anyString(), anyString(), anyString(), bodyCaptor.capture());
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -140,11 +138,11 @@ public class PeopleResourceTest {
 
     @Test
     public void welcomeMail_noEmail() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
         when(person.getEmail()).thenReturn(null);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -161,8 +159,8 @@ public class PeopleResourceTest {
 
     @Test
     public void welcomeMail_sendException() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
         when(person.getEmail()).thenReturn("<script>alert('Trudy was here')</script>");
         doThrow(new EmailSenderException("Error")).when(emailSender).send(
                 anyString(),
@@ -170,7 +168,7 @@ public class PeopleResourceTest {
                 anyString(),
                 anyString());
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -187,11 +185,11 @@ public class PeopleResourceTest {
 
     @Test
     public void welcomeMail_emptyEmail() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
         when(person.getEmail()).thenReturn("   ");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId() + "/mails/welcome")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -208,10 +206,10 @@ public class PeopleResourceTest {
 
     @Test
     public void get_authReader_expectUnauthorized() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -223,18 +221,18 @@ public class PeopleResourceTest {
     }
 
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
-        final Organization org = MockUtil.mockOrganization(name);
+        final var org = MockUtil.mockOrganization(name);
         when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         return org;
     }
 
     @Test
     public void getByOrganization_authReader_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
         when(dao.getByParent(eq(org))).thenReturn(Collections.singletonList(person));
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -243,7 +241,7 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         // A list of PersonBaseDTO should be returned but the point is that we don't accidentally want to return a PersonDTO with custom_identifier value.
-        final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
+        final var dto = response.readEntity(new GenericType<List<PersonDTO>>() {
         });
         assertThat(dto).hasSize(1);
         assertThat(dto.get(0).id).isNotNull();
@@ -255,10 +253,10 @@ public class PeopleResourceTest {
 
     @Test
     public void getByOrganization_missing_expectNotFound() throws Exception {
-        final UUID badId = UUID.randomUUID();
+        final var badId = UUID.randomUUID();
         when(organizationsDao.read(eq(badId))).thenThrow(new NotFoundException());
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(badId) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -271,23 +269,23 @@ public class PeopleResourceTest {
 
     @Test
     public void getByOrganization_filterByGroup_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Group group1 = mockGroup(org, "Developers");
-        final Group group2 = mockGroup(org, "Marketing");
+        final var group1 = mockGroup(org, "Developers");
+        final var group2 = mockGroup(org, "Marketing");
 
-        final Person person1 = mockPerson(org, "Alice");
+        final var person1 = mockPerson(org, "Alice");
         when(person1.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group1, person1, GroupRole.MEMBER)));
 
-        final Person person2 = mockPerson(org, "Bob");
+        final var person2 = mockPerson(org, "Bob");
         when(person2.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group1, person2, GroupRole.MANAGER)));
 
-        final Person person3 = mockPerson(org, "Carol");
+        final var person3 = mockPerson(org, "Carol");
         when(person3.getMemberships()).thenReturn(Collections.singleton(new GroupMembership(group2, person3, GroupRole.MEMBER)));
 
         when(dao.getByParent(eq(org))).thenReturn(Arrays.asList(person1, person2, person3));
 
-        final Response response1 = resources
+        final var response1 = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .queryParam("group", group1.getId().toString())
                 .register(MockUtil.AUTH_FEATURE_READER)
@@ -296,11 +294,11 @@ public class PeopleResourceTest {
 
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonBaseDTO> dto1 = response1.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        final var dto1 = response1.readEntity(new GenericType<List<PersonBaseDTO>>() {
         });
         assertThat(dto1.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Bob");
 
-        final Response response2 = resources
+        final var response2 = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .queryParam("filter", "a")
                 .register(MockUtil.AUTH_FEATURE_READER)
@@ -309,11 +307,11 @@ public class PeopleResourceTest {
 
         assertThat(response2.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonBaseDTO> dto2 = response2.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        final var dto2 = response2.readEntity(new GenericType<List<PersonBaseDTO>>() {
         });
         assertThat(dto2.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Carol");
 
-        final Response response3 = resources
+        final var response3 = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -321,7 +319,7 @@ public class PeopleResourceTest {
 
         assertThat(response3.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonBaseDTO> dto3 = response3.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        final var dto3 = response3.readEntity(new GenericType<List<PersonBaseDTO>>() {
         });
         assertThat(dto3.stream().map(personBaseDTO -> personBaseDTO.name).collect(Collectors.toList())).containsExactlyInAnyOrder("Alice", "Bob", "Carol");
 
@@ -330,7 +328,7 @@ public class PeopleResourceTest {
     @Test
     public void get_notFound() throws Exception {
         when(dao.read(eq(123))).thenThrow(new NotFoundException());
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(UUID.randomUUID()) + "/people/123")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -343,10 +341,10 @@ public class PeopleResourceTest {
 
     @Test
     public void get_byCustomId_notFound() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice", "alice");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice", "alice");
         when(dao.read(eq(org), eq("alice"))).thenReturn(person);
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/c:alice")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -354,7 +352,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final PersonDTO dto = response.readEntity(PersonDTO.class);
+        final var dto = response.readEntity(PersonDTO.class);
         assertThat(dto.name).isEqualTo("Alice");
         assertThat(dto.custom_identifier).isEqualTo("alice");
 
@@ -366,7 +364,7 @@ public class PeopleResourceTest {
     public void delete_notFound() throws Exception {
         doThrow(new NotFoundException()).when(dao).read(eq(-1));
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/ORG_ID/people/PERSON_ID")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -379,10 +377,10 @@ public class PeopleResourceTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        final Organization org = mockOrganization("Org");
-        final Person person = mockPerson(org, "name");
+        final var org = mockOrganization("Org");
+        final var person = mockPerson(org, "name");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -395,10 +393,10 @@ public class PeopleResourceTest {
 
     @Test
     public void delete_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("Org");
-        final Person person = mockPerson(org, "name");
+        final var org = mockOrganization("Org");
+        final var person = mockPerson(org, "name");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -412,11 +410,11 @@ public class PeopleResourceTest {
     @Test
     public void delete_wrongOrganization_expectNotFound() throws Exception {
 
-        final Organization orgA = mockOrganization("ORG_A");
-        final Organization orgB = mockOrganization("ORG_B");
-        final Person person = mockPerson(orgA, "name");
+        final var orgA = mockOrganization("ORG_A");
+        final var orgB = mockOrganization("ORG_B");
+        final var person = mockPerson(orgA, "name");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -430,9 +428,9 @@ public class PeopleResourceTest {
 
     @Test
     public void delete_self_expectBadRequest() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson().getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -446,11 +444,11 @@ public class PeopleResourceTest {
     @Test
     public void get_wrongOrganization_expectNotFound() throws Exception {
 
-        final Organization orgA = mockOrganization("ORG_A");
-        final Organization orgB = mockOrganization("ORG_B");
-        final Person person = mockPerson(orgA, "name");
+        final var orgA = mockOrganization("ORG_A");
+        final var orgB = mockOrganization("ORG_B");
+        final var person = mockPerson(orgA, "name");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/people/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -464,18 +462,18 @@ public class PeopleResourceTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "name");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "name");
         when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .post(Entity.json(new PersonDTO()));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        final PersonDTO dto = response.readEntity(PersonDTO.class);
+        final var dto = response.readEntity(PersonDTO.class);
 
         assertThat(response.getLocation().getPath()).isEqualTo("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person.getId());
         assertThat(dto.name).isEqualTo("name");
@@ -486,11 +484,11 @@ public class PeopleResourceTest {
 
     @Test
     public void create_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "name");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "name");
         when(dao.create(any(Organization.class), any(PersonProperties.class))).thenReturn(person);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -503,9 +501,9 @@ public class PeopleResourceTest {
 
     @Test
     public void create_privilegeEscalation_expectBadRequest() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -518,19 +516,19 @@ public class PeopleResourceTest {
 
     @Test
     public void update_changeName_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person expectedPerson = mockPerson(org, "Alicia");
+        final var org = mockOrganization("org");
+        final var expectedPerson = mockPerson(org, "Alicia");
         when(dao.read(eq(expectedPerson.getId()))).thenReturn(expectedPerson);
         when(dao.update(eq(expectedPerson.getId()), any(PersonProperties.class))).thenReturn(expectedPerson);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + expectedPerson.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
                 .put(Entity.json(new PersonDTO(null, "Alicia")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
-        final PersonDTO dto = response.readEntity(PersonDTO.class);
+        final var dto = response.readEntity(PersonDTO.class);
 
         assertThat(dto.name).isEqualTo("Alicia");
 
@@ -539,12 +537,12 @@ public class PeopleResourceTest {
 
     @Test
     public void update_privilegeEscalation_expectBadRequest() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person expectedPerson = mockPerson(org, "Alicia");
+        final var org = mockOrganization("org");
+        final var expectedPerson = mockPerson(org, "Alicia");
         when(dao.read(eq(expectedPerson.getId()))).thenReturn(expectedPerson);
         when(dao.update(eq(expectedPerson.getId()), any(PersonProperties.class))).thenReturn(expectedPerson);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + expectedPerson.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -557,9 +555,9 @@ public class PeopleResourceTest {
 
     @Test
     public void update_self_expectBadRequest() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson().getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -572,28 +570,28 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_json_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Person alice = mockPerson(org, "Alice");
+        final var alice = mockPerson(org, "Alice");
         when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
-        final ArgumentCaptor<PersonProperties> updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        final var updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.update(eq(alice.getId()), updateCaptor.capture())).thenReturn(alice);
 
-        final Person bob = mockPerson(org, "Bob");
+        final var bob = mockPerson(org, "Bob");
         when(dao.read(eq(org), eq("bbb"))).thenReturn(bob);
 
-        final Person carol = mockPerson(org, "Carol");
+        final var carol = mockPerson(org, "Carol");
         when(dao.read(eq(org), eq("ccc"))).thenThrow(new ObjectNotFoundException());
-        final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        final var createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
 
-        final Group group = mockGroup(org, "Developers");
+        final var group = mockGroup(org, "Developers");
         when(groupsDao.create(eq(org), any())).thenReturn(group);
         when(groupsDao.read(eq(org), eq("Developers")))
                 .thenThrow(new ObjectNotFoundException())
                 .thenReturn(group);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -604,7 +602,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonBaseDTO> dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        final var dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
         });
         assertThat(dto).hasSize(2);
         assertThat(dto.get(0).id).isNotNull();
@@ -635,9 +633,9 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdateJson_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -654,9 +652,9 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdateCsv_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -675,23 +673,23 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_csv_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
-        final Person alice = mockPerson(org, "Alice");
+        final var alice = mockPerson(org, "Alice");
         when(dao.read(eq(org), eq("aaa"))).thenReturn(alice);
-        final ArgumentCaptor<PersonProperties> updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        final var updateCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.update(eq(alice.getId()), updateCaptor.capture())).thenReturn(alice);
 
-        final Person bob = mockPerson(org, "Bob");
+        final var bob = mockPerson(org, "Bob");
         when(dao.read(eq(org), eq("bbb"))).thenReturn(bob);
 
-        final Person carol = mockPerson(org, "Carol");
+        final var carol = mockPerson(org, "Carol");
         when(dao.read(eq(org), eq("ccc"))).thenThrow(new ObjectNotFoundException());
-        final ArgumentCaptor<PersonProperties> createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
+        final var createCaptor = ArgumentCaptor.forClass(PersonProperties.class);
         when(dao.create(any(Organization.class), createCaptor.capture())).thenReturn(carol);
 
-        final Group groupDev = mockGroup(org, "Developers");
-        final Group groupMgr = mockGroup(org, "Managers");
+        final var groupDev = mockGroup(org, "Developers");
+        final var groupMgr = mockGroup(org, "Managers");
         when(groupsDao.create(eq(org), any()))
                 .thenReturn(groupDev)
                 .thenReturn(groupMgr);
@@ -702,7 +700,7 @@ public class PeopleResourceTest {
                 .thenThrow(new ObjectNotFoundException())
                 .thenReturn(groupMgr);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -715,7 +713,7 @@ public class PeopleResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonBaseDTO> dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
+        final var dto = response.readEntity(new GenericType<List<PersonBaseDTO>>() {
         });
         assertThat(dto).hasSize(2);
         assertThat(dto.get(0).id).isNotNull();
@@ -751,26 +749,26 @@ public class PeopleResourceTest {
         //
         // MOCK STUFF
         //
-        final Organization org = mockOrganization("Acme Inc.");
+        final var org = mockOrganization("Acme Inc.");
 
         when(dao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
-        final Person carol = mockPerson(org, "Person");
+        final var carol = mockPerson(org, "Person");
         when(dao.create(any(Organization.class), any())).thenReturn(carol);
 
         when(groupsDao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
-        final Group groupDev = mockGroup(org, "Group");
+        final var groupDev = mockGroup(org, "Group");
         when(groupsDao.create(eq(org), any())).thenReturn(groupDev);
 
         //
         // REQUEST 1: Upload an XML file with data from Repet.
         //
 
-        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+        final var fileDataBodyPart = new FileDataBodyPart(
                 "importFile",
                 new File(getClass().getClassLoader().getResource("batchupsert-repet-narvarolista.xml").getFile()));
-        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+        final var multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
                 .bodyPart(fileDataBodyPart);
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -780,7 +778,7 @@ public class PeopleResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         // These assertions are essentially just to validate that the returned JSON is in the expected format. The data itself is incorrect since it is all mocked.
-        final UpsertResultDTO dto = response.readEntity(UpsertResultDTO.class);
+        final var dto = response.readEntity(UpsertResultDTO.class);
         assertThat(dto.uploadId).hasSize(UUID_STRING_LENGTH);
         assertThat(dto.people).hasSize(36);
         assertThat(dto.people.stream().allMatch(p -> p.isNew)).isTrue();
@@ -790,9 +788,9 @@ public class PeopleResourceTest {
         // REQUEST 2: Import the same data once more, but this time by referencing the previously uploaded file instead of uploading it again.
         //
 
-        final FormDataMultiPart multiPartReq2 = new FormDataMultiPart()
+        final var multiPartReq2 = new FormDataMultiPart()
                 .field("importUploadedFileId", dto.uploadId);
-        final Response response2 = resources
+        final var response2 = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -802,7 +800,7 @@ public class PeopleResourceTest {
         assertThat(response2.getStatus()).isEqualTo(HttpStatus.OK_200);
 
         // These assertions are essentially just to validate that the returned JSON is in the expected format.
-        final UpsertResultDTO dto2 = response2.readEntity(UpsertResultDTO.class);
+        final var dto2 = response2.readEntity(UpsertResultDTO.class);
         assertThat(dto2.uploadId).isEqualTo(dto.uploadId);
         // Asserting the number of people returned is important as it validates that we reused the file previously uploaded by just referencing it this time.
         assertThat(dto2.people).hasSize(36);
@@ -816,26 +814,26 @@ public class PeopleResourceTest {
         //
         // MOCK STUFF
         //
-        final Organization org = mockOrganization("Acme Inc.");
+        final var org = mockOrganization("Acme Inc.");
 
         when(dao.read(eq(org), anyString())).thenThrow(new ObjectNotFoundException());
-        final Person mockedImportedPerson = mockPerson(org, "Person");
+        final var mockedImportedPerson = mockPerson(org, "Person");
         when(dao.create(any(Organization.class), any())).thenReturn(mockedImportedPerson);
 
-        final Group groupTracker = mockGroup(org, "Sp\u00e5rare");
+        final var groupTracker = mockGroup(org, "Sp\u00e5rare");
         when(groupsDao.read(eq(org), eq("Sp\u00e5rare"))).thenReturn(groupTracker);
 
-        final Group groupDiscoverer = mockGroup(org, "Uppt\u00e4ckare");
+        final var groupDiscoverer = mockGroup(org, "Uppt\u00e4ckare");
         when(groupsDao.read(eq(org), eq("Uppt\u00e4ckare"))).thenReturn(groupDiscoverer);
 
-        final Group groupAdventurer = mockGroup(org, "Ton\u00e5r");
+        final var groupAdventurer = mockGroup(org, "Ton\u00e5r");
         when(groupsDao.create(eq(org), any())).thenReturn(groupAdventurer);
         when(groupsDao.read(eq(org), eq("Ton\u00e5r"))).thenThrow(new ObjectNotFoundException());
 
-        final Person trackerInImport = mockPerson(org, "Edla Backman");
-        final Person trackerNotInImport = mockPerson(org, "OLD TRACKER");
-        final Person discovererInImport = mockPerson(org, "B-A", "abrahamsson-boel");
-        final Person discovererNotInImport = mockPerson(org, "OLD DISCOVERER");
+        final var trackerInImport = mockPerson(org, "Edla Backman");
+        final var trackerNotInImport = mockPerson(org, "OLD TRACKER");
+        final var discovererInImport = mockPerson(org, "B-A", "abrahamsson-boel");
+        final var discovererNotInImport = mockPerson(org, "OLD DISCOVERER");
         when(membershipsDao.getMemberships(eq(groupTracker))).thenReturn(Arrays.asList(
                 new GroupMembership(groupTracker, trackerInImport, GroupRole.MEMBER),
                 new GroupMembership(groupTracker, trackerNotInImport, GroupRole.MEMBER)
@@ -849,10 +847,10 @@ public class PeopleResourceTest {
         // Upload an XML file with data from Repet.
         //
 
-        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+        final var multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
                 .field("importClearGroups", "true")
                 .field("importRawData", Resources.toString(Resources.getResource("batchupsert-repet-narvarolista.xml"), Charsets.UTF_8));
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -873,11 +871,11 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_repet_randomDataShouldNotBeAccepted() throws Exception {
-        final Organization org = mockOrganization("Acme Inc.");
+        final var org = mockOrganization("Acme Inc.");
 
-        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+        final var multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
                 .bodyPart(new FormDataBodyPart("importFile", new RandomStringGenerator.Builder().build().generate(100)));
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -891,14 +889,14 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_repet_emptyXmlFileShouldNotBeAccepted() throws Exception {
-        final Organization org = mockOrganization("Acme Inc.");
+        final var org = mockOrganization("Acme Inc.");
 
-        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+        final var fileDataBodyPart = new FileDataBodyPart(
                 "importFile",
                 new File(getClass().getClassLoader().getResource("batchupsert-repet-narvarolista-empty.xml").getFile()));
-        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+        final var multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
                 .bodyPart(fileDataBodyPart);
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -912,14 +910,14 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_repet_xmlBombShouldNotBeAccepted() throws Exception {
-        final Organization org = mockOrganization("Acme Inc.");
+        final var org = mockOrganization("Acme Inc.");
 
-        final FileDataBodyPart fileDataBodyPart = new FileDataBodyPart(
+        final var fileDataBodyPart = new FileDataBodyPart(
                 "importFile",
                 new File(getClass().getClassLoader().getResource("xml-bomb.xml").getFile()));
-        final FormDataMultiPart multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
+        final var multiPartReq1 = (FormDataMultiPart) new FormDataMultiPart()
                 .bodyPart(fileDataBodyPart);
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people")
                 .register(MultiPartFeature.class)
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
@@ -933,17 +931,17 @@ public class PeopleResourceTest {
 
     @Test
     public void batchUpdate_csv_updateSelf_expectBadRequest() throws Exception {
-        final Organization org = mockOrganization("org");
+        final var org = mockOrganization("org");
 
         // Some mocking which maybe should be moved to MockUtil
-        final Person editorPerson = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
-        final Organization editorOrganization = editorPerson.getOrganization();
+        final var editorPerson = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+        final var editorOrganization = editorPerson.getOrganization();
         when(organizationsDao.read(eq(editorOrganization.getId()))).thenReturn(editorOrganization);
 
         //SUT 1: Batch update using custom identifier
         when(dao.read(any(Organization.class), eq("alice_editor"))).thenReturn(editorPerson);
 
-        final Response response1 = resources
+        final var response1 = resources
                 .target("/organizations/" + UuidString.toString(editorOrganization.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -958,7 +956,7 @@ public class PeopleResourceTest {
         //SUT 1: Batch update using primary key value
         when(dao.read(eq(editorPerson.getId()))).thenReturn(editorPerson);
 
-        final Response response2 = resources
+        final var response2 = resources
                 .target("/organizations/" + UuidString.toString(editorOrganization.getId()) + "/people")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -977,30 +975,30 @@ public class PeopleResourceTest {
 
     @Test
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
-        final Organization org = mockOrganization("Alice's Organization");
-        final Person person1 = mockPerson(org, "Alice");
-        final Person person2 = mockPerson(org, "Bob");
-        final Person person3 = mockPerson(org, "Carol");
-        final AchievementStepProgress a1p1 = mockProgress(true, person1);
-        final AchievementStepProgress a1p2 = mockProgress(true, person2);
-        final AchievementStepProgress a1p3 = mockProgress(true, person1);
-        final AchievementStepProgress a1p4 = mockProgress(true, person2);
-        final AchievementStep a1s1 = mockStep(a1p1, a1p2);
-        final AchievementStep a1s2 = mockStep(a1p3, a1p4);
-        final Achievement a1 = mockAchievement("Climb mountain", a1s1, a1s2);
+        final var org = mockOrganization("Alice's Organization");
+        final var person1 = mockPerson(org, "Alice");
+        final var person2 = mockPerson(org, "Bob");
+        final var person3 = mockPerson(org, "Carol");
+        final var a1p1 = mockProgress(true, person1);
+        final var a1p2 = mockProgress(true, person2);
+        final var a1p3 = mockProgress(true, person1);
+        final var a1p4 = mockProgress(true, person2);
+        final var a1s1 = mockStep(a1p1, a1p2);
+        final var a1s2 = mockStep(a1p3, a1p4);
+        final var a1 = mockAchievement("Climb mountain", a1s1, a1s2);
 
-        final AchievementStepProgress a2p1 = mockProgress(false, person2);
-        final AchievementStepProgress a2p2 = mockProgress(true, person1);
-        final AchievementStepProgress a2p3 = mockProgress(false, person2);
-        final AchievementStepProgress a2p4 = mockProgress(false, person1);
-        final AchievementStep s2 = mockStep(a2p1, a2p2);
-        final AchievementStep s3 = mockStep(a2p3, a2p4);
-        final Achievement a2 = mockAchievement("Cook egg", s2, s3);
+        final var a2p1 = mockProgress(false, person2);
+        final var a2p2 = mockProgress(true, person1);
+        final var a2p3 = mockProgress(false, person2);
+        final var a2p4 = mockProgress(false, person1);
+        final var s2 = mockStep(a2p1, a2p2);
+        final var s3 = mockStep(a2p3, a2p4);
+        final var a2 = mockAchievement("Cook egg", s2, s3);
 
         when(achievementsDao.findWithProgressForPerson(eq(person1)))
                 .thenReturn(Arrays.asList(a1, a2));
 
-        final OrganizationAchievementSummaryDTO dto = resources.client()
+        final var dto = resources.client()
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + person1.getId() + "/achievement-summary")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -1028,10 +1026,10 @@ public class PeopleResourceTest {
     }
 
     private Person mockPerson(Organization org, String name, String customId) throws ObjectNotFoundException, IOException {
-        final Person person1 = MockUtil.mockPerson(org, name, customId, Roles.READER);
+        final var person1 = MockUtil.mockPerson(org, name, customId, Roles.READER);
         when(dao.read(eq(person1.getId()))).thenReturn(person1);
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final var credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(name))).thenReturn(credentials);
         return person1;
     }

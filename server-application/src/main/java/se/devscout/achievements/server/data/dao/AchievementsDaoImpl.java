@@ -38,22 +38,22 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
 
     @Override
     public Achievement update(UUID id, AchievementProperties properties) throws ObjectNotFoundException {
-        final Achievement achievement = read(id);
+        final var achievement = read(id);
         achievement.apply(properties);
         return super.persist(achievement);
     }
 
     @Override
     public void delete(UUID id) throws ObjectNotFoundException {
-        final Achievement achievement = read(id);
+        final var achievement = read(id);
         super.currentSession().delete(achievement);
     }
 
     @Override
     public List<Achievement> find(String searchQuery) {
-        final String[] tokens = getSearchTokens(searchQuery);
+        final var tokens = getSearchTokens(searchQuery);
 
-        final Query<Achievement> dbQuery = getSearchQuery(tokens);
+        final var dbQuery = getSearchQuery(tokens);
 
         return dbQuery.getResultList();
     }
@@ -68,8 +68,8 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
 
     private Query<Achievement> getSearchQuery(String[] tokens) {
         final List<String> params = new ArrayList<>();
-        StringBuilder whereClause = new StringBuilder();
-        for (String token : tokens) {
+        var whereClause = new StringBuilder();
+        for (var token : tokens) {
             if (whereClause.length() > 0) {
                 whereClause.append(" AND ");
             }
@@ -83,7 +83,7 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
             params.add("%" + token + "%");
             params.add(token);
         }
-        final Query<Achievement> dbQuery = query("" +
+        final var dbQuery = query("" +
                 "SELECT " +
                 "   a " +
                 "FROM " +
@@ -92,8 +92,8 @@ public class AchievementsDaoImpl extends DaoImpl<Achievement, UUID> implements A
                 "   " + whereClause.toString() + " " +
                 "ORDER BY " +
                 "   a.name");
-        for (int i = 0; i < params.size(); i++) {
-            String param = params.get(i);
+        for (var i = 0; i < params.size(); i++) {
+            var param = params.get(i);
             dbQuery.setParameter(i, param);
         }
         return dbQuery;

@@ -20,7 +20,7 @@ public class GroupsDaoImpl extends DaoImpl<Group, Integer> implements GroupsDao 
 
     @Override
     public Group read(Organization parent, String name) throws ObjectNotFoundException {
-        final List<Group> list = findByName(parent, name);
+        final var list = findByName(parent, name);
         if (list.isEmpty()) {
             throw new ObjectNotFoundException();
         }
@@ -35,14 +35,14 @@ public class GroupsDaoImpl extends DaoImpl<Group, Integer> implements GroupsDao 
     @Override
     public Group create(Organization parent, GroupProperties properties) throws DaoException {
         verifyGroupName(parent, properties.getName());
-        final Group group = new ModelMapper().map(properties, Group.class);
+        final var group = new ModelMapper().map(properties, Group.class);
         group.setOrganization(parent);
         return persist(group);
     }
 
     @Override
     public Group update(Integer id, GroupProperties properties) throws ObjectNotFoundException, DaoException {
-        final Group group = read(id);
+        final var group = read(id);
         verifyGroupName(group.getOrganization(), properties.getName());
         group.apply(properties);
         return super.persist(group);
@@ -56,7 +56,7 @@ public class GroupsDaoImpl extends DaoImpl<Group, Integer> implements GroupsDao 
 
     @Override
     public void delete(Integer id) throws ObjectNotFoundException {
-        final Group group = read(id);
+        final var group = read(id);
         super.currentSession().delete(group);
     }
 

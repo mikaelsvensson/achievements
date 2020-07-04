@@ -26,7 +26,7 @@ public class AbstractAuthResource extends AbstractResource {
 
     protected AuthTokenDTO createTokenDTO(CredentialsType credentialsType, String userId) throws ExternalIdpCallbackException {
         try {
-            final Credentials credentials = credentialsDao.get(credentialsType, userId);
+            final var credentials = credentialsDao.get(credentialsType, userId);
             return generateTokenResponse(credentials);
         } catch (ObjectNotFoundException e) {
             throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.UNKNOWN_USER, "Could not find user.", e);
@@ -35,7 +35,7 @@ public class AbstractAuthResource extends AbstractResource {
 
     protected AuthTokenDTO createTokenDTO(UUID credentialsId) throws ExternalIdpCallbackException {
         try {
-            final Credentials credentials = credentialsDao.read(credentialsId);
+            final var credentials = credentialsDao.read(credentialsId);
             return generateTokenResponse(credentials);
         } catch (ObjectNotFoundException e) {
             throw new ExternalIdpCallbackException(ExternalIdpCallbackExceptionType.UNKNOWN_USER, "Could not find user.", e);
@@ -43,8 +43,8 @@ public class AbstractAuthResource extends AbstractResource {
     }
 
     protected AuthTokenDTO generateTokenResponse(Credentials credentials) {
-        final Person person = credentials.getPerson();
-        final Sets.SetView<String> roles = Sets.union(Collections.singleton(person.getRole()), Roles.IMPLICIT_ROLES.getOrDefault(person.getRole(), Collections.emptySet()));
+        final var person = credentials.getPerson();
+        final var roles = Sets.union(Collections.singleton(person.getRole()), Roles.IMPLICIT_ROLES.getOrDefault(person.getRole(), Collections.emptySet()));
         return new AuthTokenDTO(signInTokenService.encode(
                 new JwtSignInToken(
                         person.getName(),

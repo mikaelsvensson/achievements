@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class OpenIdIdentityProviderTest {
@@ -28,20 +27,20 @@ public class OpenIdIdentityProviderTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
 
-    private HttpServletRequest req = mock(HttpServletRequest.class);
-    private HttpServletResponse resp = mock(HttpServletResponse.class);
-    private CredentialsValidator credentialsValidator = mock(CredentialsValidator.class);
+    private final HttpServletRequest req = mock(HttpServletRequest.class);
+    private final HttpServletResponse resp = mock(HttpServletResponse.class);
+    private final CredentialsValidator credentialsValidator = mock(CredentialsValidator.class);
 
     @Test
     public void handleCallback_expectedPropertiesOnly_happyPath() throws IdentityProviderException {
-        String body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"access_token\":\"accesstoken\",\"id_token\":\"idtoken\"}";
+        var body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"access_token\":\"accesstoken\",\"id_token\":\"idtoken\"}";
 
         handleCallback_happyPath(body);
     }
 
     @Test
     public void handleCallback_extraProperty_happyPath() throws IdentityProviderException {
-        String body = "{\"custom_property\":\"value\",\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"access_token\":\"accesstoken\",\"id_token\":\"idtoken\"}";
+        var body = "{\"custom_property\":\"value\",\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"access_token\":\"accesstoken\",\"id_token\":\"idtoken\"}";
 
         handleCallback_happyPath(body);
     }
@@ -58,7 +57,7 @@ public class OpenIdIdentityProviderTest {
         when(req.getRequestURI()).thenReturn("/auth/callback");
         when(credentialsValidator.validate(eq("idtoken".toCharArray()))).thenReturn(new ValidationResult("alice@example.com", "alice@example.com", true, CredentialsType.ONETIME_PASSWORD, null));
 
-        final OpenIdIdentityProvider provider = new OpenIdIdentityProvider(
+        final var provider = new OpenIdIdentityProvider(
                 UriBuilder.fromUri("http://localhost/auth").port(wireMockRule.port()).toString(),
                 "client-id",
                 "client-secret",
@@ -67,7 +66,7 @@ public class OpenIdIdentityProviderTest {
                 URI.create("http://example.com")
         );
 
-        final ValidationResult actual = provider.handleCallback(req, resp);
+        final var actual = provider.handleCallback(req, resp);
 
         assertThat(actual.getCallbackState()).isEqualTo("callback-data");
         assertThat(actual.getUserEmail()).isEqualTo("alice@example.com");
@@ -78,14 +77,14 @@ public class OpenIdIdentityProviderTest {
 
     @Test
     public void handleCallback_errorCode_fail() throws IdentityProviderException {
-        String body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"error\":\"invalid_password\"}";
+        var body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"error\":\"invalid_password\"}";
 
         handleCallback_fail(body);
     }
 
     @Test
     public void handleCallback_errorDescription_fail() throws IdentityProviderException {
-        String body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"error\":\"invalid_password\",\"error_description\":\"a long error message\"}";
+        var body = "{\"token_type\":\"Bearer\",\"scope\":\"openid email\",\"expires_in\":60,\"error\":\"invalid_password\",\"error_description\":\"a long error message\"}";
 
         handleCallback_fail(body);
     }
@@ -101,7 +100,7 @@ public class OpenIdIdentityProviderTest {
         when(req.getParameter(eq("state"))).thenReturn("callback-data");
         when(req.getRequestURI()).thenReturn("/auth/callback");
 
-        final OpenIdIdentityProvider provider = new OpenIdIdentityProvider(
+        final var provider = new OpenIdIdentityProvider(
                 UriBuilder.fromUri("http://localhost/auth").port(wireMockRule.port()).toString(),
                 "client-id",
                 "client-secret",

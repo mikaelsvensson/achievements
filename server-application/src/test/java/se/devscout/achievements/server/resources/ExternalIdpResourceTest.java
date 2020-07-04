@@ -77,14 +77,14 @@ public class ExternalIdpResourceTest {
     @Test
     @Ignore(value = "Fix test")
     public void doSignInRequest_incorrectIdp() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/auth/INVALID/signin")
                 .queryParam("email", "alice@example.com")
                 .request()
                 .get();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.TEMPORARY_REDIRECT_307);
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin-failed/system-error");
     }
 
@@ -95,15 +95,15 @@ public class ExternalIdpResourceTest {
         ).thenReturn(
                 URI.create("http://gui/#signin/check-mail-box")
         );
-        final MultivaluedStringMap data = new MultivaluedStringMap();
+        final var data = new MultivaluedStringMap();
         data.putSingle("key", "value");
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signin")
                 .request()
                 .post(Entity.form(data));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin/check-mail-box");
     }
 
@@ -116,13 +116,13 @@ public class ExternalIdpResourceTest {
     @Test
     public void doSignInRequest_externalIdp_noEmailAddress() throws Exception {
         when(identityProvider.getRedirectUri(any(HttpServletRequest.class), any(HttpServletResponse.class), anyString(), any(URI.class))).thenAnswer(invocation -> invocation.getArgument(3));
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signin")
                 .request()
                 .post(null);
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://server/api/auth/provider/signin/callback");
     }
 
@@ -175,7 +175,7 @@ public class ExternalIdpResourceTest {
     public void handleSignInCallback_externalIdp_validCodeExistingCredentials() throws Exception {
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(USERNAME_READER, USERNAME_READER, true, CredentialsType.PASSWORD, null));
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signin/callback")
                 .queryParam("code", "the_state")
                 .request()
@@ -186,7 +186,7 @@ public class ExternalIdpResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         // Assert that no account is set up
@@ -202,7 +202,7 @@ public class ExternalIdpResourceTest {
     public void handleSignInCallback_handleCallback_failure() throws Exception {
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenThrow(new IdentityProviderException("Something went wrong"));
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signin/callback")
                 .queryParam("code", "the_state")
                 .request()
@@ -213,7 +213,7 @@ public class ExternalIdpResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).isEqualTo("http://gui/#signin-failed/unspecified");
 
         // Assert that no account is set up
@@ -227,10 +227,10 @@ public class ExternalIdpResourceTest {
 
     @Test
     public void handleSignInCallback_existingPersonWithoutCredentials_happyPath() throws Exception {
-        final String email = "person-without-credentials@example.com";
-        final Organization organization = mockOrganization("Acme Inc.");
-        final Person person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
-        final Credentials credentials = mockCredentials(person, email);
+        final var email = "person-without-credentials@example.com";
+        final var organization = mockOrganization("Acme Inc.");
+        final var person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
+        final var credentials = mockCredentials(person, email);
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(email, email, true, CredentialsType.PASSWORD, null));
 
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenThrow(new ObjectNotFoundException());
@@ -239,7 +239,7 @@ public class ExternalIdpResourceTest {
 
         when(peopleDao.getByEmail(eq(email))).thenReturn(Collections.singletonList(person));
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signin/callback")
                 .queryParam("code", "the_state")
                 .request()
@@ -251,7 +251,7 @@ public class ExternalIdpResourceTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.SEE_OTHER_303);
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         verify(peopleDao, never()).create(any(), any());
@@ -285,13 +285,13 @@ public class ExternalIdpResourceTest {
      */
     @Test
     public void handleSignUpCallback_externalIdp_existingSpecificOrganizationExistingPerson() throws Exception {
-        final String email = "alice@example.com";
+        final var email = "alice@example.com";
 
-        final Organization organization = mockOrganization("Acme");
-        final Person person = mockPerson(organization, "Alice", null, email, Roles.READER);
-        final Credentials credentials = mockCredentials(person, email);
+        final var organization = mockOrganization("Acme");
+        final var person = mockPerson(organization, "Alice", null, email, Roles.READER);
+        final var credentials = mockCredentials(person, email);
 
-        final String callbackState = signUpTokenService.encode(new JwtSignUpToken(new UuidString(organization.getId()), null));
+        final var callbackState = signUpTokenService.encode(new JwtSignUpToken(new UuidString(organization.getId()), null));
 
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(email, email, true, CredentialsType.PASSWORD, null, callbackState));
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenThrow(new ObjectNotFoundException());
@@ -299,7 +299,7 @@ public class ExternalIdpResourceTest {
         when(peopleDao.getByEmail(eq(email))).thenReturn(Collections.singletonList(person));
         when(organizationsDao.read(eq(organization.getId()))).thenReturn(organization);
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signup/callback")
                 .queryParam("code", "the_provider_auth_code")
                 .queryParam("state", callbackState)
@@ -307,7 +307,7 @@ public class ExternalIdpResourceTest {
                 .get();
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         verify(peopleDao, never()).create(any(), any());
@@ -334,13 +334,13 @@ public class ExternalIdpResourceTest {
     @Test
     public void handleSignUpCallback_externalIdp_existingSpecificOrganizationNewPerson() throws Exception {
 
-        final String email = "alice@example.com";
+        final var email = "alice@example.com";
 
-        final Organization organization = mockOrganization("Acme");
-        final Person person = mockPerson(organization, "Alice", null, email, Roles.READER);
-        final Credentials credentials = mockCredentials(person, email);
+        final var organization = mockOrganization("Acme");
+        final var person = mockPerson(organization, "Alice", null, email, Roles.READER);
+        final var credentials = mockCredentials(person, email);
 
-        final String callbackState = signUpTokenService.encode(new JwtSignUpToken(new UuidString(organization.getId()), null));
+        final var callbackState = signUpTokenService.encode(new JwtSignUpToken(new UuidString(organization.getId()), null));
 
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(email, email, true, CredentialsType.PASSWORD, null, callbackState));
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenThrow(new ObjectNotFoundException());
@@ -349,7 +349,7 @@ public class ExternalIdpResourceTest {
         when(peopleDao.create(eq(organization), any(PersonProperties.class))).thenReturn(person);
         when(organizationsDao.read(eq(organization.getId()))).thenReturn(organization);
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signup/callback")
                 .queryParam("code", "the_provider_auth_code")
                 .queryParam("state", callbackState)
@@ -357,7 +357,7 @@ public class ExternalIdpResourceTest {
                 .get();
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         verify(peopleDao).create(eq(organization), any(PersonProperties.class));
@@ -386,19 +386,19 @@ public class ExternalIdpResourceTest {
      */
     @Test
     public void handleSignUpCallback_externalIdp_existingUnspecifiedOrganizationExistingPerson() throws Exception {
-        final String email = "alice@example.com";
+        final var email = "alice@example.com";
 
-        final Organization organization = mockOrganization("Acme");
-        final Person person = mockPerson(organization, "Alice", null, email, Roles.READER);
-        final Credentials credentials = mockCredentials(person, email);
+        final var organization = mockOrganization("Acme");
+        final var person = mockPerson(organization, "Alice", null, email, Roles.READER);
+        final var credentials = mockCredentials(person, email);
 
-        final String callbackState = signUpTokenService.encode(new JwtSignUpToken(null, null));
+        final var callbackState = signUpTokenService.encode(new JwtSignUpToken(null, null));
 
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(email, email, true, CredentialsType.PASSWORD, null, callbackState));
         when(credentialsDao.create(eq(person), any(CredentialsProperties.class))).thenReturn(credentials);
         when(peopleDao.getByEmail(eq(email))).thenReturn(Collections.singletonList(person));
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signup/callback")
                 .queryParam("code", "the_provider_auth_code")
                 .queryParam("state", callbackState)
@@ -406,7 +406,7 @@ public class ExternalIdpResourceTest {
                 .get();
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         verify(peopleDao, never()).create(any(), any());
@@ -431,13 +431,13 @@ public class ExternalIdpResourceTest {
      */
     @Test
     public void handleSignUpCallback_externalIdp_newOrganization() throws Exception {
-        final String email = "alice@example.com";
+        final var email = "alice@example.com";
 
-        final Organization organization = mockOrganization("Acme");
-        final Person person = mockPerson(organization, "Alice", null, email, Roles.READER);
-        final Credentials credentials = mockCredentials(person, email);
+        final var organization = mockOrganization("Acme");
+        final var person = mockPerson(organization, "Alice", null, email, Roles.READER);
+        final var credentials = mockCredentials(person, email);
 
-        final String callbackState = signUpTokenService.encode(new JwtSignUpToken(null, "Acme"));
+        final var callbackState = signUpTokenService.encode(new JwtSignUpToken(null, "Acme"));
 
         when(identityProvider.handleCallback(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(new ValidationResult(email, email, true, CredentialsType.PASSWORD, null, callbackState));
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(email))).thenThrow(new ObjectNotFoundException());
@@ -447,7 +447,7 @@ public class ExternalIdpResourceTest {
         when(organizationsDao.find(eq("Acme"))).thenReturn(Collections.emptyList());
         when(organizationsDao.create(any(OrganizationProperties.class))).thenReturn(organization);
 
-        final Response response = resources
+        final var response = resources
                 .target("/auth/provider/signup/callback")
                 .queryParam("code", "the_provider_auth_code")
                 .queryParam("state", callbackState)
@@ -455,7 +455,7 @@ public class ExternalIdpResourceTest {
                 .get();
 
         // Assert that user is redirected to a URL which appears to include a JWT
-        final URI redirectURI = URI.create(response.getHeaderString("Location"));
+        final var redirectURI = URI.create(response.getHeaderString("Location"));
         assertThat(redirectURI.toString()).matches("http://gui/#signin/[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+");
 
         verify(peopleDao).create(eq(organization), any(PersonProperties.class));

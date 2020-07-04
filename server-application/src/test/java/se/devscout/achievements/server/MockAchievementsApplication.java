@@ -23,16 +23,14 @@ public class MockAchievementsApplication extends AchievementsApplication {
     @Override
     protected CredentialsDao getCredentialsDao(SessionFactory sessionFactory) {
 
-        final CredentialsDao dao = super.getCredentialsDao(sessionFactory);
+        final var dao = super.getCredentialsDao(sessionFactory);
 
-        final Session session = sessionFactory.openSession();
-
-        try {
+        try (var session = sessionFactory.openSession()) {
             ManagedSessionContext.bind(session);
-            Transaction transaction = session.beginTransaction();
+            var transaction = session.beginTransaction();
             try {
 
-                final Organization org = new Organization("Acme Inc.");
+                final var org = new Organization("Acme Inc.");
                 session.save(org);
 
                 addUser("Alice Reader", USERNAME_READER, "password", "one-time-password-1", org, session, Roles.READER);
@@ -55,23 +53,22 @@ public class MockAchievementsApplication extends AchievementsApplication {
                 throw new RuntimeException(e);
             }
         } finally {
-            session.close();
             ManagedSessionContext.unbind(sessionFactory);
         }
         return dao;
     }
 
     private void addUser(String name, String username, String regularPassword, String onetimePassword, Organization organization, Session session, String role) {
-        final Person personReader = new Person(name, role);
+        final var personReader = new Person(name, role);
         personReader.setOrganization(organization);
         session.save(personReader);
 
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, regularPassword.toCharArray());
-        final Credentials credentialsReader1 = new Credentials(username, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), personReader);
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, regularPassword.toCharArray());
+        final var credentialsReader1 = new Credentials(username, passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData(), personReader);
         credentialsReader1.setPerson(personReader);
         session.save(credentialsReader1);
 
-        final Credentials credentialsReader2 = new Credentials(onetimePassword, CredentialsType.ONETIME_PASSWORD, null, personReader);
+        final var credentialsReader2 = new Credentials(onetimePassword, CredentialsType.ONETIME_PASSWORD, null, personReader);
         credentialsReader2.setPerson(personReader);
         session.save(credentialsReader2);
     }

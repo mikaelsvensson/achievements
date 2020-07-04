@@ -53,16 +53,16 @@ public abstract class AbstractResource {
                 mapAchievementStepExtras((AchievementStep) src, (AchievementStepDTO) dest);
             }
             if (src instanceof Achievement && dest instanceof AchievementBaseDTO) {
-                Achievement entity = (Achievement) src;
-                AchievementBaseDTO dto = (AchievementBaseDTO) dest;
+                var entity = (Achievement) src;
+                var dto = (AchievementBaseDTO) dest;
                 dto.id = UuidString.toString(entity.getId());
             }
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
                 mapAchievementExtras((Achievement) src, (AchievementDTO) dest);
             }
             if (src instanceof Organization && dest instanceof OrganizationDTO) {
-                Organization entity = (Organization) src;
-                OrganizationDTO dto = (OrganizationDTO) dest;
+                var entity = (Organization) src;
+                var dto = (OrganizationDTO) dest;
                 dto.id = UuidString.toString(entity.getId());
             }
             if (src instanceof PersonDTO && dest instanceof PersonProperties) {
@@ -101,8 +101,8 @@ public abstract class AbstractResource {
     }
 
     private void mapAchievementExtras(Achievement src, AchievementDTO dest) {
-        for (int i = 0; i < src.getSteps().size(); i++) {
-            AchievementStep step = src.getSteps().get(i);
+        for (var i = 0; i < src.getSteps().size(); i++) {
+            var step = src.getSteps().get(i);
             mapAchievementStepExtras(step, dest.steps.get(i));
         }
     }
@@ -128,7 +128,7 @@ public abstract class AbstractResource {
             dest.custom_identifier = null;
         }
         if (src instanceof Person) {
-            Person person = (Person) src;
+            var person = (Person) src;
             dest.groups = person.getMemberships().stream()
                     .map(groupMembership -> new GroupBaseDTO(
                             groupMembership.getGroup().getId(),
@@ -145,7 +145,7 @@ public abstract class AbstractResource {
                             Achievement::getId,
                             achievement -> Sets.newHashSet(peopleDao.getByAwardedAchievement(organization, achievement))));
         } else {
-            final Set<UUID> awarded = personFilter.getAwards().stream()
+            final var awarded = personFilter.getAwards().stream()
                     .map(Achievement::getId)
                     .collect(Collectors.toSet());
             peopleAwardedByAchievement = achievements.stream()
@@ -153,10 +153,10 @@ public abstract class AbstractResource {
                             Achievement::getId,
                             achievement -> awarded.contains(achievement.getId()) ? Collections.singleton(personFilter) : Collections.emptySet()));
         }
-        final OrganizationAchievementSummaryDTO summary = new OrganizationAchievementSummaryDTO();
-        for (Achievement achievement : achievements) {
-            final int stepCount = achievement.getSteps().size();
-            final Map<Person, Integer> progressSumByPerson = achievement.getSteps().stream()
+        final var summary = new OrganizationAchievementSummaryDTO();
+        for (var achievement : achievements) {
+            final var stepCount = achievement.getSteps().size();
+            final var progressSumByPerson = achievement.getSteps().stream()
                     .flatMap(achievementStep -> achievementStep.getProgressList().stream())
                     .filter(progress -> progress.getPerson().getOrganization().equals(organization))
                     .filter(progress -> personFilter == null || progress.getPerson().equals(personFilter))
@@ -167,7 +167,7 @@ public abstract class AbstractResource {
                             (u, u2) -> u + u2));
 
             if (stepCount > 0) {
-                final OrganizationAchievementSummaryDTO.ProgressSummaryDTO progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
+                final var progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();
 
                 progressSummary.people_completed = (int) progressSumByPerson.entrySet().stream()
                         .filter(entry -> entry.getValue() == stepCount * AchievementStepProgress.PROGRESS_COMPLETED)
@@ -177,30 +177,30 @@ public abstract class AbstractResource {
                         .filter(entry -> 0 < entry.getValue() && entry.getValue() < stepCount * AchievementStepProgress.PROGRESS_COMPLETED)
                         .count();
 
-                final Set<Person> peopleAwardedThisAchievement = peopleAwardedByAchievement.getOrDefault(achievement.getId(), Sets.newHashSet());
+                final var peopleAwardedThisAchievement = peopleAwardedByAchievement.getOrDefault(achievement.getId(), Sets.newHashSet());
 
                 progressSummary.people_awarded = peopleAwardedThisAchievement.size();
 
                 if (progressSummary.people_started + progressSummary.people_completed > 0 || progressSummary.people_awarded > 0) {
-                    List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailed = progressSumByPerson.entrySet().stream().map(entry -> {
-                        final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
+                    var progressDetailed = progressSumByPerson.entrySet().stream().map(entry -> {
+                        final var personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
                         personProgress.percent = (int) Math.round(1.0 * entry.getValue() / stepCount);
                         personProgress.person = new PersonBaseDTO(entry.getKey().getId(), entry.getKey().getName());
                         personProgress.awarded = peopleAwardedThisAchievement.stream().anyMatch(person -> person.getId().equals(entry.getKey().getId()));
                         return personProgress;
                     }).collect(Collectors.toList());
 
-                    final List<OrganizationAchievementSummaryDTO.PersonProgressDTO> progressDetailedOnlyAwarded = peopleAwardedThisAchievement.stream()
+                    final var progressDetailedOnlyAwarded = peopleAwardedThisAchievement.stream()
                             .filter(person -> progressDetailed.stream().noneMatch(dto -> person.getId().equals(dto.person.id)))
                             .map(person -> {
-                                final OrganizationAchievementSummaryDTO.PersonProgressDTO personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
+                                final var personProgress = new OrganizationAchievementSummaryDTO.PersonProgressDTO();
                                 personProgress.percent = 0;
                                 personProgress.person = new PersonBaseDTO(person.getId(), person.getName());
                                 personProgress.awarded = true;
                                 return personProgress;
                             }).collect(Collectors.toList());
 
-                    final OrganizationAchievementSummaryDTO.AchievementSummaryDTO achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
+                    final var achievementSummary = new OrganizationAchievementSummaryDTO.AchievementSummaryDTO();
                     achievementSummary.achievement = map(achievement, AchievementBaseDTO.class);
                     achievementSummary.progress_summary = progressSummary;
                     achievementSummary.progress_detailed = Lists.newArrayList(Iterables.concat(progressDetailed, progressDetailedOnlyAwarded));

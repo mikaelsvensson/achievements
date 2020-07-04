@@ -18,7 +18,7 @@ public class WelcomeUserTemplateTest {
 
     @Test
     public void render_googleOnly() {
-        final String actual = template.render(
+        final var actual = template.render(
                 URI.create("http://host/about/"),
                 "alice@example.com",
                 true,
@@ -36,7 +36,7 @@ public class WelcomeUserTemplateTest {
 
     @Test
     public void render_microsoftOnly() {
-        final String actual = template.render(
+        final var actual = template.render(
                 URI.create("http://host/about/"),
                 "alice@example.com",
                 false,
@@ -54,7 +54,7 @@ public class WelcomeUserTemplateTest {
 
     @Test
     public void render_noAuthMethods() {
-        final String actual = template.render(
+        final var actual = template.render(
                 URI.create("http://host/about/"),
                 "alice@example.com",
                 false,
@@ -72,7 +72,7 @@ public class WelcomeUserTemplateTest {
 
     @Test
     public void render_googleAndEmail() {
-        final String actual = template.render(
+        final var actual = template.render(
                 URI.create("http://host/about/"),
                 "alice@example.com",
                 true,

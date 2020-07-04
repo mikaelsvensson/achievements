@@ -29,7 +29,7 @@ public class RepetDataSourceTest {
 
     @Test
     public void read_happyPath() throws PeopleDataSourceException, IOException {
-        final List<PersonDTO> people = dataSource.read(getReader(getTestDataStream()));
+        final var people = dataSource.read(getReader(getTestDataStream()));
 
         // Assert some of the people in the import file.
         assertPerson(people, "Edla Backman", "backman-edla", "Sp\u00e5rare");
@@ -55,7 +55,7 @@ public class RepetDataSourceTest {
 
     @Test(expected = PeopleDataSourceException.class)
     public void read_jsonInsteadOfXml() throws PeopleDataSourceException, JsonProcessingException {
-        final String json = new ObjectMapper().writeValueAsString(new PersonDTO(1, "Alice", "the-boss"));
+        final var json = new ObjectMapper().writeValueAsString(new PersonDTO(1, "Alice", "the-boss"));
         dataSource.read(new StringReader(json));
     }
 
@@ -73,17 +73,17 @@ public class RepetDataSourceTest {
     }
 
     private void assertPerson(List<PersonDTO> people, String name, String customId, String... groups) {
-        final List<PersonDTO> matches = people.stream()
+        final var matches = people.stream()
                 .filter(p -> p.name.equals(name))
                 .collect(Collectors.toList());
 
         assertThat(matches).hasSize(1);
 
-        final PersonDTO person = matches.get(0);
+        final var person = matches.get(0);
         assertThat(person.name).isEqualTo(name);
         assertThat(person.custom_identifier).isEqualTo(customId);
         assertThat(person.groups).hasSize(groups.length);
-        for (int i = 0; i < groups.length; i++) {
+        for (var i = 0; i < groups.length; i++) {
             assertThat(person.groups.get(i).name).isEqualTo(groups[i]);
         }
     }

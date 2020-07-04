@@ -33,24 +33,24 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
     @Override
     public Person create(Organization parent, PersonProperties properties) throws DuplicateCustomIdentifier {
         verifyCustomIdentifier(parent, properties, null);
-        final Person person = new ModelMapper().map(properties, Person.class);
+        final var person = new ModelMapper().map(properties, Person.class);
         person.setOrganization(parent);
         return persist(person);
     }
 
     @Override
     public Person update(Integer id, PersonProperties properties) throws ObjectNotFoundException, DuplicateCustomIdentifier {
-        final Person person = read(id);
+        final var person = read(id);
         verifyCustomIdentifier(person.getOrganization(), properties, id);
         person.apply(properties);
         return super.persist(person);
     }
 
     private void verifyCustomIdentifier(Organization parent, PersonProperties personProperties, Integer personId) throws DuplicateCustomIdentifier {
-        final boolean isCustomerIdentifierPotentialProblem = !Strings.isNullOrEmpty(personProperties.getCustomIdentifier());
+        final var isCustomerIdentifierPotentialProblem = !Strings.isNullOrEmpty(personProperties.getCustomIdentifier());
         if (isCustomerIdentifierPotentialProblem) {
-            final List<Person> people = findByCustomId(parent, personProperties.getCustomIdentifier());
-            final boolean personWithCustomIdExists = !people.isEmpty();
+            final var people = findByCustomId(parent, personProperties.getCustomIdentifier());
+            final var personWithCustomIdExists = !people.isEmpty();
             if (personWithCustomIdExists && (personId == null || !personId.equals(people.get(0).getId()))) {
                 throw new DuplicateCustomIdentifier("Another person within " + parent.getName() + " already has the identifier " + personProperties.getCustomIdentifier());
             }
@@ -59,7 +59,7 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
 
     @Override
     public void delete(Integer id) throws ObjectNotFoundException {
-        final Person person = read(id);
+        final var person = read(id);
         super.currentSession().delete(person);
     }
 
@@ -110,7 +110,7 @@ public class PeopleDaoImpl extends DaoImpl<Person, Integer> implements PeopleDao
 
     @Override
     public Person read(Organization parent, String customId) throws ObjectNotFoundException {
-        final List<Person> list = findByCustomId(parent, customId);
+        final var list = findByCustomId(parent, customId);
         if (list.isEmpty()) {
             throw new ObjectNotFoundException();
         }

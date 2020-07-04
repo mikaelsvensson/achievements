@@ -21,7 +21,7 @@ public class AuditingDaoImpl extends DaoImpl<AbstractAuditRecord, Integer> imple
 
     @Override
     public HttpAuditRecord create(UUID trackingId, Integer userId, UriInfo uriInfo, String data, String httpMethod, String resourceUri, int responseCode) {
-        final HttpAuditRecord record = new HttpAuditRecord(
+        final var record = new HttpAuditRecord(
                 Optional.ofNullable(userId).map(id -> currentSession().getReference(Person.class, id)).orElse(null),
                 data,
                 httpMethod,
@@ -38,8 +38,8 @@ public class AuditingDaoImpl extends DaoImpl<AbstractAuditRecord, Integer> imple
 
     @Override
     public StepProgressAuditRecord create(UUID trackingId, Integer userId, Integer stepId, Integer personId, String data, String httpMethod, int responseCode) {
-        final Person person = currentSession().getReference(Person.class, userId);
-        final StepProgressAuditRecord record = new StepProgressAuditRecord(
+        final var person = currentSession().getReference(Person.class, userId);
+        final var record = new StepProgressAuditRecord(
                 person,
                 data,
                 currentSession().getReference(AchievementStep.class, stepId),

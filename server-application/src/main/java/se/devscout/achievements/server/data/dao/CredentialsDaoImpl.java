@@ -17,7 +17,7 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
 
     @Override
     public Credentials get(CredentialsType type, String userId) throws ObjectNotFoundException {
-        final List list = namedQuery("Credentials.getByUsername")
+        final var list = namedQuery("Credentials.getByUsername")
                 .setParameter("type", type)
                 .setParameter("userId", userId)
                 .getResultList();
@@ -40,7 +40,7 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
 
     @Override
     public Credentials update(UUID uuid, CredentialsProperties properties) throws ObjectNotFoundException {
-        final Credentials credentials = read(uuid);
+        final var credentials = read(uuid);
         credentials.apply(properties);
         return super.persist(credentials);
     }
@@ -52,7 +52,7 @@ public class CredentialsDaoImpl extends DaoImpl<Credentials, UUID> implements Cr
 
     @Override
     public Credentials create(Person parent, CredentialsProperties properties) {
-        final Credentials person = new ModelMapper().map(properties, Credentials.class);
+        final var person = new ModelMapper().map(properties, Credentials.class);
         person.setPerson(parent);
         return persist(person);
     }

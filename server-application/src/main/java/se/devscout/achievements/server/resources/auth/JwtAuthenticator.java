@@ -23,8 +23,8 @@ public class JwtAuthenticator implements Authenticator<String, User> {
     @Override
     public Optional<User> authenticate(String token) throws AuthenticationException {
         try {
-            final JwtSignInToken jwt = jwtTokenService.decode(token);
-            final User user = new User(
+            final var jwt = jwtTokenService.decode(token);
+            final var user = new User(
                     jwt.getPersonId(),
                     jwt.getCredentialsId(),
                     jwt.getPersonName(),

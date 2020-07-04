@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 
 public class PasswordAuthenticatorTest {
 
-    private CredentialsDao credentialsDao = mock(CredentialsDao.class);
-    private PasswordAuthenticator authenticator = new PasswordAuthenticator(credentialsDao/*, new SecretValidatorFactory(null)*/);
+    private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
+    private final PasswordAuthenticator authenticator = new PasswordAuthenticator(credentialsDao/*, new SecretValidatorFactory(null)*/);
 
     @Before
     public void setUp() throws Exception {
@@ -27,21 +27,21 @@ public class PasswordAuthenticatorTest {
 
     @Test
     public void authenticate_correctUsernameAndPassword_happyPath() throws Exception {
-        final Optional<User> actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "password"));
+        final var actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "password"));
 
         assertThat(actual.isPresent()).isTrue();
     }
 
     @Test
     public void authenticate_unknownUser_happyPath() throws Exception {
-        final Optional<User> actual = authenticator.authenticate(new BasicCredentials("missing", "password"));
+        final var actual = authenticator.authenticate(new BasicCredentials("missing", "password"));
 
         assertThat(actual.isPresent()).isFalse();
     }
 
     @Test
     public void authenticate_wrongPassword_happyPath() throws Exception {
-        final Optional<User> actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "wrong password"));
+        final var actual = authenticator.authenticate(new BasicCredentials(MockUtil.USERNAME_READER, "wrong password"));
 
         assertThat(actual.isPresent()).isFalse();
     }

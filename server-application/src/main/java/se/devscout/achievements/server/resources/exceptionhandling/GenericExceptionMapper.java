@@ -8,7 +8,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 public abstract class GenericExceptionMapper<E extends Exception> implements ExceptionMapper<E> {
     @Override
     public Response toResponse(E exception) {
-        UnsuccessfulDTO dto = createDto(exception);
+        var dto = createDto(exception);
         return Response.status(dto.status).entity(dto).build();
     }
 

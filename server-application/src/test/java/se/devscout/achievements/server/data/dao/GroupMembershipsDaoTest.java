@@ -40,8 +40,8 @@ public class GroupMembershipsDaoTest {
     @Before
     public void setUp() throws Exception {
         dao = new GroupMembershipsDaoImpl(database.getSessionFactory());
-        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
-        Organization organization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
+        var organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        var organization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
         peopleDao = new PeopleDaoImpl(database.getSessionFactory());
         groupsDao = new GroupsDaoImpl(database.getSessionFactory());
 
@@ -54,13 +54,13 @@ public class GroupMembershipsDaoTest {
 
     @Test
     public void addRemove_happyPath() {
-        List<GroupMembership> memberships1 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships1 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships1).isEmpty();
 
         // SUT: Add first group member
         database.inTransaction(() -> dao.add(alice, developers, GroupRole.MEMBER));
 
-        List<GroupMembership> memberships2 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships2 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships2).hasSize(1);
         assertThat(memberships2.get(0).getPerson().getName()).isEqualTo("Alice");
         assertThat(memberships2.get(0).getRole()).isEqualTo(GroupRole.MEMBER);
@@ -68,7 +68,7 @@ public class GroupMembershipsDaoTest {
         // SUT: Change role of existing membership
         database.inTransaction(() -> dao.add(alice, developers, GroupRole.MANAGER));
 
-        List<GroupMembership> memberships3 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships3 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships3).hasSize(1);
         assertThat(memberships3.get(0).getPerson().getName()).isEqualTo("Alice");
         assertThat(memberships3.get(0).getRole()).isEqualTo(GroupRole.MANAGER);
@@ -76,7 +76,7 @@ public class GroupMembershipsDaoTest {
         // SUT: Add second member to group
         database.inTransaction(() -> dao.add(bob, developers, GroupRole.MEMBER));
 
-        List<GroupMembership> memberships4 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships4 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships4).hasSize(2);
         assertThat(memberships4.get(0).getPerson().getName()).isEqualTo("Alice");
         assertThat(memberships4.get(0).getRole()).isEqualTo(GroupRole.MANAGER);
@@ -86,7 +86,7 @@ public class GroupMembershipsDaoTest {
         // SUT: Remove initial user from group
         database.inTransaction(() -> dao.remove(alice, developers));
 
-        List<GroupMembership> memberships5 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships5 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships5).hasSize(1);
         assertThat(memberships5.get(0).getPerson().getName()).isEqualTo("Bob");
         assertThat(memberships5.get(0).getRole()).isEqualTo(GroupRole.MEMBER);
@@ -94,7 +94,7 @@ public class GroupMembershipsDaoTest {
         // SUT: Remove user who is actually not in the group
         database.inTransaction(() -> dao.remove(carol, developers));
 
-        List<GroupMembership> memberships6 = database.inTransaction(() -> dao.getMemberships(developers));
+        var memberships6 = database.inTransaction(() -> dao.getMemberships(developers));
         assertThat(memberships6).hasSize(1);
         assertThat(memberships6.get(0).getPerson().getName()).isEqualTo("Bob");
         assertThat(memberships6.get(0).getRole()).isEqualTo(GroupRole.MEMBER);

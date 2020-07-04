@@ -33,22 +33,22 @@ public class ImportScoutBadgesTask extends DatabaseTask {
 
     @Override
     protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) throws Exception {
-        final Importer importer = new Importer();
-        final List<AchievementDTO> list = importer.get();
-        for (AchievementDTO dto : list) {
-            final AchievementProperties properties = new AchievementProperties();
+        final var importer = new Importer();
+        final var list = importer.get();
+        for (var dto : list) {
+            final var properties = new AchievementProperties();
             properties.setDescription(dto.description);
             properties.setImage(dto.image);
             properties.setName(dto.name);
             if (dto.tags != null) {
                 properties.setTags(Sets.newHashSet(dto.tags));
             }
-            final Set<ConstraintViolation<AchievementProperties>> violations = Validation.buildDefaultValidatorFactory().getValidator().validate(properties);
+            final var violations = Validation.buildDefaultValidatorFactory().getValidator().validate(properties);
             if (violations.isEmpty()) {
-                final Achievement achievement = achievementsDao.create(properties);
+                final var achievement = achievementsDao.create(properties);
                 if (dto.steps != null) {
-                    for (AchievementStepDTO stepDto : dto.steps) {
-                        final AchievementStepProperties stepProperties = new AchievementStepProperties();
+                    for (var stepDto : dto.steps) {
+                        final var stepProperties = new AchievementStepProperties();
                         stepProperties.setDescription(stepDto.description);
                         achievementStepsDao.create(achievement, stepProperties);
                     }

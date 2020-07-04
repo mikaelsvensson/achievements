@@ -24,23 +24,23 @@ public class GoogleTokenValidator implements CredentialsValidator {
 
     @Override
     public ValidationResult validate(char[] data) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        var verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
                 .setAudience(Collections.singletonList(googleClientId))
                 .build();
 
         try {
-            String token = new String(data);
-            GoogleIdToken idToken = verifier.verify(token);
+            var token = new String(data);
+            var idToken = verifier.verify(token);
             if (idToken != null) {
-                GoogleIdToken.Payload payload = idToken.getPayload();
+                var payload = idToken.getPayload();
 
-                String userId = payload.getSubject();
+                var userId = payload.getSubject();
 
-                String email = payload.getEmail();
+                var email = payload.getEmail();
                 boolean emailVerified = payload.getEmailVerified();
-                String name = (String) payload.get("name");
-                String pictureUrl = (String) payload.get("picture");
-                String locale = (String) payload.get("locale");
+                var name = (String) payload.get("name");
+                var pictureUrl = (String) payload.get("picture");
+                var locale = (String) payload.get("locale");
                 LOGGER.info("User authenticated using Google, email={0}, emailVerified={1}, name={2}, locale={3}, picture={4}",
                         email,
                         emailVerified,

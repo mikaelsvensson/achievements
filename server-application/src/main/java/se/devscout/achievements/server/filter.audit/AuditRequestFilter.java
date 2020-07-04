@@ -13,7 +13,7 @@ class AuditRequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final var outputStream = new ByteArrayOutputStream();
         requestContext.setEntityStream(new TeeInputStream(requestContext.getEntityStream(), outputStream));
         requestContext.setProperty(AuditFeature.REQUEST_CONTEXT_PROPERTY_NAME, outputStream);
     }

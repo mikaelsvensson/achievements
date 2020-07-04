@@ -19,14 +19,14 @@ import io.sentry.logback.SentryAppender;
 public class SentryAppenderFactory extends AbstractAppenderFactory<ILoggingEvent> {
     @Override
     public Appender<ILoggingEvent> build(LoggerContext loggerContext, String s, LayoutFactory<ILoggingEvent> layoutFactory, LevelFilterFactory<ILoggingEvent> levelFilterFactory, AsyncAppenderFactory<ILoggingEvent> asyncAppenderFactory) {
-        final SentryAppender appender = new SentryAppender();
+        final var appender = new SentryAppender();
         appender.setName("sentry-appender");
         appender.setContext(loggerContext);
         appender.addFilter(levelFilterFactory.build(threshold));
         getFilterFactories().forEach(f -> appender.addFilter(f.build()));
         appender.start();
 
-        final Filter<ILoggingEvent> filter = new Filter<ILoggingEvent>() {
+        final var filter = new Filter<ILoggingEvent>() {
             @Override
             public FilterReply decide(ILoggingEvent iLoggingEvent) {
                 if (iLoggingEvent.getLoggerName().startsWith("io.sentry")) {

@@ -88,7 +88,7 @@ public class PeopleResource extends AbstractResource {
                                                  @QueryParam("filter") String filter,
                                                  @QueryParam("group") String group,
                                                  @Auth User user) {
-        final Organization organization = getOrganization(organizationId.getUUID());
+        final var organization = getOrganization(organizationId.getUUID());
         return dao.getByParent(organization).stream()
                 .filter(person -> Strings.isNullOrEmpty(filter) || person.getName().toLowerCase().contains(filter.trim().toLowerCase()))
                 .filter(person -> Strings.isNullOrEmpty(group) || person.getMemberships().stream().anyMatch(membership -> membership.getGroup().getId().equals(Integer.parseInt(group))))
@@ -104,8 +104,8 @@ public class PeopleResource extends AbstractResource {
                          @PathParam("personId") String id,
                          @Auth User user) {
         try {
-            final Person person = getPerson(organizationId, id);
-            final PersonDTO personDTO = map(person, PersonDTO.class);
+            final var person = getPerson(organizationId, id);
+            final var personDTO = map(person, PersonDTO.class);
             personDTO.organization = map(person.getOrganization(), OrganizationBaseDTO.class);
             return personDTO;
         } catch (ObjectNotFoundException e) {
@@ -116,7 +116,7 @@ public class PeopleResource extends AbstractResource {
     private Person getPerson(UuidString organizationId, String id) throws ObjectNotFoundException {
         final Person person;
         if (id.startsWith("c:")) {
-            final Organization organization = getOrganization(organizationId.getUUID());
+            final var organization = getOrganization(organizationId.getUUID());
             person = dao.read(organization, id.substring(2));
         } else {
             person = dao.read(Integer.parseInt(id));
@@ -135,30 +135,30 @@ public class PeopleResource extends AbstractResource {
                          @Auth User user,
                          @Context HttpServletRequest req) {
         try {
-            final Person person = getPerson(organizationId, id);
+            final var person = getPerson(organizationId, id);
 
-            final String email = person.getEmail();
-            final boolean isEmailSet = !Strings.isNullOrEmpty(StringUtils.trim(email));
+            final var email = person.getEmail();
+            final var isEmailSet = !Strings.isNullOrEmpty(StringUtils.trim(email));
             if (!isEmailSet) {
                 // TODO: Provide better error message to user when e-mail is not set.
                 throw new BadRequestException();
             }
 
-            final URI loginLink = guiApplicationHost;
-            final URI aboutLink = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om");
+            final var loginLink = guiApplicationHost;
+            final var aboutLink = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#om");
 
-            final boolean isGoogleAccount = isProvidedBy(email, "gmail.com")
+            final var isGoogleAccount = isProvidedBy(email, "gmail.com")
                     || isCredentialOfTypeSet(person, CredentialsType.GOOGLE);
 
-            final boolean isMicrosoftAccount = !isGoogleAccount &&
+            final var isMicrosoftAccount = !isGoogleAccount &&
                     (isProvidedBy(email, "outlook.com", "hotmail.com")
                             || isCredentialOfTypeSet(person, CredentialsType.MICROSOFT));
 
-            final boolean isEmailAccount = !isGoogleAccount
+            final var isEmailAccount = !isGoogleAccount
                     && !isMicrosoftAccount
                     && isEmailSet;
 
-            final String body = new WelcomeUserTemplate().render(
+            final var body = new WelcomeUserTemplate().render(
                     aboutLink,
                     email,
                     isGoogleAccount,
@@ -182,12 +182,12 @@ public class PeopleResource extends AbstractResource {
     private boolean isProvidedBy(String email, String... hosts) {
         try {
             // TODO: Move parsing (attempt) to data model validation instead.
-            final InternetAddress[] addresses = InternetAddress.parse(email);
+            final var addresses = InternetAddress.parse(email);
             if (addresses.length != 1) {
                 throw new InternalServerErrorException("Invalid e-mail address.");
             }
-            InternetAddress address = addresses[0];
-            for (String host : hosts) {
+            var address = addresses[0];
+            for (var host : hosts) {
                 if (address.getAddress().endsWith(host)) {
                     return true;
                 }
@@ -209,12 +209,12 @@ public class PeopleResource extends AbstractResource {
                                                                    @PathParam("personId") Integer id,
                                                                    @Auth User user) {
         try {
-            final Person person = dao.read(id);
+            final var person = dao.read(id);
             verifyParent(organizationId.getUUID(), person);
 
-            final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
+            final var achievements = achievementsDao.findWithProgressForPerson(person);
 
-            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, person, person.getOrganization(), dao);
+            final var summary = createAchievementSummaryDTO(achievements, person, person.getOrganization(), dao);
 
             return summary;
         } catch (ObjectNotFoundException e) {
@@ -231,11 +231,11 @@ public class PeopleResource extends AbstractResource {
                            PersonDTO input) {
         try {
             checkRoleEscalation(input, user);
-            Organization organization = getOrganization(organizationId.getUUID());
-            final PersonProperties properties = map(input, PersonProperties.class);
+            var organization = getOrganization(organizationId.getUUID());
+            final var properties = map(input, PersonProperties.class);
             properties.setRole(Roles.READER);
-            final Person person = dao.create(organization, properties);
-            final URI location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
+            final var person = dao.create(organization, properties);
+            final var location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
             return Response
                     .created(location)
                     .entity(map(person, PersonDTO.class))
@@ -253,8 +253,8 @@ public class PeopleResource extends AbstractResource {
     public Response upsert(@PathParam("organizationId") UuidString organizationId,
                            @Auth User user,
                            List<PersonDTO> input) {
-        final UUID organizationUUID = organizationId.getUUID();
-        List<UpsertPersonResultDTO> result = upsert(user, input, organizationUUID, false, false);
+        final var organizationUUID = organizationId.getUUID();
+        var result = upsert(user, input, organizationUUID, false, false);
         return Response
                 .ok(result.stream().map(r -> r.person).collect(Collectors.toList()))
                 .build();
@@ -262,11 +262,11 @@ public class PeopleResource extends AbstractResource {
 
     private List<UpsertPersonResultDTO> upsert(@Auth User user, List<PersonDTO> people, UUID organizationUUID, boolean isDryRun, boolean clearGroups) {
         List<UpsertPersonResultDTO> result = new ArrayList<>();
-        Organization organization = getOrganization(organizationUUID);
-        for (PersonDTO dto : people) {
+        var organization = getOrganization(organizationUUID);
+        for (var dto : people) {
             try {
                 Person person;
-                final PersonProperties newProperties = map(dto, PersonProperties.class);
+                final var newProperties = map(dto, PersonProperties.class);
                 try {
                     if (dto.id != null && dto.id > 0) {
                         person = dao.read(dto.id);
@@ -283,7 +283,7 @@ public class PeopleResource extends AbstractResource {
                     result.add(new UpsertPersonResultDTO(new PersonBaseDTO(person.getId(), person.getName()), true));
                 }
                 if (dto.groups != null && !isDryRun) {
-                    for (GroupBaseDTO groupDto : dto.groups) {
+                    for (var groupDto : dto.groups) {
                         assignGroup(organization, person, groupDto);
                     }
                 }
@@ -302,13 +302,13 @@ public class PeopleResource extends AbstractResource {
     }
 
     private void clearGroupsOfNonImportedPeople(Organization organization, List<PersonDTO> people) {
-        final Set<String> groupNames = people.stream().flatMap(p -> p.groups.stream()).map(g -> g.name).collect(Collectors.toSet());
-        for (String groupName : groupNames) {
+        final var groupNames = people.stream().flatMap(p -> p.groups.stream()).map(g -> g.name).collect(Collectors.toSet());
+        for (var groupName : groupNames) {
             try {
-                final Group group = groupsDao.read(organization, groupName);
-                final List<GroupMembership> groupMemberships = membershipsDao.getMemberships(group);
-                for (GroupMembership groupMembership : groupMemberships) {
-                    boolean shouldBeMember = people.stream()
+                final var group = groupsDao.read(organization, groupName);
+                final var groupMemberships = membershipsDao.getMemberships(group);
+                for (var groupMembership : groupMemberships) {
+                    var shouldBeMember = people.stream()
                             // Look for people in the import matching the group membership in question (should result in zero or one match):
                             .filter(p -> StringUtils.equalsIgnoreCase(p.custom_identifier, groupMembership.getPerson().getCustomIdentifier())
                                     || StringUtils.equalsIgnoreCase(p.name, groupMembership.getPerson().getName()))
@@ -359,13 +359,13 @@ public class PeopleResource extends AbstractResource {
                                        @FormDataParam("importUploadedFileId") FormDataBodyPart importUploadedFileId,
                                        @FormDataParam("importFile") InputStream importFile) {
 
-        UUID tempFileId = getUploadedDataFileId(importRawData, importUploadedFileId, importFile);
+        var tempFileId = getUploadedDataFileId(importRawData, importUploadedFileId, importFile);
 
         List<PersonDTO> people = null;
-        for (PeopleDataSource dataSource : peopleDataSources) {
+        for (var dataSource : peopleDataSources) {
             // BOMInputStream required since Java normally does not support the BOM first in XML files exported from Repet
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(getTempFile(tempFileId)))))) {
-                List<PersonDTO> tempValues = dataSource.read(reader);
+            try (var reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(getTempFile(tempFileId)))))) {
+                var tempValues = dataSource.read(reader);
                 if (people == null || tempValues.size() > people.size()) {
                     people = tempValues;
                 }
@@ -376,8 +376,8 @@ public class PeopleResource extends AbstractResource {
             }
         }
         if (people != null && !people.isEmpty()) {
-            final UUID organizationUUID = organizationId.getUUID();
-            List<UpsertPersonResultDTO> result = upsert(user, people, organizationUUID, isDryRun, clearGroups);
+            final var organizationUUID = organizationId.getUUID();
+            var result = upsert(user, people, organizationUUID, isDryRun, clearGroups);
             return Response
                     .ok(new UpsertResultDTO(result, tempFileId.toString()))
                     .build();
@@ -433,7 +433,7 @@ public class PeopleResource extends AbstractResource {
         LoggerFactory.getLogger(PeopleResource.class).info(input);
 
         try {
-            List<PersonDTO> values = new CsvDataSource(objectMapper).read(new StringReader(input));
+            var values = new CsvDataSource(objectMapper).read(new StringReader(input));
             return upsert(organizationId, user, values);
         } catch (PeopleDataSourceException e) {
             throw new BadRequestException("Could not read data", e);
@@ -461,7 +461,7 @@ public class PeopleResource extends AbstractResource {
         try {
             checkRoleEscalation(input, user);
             checkSelfEditing(id, user);
-            final Person person = dao.update(id, map(input, PersonProperties.class));
+            final var person = dao.update(id, map(input, PersonProperties.class));
             return Response
                     .ok()
                     .entity(map(person, PersonDTO.class))
@@ -505,7 +505,7 @@ public class PeopleResource extends AbstractResource {
     }
 
     private void verifyParent(UUID organizationId, Person person) throws ObjectNotFoundException {
-        Organization organization = getOrganization(organizationId);
+        var organization = getOrganization(organizationId);
         if (!person.getOrganization().getId().equals(organization.getId())) {
             throw new NotFoundException();
         }

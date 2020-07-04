@@ -32,13 +32,13 @@ class AuditResponseFilter implements ContainerResponseFilter {
     @UnitOfWork(transactional = false)
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
         try {
-            final ByteArrayOutputStream baos = (ByteArrayOutputStream) requestContext.getProperty(AuditFeature.REQUEST_CONTEXT_PROPERTY_NAME);
+            final var baos = (ByteArrayOutputStream) requestContext.getProperty(AuditFeature.REQUEST_CONTEXT_PROPERTY_NAME);
             String payload = null;
             if (baos != null) {
                 payload = new String(baos.toByteArray());
             }
-            final AbstractAuditRecord logRecord = createRecord(requestContext, payload, responseContext);
-            final String msg = String.format(
+            final var logRecord = createRecord(requestContext, payload, responseContext);
+            final var msg = String.format(
                     "Request by %s for %s:%s returned %d",
                     requestContext.getSecurityContext().getUserPrincipal(),
                     logRecord.getClass().getSimpleName(),
@@ -51,14 +51,14 @@ class AuditResponseFilter implements ContainerResponseFilter {
     }
 
     private AbstractAuditRecord createRecord(ContainerRequestContext requestContext, String data, ContainerResponseContext responseContext) throws Exception {
-        final UriInfo uriInfo = requestContext.getUriInfo();
-        final Integer userId = Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal())
+        final var uriInfo = requestContext.getUriInfo();
+        final var userId = Optional.ofNullable(requestContext.getSecurityContext().getUserPrincipal())
                 .map(principal -> ((User) principal).getPersonId())
                 .orElse(null);
 
         if (userId != null) {
-            final boolean isSuccessfulHttpStatus = responseContext.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
-            final boolean isStepProgressRequest = uriInfo.getMatchedResources().stream().anyMatch(AchievementStepProgressResource.class::isInstance);
+            final var isSuccessfulHttpStatus = responseContext.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
+            final var isStepProgressRequest = uriInfo.getMatchedResources().stream().anyMatch(AchievementStepProgressResource.class::isInstance);
             if (isSuccessfulHttpStatus && isStepProgressRequest) {
                 return dao.create(
                         null,

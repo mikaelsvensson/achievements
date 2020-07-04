@@ -37,7 +37,7 @@ public class UuidString {
         if (value == null) {
             return null;
         }
-        final byte[] bytes = ENCODING.decode(value.toUpperCase());
+        final var bytes = ENCODING.decode(value.toUpperCase());
         if (bytes.length != 16) {
             throw new IllegalArgumentException("Could not convert " + value.length() + " characters to 16 bytes.");
         }
@@ -50,7 +50,7 @@ public class UuidString {
         if (uuid == null) {
             return null;
         }
-        final byte[] idBytes = Bytes.concat(
+        final var idBytes = Bytes.concat(
                 Longs.toByteArray(uuid.getMostSignificantBits()),
                 Longs.toByteArray(uuid.getLeastSignificantBits()));
         return ENCODING.encode(idBytes).toLowerCase();

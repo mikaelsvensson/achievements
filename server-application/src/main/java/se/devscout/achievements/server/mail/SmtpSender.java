@@ -27,12 +27,12 @@ public class SmtpSender implements EmailSender {
             throw new EmailSenderException("Rate limit exceeded.");
         }
         try {
-            HtmlEmail email = createEmail();
+            var email = createEmail();
             email.addTo(to);
             email.setSubject(subject);
             email.setCharset("UTF-8"); // Specifying a character set seems to be important for Gmail, otherwise it tends to show a the-message-has-been-cropped-message.
             email.setHtmlMsg(body);
-            final String messageId = email.send();
+            final var messageId = email.send();
             LOGGER.info("Sent e-mail {}.", messageId);
         } catch (EmailException e) {
             throw new EmailSenderException("Could not send e-mail to " + to, e);
@@ -40,7 +40,7 @@ public class SmtpSender implements EmailSender {
     }
 
     private HtmlEmail createEmail() throws EmailException {
-        HtmlEmail email = new HtmlEmail();
+        var email = new HtmlEmail();
         email.setSocketConnectionTimeout(5_000);
         email.setSocketTimeout(5_000);
         email.setHostName(configuration.getHost());

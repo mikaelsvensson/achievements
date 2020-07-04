@@ -42,8 +42,8 @@ public class GroupMembershipsResource extends AbstractResource {
                                         @PathParam("groupId") Integer groupId,
                                         @Auth User user) {
         try {
-            final Organization organization = organizationsDao.read(organizationId.getUUID());
-            final Group group = groupsDao.read(groupId);
+            final var organization = organizationsDao.read(organizationId.getUUID());
+            final var group = groupsDao.read(groupId);
             verifyParent(organization, null, group);
             return dao.getMemberships(group).stream().map(p -> map(p, GroupMembershipDTO.class)).collect(Collectors.toList());
         } catch (ObjectNotFoundException e) {
@@ -61,9 +61,9 @@ public class GroupMembershipsResource extends AbstractResource {
                         GroupMembershipDTO input,
                         @Auth User user) {
         try {
-            final Organization organization = organizationsDao.read(organizationId.getUUID());
-            final Person person = peopleDao.read(personId);
-            final Group group = groupsDao.read(groupId);
+            final var organization = organizationsDao.read(organizationId.getUUID());
+            final var person = peopleDao.read(personId);
+            final var group = groupsDao.read(groupId);
             verifyParent(organization, person, group);
             dao.add(person, group, input.role);
             return Response.noContent().build();
@@ -93,9 +93,9 @@ public class GroupMembershipsResource extends AbstractResource {
                            GroupMembershipDTO input,
                            @Auth User user) {
         try {
-            final Organization organization = organizationsDao.read(organizationId.getUUID());
-            final Person person = peopleDao.read(personId);
-            final Group group = groupsDao.read(groupId);
+            final var organization = organizationsDao.read(organizationId.getUUID());
+            final var person = peopleDao.read(personId);
+            final var group = groupsDao.read(groupId);
             verifyParent(organization, person, group);
             dao.remove(person, group);
             return Response.noContent().build();

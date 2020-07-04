@@ -23,45 +23,45 @@ public class OrganizationsAcceptanceTest {
 
     @Test
     public void create_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        Response response = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
+        var response = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(new OrganizationDTO(null, "Name")));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final OrganizationDTO responseDto = response.readEntity(OrganizationDTO.class);
+        final var responseDto = response.readEntity(OrganizationDTO.class);
 
-        final URI expectedLocation = URI.create(String.format("http://localhost:%d/api/organizations/%s", RULE.getLocalPort(), responseDto.id));
-        final URI actualLocation = response.getLocation();
+        final var expectedLocation = URI.create(String.format("http://localhost:%d/api/organizations/%s", RULE.getLocalPort(), responseDto.id));
+        final var actualLocation = response.getLocation();
         assertThat(actualLocation).isEqualTo(expectedLocation);
     }
 
     @Test
     public void update_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final OrganizationDTO dto = new OrganizationDTO(null, "Name To Update");
-        Response responseCreate = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
+        final var dto = new OrganizationDTO(null, "Name To Update");
+        var responseCreate = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(dto));
 
         assertThat(responseCreate.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         dto.name = "New Name";
 
-        Response responseUpdate = TestUtil.request(client, responseCreate.getLocation())
+        var responseUpdate = TestUtil.request(client, responseCreate.getLocation())
                 .put(Entity.json(dto));
 
         assertThat(responseUpdate.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final OrganizationDTO responseDto = responseUpdate.readEntity(OrganizationDTO.class);
+        final var responseDto = responseUpdate.readEntity(OrganizationDTO.class);
 
         assertThat(responseDto.name).isEqualTo(dto.name);
 
-        Response responseGet = TestUtil.request(client, responseCreate.getLocation())
+        var responseGet = TestUtil.request(client, responseCreate.getLocation())
                 .get();
 
-        final OrganizationDTO responseGetDto = responseGet.readEntity(OrganizationDTO.class);
+        final var responseGetDto = responseGet.readEntity(OrganizationDTO.class);
 
         assertThat(responseGetDto.name).isEqualTo(dto.name);
 

@@ -52,10 +52,10 @@ public class CredentialsDaoImplTest {
     @Test
     public void getByProviderAndUsername_existingUser_happyPath() throws Exception {
         //TODO: Shared set-up code:
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
         database.inTransaction(() -> dao.create(alice, new CredentialsProperties("alice", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
 
-        final Credentials actual = database.inTransaction(() -> dao.get(CredentialsType.PASSWORD, "alice"));
+        final var actual = database.inTransaction(() -> dao.get(CredentialsType.PASSWORD, "alice"));
         assertThat(actual.getUserId()).isEqualTo("alice");
     }
 
@@ -67,19 +67,19 @@ public class CredentialsDaoImplTest {
     @Test
     public void create_duplicateUsername_expectException() throws Exception {
         try {
-            final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+            final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
             dao.create(alice, new CredentialsProperties("alice", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData()));
         } catch (Exception e) {
             fail("No exception was expected here");
         }
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
         dao.create(alice, new CredentialsProperties("alice", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData()));
     }
 
     @Test
     public void create_newUser_happyPath() throws Exception {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "bobby".toCharArray());
-        final Credentials credentials = dao.create(this.alice, new CredentialsProperties("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData()));
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "bobby".toCharArray());
+        final var credentials = dao.create(this.alice, new CredentialsProperties("bob", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData()));
         assertThat(credentials.getId()).isNotNull();
         assertThat(credentials.getUserId()).isEqualTo("bob");
     }
@@ -87,12 +87,12 @@ public class CredentialsDaoImplTest {
     @Test
     public void getByParent_personWithCredentials_expectOne() throws Exception {
         database.inTransaction(() -> {
-            final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw1".toCharArray());
+            final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw1".toCharArray());
             dao.create(this.alice, new CredentialsProperties("alice1", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData()));
-            final PasswordValidator passwordValidator1 = new PasswordValidator(SecretGenerator.PDKDF2, "pw2".toCharArray());
+            final var passwordValidator1 = new PasswordValidator(SecretGenerator.PDKDF2, "pw2".toCharArray());
             dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator1.getCredentialsType(), passwordValidator1.getCredentialsData()));
         });
-        final List<Credentials> actual = dao.getByParent(alice);
+        final var actual = dao.getByParent(alice);
         assertThat(actual).hasSize(2);
         assertThat(actual.get(0).getUserId()).isEqualTo("alice1");
         assertThat(actual.get(1).getUserId()).isEqualTo("alice2");
@@ -100,15 +100,15 @@ public class CredentialsDaoImplTest {
 
     @Test
     public void getByParent_personWithoutCredentials_expectEmptyList() throws Exception {
-        final List<Credentials> actual = dao.getByParent(alice);
+        final var actual = dao.getByParent(alice);
         assertThat(actual).isEmpty();
     }
 
     @Test
     public void read_existingCredentials_happyPath() throws Exception {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
-        final Credentials actual = dao.read(credentials.getId());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final var credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
+        final var actual = dao.read(credentials.getId());
         assertThat(actual.getUserId()).isEqualTo("alice2");
     }
 
@@ -119,8 +119,8 @@ public class CredentialsDaoImplTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void delete_happyPath() throws Exception {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
-        final Credentials credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "pw".toCharArray());
+        final var credentials = database.inTransaction(() -> dao.create(this.alice, new CredentialsProperties("alice2", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData())));
         database.inTransaction(() -> {
             try {
                 dao.delete(credentials.getId());

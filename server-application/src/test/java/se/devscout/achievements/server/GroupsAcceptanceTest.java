@@ -29,70 +29,70 @@ public class GroupsAcceptanceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final Response response = TestUtil.request(client, String.format("http://localhost:%d/tasks/bootstrap-data", RULE.getAdminPort()))
+        final var response = TestUtil.request(client, String.format("http://localhost:%d/tasks/bootstrap-data", RULE.getAdminPort()))
                 .post(null);
-        final String bootstrapResponse = response.readEntity(String.class);
-        final Matcher matcher = Pattern.compile("Created organization.* \\(id (.+)\\)").matcher(bootstrapResponse);
+        final var bootstrapResponse = response.readEntity(String.class);
+        final var matcher = Pattern.compile("Created organization.* \\(id (.+)\\)").matcher(bootstrapResponse);
         matcher.find();
         organizationId = matcher.group(1);
     }
 
     @Test
     public void createUpdateGet_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final GroupDTO dto = new GroupDTO(null, "The Developers");
+        final var dto = new GroupDTO(null, "The Developers");
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final URI location = createResponse.getLocation();
+        final var location = createResponse.getLocation();
 
         dto.name = "Devs";
 
-        Response updateResponse = TestUtil.request(client, location)
+        var updateResponse = TestUtil.request(client, location)
                 .put(Entity.json(dto));
 
         assertThat(updateResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final GroupDTO response2Dto = updateResponse.readEntity(GroupDTO.class);
+        final var response2Dto = updateResponse.readEntity(GroupDTO.class);
 
         assertThat(response2Dto.name).isEqualTo("Devs");
         assertThat(response2Dto.people).isNullOrEmpty();
 
-        Response getResponse = TestUtil.request(client, location)
+        var getResponse = TestUtil.request(client, location)
                 .get();
 
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final GroupDTO response3Dto = getResponse.readEntity(GroupDTO.class);
+        final var response3Dto = getResponse.readEntity(GroupDTO.class);
 
         assertThat(response3Dto.name).isEqualTo("Devs");
     }
 
     @Test
     public void createDelete_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final GroupDTO dto = new GroupDTO(null, "The Legal Department");
+        final var dto = new GroupDTO(null, "The Legal Department");
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final URI location = createResponse.getLocation();
+        final var location = createResponse.getLocation();
 
-        Response deleteResponse = TestUtil.request(client, location)
+        var deleteResponse = TestUtil.request(client, location)
                 .delete();
 
         assertThat(deleteResponse.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
 
-        Response getResponse = TestUtil.request(client, location)
+        var getResponse = TestUtil.request(client, location)
                 .get();
 
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -100,17 +100,17 @@ public class GroupsAcceptanceTest {
 
     @Test
     public void create_missingName_expect400() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final GroupDTO dto = new GroupDTO(null, "");
+        final var dto = new GroupDTO(null, "");
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/groups", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         assertThat(createResponse.getHeaderString("Content-Type")).contains("application/json");
 
-        final ObjectNode actualResponseEntity = createResponse.readEntity(ObjectNode.class);
+        final var actualResponseEntity = createResponse.readEntity(ObjectNode.class);
         assertThat(actualResponseEntity.has("message")).isTrue();
         assertThat(actualResponseEntity.get("status").asInt()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }

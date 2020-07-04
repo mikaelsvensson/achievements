@@ -13,8 +13,8 @@ public class ValidationExceptionMapper extends GenericExceptionMapper<Validation
     @Override
     protected UnsuccessfulDTO createDto(ValidationException exception) {
         if (exception instanceof ConstraintViolationException) {
-            ConstraintViolationException constraintViolationException = (ConstraintViolationException) exception;
-            String message = constraintViolationException.getConstraintViolations().stream()
+            var constraintViolationException = (ConstraintViolationException) exception;
+            var message = constraintViolationException.getConstraintViolations().stream()
                     .map(o -> MessageFormat.format("{0} is not a valid value for {1}", o.getInvalidValue(), o.getPropertyPath().toString()))
                     .collect(Collectors.joining(", "));
 

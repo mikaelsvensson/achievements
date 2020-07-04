@@ -24,9 +24,9 @@ public class MockUtil {
     public static final HttpAuthenticationFeature AUTH_FEATURE_READER = HttpAuthenticationFeature.basic(USERNAME_READER, "password");
 
     public static Organization mockOrganization(String name) {
-        final UUID uuid = UUID.randomUUID();
+        final var uuid = UUID.randomUUID();
 
-        final Organization orgA = mock(Organization.class);
+        final var orgA = mock(Organization.class);
         when(orgA.getId()).thenReturn(uuid);
         when(orgA.getName()).thenReturn(name);
         return orgA;
@@ -42,7 +42,7 @@ public class MockUtil {
 
     public static Person mockPerson(Organization organization, String name, String customId, String email, String role) {
         final Integer id = getRandomNonZeroValue();
-        final Person person = mock(Person.class);
+        final var person = mock(Person.class);
         when(person.getId()).thenReturn(id);
         when(person.getName()).thenReturn(name);
         when(person.getCustomIdentifier()).thenReturn(customId);
@@ -58,7 +58,7 @@ public class MockUtil {
 
     public static Group mockGroup(Organization org, String name) {
         final Integer id = getRandomNonZeroValue();
-        final Group mock = mock(Group.class);
+        final var mock = mock(Group.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getOrganization()).thenReturn(org);
@@ -66,9 +66,9 @@ public class MockUtil {
     }
 
     public static Credentials mockCredentials(Person person, String username) {
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
 
-        final Credentials mock = mock(Credentials.class);
+        final var mock = mock(Credentials.class);
         when(mock.getPerson()).thenReturn(person);
         when(mock.getId()).thenReturn(UUID.randomUUID());
         when(mock.getData()).thenReturn(passwordValidator.getCredentialsData());
@@ -82,7 +82,7 @@ public class MockUtil {
     }
 
     public static Achievement mockAchievement(String name, AchievementStep... steps) {
-        final Achievement achievementMock = mock(Achievement.class);
+        final var achievementMock = mock(Achievement.class);
         when(achievementMock.getId()).thenReturn(UUID.randomUUID());
         when(achievementMock.getName()).thenReturn(name);
         when(achievementMock.getSteps()).thenReturn(Arrays.asList(
@@ -92,7 +92,7 @@ public class MockUtil {
     }
 
     public static AchievementStep mockStep(AchievementStepProgress... progress) {
-        final AchievementStep stepMock = mock(AchievementStep.class);
+        final var stepMock = mock(AchievementStep.class);
         when(stepMock.getProgressList()).thenReturn(Arrays.asList(progress));
         return stepMock;
     }
@@ -102,7 +102,7 @@ public class MockUtil {
     }
 
     public static AchievementStepProgress mockProgress(Integer value, Person person) {
-        final AchievementStepProgress progressMock = mock(AchievementStepProgress.class);
+        final var progressMock = mock(AchievementStepProgress.class);
         when(progressMock.isCompleted()).thenReturn(value == AchievementStepProgressProperties.PROGRESS_COMPLETED);
         when(progressMock.getValue()).thenReturn(value);
         when(progressMock.getPerson()).thenReturn(person);
@@ -111,24 +111,24 @@ public class MockUtil {
 
     public static void setupDefaultCredentials(CredentialsDao credentialsDao) throws ObjectNotFoundException {
         {
-            final Organization organization = mockOrganization("Acme Inc.");
-            final Person person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
-            final Credentials credentials = mockCredentials(person, USERNAME_READER);
+            final var organization = mockOrganization("Acme Inc.");
+            final var person = mockPerson(organization, "Alice Reader", "alice_reader", Roles.READER);
+            final var credentials = mockCredentials(person, USERNAME_READER);
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_READER))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
 
         {
-            final Organization organization = mockOrganization("Acme Inc.");
-            final Person person = mockPerson(organization, "Alice Editor", "alice_editor", Roles.EDITOR);
-            final Credentials credentials = mockCredentials(person, USERNAME_EDITOR);
+            final var organization = mockOrganization("Acme Inc.");
+            final var person = mockPerson(organization, "Alice Editor", "alice_editor", Roles.EDITOR);
+            final var credentials = mockCredentials(person, USERNAME_EDITOR);
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_EDITOR))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
     }
 
     public static GroupMembership mockMembership(Group group, Person person, GroupRole role) {
-        final GroupMembership membership = mock(GroupMembership.class);
+        final var membership = mock(GroupMembership.class);
         when(membership.getPerson()).thenReturn(person);
         when(membership.getGroup()).thenReturn(group);
         when(membership.getRole()).thenReturn(role);

@@ -20,8 +20,8 @@ public class CallbackResourceExceptionMapper implements ExceptionMapper<External
     public Response toResponse(ExternalIdpCallbackException exception) {
         LoggerFactory.getLogger(CallbackResourceExceptionMapper.class).info("Authentication callback cause exception.", exception);
 
-        String subPath = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, exception.getType().name());
-        final URI location = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin-failed/" + subPath);
+        var subPath = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, exception.getType().name());
+        final var location = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#signin-failed/" + subPath);
         return Response.seeOther(location).build();
     }
 }

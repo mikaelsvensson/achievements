@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class GroupMembershipsResourceTest {
@@ -53,11 +52,11 @@ public class GroupMembershipsResourceTest {
 
     @Test
     public void add_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
-        final Group group = mockGroup(org, "The group");
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
+        final var group = mockGroup(org, "The group");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/groups/" + group.getId() + "/members/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -69,20 +68,20 @@ public class GroupMembershipsResourceTest {
     }
 
     private Group mockGroup(Organization org, String name) throws ObjectNotFoundException {
-        final Group group = MockUtil.mockGroup(org, name);
+        final var group = MockUtil.mockGroup(org, name);
         when(groupsDao.read(group.getId())).thenReturn(group);
         return group;
     }
 
     @Test
     public void getByGroup_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Person person = mockPerson(org, "Alice");
-        final Group group = mockGroup(org, "The group");
-        final GroupMembership membership = mockMembership(group, person);
+        final var org = mockOrganization("org");
+        final var person = mockPerson(org, "Alice");
+        final var group = mockGroup(org, "The group");
+        final var membership = mockMembership(group, person);
         when(membershipsDao.getMemberships(eq(group))).thenReturn(Collections.singletonList(membership));
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/groups/" + group.getId() + "/members")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -90,7 +89,7 @@ public class GroupMembershipsResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<GroupMembershipDTO> dto = response.readEntity(new GenericType<List<GroupMembershipDTO>>() {
+        final List<GroupMembershipDTO> dto = response.readEntity(new GenericType<>() {
         });
         assertThat(dto).hasSize(1);
         assertThat(dto.get(0).group.id).isEqualTo(group.getId());
@@ -103,19 +102,19 @@ public class GroupMembershipsResourceTest {
     }
 
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
-        final Organization org = MockUtil.mockOrganization(name);
+        final var org = MockUtil.mockOrganization(name);
         when(organizationsDao.read(eq(org.getId()))).thenReturn(org);
         return org;
     }
 
     @Test
     public void get_incorrectOrganization_expectNotFound() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Group group = mockGroup(org, "The group");
-        final UUID badId = UUID.randomUUID();
+        final var org = mockOrganization("org");
+        final var group = mockGroup(org, "The group");
+        final var badId = UUID.randomUUID();
         when(organizationsDao.read(eq(badId))).thenThrow(new NotFoundException());
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(badId) + "/groups/" + group.getId() + "/members")
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -129,13 +128,13 @@ public class GroupMembershipsResourceTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Group group = mockGroup(org, "The group");
-        final Person person = mockPerson(org, "Alice");
-        final GroupMembership membership = mockMembership(group, person);
+        final var org = mockOrganization("org");
+        final var group = mockGroup(org, "The group");
+        final var person = mockPerson(org, "Alice");
+        final var membership = mockMembership(group, person);
         when(membershipsDao.getMemberships(eq(group))).thenReturn(Collections.singletonList(membership));
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/groups/" + group.getId() + "/members/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -148,13 +147,13 @@ public class GroupMembershipsResourceTest {
 
     @Test
     public void delete_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Group group = mockGroup(org, "The group");
-        final Person person = mockPerson(org, "Alice");
-        final GroupMembership membership = mockMembership(group, person);
+        final var org = mockOrganization("org");
+        final var group = mockGroup(org, "The group");
+        final var person = mockPerson(org, "Alice");
+        final var membership = mockMembership(group, person);
         when(membershipsDao.getMemberships(eq(group))).thenReturn(Collections.singletonList(membership));
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/groups/" + group.getId() + "/members/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -168,13 +167,13 @@ public class GroupMembershipsResourceTest {
     @Test
     public void delete_wrongOrganization_expectNotFound() throws Exception {
 
-        final Organization orgA = mockOrganization("orgA");
-        final Organization orgB = mockOrganization("orgB");
-        final Group group = mockGroup(orgA, "The group");
-        final Person person = mockPerson(orgA, "Alice");
-        final GroupMembership membership = mockMembership(group, person);
+        final var orgA = mockOrganization("orgA");
+        final var orgB = mockOrganization("orgB");
+        final var group = mockGroup(orgA, "The group");
+        final var person = mockPerson(orgA, "Alice");
+        final var membership = mockMembership(group, person);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/groups/" + group.getId() + "/members/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -189,13 +188,13 @@ public class GroupMembershipsResourceTest {
     @Test
     public void get_wrongOrganization_expectNotFound() throws Exception {
 
-        final Organization orgA = mockOrganization("org");
-        final Organization orgB = mockOrganization("org");
-        final Group group = mockGroup(orgA, "The group");
-        final Person person = mockPerson(orgA, "Alice");
-        final GroupMembership membership = mockMembership(group, person);
+        final var orgA = mockOrganization("org");
+        final var orgB = mockOrganization("org");
+        final var group = mockGroup(orgA, "The group");
+        final var person = mockPerson(orgA, "Alice");
+        final var membership = mockMembership(group, person);
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(orgB.getId()) + "/groups/" + group.getId() + "/members")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -208,11 +207,11 @@ public class GroupMembershipsResourceTest {
 
     @Test
     public void create_unauthorizedUser_expectForbidden() throws Exception {
-        final Organization org = mockOrganization("org");
-        final Group group = mockGroup(org, "The group");
-        final Person person = mockPerson(org, "Alice");
+        final var org = mockOrganization("org");
+        final var group = mockGroup(org, "The group");
+        final var person = mockPerson(org, "Alice");
 
-        final Response response = resources
+        final var response = resources
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/groups/" + group.getId() + "/members/" + person.getId())
                 .register(MockUtil.AUTH_FEATURE_READER)
                 .request()
@@ -224,7 +223,7 @@ public class GroupMembershipsResourceTest {
     }
 
     private GroupMembership mockMembership(Group group, Person person) {
-        final GroupMembership membership = MockUtil.mockMembership(group, person, GroupRole.MEMBER);
+        final var membership = MockUtil.mockMembership(group, person, GroupRole.MEMBER);
         when(membershipsDao.getMemberships(eq(group))).thenReturn(Collections.singletonList(membership));
         return membership;
     }
@@ -234,10 +233,10 @@ public class GroupMembershipsResourceTest {
     }
 
     private Person mockPerson(Organization org, String name, String customId) throws ObjectNotFoundException, IOException {
-        final Person person1 = MockUtil.mockPerson(org, name, customId, Roles.READER);
+        final var person1 = MockUtil.mockPerson(org, name, customId, Roles.READER);
         when(peopleDao.read(eq(person1.getId()))).thenReturn(person1);
-        final PasswordValidator passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
-        final Credentials credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
+        final var passwordValidator = new PasswordValidator(SecretGenerator.PDKDF2, "password".toCharArray());
+        final var credentials = new Credentials("username", passwordValidator.getCredentialsType(), passwordValidator.getCredentialsData());
         when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(name))).thenReturn(credentials);
         return person1;
     }

@@ -27,12 +27,12 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     @Override
     public String encode(String subject, Map<String, String> claims, Duration validFor) {
-        JWTCreator.Builder builder = JWT.create()
+        var builder = JWT.create()
                 .withExpiresAt(new Date(Instant.now().plus(validFor).getEpochSecond() * 1000))
                 .withIssuer(ISSUER)
                 .withSubject(subject);
         if (claims != null) {
-            for (Map.Entry<String, String> entry : claims.entrySet()) {
+            for (var entry : claims.entrySet()) {
                 if (entry.getValue() != null) {
                     builder = builder.withClaim(entry.getKey(), entry.getValue());
                 }

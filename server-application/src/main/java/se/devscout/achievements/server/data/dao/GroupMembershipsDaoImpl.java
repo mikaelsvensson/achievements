@@ -14,9 +14,9 @@ public class GroupMembershipsDaoImpl extends AbstractDAO<GroupMembership> implem
 
     @Override
     public void add(Person person, Group group, GroupRole role) {
-        final GroupMembership existing = get(new GroupMembershipId(group, person));
+        final var existing = get(new GroupMembershipId(group, person));
         if (existing == null) {
-            final GroupMembership membership = new GroupMembership();
+            final var membership = new GroupMembership();
             membership.setGroup(group);
             membership.setPerson(person);
             membership.setRole(role);
@@ -30,7 +30,7 @@ public class GroupMembershipsDaoImpl extends AbstractDAO<GroupMembership> implem
 
     @Override
     public void remove(Person person, Group group) {
-        final GroupMembership membership = get(new GroupMembershipId(group, person));
+        final var membership = get(new GroupMembershipId(group, person));
         if (membership != null) {
             currentSession().delete(membership);
         } else {

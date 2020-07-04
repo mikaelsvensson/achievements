@@ -37,10 +37,10 @@ public class PasswordValidator implements CredentialsValidator {
     @Override
     public ValidationResult validate(char[] data) {
         try {
-            final ByteArrayInputStream stream = new ByteArrayInputStream(storedSecret);
-            final byte id = (byte) stream.read();
-            final SecretGenerator generator = Stream.of(SecretGenerator.values()).filter(secretGenerator -> secretGenerator.getId() == id).findFirst().get();
-            final boolean valid = generator.validatePassword(data, ByteStreams.toByteArray(stream));
+            final var stream = new ByteArrayInputStream(storedSecret);
+            final var id = (byte) stream.read();
+            final var generator = Stream.of(SecretGenerator.values()).filter(secretGenerator -> secretGenerator.getId() == id).findFirst().get();
+            final var valid = generator.validatePassword(data, ByteStreams.toByteArray(stream));
             return new ValidationResult(null, null, valid, CredentialsType.PASSWORD, storedSecret);
         } catch (IOException e) {
             LOGGER.warn("Problem when validating password", e);
@@ -62,7 +62,7 @@ public class PasswordValidator implements CredentialsValidator {
         if (plainTextPassword == null || plainTextPassword.length == 0) {
             throw new IOException("Password cannot be empty");
         }
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final var stream = new ByteArrayOutputStream();
         stream.write(generator.getId());
         stream.write(generator.generateSecret(plainTextPassword));
         storedSecret = stream.toByteArray();

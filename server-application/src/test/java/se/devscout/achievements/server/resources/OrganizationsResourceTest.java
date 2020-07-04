@@ -22,9 +22,6 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static se.devscout.achievements.server.MockUtil.*;
 
@@ -52,27 +49,27 @@ public class OrganizationsResourceTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        final UUID uuid = UUID.randomUUID();
+        final var uuid = UUID.randomUUID();
         when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final OrganizationDTO dto = request("/organizations/" + UuidString.toString(uuid), MockUtil.AUTH_FEATURE_READER).get(OrganizationDTO.class);
+        final var dto = request("/organizations/" + UuidString.toString(uuid), MockUtil.AUTH_FEATURE_READER).get(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.name).isEqualTo("Alice's Organization");
     }
 
     @Test
     public void getBasic_noUser_happyPath() throws Exception {
-        final UUID uuid = UUID.randomUUID();
+        final var uuid = UUID.randomUUID();
         when(dao.read(eq(uuid))).thenReturn(new Organization(uuid, "Alice's Organization"));
-        final OrganizationBaseDTO dto = resources.client().target("/organizations/" + UuidString.toString(uuid) + "/basic").request().get(OrganizationBaseDTO.class);
+        final var dto = resources.client().target("/organizations/" + UuidString.toString(uuid) + "/basic").request().get(OrganizationBaseDTO.class);
         assertThat(dto.name).isEqualTo("Alice's Organization");
     }
 
     @Test
     public void create_happyPath() throws Exception {
         when(dao.create(any(OrganizationProperties.class))).thenAnswer(invocation -> new Organization(UUID.randomUUID(), ((OrganizationProperties) invocation.getArgument(0)).getName()));
-        final Response response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Bob's Club")));
+        final var response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Bob's Club")));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        final OrganizationDTO dto = response.readEntity(OrganizationDTO.class);
+        final var dto = response.readEntity(OrganizationDTO.class);
         assertThat(dto.id).isNotNull();
         assertThat(dto.name).isEqualTo("Bob's Club");
     }
@@ -82,8 +79,8 @@ public class OrganizationsResourceTest {
     }
 
     private Invocation.Builder request(String path, Map<String, String> queryParameters, HttpAuthenticationFeature authFeature) {
-        WebTarget webTarget = resources.target(path);
-        for (Map.Entry<String, String> entry : queryParameters.entrySet()) {
+        var webTarget = resources.target(path);
+        for (var entry : queryParameters.entrySet()) {
             webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
         }
         return webTarget
@@ -94,14 +91,14 @@ public class OrganizationsResourceTest {
     @Test
     public void create_tooManyOrganizations() throws Exception {
         when(dao.create(any(OrganizationProperties.class))).thenThrow(new TooManyOrganizationsException("Too many"));
-        final Response response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Will not be created")));
+        final var response = request("/organizations", MockUtil.AUTH_FEATURE_EDITOR).post(Entity.json(new OrganizationDTO(null, "Will not be created")));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
     }
 
     @Test
     public void find_happyPath() throws Exception {
         when(dao.find(anyString())).thenReturn(Collections.singletonList(mock(Organization.class)));
-        final Response response = request("/organizations", Collections.singletonMap("filter", "something"), MockUtil.AUTH_FEATURE_READER).get();
+        final var response = request("/organizations", Collections.singletonMap("filter", "something"), MockUtil.AUTH_FEATURE_READER).get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
         verify(dao).find(eq("something"));
     }
@@ -109,40 +106,40 @@ public class OrganizationsResourceTest {
     @Test
     public void find_invalidFilterString_expectBadRequest() throws Exception {
         when(dao.find(anyString())).thenThrow(new IllegalArgumentException("Bad data"));
-        final Response response = request("/organizations", Collections.singletonMap("filter", " "), MockUtil.AUTH_FEATURE_READER).get();
+        final var response = request("/organizations", Collections.singletonMap("filter", " "), MockUtil.AUTH_FEATURE_READER).get();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         verify(dao).find(eq(" "));
     }
 
     @Test
     public void achievementSummary_twoAchievementTwoSteps_successful() throws Exception {
-        final Organization orgOther = mockOrganization("Trudy's Organization");
-        final Person personOther = mockPerson(orgOther, "Trudy", Roles.READER);
+        final var orgOther = mockOrganization("Trudy's Organization");
+        final var personOther = mockPerson(orgOther, "Trudy", Roles.READER);
 
-        final Organization org = mockOrganization("Alice's Organization");
+        final var org = mockOrganization("Alice's Organization");
         when(dao.read(eq(org.getId()))).thenReturn(org);
-        final Person person1 = mockPerson(org, "Alice", Roles.READER);
-        final Person person2 = mockPerson(org, "Bob", Roles.READER);
-        final Person person3 = mockPerson(org, "Carol", Roles.READER);
-        final AchievementStepProgress a1p1 = mockProgress(true, person1);
-        final AchievementStepProgress a1p2 = mockProgress(false, person2);
-        final AchievementStepProgress a1p3 = mockProgress(true, person1);
-        final AchievementStepProgress a1p4 = mockProgress(true, person2);
-        final AchievementStepProgress a1p5 = mockProgress(true, personOther);
-        final AchievementStep a1s1 = mockStep(a1p1, a1p2);
-        final AchievementStep a1s2 = mockStep(a1p3, a1p4, a1p5);
-        final Achievement a1 = mockAchievement("Climb mountain", a1s1, a1s2);
+        final var person1 = mockPerson(org, "Alice", Roles.READER);
+        final var person2 = mockPerson(org, "Bob", Roles.READER);
+        final var person3 = mockPerson(org, "Carol", Roles.READER);
+        final var a1p1 = mockProgress(true, person1);
+        final var a1p2 = mockProgress(false, person2);
+        final var a1p3 = mockProgress(true, person1);
+        final var a1p4 = mockProgress(true, person2);
+        final var a1p5 = mockProgress(true, personOther);
+        final var a1s1 = mockStep(a1p1, a1p2);
+        final var a1s2 = mockStep(a1p3, a1p4, a1p5);
+        final var a1 = mockAchievement("Climb mountain", a1s1, a1s2);
 
-        final AchievementStepProgress a2p1 = mockProgress(false, person2);
-        final AchievementStepProgress a2p2 = mockProgress(true, person3);
-        final AchievementStepProgress a2p3 = mockProgress(false, person2);
-        final AchievementStepProgress a2p4 = mockProgress(50, person3);
-        final AchievementStep s2 = mockStep(a2p1, a2p2);
-        final AchievementStep s3 = mockStep(a2p3, a2p4);
-        final Achievement a2 = mockAchievement("Cook egg", s2, s3);
+        final var a2p1 = mockProgress(false, person2);
+        final var a2p2 = mockProgress(true, person3);
+        final var a2p3 = mockProgress(false, person2);
+        final var a2p4 = mockProgress(50, person3);
+        final var s2 = mockStep(a2p1, a2p2);
+        final var s3 = mockStep(a2p3, a2p4);
+        final var a2 = mockAchievement("Cook egg", s2, s3);
 
-        final AchievementStep a3s1 = mockStep();
-        final Achievement a3 = mockAchievement("Peel a banana", a3s1);
+        final var a3s1 = mockStep();
+        final var a3 = mockAchievement("Peel a banana", a3s1);
 
         when(achievementsDao.findWithProgressForOrganization(any(Organization.class)))
                 .thenReturn(Arrays.asList(a1, a2, a3));
@@ -151,7 +148,7 @@ public class OrganizationsResourceTest {
         when(peopleDao.getByAwardedAchievement(eq(org), eq(a2))).thenReturn(Collections.singletonList(person3));
         when(peopleDao.getByAwardedAchievement(eq(org), eq(a3))).thenReturn(Collections.singletonList(person3));
 
-        final OrganizationAchievementSummaryDTO dto = resources.client()
+        final var dto = resources.client()
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/achievement-summary")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()

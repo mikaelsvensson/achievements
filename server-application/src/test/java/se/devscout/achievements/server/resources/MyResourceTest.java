@@ -55,18 +55,18 @@ public class MyResourceTest {
 
     @Test
     public void getMyPeople_happyPath() throws Exception {
-        final Organization org1 = mockOrganization("Monsters Inc.");
-        final Person person1 = mockPerson(org1, "Alice");
-        final Organization org2 = mockOrganization("Cyberdyne Systems");
-        final Person person2a = mockPerson(org2, "Bob");
-        final Person person2b = mockPerson(org2, "Carol");
+        final var org1 = mockOrganization("Monsters Inc.");
+        final var person1 = mockPerson(org1, "Alice");
+        final var org2 = mockOrganization("Cyberdyne Systems");
+        final var person2a = mockPerson(org2, "Bob");
+        final var person2b = mockPerson(org2, "Carol");
         mockRegularPasswordCredentials(person2a);
 
         when(peopleDao.getByParent(eq(org1))).thenReturn(Lists.newArrayList(person1));
         when(peopleDao.getByParent(eq(org2))).thenReturn(Lists.newArrayList(person2a, person2b));
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org1, org2));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/people/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -74,7 +74,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
+        final List<PersonDTO> dto = response.readEntity(new GenericType<>() {
         });
         assertThat(dto).hasSize(2);
         assertThat(dto.get(0).id).isNotNull();
@@ -90,14 +90,14 @@ public class MyResourceTest {
 
     @Test
     public void getMyProfile_happyPath() throws Exception {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(peopleDao.getByParent(eq(org))).thenReturn(Lists.newArrayList(person));
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/profile/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -105,7 +105,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final PersonProfileDTO dto = response.readEntity(PersonProfileDTO.class);
+        final var dto = response.readEntity(PersonProfileDTO.class);
         assertThat(dto.person.id).isNotNull();
         assertThat(dto.person.name).isEqualTo("Bob");
         assertThat(dto.person.email).isEqualTo("user@example.com");
@@ -114,13 +114,13 @@ public class MyResourceTest {
 
     @Test
     public void setPassword_happyPath() throws ObjectNotFoundException, DaoException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/password/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -133,13 +133,13 @@ public class MyResourceTest {
 
     @Test
     public void setPassword_incorrectCurrentPassword() throws ObjectNotFoundException, DaoException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/password/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -152,13 +152,13 @@ public class MyResourceTest {
 
     @Test
     public void setPassword_missingCurrentPasswordBasicAuth() throws ObjectNotFoundException, DaoException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/password/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -171,15 +171,15 @@ public class MyResourceTest {
 
     @Test
     public void setPassword_forgotPasswordWorkflowUsingOnetimePassword() throws ObjectNotFoundException, DaoException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
+        final var org = mockOrganization("Cyberdyne Systems");
         final Set<Credentials> list = Sets.newHashSet();
-        final Person person = mockPerson(org, "Bob");
+        final var person = mockPerson(org, "Bob");
         {
             // Mock credentials to change
-            final PasswordValidator passwordValidator = new PasswordValidator(
+            final var passwordValidator = new PasswordValidator(
                     SecretGenerator.PDKDF2,
                     "pw".toCharArray());
-            final Credentials credentials = new Credentials(
+            final var credentials = new Credentials(
                     "bob",
                     passwordValidator.getCredentialsType(),
                     passwordValidator.getCredentialsData());
@@ -190,7 +190,7 @@ public class MyResourceTest {
         }
         {
             // Mock one-time credentials necessary to change password without specifying the current password
-            final Credentials credentials = new Credentials(
+            final var credentials = new Credentials(
                     "onetimepassword",
                     CredentialsType.ONETIME_PASSWORD,
                     null);
@@ -204,7 +204,7 @@ public class MyResourceTest {
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
         when(signInTokenService.encode(any(JwtSignInToken.class))).thenReturn("token");
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/password/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword"))
@@ -212,7 +212,7 @@ public class MyResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final AuthTokenDTO responseDTO = response.readEntity(AuthTokenDTO.class);
+        final var responseDTO = response.readEntity(AuthTokenDTO.class);
         assertThat(responseDTO.token).isEqualTo("token");
 
         verify(credentialsDao).update(any(UUID.class), any(CredentialsProperties.class));
@@ -220,13 +220,13 @@ public class MyResourceTest {
 
     @Test
     public void sendSetPasswordLink_userIsSignedIn() throws ObjectNotFoundException, EmailSenderException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("my/send-set-password-link")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -239,13 +239,13 @@ public class MyResourceTest {
 
     @Test
     public void sendSetPasswordLink_otherUsersEmailAddress() throws ObjectNotFoundException, EmailSenderException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("my/send-set-password-link")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -258,13 +258,13 @@ public class MyResourceTest {
 
     @Test
     public void sendSetPasswordLink_userIsNotSignedIn() throws ObjectNotFoundException, EmailSenderException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("my/send-set-password-link")
                 .request()
                 .post(Entity.json(new ForgotPasswordDTO("user@example.com")));
@@ -276,13 +276,13 @@ public class MyResourceTest {
 
     @Test
     public void sendSetPasswordLink_incorrectEmail() throws ObjectNotFoundException, EmailSenderException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("my/send-set-password-link")
                 .request()
                 .post(Entity.json(new ForgotPasswordDTO("trudy@example.com")));
@@ -294,15 +294,15 @@ public class MyResourceTest {
 
     @Test
     public void sendSetPasswordLink_failedToSendEmail() throws ObjectNotFoundException, EmailSenderException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
         doThrow(new EmailSenderException("Boom")).when(emailSender).send(anyString(), anyString(), anyString(), anyString());
 
-        final Response response = resources
+        final var response = resources
                 .target("my/send-set-password-link")
                 .request()
                 .post(Entity.json(new ForgotPasswordDTO("user@example.com")));
@@ -314,13 +314,13 @@ public class MyResourceTest {
 
     @Test
     public void setPassword_nonmatchingPassword() throws ObjectNotFoundException, DaoException {
-        final Organization org = mockOrganization("Cyberdyne Systems");
-        final Person person = mockPerson(org, "Bob");
+        final var org = mockOrganization("Cyberdyne Systems");
+        final var person = mockPerson(org, "Bob");
         mockRegularPasswordCredentials(person);
 
         when(organizationsDao.all()).thenReturn(Lists.newArrayList(org));
 
-        final Response response = resources
+        final var response = resources
                 .target("/my/password/")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + BaseEncoding.base64().encode("bob:pw".getBytes(Charsets.UTF_8)))
@@ -336,10 +336,10 @@ public class MyResourceTest {
     }
 
     private void mockRegularPasswordCredentials(Person person) throws ObjectNotFoundException {
-        final PasswordValidator passwordValidator = new PasswordValidator(
+        final var passwordValidator = new PasswordValidator(
                 SecretGenerator.PDKDF2,
                 "pw".toCharArray());
-        final Credentials credentials = new Credentials(
+        final var credentials = new Credentials(
                 "bob",
                 passwordValidator.getCredentialsType(),
                 passwordValidator.getCredentialsData());
@@ -352,9 +352,9 @@ public class MyResourceTest {
     private Person mockPerson(Organization org, String name) throws ObjectNotFoundException {
         final Integer uuid = getRandomNonZeroValue();
 
-        final String email = "user@example.com";
+        final var email = "user@example.com";
 
-        final Person person = mock(Person.class);
+        final var person = mock(Person.class);
         when(person.getId()).thenReturn(uuid);
         when(person.getOrganization()).thenReturn(org);
         when(person.getName()).thenReturn(name);
@@ -371,9 +371,9 @@ public class MyResourceTest {
     }
 
     private Organization mockOrganization(String name) throws ObjectNotFoundException {
-        final UUID uuid = UUID.randomUUID();
+        final var uuid = UUID.randomUUID();
 
-        final Organization orgA = mock(Organization.class);
+        final var orgA = mock(Organization.class);
         when(orgA.getId()).thenReturn(uuid);
         when(orgA.getName()).thenReturn(name);
 

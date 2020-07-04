@@ -40,8 +40,8 @@ public class AchievementStepProgressDaoImplTest {
     @Before
     public void setUp() throws Exception {
         dao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
-        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
-        Organization organization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
+        var organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        var organization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
         peopleDao = new PeopleDaoImpl(database.getSessionFactory());
         achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
         stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
@@ -50,7 +50,7 @@ public class AchievementStepProgressDaoImplTest {
         person2 = peopleDao.create(organization, new PersonProperties("Alice", Roles.READER));
         personWithoutProgress = peopleDao.create(organization, new PersonProperties("Bob", Roles.READER));
 
-        final Achievement achievement1 = achievementsDao.create(new AchievementProperties("Boil an egg"));
+        final var achievement1 = achievementsDao.create(new AchievementProperties("Boil an egg"));
         achievementStep = stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package"));
 
     }
@@ -62,9 +62,9 @@ public class AchievementStepProgressDaoImplTest {
 
     @Test
     public void getAll_noProgress_happyPath() throws Exception {
-        final Achievement achievement = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Make a sandwich")));
-        final AchievementStep step1 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Get the bread")));
-        final AchievementStep step2 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Spread butter on it")));
+        final var achievement = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Make a sandwich")));
+        final var step1 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Get the bread")));
+        final var step2 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Spread butter on it")));
         database.inTransaction(() -> {
             try {
                 dao.set(step1, person, new AchievementStepProgressProperties(true, "Note 1"));
@@ -75,30 +75,30 @@ public class AchievementStepProgressDaoImplTest {
             }
         });
 
-        final List<AchievementStepProgress> progressList = dao.get(achievement);
+        final var progressList = dao.get(achievement);
         assertThat(progressList).hasSize(3);
     }
 
     @Test
     public void setAndGet_newProgress_happyPath() throws Exception {
-        final AchievementStepProgress actual = dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "The Note"));
+        final var actual = dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "The Note"));
         assertThat(actual).isNotNull();
         assertThat(actual.isCompleted()).isTrue();
         assertThat(actual.getNote()).isEqualTo("The Note");
 
-        final AchievementStepProgress actualAfter = database.inTransaction(() -> dao.get(achievementStep, person));
+        final var actualAfter = database.inTransaction(() -> dao.get(achievementStep, person));
         assertThat(actualAfter).isNotNull();
     }
 
     @Test
     public void setAndSet_existingProgress_happyPath() throws Exception {
-        final AchievementStepProgress existing = database.inTransaction(() -> dao.set(achievementStep, person, new AchievementStepProgressProperties(false, "The Note")));
+        final var existing = database.inTransaction(() -> dao.set(achievementStep, person, new AchievementStepProgressProperties(false, "The Note")));
 
         assertThat(existing.getId()).isNotEqualTo(0);
         assertThat(existing.isCompleted()).isFalse();
         assertThat(existing.getNote()).isEqualTo("The Note");
 
-        final AchievementStepProgress actual = dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "A Note"));
+        final var actual = dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "A Note"));
         assertThat(actual).isNotNull();
         assertThat(actual.getId()).isEqualTo(existing.getId());
         assertThat(actual.isCompleted()).isTrue();

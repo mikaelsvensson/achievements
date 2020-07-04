@@ -32,58 +32,58 @@ public class PeopleAcceptanceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final Response response = TestUtil.request(client, String.format("http://localhost:%d/tasks/bootstrap-data", RULE.getAdminPort()))
+        final var response = TestUtil.request(client, String.format("http://localhost:%d/tasks/bootstrap-data", RULE.getAdminPort()))
                 .post(null);
-        final String bootstrapResponse = response.readEntity(String.class);
-        final Matcher matcher = Pattern.compile("Created organization.* \\(id (.+)\\)").matcher(bootstrapResponse);
+        final var bootstrapResponse = response.readEntity(String.class);
+        final var matcher = Pattern.compile("Created organization.* \\(id (.+)\\)").matcher(bootstrapResponse);
         matcher.find();
         organizationId = matcher.group(1);
     }
 
     @Test
     public void createUpdateGet_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice", Roles.READER);
+        final var dto = new PersonDTO(null, "Alice", Roles.READER);
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final URI location = createResponse.getLocation();
+        final var location = createResponse.getLocation();
 
         dto.name = "Alicia";
         dto.custom_identifier = "alicia";
 
-        Response updateResponse = TestUtil.request(client, location)
+        var updateResponse = TestUtil.request(client, location)
                 .put(Entity.json(dto));
 
         assertThat(updateResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final PersonDTO response2Dto = updateResponse.readEntity(PersonDTO.class);
+        final var response2Dto = updateResponse.readEntity(PersonDTO.class);
 
         assertThat(response2Dto.name).isEqualTo("Alicia");
         assertThat(response2Dto.custom_identifier).isEqualTo("alicia");
         assertThat(response2Dto.organization.name).isEqualTo("Monsters, Inc.");
 
-        Response getResponse = TestUtil.request(client, location)
+        var getResponse = TestUtil.request(client, location)
                 .get();
 
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final PersonDTO response3Dto = getResponse.readEntity(PersonDTO.class);
+        final var response3Dto = getResponse.readEntity(PersonDTO.class);
 
         assertThat(response3Dto.name).isEqualTo("Alicia");
     }
 
     @Test
     public void get_filtered_happyPath() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        Response response = client
+        var response = client
                 .target(URI.create(String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId)))
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .queryParam("filter", "m")
@@ -91,7 +91,7 @@ public class PeopleAcceptanceTest {
                 .get();
 
 
-        final List<PersonDTO> dto = response.readEntity(new GenericType<List<PersonDTO>>() {
+        final List<PersonDTO> dto = response.readEntity(new GenericType<>() {
         });
         assertThat(dto).hasSize(3);
 
@@ -102,45 +102,45 @@ public class PeopleAcceptanceTest {
 
     @Test
     public void create_invalidEmailAddress_expect400() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice", "alice@invalid", null, null, null, null, null);
+        final var dto = new PersonDTO(null, "Alice", "alice@invalid", null, null, null, null, null);
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         assertThat(createResponse.getHeaderString("Content-Type")).contains("application/json");
 
-        final ObjectNode actualResponseEntity = createResponse.readEntity(ObjectNode.class);
+        final var actualResponseEntity = createResponse.readEntity(ObjectNode.class);
         assertThat(actualResponseEntity.has("message")).isTrue();
         assertThat(actualResponseEntity.get("status").asInt()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }
 
     @Test
     public void create_missingName_expect400() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, null, "alice@example.com", null, null, null, null, null);
+        final var dto = new PersonDTO(null, null, "alice@example.com", null, null, null, null, null);
 
-        Response createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
+        var createResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people", RULE.getLocalPort(), organizationId))
                 .post(Entity.json(dto));
 
         assertThat(createResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
         assertThat(createResponse.getHeaderString("Content-Type")).contains("application/json");
 
-        final ObjectNode actualResponseEntity = createResponse.readEntity(ObjectNode.class);
+        final var actualResponseEntity = createResponse.readEntity(ObjectNode.class);
         assertThat(actualResponseEntity.has("message")).isTrue();
         assertThat(actualResponseEntity.get("status").asInt()).isEqualTo(HttpStatus.BAD_REQUEST_400);
     }
 
     @Test
     public void update_missingPerson_expectNotFoundResponse() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        final PersonDTO dto = new PersonDTO(null, "Alice");
+        final var dto = new PersonDTO(null, "Alice");
 
-        Response updateResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people/%d", RULE.getLocalPort(), organizationId, -1))
+        var updateResponse = TestUtil.request(client, String.format("http://localhost:%d/api/organizations/%s/people/%d", RULE.getLocalPort(), organizationId, -1))
                 .put(Entity.json(dto));
 
         assertThat(updateResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);

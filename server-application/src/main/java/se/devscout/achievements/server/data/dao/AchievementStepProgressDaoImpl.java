@@ -20,7 +20,7 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
 
     @Override
     public AchievementStepProgress get(AchievementStep achievementStep, Person person) throws ObjectNotFoundException {
-        final AchievementStepProgress progress = get(new AchievementStepProgress.Key(achievementStep, person));
+        final var progress = get(new AchievementStepProgress.Key(achievementStep, person));
         if (progress != null) {
             return progress;
         }
@@ -30,13 +30,13 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
     @Override
     public AchievementStepProgress set(AchievementStep achievementStep, Person person, AchievementStepProgressProperties properties) throws ObjectNotFoundException {
         try {
-            final AchievementStepProgress progress = get(achievementStep, person);
+            final var progress = get(achievementStep, person);
             progress.setNote(properties.getNote());
             progress.setValue(properties.getValue());
             person.getAchievementStepProgress().add(progress);
             return progress;
         } catch (ObjectNotFoundException e) {
-            final AchievementStepProgress progress = new AchievementStepProgress(
+            final var progress = new AchievementStepProgress(
                     properties.getValue(),
                     properties.getNote(),
                     achievementStep,
@@ -52,7 +52,7 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
         if (achievementStep == null || person == null) {
             throw new IllegalArgumentException("Both achievement step and person must be specified.");
         }
-        final AchievementStepProgress progress = get(achievementStep, person);
+        final var progress = get(achievementStep, person);
         person.getAchievementStepProgress().remove(progress);
         currentSession().delete(progress);
     }

@@ -20,10 +20,10 @@ public abstract class DatabaseTask extends Task {
     @Override
     public final void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
 
-        Session session = sessionFactory.openSession();
+        var session = sessionFactory.openSession();
         try {
             ManagedSessionContext.bind(session);
-            Transaction transaction = session.beginTransaction();
+            var transaction = session.beginTransaction();
             try {
 
                 execute(parameters, output, session);

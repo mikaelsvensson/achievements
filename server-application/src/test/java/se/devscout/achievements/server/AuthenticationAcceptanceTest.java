@@ -65,8 +65,8 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void oneTimePassword_successfulFirstFailedSecondRequest() {
-        Client client = RULE.client();
-        Response response1 = client
+        var client = RULE.client();
+        var response1 = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
@@ -74,7 +74,7 @@ public class AuthenticationAcceptanceTest {
 
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response response2 = client
+        var response2 = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword1"))
@@ -86,8 +86,8 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void oneTimePassword_failedFirstFailedSecondRequest() {
-        Client client = RULE.client();
-        Response response1 = client
+        var client = RULE.client();
+        var response1 = client
                 .target(String.format("http://localhost:%d/api/my/password", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
@@ -95,7 +95,7 @@ public class AuthenticationAcceptanceTest {
 
         assertThat(response1.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
-        Response response2 = client
+        var response2 = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword3"))
@@ -108,8 +108,8 @@ public class AuthenticationAcceptanceTest {
     @Test
     @Ignore("We accept the risk that Trudy can change the password of Alice if Trudy gets hold of Alice's one-time password.")
     public void oneTimePassword_correctPasswordForAnotherUser() {
-        Client client = RULE.client();
-        Response response = client
+        var client = RULE.client();
+        var response = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("onetimepassword2"))
@@ -120,8 +120,8 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void oneTimePassword_incorrectPassword() {
-        Client client = RULE.client();
-        Response response = client
+        var client = RULE.client();
+        var response = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "OneTime " + base64("the-wrong-password"))
@@ -136,14 +136,14 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void authenticationRequired_httpHeaderMissing_expect401() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
-            final String verb = endpoint.getRight();
-            final String resource = endpoint.getLeft();
-            Response response = client
+        for (var endpoint : getAuthenticatedApplicationEndpoints()) {
+            final var verb = endpoint.getRight();
+            final var resource = endpoint.getLeft();
+            var response = client
                     .target(resource)
                     .request()
                     .build(verb, getMockEntity(verb))
@@ -162,14 +162,14 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void authenticationRequired_correctCredentialsProvided_failIf401Returned() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
-            final String verb = endpoint.getRight();
-            final String resource = endpoint.getLeft();
-            Response response = client
+        for (var endpoint : getAuthenticatedApplicationEndpoints()) {
+            final var verb = endpoint.getRight();
+            final var resource = endpoint.getLeft();
+            var response = client
                     .target(resource)
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
@@ -185,14 +185,14 @@ public class AuthenticationAcceptanceTest {
 
     @Test
     public void authenticationRequired_incorrectCredentialsProvided_expect401() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
         List<String> failedResources = new ArrayList<>();
 
-        for (Pair<String, String> endpoint : getAuthenticatedApplicationEndpoints()) {
-            final String verb = endpoint.getRight();
-            final String resource = endpoint.getLeft();
-            Response response = client
+        for (var endpoint : getAuthenticatedApplicationEndpoints()) {
+            final var verb = endpoint.getRight();
+            final var resource = endpoint.getLeft();
+            var response = client
                     .target(resource)
                     .request()
                     .header(HttpHeaders.AUTHORIZATION, "Basic " + base64("user:incorrect-password"))
@@ -213,7 +213,7 @@ public class AuthenticationAcceptanceTest {
     }
 
     private List<Pair<String, String>> getAuthenticatedApplicationEndpoints() {
-        final ImmutableMap<String, String> randomUriParameterValues = ImmutableMap.<String, String>builder()
+        final var randomUriParameterValues = ImmutableMap.<String, String>builder()
                 .put("organizationId", RANDOM_ORG_ID)
                 .put("achievementId", RANDOM_ACHIEVEMENT_ID)
                 .put("stepId", String.valueOf(1))
@@ -222,20 +222,20 @@ public class AuthenticationAcceptanceTest {
                 .put("identityProvider", IDENTITY_PROVIDER_NAME)
                 .build();
         List<Pair<String, String>> endpoints = new ArrayList<>();
-        final Set<Object> singletons = RULE.getEnvironment().jersey().getResourceConfig().getSingletons();
-        for (Object singleton : singletons) {
+        final var singletons = RULE.getEnvironment().jersey().getResourceConfig().getSingletons();
+        for (var singleton : singletons) {
             if (singleton.getClass().isAnnotationPresent(Path.class)) {
 
-                String basePath = UriBuilder.fromResource(singleton.getClass()).buildFromMap(randomUriParameterValues).toString();
+                var basePath = UriBuilder.fromResource(singleton.getClass()).buildFromMap(randomUriParameterValues).toString();
 
-                for (Method method : singleton.getClass().getDeclaredMethods()) {
-                    String path = basePath;
+                for (var method : singleton.getClass().getDeclaredMethods()) {
+                    var path = basePath;
                     if (method.isAnnotationPresent(Path.class)) {
                         path += (path.length() > 0 ? "/" : "") + UriBuilder.fromMethod(singleton.getClass(), method.getName()).buildFromMap(randomUriParameterValues).toString();
                     }
-                    final Optional<Class<? extends Annotation>> httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(method::isAnnotationPresent).findFirst();
+                    final var httpVerb = Stream.of(POST.class, GET.class, PUT.class, DELETE.class).filter(method::isAnnotationPresent).findFirst();
                     if (httpVerb.isPresent()) {
-                        final String uri = String.format("http://localhost:%d/api/%s", RULE.getLocalPort(), path);
+                        final var uri = String.format("http://localhost:%d/api/%s", RULE.getLocalPort(), path);
                         if (!PUBLIC_RESOURCES.contains(uri)) {
                             endpoints.add(Pair.of(uri, httpVerb.get().getSimpleName()));
                         }

@@ -45,8 +45,8 @@ public class TestUtil {
     }
 
     public static ResourceTestRule.Builder resourceTestRule(CredentialsDao credentialsDao, Boolean followRedirects, AuditingDao auditingDao) {
-        final HibernateBundle<AchievementsApplicationConfiguration> hibernateBundle = mockHibernateBundle();
-        final AuthDynamicFeature authFeature = AchievementsApplication.createAuthFeature(
+        final var hibernateBundle = mockHibernateBundle();
+        final var authFeature = AchievementsApplication.createAuthFeature(
                 hibernateBundle,
                 credentialsDao,
                 mock(JwtTokenService.class)
@@ -60,7 +60,7 @@ public class TestUtil {
     }
 
     private static HibernateBundle<AchievementsApplicationConfiguration> mockHibernateBundle() {
-        return new HibernateBundle<AchievementsApplicationConfiguration>(Achievement.class) {
+        return new HibernateBundle<>(Achievement.class) {
 
             @Override
             public PooledDataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration achievementsApplicationConfiguration) {
@@ -69,7 +69,7 @@ public class TestUtil {
 
             @Override
             public SessionFactory getSessionFactory() {
-                final SessionFactory sessionFactory = mock(SessionFactory.class);
+                final var sessionFactory = mock(SessionFactory.class);
                 when(sessionFactory.openSession()).thenReturn(mock(Session.class));
                 return sessionFactory;
             }
@@ -97,9 +97,9 @@ public class TestUtil {
     }
 
     static String[] getHttpAuditLog(Client client, int adminPort) {
-        Response getResponse = request(client, String.format("http://localhost:%d/tasks/http-log", adminPort)).post(null);
+        var getResponse = request(client, String.format("http://localhost:%d/tasks/http-log", adminPort)).post(null);
 
-        final String dto = getResponse.readEntity(String.class);
+        final var dto = getResponse.readEntity(String.class);
         return StringUtils.split(dto, '\n');
     }
 }

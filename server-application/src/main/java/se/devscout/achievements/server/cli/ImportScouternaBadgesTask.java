@@ -54,24 +54,24 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
 
     @Override
     protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) throws Exception {
-        Reflections reflections = new Reflections("achievements.scouterna_se", new ResourcesScanner());
-        Set<String> fileNames = reflections.getResources(Pattern.compile(".*\\.yaml"));
-        for (String fileName : fileNames) {
+        var reflections = new Reflections("achievements.scouterna_se", new ResourcesScanner());
+        var fileNames = reflections.getResources(Pattern.compile(".*\\.yaml"));
+        for (var fileName : fileNames) {
             output.println(fileName);
         }
 
-        final List<AchievementDTO> achievements = fileNames.stream().map(ImportScouternaBadgesTask::toAchievement)
+        final var achievements = fileNames.stream().map(ImportScouternaBadgesTask::toAchievement)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         achievements.forEach(a -> a.slug = slugGenerator.toSlug(a.name));
         achievements.stream().map(a -> a.name).forEach(output::println);
 
-        for (AchievementDTO achievement : achievements) {
+        for (var achievement : achievements) {
             slugToDto.put(achievement.slug, achievement);
         }
 
-        final HashMap<String, String> slugToPrerequisite = new HashMap<>();
-        for (AchievementDTO achievement : achievements) {
+        final var slugToPrerequisite = new HashMap<String, String>();
+        for (var achievement : achievements) {
             achievement.steps.stream()
                     .filter(step -> step.prerequisite_achievement != null)
                     .findFirst()
@@ -80,7 +80,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
                             step.prerequisite_achievement));
         }
 
-        for (AchievementDTO dto : slugToDto.values()) {
+        for (var dto : slugToDto.values()) {
             if (dto.id == null) {
                 processOne(dto, output);
             }
@@ -95,26 +95,26 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
                 .map(step -> step.prerequisite_achievement)
                 .ifPresent(s -> processOne(slugToDto.get(s), output));
 
-        final AchievementProperties properties = new AchievementProperties();
+        final var properties = new AchievementProperties();
         properties.setDescription(dto.description);
         properties.setImage(dto.image);
         properties.setName(dto.name);
         if (dto.tags != null) {
             properties.setTags(Sets.newHashSet(dto.tags));
         }
-        final Set<ConstraintViolation<AchievementProperties>> violations = Validation.buildDefaultValidatorFactory().getValidator().validate(properties);
+        final var violations = Validation.buildDefaultValidatorFactory().getValidator().validate(properties);
         if (violations.isEmpty()) {
             try {
-                final Optional<Achievement> existing = achievementsDao.find(dto.name).stream().filter(a -> a.getName().equalsIgnoreCase(dto.name)).findFirst();
+                final var existing = achievementsDao.find(dto.name).stream().filter(a -> a.getName().equalsIgnoreCase(dto.name)).findFirst();
                 if (!existing.isPresent()) {
-                    final Achievement achievement = achievementsDao.create(properties);
+                    final var achievement = achievementsDao.create(properties);
                     dto.id = new UuidString(achievement.getId()).getValue();
                     if (dto.steps != null) {
-                        for (AchievementStepDTO stepDto : dto.steps) {
-                            final AchievementStepProperties stepProperties = new AchievementStepProperties();
+                        for (var stepDto : dto.steps) {
+                            final var stepProperties = new AchievementStepProperties();
                             if (!Strings.isNullOrEmpty(stepDto.prerequisite_achievement)) {
                                 try {
-                                    final Achievement prerequisiteAchievement = achievementsDao.read(new UuidString(slugToDto.get(stepDto.prerequisite_achievement).id).getUUID());
+                                    final var prerequisiteAchievement = achievementsDao.read(new UuidString(slugToDto.get(stepDto.prerequisite_achievement).id).getUUID());
                                     stepProperties.setPrerequisiteAchievement(prerequisiteAchievement);
                                 } catch (ObjectNotFoundException e) {
                                     e.printStackTrace(output);
@@ -145,7 +145,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
 
     private static AchievementDTO toAchievement(String fileName) {
         try {
-            final String raw = Resources.asCharSource(Resources.getResource(fileName), Charsets.UTF_8).read();
+            final var raw = Resources.asCharSource(Resources.getResource(fileName), Charsets.UTF_8).read();
             return yamlReader.readValue(raw);
         } catch (IOException e) {
             return null;

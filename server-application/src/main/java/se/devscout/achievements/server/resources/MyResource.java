@@ -63,28 +63,28 @@ public class MyResource extends AbstractAuthResource {
     @UnitOfWork
     @Audited
     public PersonProfileDTO getMyProfile(@Auth User user) {
-        final Person person = getPerson(user);
+        final var person = getPerson(user);
 
-        final Optional<Credentials> passwordCredential = person
+        final var passwordCredential = person
                 .getCredentials()
                 .stream()
                 .filter(c -> c.getType() == CredentialsType.PASSWORD)
                 .findFirst();
 
-        final boolean isPasswordCredentialCreated = passwordCredential.isPresent();
-        final boolean isPasswordSet = isPasswordCredentialCreated &&
+        final var isPasswordCredentialCreated = passwordCredential.isPresent();
+        final var isPasswordSet = isPasswordCredentialCreated &&
                 passwordCredential.get().getData() != null &&
                 passwordCredential.get().getData().length > 0;
 
-        final Organization organization = person.getOrganization();
+        final var organization = person.getOrganization();
 
         // TODO: Implement COUNT(*) query instead of counting the number of result from SELECT
-        final int peopleCount = peopleDao.getByParent(organization).size();
-        final boolean isOnlyPersonInOrganization = 1 == peopleCount;
+        final var peopleCount = peopleDao.getByParent(organization).size();
+        final var isOnlyPersonInOrganization = 1 == peopleCount;
 
         // TODO: Implement COUNT(*) query instead of counting the number of result from SELECT
-        final int groupsCount = groupsDao.getByParent(organization).size();
-        final boolean isGroupCreated = groupsCount > 0;
+        final var groupsCount = groupsDao.getByParent(organization).size();
+        final var isGroupCreated = groupsCount > 0;
 
         return new PersonProfileDTO(
                 map(organization, OrganizationDTO.class),
@@ -107,20 +107,20 @@ public class MyResource extends AbstractAuthResource {
     @Audited
     // TODO: Split into smaller methods
     public Response setPassword(@Auth User user, SetPasswordDTO payload) {
-        final Person person = getPerson(user);
-        final Optional<Credentials> passwordOpt = person.getCredentials().stream()
+        final var person = getPerson(user);
+        final var passwordOpt = person.getCredentials().stream()
                 .filter(c -> c.getType() == CredentialsType.PASSWORD)
                 .findFirst();
         if (passwordOpt.isPresent()) {
-            final Credentials credentials = passwordOpt.get();
-            final byte[] currentPwData = credentials.getData();
-            final boolean validationOfCurrentPasswordRequired = currentPwData != null
+            final var credentials = passwordOpt.get();
+            final var currentPwData = credentials.getData();
+            final var validationOfCurrentPasswordRequired = currentPwData != null
                     && currentPwData.length > 0
                     && user.getCredentialsTypeUsed() != CredentialsType.ONETIME_PASSWORD;
             if (validationOfCurrentPasswordRequired) {
                 if (!Strings.isNullOrEmpty(payload.current_password)) {
-                    final PasswordValidator currentPwValidator = new PasswordValidator(currentPwData);
-                    final ValidationResult currentPwValidationResult = currentPwValidator.validate(payload.current_password.toCharArray());
+                    final var currentPwValidator = new PasswordValidator(currentPwData);
+                    final var currentPwValidationResult = currentPwValidator.validate(payload.current_password.toCharArray());
                     if (!currentPwValidationResult.isValid()) {
                         throw new BadRequestException();
                     }
@@ -131,7 +131,7 @@ public class MyResource extends AbstractAuthResource {
             if (!Strings.isNullOrEmpty(payload.new_password) && !Strings.isNullOrEmpty(payload.new_password_confirm)) {
                 if (payload.new_password.equals(payload.new_password_confirm)) {
                     try {
-                        final PasswordValidator passwordValidator = new PasswordValidator(
+                        final var passwordValidator = new PasswordValidator(
                                 SecretGenerator.PDKDF2,
                                 payload.new_password.toCharArray());
                         credentials.setData(passwordValidator.getCredentialsData());
@@ -180,7 +180,7 @@ public class MyResource extends AbstractAuthResource {
         if (user.isPresent()) {
             person = getPerson(user.get());
         } else {
-            final List<Person> people = peopleDao.getByEmail(payload.email);
+            final var people = peopleDao.getByEmail(payload.email);
             if (people != null && people.size() == 1) {
                 person = people.get(0);
             }
@@ -188,12 +188,12 @@ public class MyResource extends AbstractAuthResource {
 
         if (person != null) {
             try {
-                final byte[] bytes = new byte[20];
+                final var bytes = new byte[20];
                 new SecureRandom().nextBytes(bytes);
-                final String onetimePassword = BaseEncoding.base32().encode(bytes).toLowerCase();
+                final var onetimePassword = BaseEncoding.base32().encode(bytes).toLowerCase();
                 credentialsDao.create(person, new CredentialsProperties(onetimePassword, CredentialsType.ONETIME_PASSWORD, null));
 
-                final URI link = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#set-password/" + onetimePassword);
+                final var link = URI.create(StringUtils.appendIfMissing(guiApplicationHost.toString(), "/") + "#set-password/" + onetimePassword);
 
                 emailSender.send(
                         req != null ? req.getRemoteAddr() : "ANONYMOUS",
@@ -214,7 +214,7 @@ public class MyResource extends AbstractAuthResource {
     @Path("people")
     @UnitOfWork
     public List<PersonBaseDTO> getMyPeople(@Auth User user) {
-        final Person person = getPerson(user);
+        final var person = getPerson(user);
         return peopleDao.getByParent(person.getOrganization()).stream()
                 .map(p -> map(p, PersonBaseDTO.class))
                 .collect(Collectors.toList());
@@ -224,7 +224,7 @@ public class MyResource extends AbstractAuthResource {
     @Path("groups")
     @UnitOfWork
     public List<GroupBaseDTO> getMyGroups(@Auth User user) {
-        final Person person = getPerson(user);
+        final var person = getPerson(user);
         return groupsDao.getByParent(person.getOrganization()).stream()
                 .map(p -> map(p, GroupBaseDTO.class))
                 .collect(Collectors.toList());
@@ -243,11 +243,11 @@ public class MyResource extends AbstractAuthResource {
     @Path("achievement-summary")
     @UnitOfWork
     public OrganizationAchievementSummaryDTO getMyAchievementsSummary(@Auth User user) {
-        final Person person = getPerson(user);
+        final var person = getPerson(user);
 
-        final List<Achievement> achievements = achievementsDao.findWithProgressForPerson(person);
+        final var achievements = achievementsDao.findWithProgressForPerson(person);
 
-        final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, person, person.getOrganization(), peopleDao);
+        final var summary = createAchievementSummaryDTO(achievements, person, person.getOrganization(), peopleDao);
 
         return summary;
     }

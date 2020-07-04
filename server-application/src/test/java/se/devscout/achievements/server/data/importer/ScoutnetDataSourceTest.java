@@ -23,7 +23,7 @@ public class ScoutnetDataSourceTest {
 
     @Test
     public void read_normalReport_happyPath() throws PeopleDataSourceException, IOException {
-        final List<PersonDTO> people = dataSource.read(getReader(getTestDataStream("scoutnet-members-export-normal.csv")));
+        final var people = dataSource.read(getReader(getTestDataStream("scoutnet-members-export-normal.csv")));
 
         // Assert some of the people in the import file.
         assertPerson(people, "Martina Str\u00f6mberg", "1000006", "Testpatrull");
@@ -33,7 +33,7 @@ public class ScoutnetDataSourceTest {
 
     @Test
     public void read_simpleReport_happyPath() throws PeopleDataSourceException, IOException {
-        final List<PersonDTO> people = dataSource.read(getReader(getTestDataStream("scoutnet-members-export-simple.csv")));
+        final var people = dataSource.read(getReader(getTestDataStream("scoutnet-members-export-simple.csv")));
 
         // Assert some of the people in the import file.
         assertPerson(people, "Martina Str\u00f6mberg", "1000006");
@@ -54,17 +54,17 @@ public class ScoutnetDataSourceTest {
     }
 
     private void assertPerson(List<PersonDTO> people, String name, String customId, String... groups) {
-        final List<PersonDTO> matches = people.stream()
+        final var matches = people.stream()
                 .filter(p -> p.name.equals(name))
                 .collect(Collectors.toList());
 
         assertThat(matches).hasSize(1);
 
-        final PersonDTO person = matches.get(0);
+        final var person = matches.get(0);
         assertThat(person.name).isEqualTo(name);
         assertThat(person.custom_identifier).isEqualTo(customId);
         assertThat(person.groups).hasSize(groups.length);
-        for (int i = 0; i < groups.length; i++) {
+        for (var i = 0; i < groups.length; i++) {
             assertThat(person.groups.get(i).name).isEqualTo(groups[i]);
         }
     }

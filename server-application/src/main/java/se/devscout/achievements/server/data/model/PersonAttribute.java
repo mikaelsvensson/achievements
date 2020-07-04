@@ -44,7 +44,7 @@ public class PersonAttribute {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PersonAttribute)) return false;
-        PersonAttribute that = (PersonAttribute) o;
+        var that = (PersonAttribute) o;
         return Objects.equal(key, that.key) &&
                 Objects.equal(value, that.value);
     }

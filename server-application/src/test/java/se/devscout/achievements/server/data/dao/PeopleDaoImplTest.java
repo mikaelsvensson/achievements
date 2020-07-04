@@ -43,15 +43,15 @@ public class PeopleDaoImplTest {
         dao = new PeopleDaoImpl(database.getSessionFactory());
         achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
 
-        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        var organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
         testOrganization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization")));
         otherOrganization = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Other Organization")));
     }
 
     @Test
     public void get_happyPath() throws Exception {
-        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
-        final Person actual = dao.read(aliceUuid);
+        var aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
+        final var actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Alice");
     }
 
@@ -62,20 +62,20 @@ public class PeopleDaoImplTest {
 
     @Test
     public void getByOrganization_happyPath() throws Exception {
-        Integer aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
-        Integer amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda", Roles.READER))).getId();
-        Integer bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob", Roles.READER))).getId();
+        var aliceUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER))).getId();
+        var amandaUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Amanda", Roles.READER))).getId();
+        var bobUuid = database.inTransaction(() -> dao.create(otherOrganization, new PersonProperties("Bob", Roles.READER))).getId();
 
-        final List<Person> actualA = dao.getByParent(testOrganization);
+        final var actualA = dao.getByParent(testOrganization);
         assertThat(actualA.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(aliceUuid, amandaUuid);
 
-        final List<Person> actualB = dao.getByParent(otherOrganization);
+        final var actualB = dao.getByParent(otherOrganization);
         assertThat(actualB.stream().map(Person::getId).collect(Collectors.toList())).containsExactlyInAnyOrder(bobUuid);
     }
 
     @Test
     public void getByOrganization_incorrectId_expectEmptyList() throws Exception {
-        final List<Person> actual = dao.getByParent(null);
+        final var actual = dao.getByParent(null);
         assertThat(actual).isEmpty();
     }
 
@@ -83,7 +83,7 @@ public class PeopleDaoImplTest {
     public void getByEmail_addressExists_happyPath() throws Exception {
         database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 
-        final List<Person> actual = dao.getByEmail("alice@example.com");
+        final var actual = dao.getByEmail("alice@example.com");
         assertThat(actual).hasSize(1);
         assertThat(actual.get(0).getEmail()).isEqualTo("alice@example.com");
     }
@@ -92,7 +92,7 @@ public class PeopleDaoImplTest {
     public void getByEmail_caseInsensitiveSearch_happyPath() throws Exception {
         database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "ALICE@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 
-        final List<Person> actual = dao.getByEmail("alice@EXAMPLE.com");
+        final var actual = dao.getByEmail("alice@EXAMPLE.com");
         assertThat(actual).hasSize(1);
         assertThat(actual.get(0).getEmail()).isEqualTo("ALICE@example.com");
     }
@@ -101,26 +101,26 @@ public class PeopleDaoImplTest {
     public void getByEmail_addressIsMissing_happyPath() throws Exception {
         database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", "alice@example.com", Collections.emptySet(), "alice", Roles.READER))).getId();
 
-        final List<Person> actual = dao.getByEmail("bob@example.com");
+        final var actual = dao.getByEmail("bob@example.com");
         assertThat(actual).hasSize(0);
     }
 
     @Test
     public void delete_happyPath() throws Exception {
-        final Person personAliceWithProgress = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER)));
+        final var personAliceWithProgress = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Alice", Roles.READER)));
 
         // Setup: Create achievements
-        AchievementsDaoImpl achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
-        final Achievement achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
+        var achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
+        final var achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
 
         // Setup: Create achievement steps
-        AchievementStepsDaoImpl stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
-        AchievementStep achievement1Step1 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package")));
-        AchievementStep achievement1Step2 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Clean up afterwards")));
+        var stepsDao = new AchievementStepsDaoImpl(database.getSessionFactory());
+        var achievement1Step1 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Follow the instructions on the package")));
+        var achievement1Step2 = database.inTransaction(() -> stepsDao.create(achievement1, new AchievementStepProperties("Clean up afterwards")));
 
         // Setup: Create progress records
-        AuditingDaoImpl auditingDao = new AuditingDaoImpl(database.getSessionFactory());
-        AchievementStepProgressDaoImpl progressDao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
+        var auditingDao = new AuditingDaoImpl(database.getSessionFactory());
+        var progressDao = new AchievementStepProgressDaoImpl(database.getSessionFactory());
         database.inTransaction(() -> {
             progressDao.set(achievement1Step1, personAliceWithProgress, new AchievementStepProgressProperties(true, "Finally done"));
             auditingDao.create(UUID.randomUUID(), 1, achievement1Step1.getId(), personAliceWithProgress.getId(), null, "PUT", 200);
@@ -151,8 +151,8 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Person result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
-        final Person actual = database.inTransaction(() -> dao.read(result.getId()));
+        final var result = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
+        final var actual = database.inTransaction(() -> dao.read(result.getId()));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Carol");
         assertThat(actual.getEmail()).isEqualTo("carol@example.com");
@@ -164,8 +164,8 @@ public class PeopleDaoImplTest {
 
     @Test
     public void create_sameNameAsExistingPerson_happyPath() throws Exception {
-        final Person c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
-        final Person c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
+        final var c1 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol1@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
+        final var c2 = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Carol", "carol2@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "green"), new PersonAttribute("role", "administrator")), null, Roles.READER)));
         assertThat(c1.getId()).isNotEqualTo(c2.getId());
     }
 
@@ -181,11 +181,11 @@ public class PeopleDaoImplTest {
 
     @Test
     public void update_personWithoutAttributes_happyPath() throws Exception {
-        Integer objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda", Roles.READER))).getId();
+        var objectUuid = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda", Roles.READER))).getId();
 
         database.inTransaction(() -> dao.update(objectUuid, new PersonProperties("Becky", Roles.READER)));
 
-        final Person actual = database.inTransaction(() -> dao.read(objectUuid));
+        final var actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Becky");
         assertThat(actual.getAttributes()).isEmpty();
@@ -194,13 +194,13 @@ public class PeopleDaoImplTest {
     @Test
     public void awards_happyPath() throws Exception {
         // Setup: Create achievements
-        AchievementsDaoImpl achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
-        final Achievement achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
-        final Achievement achievement2 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Make an omelette")));
+        var achievementsDao = new AchievementsDaoImpl(database.getSessionFactory());
+        final var achievement1 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Boil an egg")));
+        final var achievement2 = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Make an omelette")));
 
         // Setup: Create people
-        final Person bill = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bill", Roles.READER)));
-        final Person belinda = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda", Roles.READER)));
+        final var bill = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Bill", Roles.READER)));
+        final var belinda = database.inTransaction(() -> dao.create(testOrganization, new PersonProperties("Belinda", Roles.READER)));
 
         // TEST: Award two achievements to Belinda
         database.inTransaction(() -> dao.addAwardFor(belinda, achievement1));
@@ -229,13 +229,13 @@ public class PeopleDaoImplTest {
     }
 
     private void verifyHasBeenAwarded(int id, Achievement... achievements) {
-        final Person actual = database.inTransaction(() -> dao.read(id));
+        final var actual = database.inTransaction(() -> dao.read(id));
         assertThat(actual.getId()).isEqualTo(id);
         assertThat(actual.getAwards()).containsOnly(achievements);
     }
 
     private void verifyIsAwardedTo(UUID id, Person... people) {
-        final Achievement actual = database.inTransaction(() -> achievementsDao.read(id));
+        final var actual = database.inTransaction(() -> achievementsDao.read(id));
         assertThat(actual.getId()).isEqualTo(id);
         assertThat(actual.getAwardedTo()).containsOnly(people);
     }
@@ -243,18 +243,18 @@ public class PeopleDaoImplTest {
     @Test
     public void getByAwardedAchievement_differentOrganizations() throws Exception {
         // Setup: Create achievements
-        final Achievement achievementPasta = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Cook Pasta")));
-        final Achievement achievementEgg = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Cook Egg")));
+        final var achievementPasta = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Cook Pasta")));
+        final var achievementEgg = database.inTransaction(() -> achievementsDao.create(new AchievementProperties("Cook Egg")));
 
         // Setup: Create organization
-        OrganizationsDaoImpl organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
-        Organization org1 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization A")));
-        Organization org2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization B")));
+        var organizationDao = new OrganizationsDaoImpl(database.getSessionFactory(), 100L);
+        var org1 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization A")));
+        var org2 = database.inTransaction(() -> organizationDao.create(new OrganizationProperties("Test Organization B")));
 
         // Setup: Crate people
-        Person personAlice = database.inTransaction(() -> dao.create(org1, new PersonProperties("Alice", Roles.READER)));
-        Person personBob = database.inTransaction(() -> dao.create(org1, new PersonProperties("Bob", Roles.READER)));
-        Person personCarol = database.inTransaction(() -> dao.create(org2, new PersonProperties("Carol", Roles.READER)));
+        var personAlice = database.inTransaction(() -> dao.create(org1, new PersonProperties("Alice", Roles.READER)));
+        var personBob = database.inTransaction(() -> dao.create(org1, new PersonProperties("Bob", Roles.READER)));
+        var personCarol = database.inTransaction(() -> dao.create(org2, new PersonProperties("Carol", Roles.READER)));
 
         // Setup: Award people different achievements
         database.inTransaction(() -> dao.addAwardFor(personAlice, achievementEgg));
@@ -295,17 +295,17 @@ public class PeopleDaoImplTest {
     }
 
     private void update_personWithAttributes_happyPath(String initialCustomIdentifier, String updatedCustomIdentifier) {
-        Integer objectUuid = database.inTransaction(() -> {
-            final PersonProperties initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), initialCustomIdentifier, Roles.READER);
+        var objectUuid = database.inTransaction(() -> {
+            final var initialProperties = new PersonProperties("Dave", "dave@example.com", Sets.newHashSet(new PersonAttribute("favourite_colour", "orange"), new PersonAttribute("role", "administrator")), initialCustomIdentifier, Roles.READER);
             return dao.create(testOrganization, initialProperties);
         }).getId();
 
         database.inTransaction(() -> {
-            final PersonProperties updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), updatedCustomIdentifier, Roles.READER);
+            final var updatedProperties = new PersonProperties("David", null, Sets.newHashSet(new PersonAttribute("favourite_colour", "blue"), new PersonAttribute("title", "administrator")), updatedCustomIdentifier, Roles.READER);
             return dao.update(objectUuid, updatedProperties);
         });
 
-        final Person actual = database.inTransaction(() -> dao.read(objectUuid));
+        final var actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("David");
         assertThat(actual.getEmail()).isNull();

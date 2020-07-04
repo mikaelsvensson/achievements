@@ -42,37 +42,37 @@ public class OrganizationsDaoImplTest {
 
     @Test
     public void get_happyPath() throws Exception {
-        UUID aliceUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Alice's Organization"))).getId();
-        final Organization actual = dao.read(aliceUuid);
+        var aliceUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Alice's Organization"))).getId();
+        final var actual = dao.read(aliceUuid);
         assertThat(actual.getName()).isEqualTo("Alice's Organization");
     }
 
     @Test
     public void find_happyPath() throws Exception {
-        UUID burnsUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Burns Industries"))).getId();
-        UUID buynlargeUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Buy n Large"))).getId();
-        UUID monstersUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Monsters, Inc."))).getId();
-        UUID planetUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Planet Express, Inc."))).getId();
-        final List<Organization> actual = dao.find("Bu");
-        List<UUID> returnedUuids = actual.stream().map(Organization::getId).collect(Collectors.toList());
+        var burnsUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Burns Industries"))).getId();
+        var buynlargeUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Buy n Large"))).getId();
+        var monstersUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Monsters, Inc."))).getId();
+        var planetUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Planet Express, Inc."))).getId();
+        final var actual = dao.find("Bu");
+        var returnedUuids = actual.stream().map(Organization::getId).collect(Collectors.toList());
         assertThat(returnedUuids).containsExactlyInAnyOrder(burnsUuid, buynlargeUuid);
     }
 
     @Test
     public void all_happyPath() throws Exception {
-        UUID burnsUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Burns Industries"))).getId();
-        UUID buynlargeUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Buy n Large"))).getId();
+        var burnsUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Burns Industries"))).getId();
+        var buynlargeUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Buy n Large"))).getId();
 
         //SUT
-        final List<Organization> actual = dao.all();
+        final var actual = dao.all();
 
-        List<UUID> returnedUuids = actual.stream().map(Organization::getId).collect(Collectors.toList());
+        var returnedUuids = actual.stream().map(Organization::getId).collect(Collectors.toList());
         assertThat(returnedUuids).containsExactlyInAnyOrder(burnsUuid, buynlargeUuid);
     }
 
     @Test
     public void find_noCondition_expectException() throws Exception {
-        for (String name : new String[]{null, "", "\t", "     ", "\n"}) {
+        for (var name : new String[]{null, "", "\t", "     ", "\n"}) {
             try {
                 dao.find(name);
                 fail("Expected IllegalArgumentException when using condition '" + name + "'.");
@@ -89,7 +89,7 @@ public class OrganizationsDaoImplTest {
 
     @Test
     public void create_happyPath() throws Exception {
-        final Organization actual = dao.create(new OrganizationProperties("Bob and friends"));
+        final var actual = dao.create(new OrganizationProperties("Bob and friends"));
         assertThat(actual.getId()).isNotNull();
         assertThat(actual.getName()).isEqualTo("Bob and friends");
     }
@@ -102,7 +102,7 @@ public class OrganizationsDaoImplTest {
 
     @Test(expected = TooManyOrganizationsException.class)
     public void create_tooManyOrganizations() throws Exception {
-        for (int i = 0; i < MAX_ORG_COUNT; i++) {
+        for (var i = 0; i < MAX_ORG_COUNT; i++) {
             database.inTransaction(() -> dao.create(new OrganizationProperties(RandomStringUtils.random(10))));
         }
         dao.create(new OrganizationProperties(RandomStringUtils.random(10)));
@@ -110,7 +110,7 @@ public class OrganizationsDaoImplTest {
 
     @Test
     public void delete_happyPath() throws Exception {
-        UUID id = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Partnership"))).getId();
+        var id = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Partnership"))).getId();
         database.inTransaction(() -> {
             try {
                 dao.delete(id);
@@ -134,11 +134,11 @@ public class OrganizationsDaoImplTest {
 
     @Test
     public void update_happyPath() throws Exception {
-        UUID objectUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Company"))).getId();
+        var objectUuid = database.inTransaction(() -> dao.create(new OrganizationProperties("Bob's Company"))).getId();
 
         database.inTransaction(() -> dao.update(objectUuid, new OrganizationProperties("Alice's Company")));
 
-        final Organization actual = database.inTransaction(() -> dao.read(objectUuid));
+        final var actual = database.inTransaction(() -> dao.read(objectUuid));
         assertThat(actual.getId()).isEqualTo(objectUuid);
         assertThat(actual.getName()).isEqualTo("Alice's Company");
     }

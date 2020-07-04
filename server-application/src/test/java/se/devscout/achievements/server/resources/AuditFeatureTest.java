@@ -25,8 +25,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 public class AuditFeatureTest {
@@ -67,7 +65,7 @@ public class AuditFeatureTest {
 
     @Test
     public void credentialsRequired_goodCredentials_happyPath() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/private")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -83,7 +81,7 @@ public class AuditFeatureTest {
 
         doThrow(new ObjectNotFoundException()).when(credentialsDao).get(eq(CredentialsType.PASSWORD), eq("invalid_user"));
 
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/private")
                 .register(HttpAuthenticationFeature.basic("invalid_user", "password"))
                 .request()
@@ -96,7 +94,7 @@ public class AuditFeatureTest {
 
     @Test
     public void credentialsRequired_noCredentials_happyPath() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/private")
                 .request()
                 .get();
@@ -108,7 +106,7 @@ public class AuditFeatureTest {
 
     @Test
     public void credentialsOptional_goodCredentials_happyPath() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/public")
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -121,7 +119,7 @@ public class AuditFeatureTest {
 
     @Test
     public void credentialsOptional_badCredentials_happyPath() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/public")
                 .register(HttpAuthenticationFeature.basic("invalid_user", "password"))
                 .request()
@@ -134,7 +132,7 @@ public class AuditFeatureTest {
 
     @Test
     public void credentialsOptional_noCredentials_happyPath() throws Exception {
-        final Response response = resources
+        final var response = resources
                 .target("/endpoint/public")
                 .request()
                 .get();

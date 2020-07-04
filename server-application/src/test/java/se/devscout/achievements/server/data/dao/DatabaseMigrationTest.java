@@ -41,7 +41,7 @@ public class DatabaseMigrationTest {
     // Credits: http://forum.liquibase.org/topic/using-hsqldb-and-liquibase-for-unit-test
     @BeforeClass
     public static void setUp() throws Exception {
-        DataSourceFactory dataSourceFactory = RULE.getConfiguration().getDataSourceFactory();
+        var dataSourceFactory = RULE.getConfiguration().getDataSourceFactory();
         ds = dataSourceFactory.build(RULE.getEnvironment().metrics(), "migrations");
     }
 
@@ -50,14 +50,14 @@ public class DatabaseMigrationTest {
      */
     @Test
     public void DatabaseMigration_CanBeRolledBack_HappyPath() throws Exception {
-        try (Connection connection = ds.getConnection()) {
+        try (var connection = ds.getConnection()) {
             initMigrator(connection);
         }
         // ONLY add a change set to this list if you are ABSOLUTELY sure that there is no risk that we need to roll it back.
         List<String> ignoredChangeSetIds = Arrays.asList(
         );
 
-        List<ChangeSet> allChangeSets = migrator.getDatabaseChangeLog().getChangeSets();
+        var allChangeSets = migrator.getDatabaseChangeLog().getChangeSets();
 
         Predicate<ChangeSet> nonIgnoredChangeSets = cs -> !ignoredChangeSetIds.contains(cs.getId());
         Predicate<ChangeSet> changeSetsWithoutRollbackCommand = cs -> cs.getRollback().getChanges().size() == 0;
@@ -72,7 +72,7 @@ public class DatabaseMigrationTest {
 
     @Test
     public void DatabaseMigration_ValidMigrations_HappyPath() throws Exception {
-        try (Connection connection = ds.getConnection()) {
+        try (var connection = ds.getConnection()) {
             initMigrator(connection);
             migrator.update("");
         }

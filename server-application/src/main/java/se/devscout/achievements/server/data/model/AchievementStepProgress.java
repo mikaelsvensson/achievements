@@ -70,7 +70,7 @@ public class AchievementStepProgress extends AchievementStepProgressProperties {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Key)) return false;
-            Key key = (Key) o;
+            var key = (Key) o;
             return Objects.equal(stepId, key.stepId) &&
                     Objects.equal(personId, key.personId);
         }

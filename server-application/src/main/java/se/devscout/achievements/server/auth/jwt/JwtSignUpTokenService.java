@@ -32,8 +32,8 @@ public class JwtSignUpTokenService {
     }
 
     public JwtSignUpToken decode(String token) throws JwtTokenServiceException {
-        final DecodedJWT decodedJWT = jwtTokenService.decode(token);
-        final Map<String, Claim> claims = decodedJWT.getClaims();
+        final var decodedJWT = jwtTokenService.decode(token);
+        final var claims = decodedJWT.getClaims();
         return new JwtSignUpToken(
                 claims.containsKey(ORGANIZATION_ID) ? new UuidString(claims.get(ORGANIZATION_ID).asString()) : null,
                 claims.containsKey(ORGANIZATION_NAME) ? claims.get(ORGANIZATION_NAME).asString() : null

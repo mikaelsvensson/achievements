@@ -39,9 +39,9 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     @Override
     public URI getRedirectUri(HttpServletRequest req, HttpServletResponse resp, String callbackState, URI callbackUri) throws IdentityProviderException {
         try {
-            Auth auth = createSamlAuth(req, resp);
-            final URI redirectUri = URI.create(auth.login(callbackUri.toString(), false, false, true, false));
-            final String requestId = auth.getLastRequestId();
+            var auth = createSamlAuth(req, resp);
+            final var redirectUri = URI.create(auth.login(callbackUri.toString(), false, false, true, false));
+            final var requestId = auth.getLastRequestId();
             LOGGER.info("SAML request id: {}", requestId);
             return redirectUri;
         } catch (IOException e) {
@@ -54,28 +54,28 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     @Override
     public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) throws IdentityProviderException {
         try {
-            Auth auth = createSamlAuth(req, resp);
+            var auth = createSamlAuth(req, resp);
             auth.processResponse();
             if (!auth.isAuthenticated()) {
                 throw new IdentityProviderException("Could not perform authentication using SAML.");
             }
-            List<String> errors = auth.getErrors();
+            var errors = auth.getErrors();
             if (!errors.isEmpty()) {
                 LOGGER.info(StringUtils.join(errors, ", "));
                 if (auth.isDebugActive()) {
-                    String errorReason = auth.getLastErrorReason();
+                    var errorReason = auth.getLastErrorReason();
                     if (errorReason != null && !errorReason.isEmpty()) {
                         LOGGER.info(auth.getLastErrorReason());
                     }
                 }
                 throw new IdentityProviderException("Error in SAML handler: " + StringUtils.join(errors, ", "));
             } else {
-                Map<String, List<String>> attributes = auth.getAttributes();
-                String nameId = auth.getNameId();
-                String nameIdFormat = auth.getNameIdFormat();
-                String sessionIndex = auth.getSessionIndex();
-                String nameidNameQualifier = auth.getNameIdNameQualifier();
-                String nameidSPNameQualifier = auth.getNameIdSPNameQualifier();
+                var attributes = auth.getAttributes();
+                var nameId = auth.getNameId();
+                var nameIdFormat = auth.getNameIdFormat();
+                var sessionIndex = auth.getSessionIndex();
+                var nameidNameQualifier = auth.getNameIdNameQualifier();
+                var nameidSPNameQualifier = auth.getNameIdSPNameQualifier();
 
                 LOGGER.info("attributes: {}", attributes);
                 LOGGER.info("nameId: {}", nameId);
@@ -84,16 +84,16 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
                 LOGGER.info("nameidNameQualifier: {}", nameidNameQualifier);
                 LOGGER.info("nameidSPNameQualifier: {}", nameidSPNameQualifier);
 
-                String callbackState = req.getParameter("RelayState");
+                var callbackState = req.getParameter("RelayState");
 
                 if (attributes.isEmpty()) {
                     LOGGER.info("You don't have any attributes");
                 } else {
                     Collection<String> keys = attributes.keySet();
-                    for (String name : keys) {
+                    for (var name : keys) {
                         LOGGER.info(name);
-                        List<String> values = attributes.get(name);
-                        for (String value : values) {
+                        var values = attributes.get(name);
+                        for (var value : values) {
                             LOGGER.info(" - " + value);
                         }
                     }
@@ -108,11 +108,11 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     @Override
     public Response getMetadataResponse() throws IdentityProviderException {
         try {
-            final Auth auth = createSamlAuth(null, null);
-            Saml2Settings settings = auth.getSettings();
+            final var auth = createSamlAuth(null, null);
+            var settings = auth.getSettings();
             settings.setSPValidationOnly(true);
-            String metadata = settings.getSPMetadata();
-            List<String> errors = Saml2Settings.validateMetadata(metadata);
+            var metadata = settings.getSPMetadata();
+            var errors = Saml2Settings.validateMetadata(metadata);
             if (errors.isEmpty()) {
                 return Response.ok(metadata).type(MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")).build();
             } else {
@@ -124,7 +124,7 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     }
 
     private Auth createSamlAuth(HttpServletRequest request, HttpServletResponse response) throws IdentityProviderException {
-        final Saml2Settings settings = new SettingsBuilder()
+        final var settings = new SettingsBuilder()
                 .fromProperties(loadProperties("onelogin-saml-defaults.properties"))
                 .fromProperties(loadProperties("onelogin-saml-scoutid.properties"))
                 .fromValues(ImmutableMap.<String, Object>builder()
@@ -147,8 +147,8 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     }
 
     private static Properties loadProperties(String resourceName) {
-        try (InputStream stream = Resources.asByteSource(Resources.getResource(resourceName)).openBufferedStream();) {
-            final Properties properties = new Properties();
+        try (var stream = Resources.asByteSource(Resources.getResource(resourceName)).openBufferedStream();) {
+            final var properties = new Properties();
             properties.load(stream);
             return properties;
         } catch (IOException e) {

@@ -33,17 +33,17 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements
     @Override
     public Organization create(OrganizationProperties properties) throws TooManyOrganizationsException {
         if (maxOrganizationCount != null) {
-            final Long count = getEntityCount();
+            final var count = getEntityCount();
             if (count >= maxOrganizationCount) {
                 throw new TooManyOrganizationsException("Only " + maxOrganizationCount + " organizations can exist in the system.");
             }
         }
-        final Organization existingOrg = super.currentSession()
+        final var existingOrg = super.currentSession()
                 .byNaturalId(Organization.class)
                 .using("name", properties.getName())
                 .load();
         if (existingOrg == null) {
-            final Organization entity = new Organization(properties.getName());
+            final var entity = new Organization(properties.getName());
             return super.persist(entity);
         } else {
             throw new EntityExistsException("Organization " + properties.getName() + " already exists.");
@@ -52,20 +52,20 @@ public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements
 
     @Override
     public Organization update(UUID id, OrganizationProperties properties) throws ObjectNotFoundException {
-        final Organization organization = read(id);
+        final var organization = read(id);
         organization.apply(properties);
         return super.persist(organization);
     }
 
     @Override
     public void delete(UUID id) throws ObjectNotFoundException {
-        final Organization organization = read(id);
+        final var organization = read(id);
         super.currentSession().delete(organization);
     }
 
     private Long getEntityCount() {
-        final CriteriaBuilder cb = super.currentSession().getCriteriaBuilder();
-        final CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        final var cb = super.currentSession().getCriteriaBuilder();
+        final var query = cb.createQuery(Long.class);
         query.select(cb.count(query.from(Organization.class)));
         return super.currentSession().createQuery(query).getSingleResult();
     }

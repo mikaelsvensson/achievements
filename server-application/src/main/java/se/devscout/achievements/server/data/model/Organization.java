@@ -50,7 +50,7 @@ public class Organization extends OrganizationProperties {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Organization)) return false;
-        Organization that = (Organization) o;
+        var that = (Organization) o;
         return Objects.equal(id, that.id);
     }
 

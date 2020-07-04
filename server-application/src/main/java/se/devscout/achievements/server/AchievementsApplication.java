@@ -81,12 +81,12 @@ public class AchievementsApplication extends Application<AchievementsApplication
     };
 
     public void run(AchievementsApplicationConfiguration config, Environment environment) throws Exception {
-        final SessionFactory sessionFactory = hibernate.getSessionFactory();
+        final var sessionFactory = hibernate.getSessionFactory();
 
         if (config.isAutoMigrateDatabase()) {
-            ManagedDataSource ds = config.getDataSourceFactory().build(environment.metrics(), "migrations");
-            try (Connection connection = ds.getConnection()) {
-                Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            var ds = config.getDataSourceFactory().build(environment.metrics(), "migrations");
+            try (var connection = ds.getConnection()) {
+                var migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
                 migrator.update("");
             }
         }
@@ -99,15 +99,15 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final GroupsDao groupsDao = new GroupsDaoImpl(sessionFactory);
         final AuditingDao auditingDao = new AuditingDaoImpl(sessionFactory);
         final GroupMembershipsDao membershipsDao = new GroupMembershipsDaoImpl(sessionFactory);
-        final CredentialsDao credentialsDao = getCredentialsDao(sessionFactory);
+        final var credentialsDao = getCredentialsDao(sessionFactory);
 
         environment.jersey().register(new CallbackResourceExceptionMapper(config.getGuiApplicationHost()));
         environment.jersey().register(ValidationExceptionMapper.class);
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
         final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
-        final JwtSignInTokenService signInTokenService = new JwtSignInTokenService(jwtTokenService);
-        final JwtSignUpTokenService signUpTokenService = new JwtSignUpTokenService(jwtTokenService);
+        final var signInTokenService = new JwtSignInTokenService(jwtTokenService);
+        final var signUpTokenService = new JwtSignUpTokenService(jwtTokenService);
 
         environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
 
@@ -127,8 +127,8 @@ public class AchievementsApplication extends Application<AchievementsApplication
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
 
-        final SmtpSender emailSender = new SmtpSender(config.getSmtp());
-        final I18n i18n = new I18n("texts.sv.yaml");
+        final var emailSender = new SmtpSender(config.getSmtp());
+        final var i18n = new I18n("texts.sv.yaml");
 
         environment.getObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
@@ -199,9 +199,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
     }
 
     private void initFilterRateLimiter(Environment environment, AchievementsApplicationConfiguration.RateLimiting config) {
-        final RateLimiter rateLimiter = new RateLimiter(config.getRequestsPerMinute(), config.getBurstLimit());
+        final var rateLimiter = new RateLimiter(config.getRequestsPerMinute(), config.getBurstLimit());
 
-        final ServletRequestRateLimiter servletRequestRateLimiter = new ServletRequestRateLimiter(rateLimiter);
+        final var servletRequestRateLimiter = new ServletRequestRateLimiter(rateLimiter);
 
         environment.servlets()
                 .addFilter("RateLimiter", servletRequestRateLimiter)
@@ -211,9 +211,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
             @Override
             public void configure(ResourceInfo resourceInfo, FeatureContext context) {
                 if (resourceInfo.getResourceMethod().isAnnotationPresent(RateLimited.class)) {
-                    final RateLimited annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
+                    final var annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
 
-                    final RateLimiter rateLimiter = new RateLimiter(
+                    final var rateLimiter = new RateLimiter(
                             annotation.requestsPerMinute(),
                             annotation.burstLimit());
 
@@ -229,9 +229,9 @@ public class AchievementsApplication extends Application<AchievementsApplication
 
     public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService) {
 
-        PasswordAuthenticator tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
-        OnetimePasswordAuthenticator onetimePasswordAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(OnetimePasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
-        final JwtAuthenticator jwtAuthenticator = new JwtAuthenticator(new JwtSignInTokenService(jwtTokenService));
+        var tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
+        var onetimePasswordAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(OnetimePasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
+        final var jwtAuthenticator = new JwtAuthenticator(new JwtSignInTokenService(jwtTokenService));
 
         final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
 
@@ -266,7 +266,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
     }
 
     private void initFilterCorsHeaders(Environment env) {
-        FilterRegistration.Dynamic filter = env.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
+        var filter = env.servlets().addFilter("CORSFilter", CrossOriginFilter.class);
         filter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, env.getApplicationContext().getContextPath() + "*");
         filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
         filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");

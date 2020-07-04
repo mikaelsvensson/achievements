@@ -33,9 +33,9 @@ public class RateLimiterAcceptanceTest {
     @Test
     public void rateLimit_resourcesWithDifferentRateLimits() {
 
-        Client client = RULE.client();
+        var client = RULE.client();
         IntStream.rangeClosed(1, BURST_LENGTH + 1).forEach((i) -> {
-            Response response = client
+            var response = client
                     .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
@@ -49,7 +49,7 @@ public class RateLimiterAcceptanceTest {
         pause(REQUEST_DELAY);
 
         IntStream.rangeClosed(1, 3).forEach((i) -> {
-            Response response = client
+            var response = client
                     .target(String.format("http://localhost:%d/api/my/send-set-password-link", RULE.getLocalPort()))
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
@@ -62,9 +62,9 @@ public class RateLimiterAcceptanceTest {
 
     @Test
     public void rateLimit_slow() {
-        Client client = RULE.client();
+        var client = RULE.client();
 
-        Response response1 = client
+        var response1 = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
@@ -74,7 +74,7 @@ public class RateLimiterAcceptanceTest {
 
         pause(REQUEST_DELAY);
 
-        Response response2 = client
+        var response2 = client
                 .target(String.format("http://localhost:%d/api/my/profile", RULE.getLocalPort()))
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()

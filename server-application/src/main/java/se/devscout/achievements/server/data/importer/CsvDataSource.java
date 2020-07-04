@@ -29,7 +29,7 @@ public class CsvDataSource implements PeopleDataSource {
     @Override
     public List<PersonDTO> read(Reader reader) throws PeopleDataSourceException {
         try {
-            CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
+            var schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
             final List<Map<String, String>> values = Lists.newArrayList(
                     new CsvMapper().readerFor(Map.class)
                             .with(schema)
@@ -44,10 +44,10 @@ public class CsvDataSource implements PeopleDataSource {
     }
 
     protected PersonDTO mapColumns(Map<String, String> map) {
-        final String rawGroups = map.remove("groups");
-        final PersonDTO dto = objectMapper.convertValue(map, PersonDTO.class);
+        final var rawGroups = map.remove("groups");
+        final var dto = objectMapper.convertValue(map, PersonDTO.class);
         dto.attributes = new ArrayList<>();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
+        for (var entry : map.entrySet()) {
             if (entry.getKey().startsWith("attr.")) {
                 dto.attributes.add(new PersonAttributeDTO(entry.getKey().substring("attr.".length()), entry.getValue()));
             }

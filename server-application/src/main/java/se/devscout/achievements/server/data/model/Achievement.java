@@ -81,7 +81,7 @@ public class Achievement extends AchievementProperties {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Achievement)) return false;
-        Achievement that = (Achievement) o;
+        var that = (Achievement) o;
         return Objects.equal(id, that.id);
     }
 

@@ -23,9 +23,9 @@ public class AuditFeature implements DynamicFeature {
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-        final Method method = resourceInfo.getResourceMethod();
+        final var method = resourceInfo.getResourceMethod();
         if (method.isAnnotationPresent(Audited.class)) {
-            final Audited annotation = method.getAnnotation(Audited.class);
+            final var annotation = method.getAnnotation(Audited.class);
 
             if (annotation.logRequest()) {
                 context.register(new AuditRequestFilter());

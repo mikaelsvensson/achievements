@@ -20,21 +20,21 @@ public class ServletRequestRateLimiter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         if (servletRequest instanceof HttpServletRequest) {
-            HttpServletRequest request = (HttpServletRequest) servletRequest;
+            var request = (HttpServletRequest) servletRequest;
             if (request.getMethod().equals("OPTIONS") || request.getMethod().equals("HEAD")) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
         }
 
-        final String ip = servletRequest.getRemoteAddr();
+        final var ip = servletRequest.getRemoteAddr();
 
-        boolean isAccepted = rateLimiter.accept(ip);
+        var isAccepted = rateLimiter.accept(ip);
 
         if (isAccepted) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
-            HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+            var httpResponse = (HttpServletResponse) servletResponse;
             httpResponse.setStatus(429);
         }
     }

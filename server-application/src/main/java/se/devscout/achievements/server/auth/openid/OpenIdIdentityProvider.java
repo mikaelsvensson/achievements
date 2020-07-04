@@ -53,7 +53,7 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     }
 
     private Client createHttpClient() {
-        final JacksonJsonProvider jacksonJsonProvider = new JacksonJaxbJsonProvider()
+        final var jacksonJsonProvider = new JacksonJaxbJsonProvider()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return ClientBuilder.newClient(new ClientConfig(jacksonJsonProvider));
     }
@@ -74,13 +74,13 @@ public class OpenIdIdentityProvider implements IdentityProvider {
     @Override
     public ValidationResult handleCallback(HttpServletRequest req, HttpServletResponse resp) throws IdentityProviderException {
         // invokedCallbackUri needs to match what we sent in getRedirectUri(...)
-        final String invokedCallbackUri = UriBuilder
+        final var invokedCallbackUri = UriBuilder
                 .fromUri(this.serverApplicationHost)
                 .path(req.getRequestURI())
                 .build()
                 .toString();
 
-        final MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
+        final var data = new MultivaluedHashMap<String, String>();
         data.putSingle("client_id", clientId);
         data.putSingle("scope", "openid email");
         data.putSingle("grant_type", "authorization_code");
@@ -88,17 +88,17 @@ public class OpenIdIdentityProvider implements IdentityProvider {
         data.putSingle("redirect_uri", invokedCallbackUri);
         data.putSingle("client_secret", clientSecret);
 
-        final URI tokenUri = URI.create(tokenEndpoint);
-        final OpenIdTokenResponse openIdTokenResponse = httpClient
+        final var tokenUri = URI.create(tokenEndpoint);
+        final var openIdTokenResponse = httpClient
                 .target(tokenUri)
 //                .register(LOGGING_FEATURE)
                 .request()
                 .post(Entity.form(data))
                 .readEntity(OpenIdTokenResponse.class);
 
-        final String error = StringUtils.defaultString(openIdTokenResponse.error_description, openIdTokenResponse.error);
+        final var error = StringUtils.defaultString(openIdTokenResponse.error_description, openIdTokenResponse.error);
         if (Strings.isNullOrEmpty(error)) {
-            final String idToken = openIdTokenResponse.id_token;
+            final var idToken = openIdTokenResponse.id_token;
             return parseToken(idToken).withCallbackState(req.getParameter(OPENID_APP_STATE_PARAM));
         } else {
             throw new IdentityProviderException("Error when handling callback: " + error);

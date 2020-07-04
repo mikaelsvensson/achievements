@@ -41,7 +41,7 @@ public class OrganizationsResource extends AbstractResource {
     @UnitOfWork
     public OrganizationDTO get(@PathParam("organizationId") UuidString id, @Auth User user) {
         try {
-            final Organization organization = dao.read(id.getUUID());
+            final var organization = dao.read(id.getUUID());
             return map(organization, OrganizationDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
@@ -53,7 +53,7 @@ public class OrganizationsResource extends AbstractResource {
     @UnitOfWork
     public OrganizationBaseDTO getBasic(@PathParam("organizationId") UuidString id) {
         try {
-            final Organization organization = dao.read(id.getUUID());
+            final var organization = dao.read(id.getUUID());
             return map(organization, OrganizationBaseDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
@@ -84,11 +84,11 @@ public class OrganizationsResource extends AbstractResource {
     @UnitOfWork
     public OrganizationAchievementSummaryDTO getAchievementSummary(@PathParam("organizationId") UuidString id, @Auth User user) {
         try {
-            final Organization organization = dao.read(id.getUUID());
+            final var organization = dao.read(id.getUUID());
 
-            final List<Achievement> achievements = achievementsDao.findWithProgressForOrganization(organization);
+            final var achievements = achievementsDao.findWithProgressForOrganization(organization);
 
-            final OrganizationAchievementSummaryDTO summary = createAchievementSummaryDTO(achievements, null, organization, peopleDao);
+            final var summary = createAchievementSummaryDTO(achievements, null, organization, peopleDao);
 
             return summary;
         } catch (ObjectNotFoundException e) {
@@ -112,9 +112,9 @@ public class OrganizationsResource extends AbstractResource {
     public Response create(OrganizationDTO input,
                            @Auth User user) {
         try {
-            final Organization organization = dao.create(map(input, OrganizationProperties.class));
+            final var organization = dao.create(map(input, OrganizationProperties.class));
             // TODO: Send welcome mail?
-            final URI location = uriInfo.getRequestUriBuilder().path(UuidString.toString(organization.getId())).build();
+            final var location = uriInfo.getRequestUriBuilder().path(UuidString.toString(organization.getId())).build();
             return Response
                     .created(location)
                     .entity(map(organization, OrganizationDTO.class))
@@ -132,7 +132,7 @@ public class OrganizationsResource extends AbstractResource {
                            OrganizationDTO input,
                            @Auth User user) {
         try {
-            final Organization organization = dao.update(id.getUUID(), map(input, OrganizationProperties.class));
+            final var organization = dao.update(id.getUUID(), map(input, OrganizationProperties.class));
             return Response
                     .ok()
                     .entity(map(organization, OrganizationDTO.class))

@@ -42,9 +42,9 @@ public class AchievementStepProgressResource extends AbstractResource {
                            @PathParam("personId") Integer personId,
                            @Auth User user) {
         try {
-            final AchievementStep step = stepsDao.read(stepId);
+            final var step = stepsDao.read(stepId);
             verifyParent(achievementId.getUUID(), step);
-            final Person person = peopleDao.read(personId);
+            final var person = peopleDao.read(personId);
             return map(dao.get(step, person), ProgressDTO.class);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException(e);
@@ -63,11 +63,11 @@ public class AchievementStepProgressResource extends AbstractResource {
                            @Auth User user,
                            ProgressDTO dto) {
         try {
-            final AchievementStep step = stepsDao.read(stepId);
+            final var step = stepsDao.read(stepId);
             verifyParent(achievementId.getUUID(), step);
             verifyCompletedProgress(dto);
-            final Person person = peopleDao.read(personId);
-            final AchievementStepProgressProperties properties =
+            final var person = peopleDao.read(personId);
+            final var properties =
                     dto.completed != null ?
                             new AchievementStepProgressProperties(dto.completed, dto.note) :
                             new AchievementStepProgressProperties(dto.value, dto.note);
@@ -103,9 +103,9 @@ public class AchievementStepProgressResource extends AbstractResource {
                           @PathParam("personId") Integer personId,
                           @Auth User user) {
         try {
-            final AchievementStep step = stepsDao.read(stepId);
+            final var step = stepsDao.read(stepId);
             verifyParent(achievementId.getUUID(), step);
-            final Person person = peopleDao.read(personId);
+            final var person = peopleDao.read(personId);
             dao.unset(step, person);
             return Response.noContent().build();
         } catch (ObjectNotFoundException e) {
@@ -114,7 +114,7 @@ public class AchievementStepProgressResource extends AbstractResource {
     }
 
     private void verifyParent(UUID achievementId, AchievementStep step) throws ObjectNotFoundException {
-        Achievement achievement = achievementDao.read(achievementId);
+        var achievement = achievementDao.read(achievementId);
         if (!step.getAchievement().getId().equals(achievement.getId())) {
             throw new NotFoundException();
         }

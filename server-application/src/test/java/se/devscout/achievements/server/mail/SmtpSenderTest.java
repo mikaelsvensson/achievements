@@ -14,7 +14,7 @@ public class SmtpSenderTest {
 
     @Before
     public void setUp() throws Exception {
-        SmtpSenderConfiguration configuration = mock(SmtpSenderConfiguration.class);
+        var configuration = mock(SmtpSenderConfiguration.class);
         when(configuration.getMaxMailsPerSenderPerMinute()).thenReturn(1);
         when(configuration.getPort()).thenReturn(1337);
         when(configuration.getFromAddress()).thenReturn("bob@example.com");

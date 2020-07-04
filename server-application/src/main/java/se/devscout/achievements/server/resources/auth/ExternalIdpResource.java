@@ -79,8 +79,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
                                       @Context HttpServletRequest req,
                                       @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            IdentityProvider idp = getIdentityProvider(identityProvider);
-            final Response response = idp.getMetadataResponse();
+            var idp = getIdentityProvider(identityProvider);
+            final var response = idp.getMetadataResponse();
             return response != null ? response : Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
@@ -94,8 +94,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
                                     @Context HttpServletRequest req,
                                     @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            IdentityProvider idp = getIdentityProvider(identityProvider);
-            final String state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
+            var idp = getIdentityProvider(identityProvider);
+            final var state = callbackStateTokenService.encode(new JwtSignUpToken(null, null));
             return Response.seeOther(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signin/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
@@ -111,8 +111,8 @@ public class ExternalIdpResource extends AbstractAuthResource {
                                     @Context HttpServletRequest req,
                                     @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
-            IdentityProvider idp = getIdentityProvider(identityProvider);
-            final String state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
+            var idp = getIdentityProvider(identityProvider);
+            final var state = callbackStateTokenService.encode(new JwtSignUpToken(organizationId, organizationName));
             return Response.seeOther(idp.getRedirectUri(req, res, state, getCallbackUri(identityProvider, "signup/callback"))).build();
         } catch (Exception e) {
             throw new ExternalIdpCallbackException(e);
@@ -126,15 +126,15 @@ public class ExternalIdpResource extends AbstractAuthResource {
     public Response handleSignInCallback(@PathParam("identityProvider") String identityProvider,
                                          @Context HttpServletRequest req,
                                          @Context HttpServletResponse res) throws ExternalIdpCallbackException {
-        IdentityProvider idp = getIdentityProvider(identityProvider);
+        var idp = getIdentityProvider(identityProvider);
         try {
-            final ValidationResult result = idp.handleCallback(req, res);
+            final var result = idp.handleCallback(req, res);
             try {
-                final AuthTokenDTO tokenDTO = createTokenDTO(result.getCredentialsType(), result.getUserId());
+                final var tokenDTO = createTokenDTO(result.getCredentialsType(), result.getUserId());
                 return createSignedInResponse(tokenDTO);
             } catch (ExternalIdpCallbackException e) {
                 if (e.getType() == UNKNOWN_USER) {
-                    final AuthTokenDTO tokenDTO = newSignup(result);
+                    final var tokenDTO = newSignup(result);
                     return createSignedInResponse(tokenDTO);
                 }
                 throw e;
@@ -167,18 +167,18 @@ public class ExternalIdpResource extends AbstractAuthResource {
                                          @Context HttpServletResponse res) throws ExternalIdpCallbackException {
         try {
 
-            IdentityProvider idp = getIdentityProvider(identityProvider);
-            final ValidationResult result = idp.handleCallback(req, res);
-            final JwtSignUpToken jwt = callbackStateTokenService.decode(result.getCallbackState());
+            var idp = getIdentityProvider(identityProvider);
+            final var result = idp.handleCallback(req, res);
+            final var jwt = callbackStateTokenService.decode(result.getCallbackState());
             if (jwt.getOrganizationId() != null) {
-                final AuthTokenDTO tokenDTO = existingOrganizationSignup(jwt.getOrganizationId(), result);
+                final var tokenDTO = existingOrganizationSignup(jwt.getOrganizationId(), result);
                 return createSignedInResponse(tokenDTO);
             } else if (jwt.getOrganizationName() != null) {
-                final AuthTokenDTO tokenDTO = newOrganizationSignup(jwt.getOrganizationName(), result, req);
+                final var tokenDTO = newOrganizationSignup(jwt.getOrganizationName(), result, req);
                 return createSignedInResponse(tokenDTO);
             } else {
                 // When does this happen? Signing up for the site without an organization? Visiting the home page and logging in using an email already in the system?
-                final AuthTokenDTO tokenDTO = newSignup(result);
+                final var tokenDTO = newSignup(result);
                 return createSignedInResponse(tokenDTO);
             }
         } catch (ExternalIdpCallbackException e) {
@@ -209,20 +209,20 @@ public class ExternalIdpResource extends AbstractAuthResource {
         if (Strings.isNullOrEmpty(newOrganizationName)) {
             throw new BadRequestException("Name of new organization was not specified.");
         }
-        final List<Organization> organizations = organizationsDao.find(newOrganizationName);
+        final var organizations = organizationsDao.find(newOrganizationName);
         if (organizations.isEmpty()) {
             try {
                 // Create organization
-                final Organization organization = organizationsDao.create(new OrganizationProperties(newOrganizationName));
+                final var organization = organizationsDao.create(new OrganizationProperties(newOrganizationName));
 
                 // Create person
-                final String email = validationResult.getUserEmail();
-                final String name = StringUtils.substringBefore(email, "@");
-                final Person person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.EDITOR));
+                final var email = validationResult.getUserEmail();
+                final var name = StringUtils.substringBefore(email, "@");
+                final var person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.EDITOR));
 
                 sendOrganizationWelcomeMail(email, request, organization.getId());
 
-                final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
+                final var credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                 return generateTokenResponse(credentials);
             } catch (DaoException e) {
@@ -235,7 +235,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
 
     private void sendOrganizationWelcomeMail(String to, HttpServletRequest request, UUID orgId) {
         try {
-            final String body = new WelcomeOrganizationTemplate().render(
+            final var body = new WelcomeOrganizationTemplate().render(
                     guiUri("marken"),
                     guiUri("karer/" + UuidString.toString(orgId)),
                     guiUri("karer/" + UuidString.toString(orgId) + "/personer/importera"),
@@ -258,7 +258,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
     }
 
     private Credentials createCredentials(Person person, String userName, CredentialsType credentialsType, byte[] secret) throws DaoException {
-        final CredentialsProperties credentialsProperties = new CredentialsProperties(StringUtils.defaultString(userName, person.getEmail()), credentialsType, secret);
+        final var credentialsProperties = new CredentialsProperties(StringUtils.defaultString(userName, person.getEmail()), credentialsType, secret);
         return credentialsDao.create(person, credentialsProperties);
     }
 
@@ -270,15 +270,15 @@ public class ExternalIdpResource extends AbstractAuthResource {
                 throw new ExternalIdpCallbackException(INVALID_INPUT, "E-mail cannot be empty");
             }
             try {
-                final List<Person> people = peopleDao.getByEmail(validationResult.getUserEmail());
+                final var people = peopleDao.getByEmail(validationResult.getUserEmail());
                 if (people.size() <= 1) {
-                    Organization organization = organizationsDao.read(id.getUUID());
+                    var organization = organizationsDao.read(id.getUUID());
 
                     final Person person;
                     if (people.size() == 0) {
                         // (1) Create new person and...
-                        final String email = validationResult.getUserEmail();
-                        final String name = StringUtils.substringBefore(email, "@");
+                        final var email = validationResult.getUserEmail();
+                        final var name = StringUtils.substringBefore(email, "@");
                         person = peopleDao.create(organization, new PersonProperties(name, email, Collections.emptySet(), null, Roles.READER));
                     } else {
                         // (1) Use existing person and...
@@ -289,7 +289,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
                     }
 
                     // (2) ...associate credentials with this person.
-                    final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
+                    final var credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                     return generateTokenResponse(credentials);
                 } else {
@@ -308,11 +308,11 @@ public class ExternalIdpResource extends AbstractAuthResource {
             throw new ExternalIdpCallbackException(INVALID_INPUT, "E-mail cannot be empty");
         }
         try {
-            final List<Person> people = peopleDao.getByEmail(validationResult.getUserEmail());
+            final var people = peopleDao.getByEmail(validationResult.getUserEmail());
             if (people.size() == 1) {
-                final Person person = people.get(0);
+                final var person = people.get(0);
 
-                final Credentials credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
+                final var credentials = createCredentials(person, validationResult.getUserId(), validationResult.getCredentialsType(), validationResult.getCredentialsData());
 
                 return generateTokenResponse(credentials);
             } else if (people.isEmpty()) {

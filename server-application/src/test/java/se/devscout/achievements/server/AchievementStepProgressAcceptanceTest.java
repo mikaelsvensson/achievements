@@ -42,31 +42,31 @@ public class AchievementStepProgressAcceptanceTest {
 
     @BeforeClass
     public static void setupAchievement() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response responseAch = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var responseAch = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Collections.emptyList())));
 
         assertThat(responseAch.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        AchievementDTO achievementDto = responseAch.readEntity(AchievementDTO.class);
+        var achievementDto = responseAch.readEntity(AchievementDTO.class);
 
-        Response responseStep = TestUtil.request(client, responseAch.getLocation() + "/steps")
+        var responseStep = TestUtil.request(client, responseAch.getLocation() + "/steps")
                 .post(Entity.json(new AchievementStepDTO("Get yourself a Rubik's cube")));
 
         assertThat(responseStep.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        AchievementStepDTO stepDto = responseStep.readEntity(AchievementStepDTO.class);
+        var stepDto = responseStep.readEntity(AchievementStepDTO.class);
         assertThat(stepDto.description).isEqualTo("Get yourself a Rubik's cube");
 
-        Response responseOrg = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
+        var responseOrg = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
                 .post(Entity.json(new OrganizationDTO(null, "Name")));
 
         assertThat(responseOrg.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final Response responsePerson = TestUtil.request(client, responseOrg.getLocation() + "/people")
+        final var responsePerson = TestUtil.request(client, responseOrg.getLocation() + "/people")
                 .post(Entity.json(new PersonDTO(null, "Alice")));
 
         assertThat(responsePerson.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        PersonDTO personDto = responsePerson.readEntity(PersonDTO.class);
+        var personDto = responsePerson.readEntity(PersonDTO.class);
 
         personId = StringUtils.substringAfter(responsePerson.getLocation().toString(), "/people/");
         stepId = StringUtils.substringAfter(responseStep.getLocation().toString(), "/steps/");
@@ -75,12 +75,12 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_happyPath() {
-        Client client = createClient();
+        var client = createClient();
 
-        final List<StepProgressRequestLogRecordDTO> logRecordsBefore = getProgressHistory(client);
+        final var logRecordsBefore = getProgressHistory(client);
 
         {
-            Response setResponse1 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+            var setResponse1 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                     .post(Entity.json(new ProgressDTO(null, 25, "Just started")));
 
             assertThat(setResponse1.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -88,7 +88,7 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         {
-            Response setResponse2 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+            var setResponse2 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                     .post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
 
             assertThat(setResponse2.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -96,7 +96,7 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         {
-            Response setResponse3 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+            var setResponse3 = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                     .post(Entity.json(new ProgressDTO(null, 75, "Almost there")));
 
             assertThat(setResponse3.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -104,7 +104,7 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         {
-            Response unsetResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+            var unsetResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
@@ -112,7 +112,7 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         {
-            Response setAgainResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+            var setAgainResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                     .post(Entity.json(new ProgressDTO(null, 50, "I changed my mind")));
 
             assertThat(setAgainResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -120,7 +120,7 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         // Verify that only "editors", not "readers", can access the audit log
-        Response historyResponseAsReader = TestUtil
+        var historyResponseAsReader = TestUtil
                 .request(
                         client,
                         URI.create(String.format("http://localhost:%d/api/achievements/%s/progress-history", RULE.getLocalPort(), achievementId)),
@@ -129,7 +129,7 @@ public class AchievementStepProgressAcceptanceTest {
         assertThat(historyResponseAsReader.getStatus()).isEqualTo(HttpStatus.FORBIDDEN_403);
 
         // Verify that two audit records have been added
-        final List<StepProgressRequestLogRecordDTO> logRecordsAfter = getProgressHistory(client);
+        final var logRecordsAfter = getProgressHistory(client);
 
         assertThat(logRecordsAfter).hasSize(logRecordsBefore.size() + 5);
 
@@ -165,9 +165,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_partial000HappyPath() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil
+        var setResponse = TestUtil
                 .request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(null, 0, "Not even started")));
 
@@ -178,9 +178,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_partial050HappyPath() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil
+        var setResponse = TestUtil
                 .request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(null, 50, "Half-way there")));
 
@@ -191,9 +191,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_partial100HappyPath() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil
+        var setResponse = TestUtil
                 .request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(null, 100, "Finally there")));
 
@@ -208,29 +208,29 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setProgressAndTryToDeleteAchievement_expectFailure() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil.request(client,
+        var setResponse = TestUtil.request(client,
                 progressEndpoint(personId, achievementId, stepId)
         ).post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response deleteAchievementResponse = TestUtil.request(client,
+        var deleteAchievementResponse = TestUtil.request(client,
                 String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
         ).delete();
         assertThat(deleteAchievementResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 
-        Response getAchievementResponse = TestUtil.request(client,
+        var getAchievementResponse = TestUtil.request(client,
                 String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
         ).get();
         assertThat(getAchievementResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response deleteStepResponse = TestUtil.request(client,
+        var deleteStepResponse = TestUtil.request(client,
                 String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
         ).delete();
         assertThat(deleteStepResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 
-        Response getStepResponse = TestUtil.request(client,
+        var getStepResponse = TestUtil.request(client,
                 String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
         ).get();
         assertThat(getStepResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
@@ -238,17 +238,17 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setMultipleProgress_happyPath() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+        var setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        Response getResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/progress", RULE.getLocalPort(), achievementId))
+        var getResponse = TestUtil.request(client, String.format("http://localhost:%d/api/achievements/%s/progress", RULE.getLocalPort(), achievementId))
                 .get();
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final Map<String, ProgressDTO> dto = getResponse.readEntity(new GenericType<Map<String, ProgressDTO>>() {
+        final Map<String, ProgressDTO> dto = getResponse.readEntity(new GenericType<>() {
         });
         assertThat(dto).containsKey(stepId + "_" + personId);
         assertThat(dto.get(stepId + "_" + personId).note).isEqualTo("Finally completed");
@@ -256,19 +256,19 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_badAchievementIds() {
-        Client client = createClient();
+        var client = createClient();
 
-        final List<StepProgressRequestLogRecordDTO> logRecordsBefore = getProgressHistory(client);
-        String[] linesBefore = TestUtil.getHttpAuditLog(client, RULE.getAdminPort());
+        final var logRecordsBefore = getProgressHistory(client);
+        var linesBefore = TestUtil.getHttpAuditLog(client, RULE.getAdminPort());
 
         final String[] badValues = {UuidString.toString(UUID.randomUUID()), "abcd", null};
-        for (String badAchievementId : badValues) {
-            Response setResponse = TestUtil.request(client, progressEndpoint(personId, badAchievementId, stepId))
+        for (var badAchievementId : badValues) {
+            var setResponse = TestUtil.request(client, progressEndpoint(personId, badAchievementId, stepId))
                     .post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-            Response unsetResponse = client
+            var unsetResponse = client
                     .target(progressEndpoint(personId, badAchievementId, stepId))
                     .register(MockUtil.AUTH_FEATURE_EDITOR)
                     .request()
@@ -278,11 +278,11 @@ public class AchievementStepProgressAcceptanceTest {
         }
 
         // Verify that no progress-specific audit records have been stored (since no successful actions have been performed)
-        final List<StepProgressRequestLogRecordDTO> logRecordsAfter = getProgressHistory(client);
+        final var logRecordsAfter = getProgressHistory(client);
         assertThat(logRecordsAfter).hasSameSizeAs(logRecordsBefore);
 
         // Verify that 6 log records have been recorded for failed actions.
-        String[] linesAfter = TestUtil.getHttpAuditLog(client, RULE.getAdminPort());
+        var linesAfter = TestUtil.getHttpAuditLog(client, RULE.getAdminPort());
         final Set<String> logEntriesAddedDuringTest = Sets.difference(
                 Sets.newHashSet(linesAfter),
                 Sets.newHashSet(linesBefore)
@@ -292,9 +292,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_inconsistentProgressAndCompleted() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+        var setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(true, 99, "Finally completed, sort of.")));
 
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
@@ -302,9 +302,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_neitherProgressNorCompleted() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+        var setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(null, null, "Neither one nor the other")));
 
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
@@ -312,9 +312,9 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_invalidProgressValue() {
-        Client client = createClient();
+        var client = createClient();
 
-        Response setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
+        var setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, stepId))
                 .post(Entity.json(new ProgressDTO(null, 10000, "Too much progress")));
 
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
@@ -322,15 +322,15 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_badStepIds() {
-        Client client = createClient();
+        var client = createClient();
 
-        for (String badStepId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
-            Response setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, badStepId))
+        for (var badStepId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
+            var setResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, badStepId))
                     .post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-            Response unsetResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, badStepId))
+            var unsetResponse = TestUtil.request(client, progressEndpoint(personId, achievementId, badStepId))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -340,15 +340,15 @@ public class AchievementStepProgressAcceptanceTest {
 
     @Test
     public void setAndUnsetProgress_badPersonIds() {
-        Client client = createClient();
+        var client = createClient();
 
-        for (String badPersonId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
-            Response setResponse = TestUtil.request(client, progressEndpoint(badPersonId, achievementId, stepId))
+        for (var badPersonId : new String[]{"-1", "null", null, "0", String.valueOf(Integer.MAX_VALUE)}) {
+            var setResponse = TestUtil.request(client, progressEndpoint(badPersonId, achievementId, stepId))
                     .post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
 
             assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
 
-            Response unsetResponse = TestUtil.request(client, progressEndpoint(badPersonId, achievementId, stepId))
+            var unsetResponse = TestUtil.request(client, progressEndpoint(badPersonId, achievementId, stepId))
                     .delete();
 
             assertThat(unsetResponse.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -361,7 +361,7 @@ public class AchievementStepProgressAcceptanceTest {
     }
 
     private void assertProgressNotSet(Client client) {
-        Response getResponse = TestUtil
+        var getResponse = TestUtil
                 .request(client, progressEndpoint(personId, achievementId, stepId))
                 .get();
 
@@ -369,26 +369,26 @@ public class AchievementStepProgressAcceptanceTest {
     }
 
     private void assertProgress(Client client, int expectedValue, boolean expectedCompleted, String expectedNote) {
-        Response getResponse = TestUtil
+        var getResponse = TestUtil
                 .request(client, progressEndpoint(personId, achievementId, stepId))
                 .get();
 
         assertThat(getResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        final ProgressDTO dto = getResponse.readEntity(ProgressDTO.class);
+        final var dto = getResponse.readEntity(ProgressDTO.class);
         assertThat(dto.value).isEqualTo(expectedValue);
         assertThat(dto.completed).isEqualTo(expectedCompleted);
         assertThat(dto.note).isEqualTo(expectedNote);
     }
 
     private List<StepProgressRequestLogRecordDTO> getProgressHistory(Client client) {
-        Response historyResponse = TestUtil
+        var historyResponse = TestUtil
                 .request(client, String.format("http://localhost:%d/api/achievements/%s/progress-history", RULE.getLocalPort(), achievementId))
                 .get();
 
         assertThat(historyResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        return historyResponse.readEntity(new GenericType<List<StepProgressRequestLogRecordDTO>>() {
+        return historyResponse.readEntity(new GenericType<>() {
         });
     }
 
