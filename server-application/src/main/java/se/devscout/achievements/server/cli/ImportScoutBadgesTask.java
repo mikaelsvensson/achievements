@@ -5,19 +5,14 @@ import com.google.common.collect.Sets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import se.devscout.achievements.dataimporter.Importer;
-import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
-import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ImportScoutBadgesTask extends DatabaseTask {
@@ -54,7 +49,7 @@ public class ImportScoutBadgesTask extends DatabaseTask {
                     }
                 }
             } else {
-                System.out.println("Skipped badge because of " + violations.stream().map(violation -> violation.getMessage()).collect(Collectors.joining(", ")));
+                System.out.println("Skipped badge because of " + violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(", ")));
             }
         }
     }

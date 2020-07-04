@@ -37,7 +37,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -48,12 +47,12 @@ public class PeopleResource extends AbstractResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PeopleResource.class);
 
-    private PeopleDao dao;
-    private OrganizationsDao organizationsDao;
-    private AchievementsDao achievementsDao;
-    private ObjectMapper objectMapper;
-    private GroupsDao groupsDao;
-    private GroupMembershipsDao membershipsDao;
+    private final PeopleDao dao;
+    private final OrganizationsDao organizationsDao;
+    private final AchievementsDao achievementsDao;
+    private final ObjectMapper objectMapper;
+    private final GroupsDao groupsDao;
+    private final GroupMembershipsDao membershipsDao;
     private PeopleDataSource[] peopleDataSources;
     private File tempDir;
     private URI guiApplicationHost;
@@ -504,7 +503,7 @@ public class PeopleResource extends AbstractResource {
         }
     }
 
-    private void verifyParent(UUID organizationId, Person person) throws ObjectNotFoundException {
+    private void verifyParent(UUID organizationId, Person person) {
         var organization = getOrganization(organizationId);
         if (!person.getOrganization().getId().equals(organization.getId())) {
             throw new NotFoundException();

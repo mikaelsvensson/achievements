@@ -14,9 +14,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Optional;
 
 @Priority(Priorities.AUTHENTICATION - 1)
@@ -30,7 +28,7 @@ class AuditResponseFilter implements ContainerResponseFilter {
 
     @Override
     @UnitOfWork(transactional = false)
-    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         try {
             final var baos = (ByteArrayOutputStream) requestContext.getProperty(AuditFeature.REQUEST_CONTEXT_PROPERTY_NAME);
             String payload = null;

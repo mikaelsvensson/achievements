@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class GroupMembershipsResource extends AbstractResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupMembershipsResource.class);
-    private GroupsDao groupsDao;
-    private PeopleDao peopleDao;
-    private OrganizationsDao organizationsDao;
-    private GroupMembershipsDao dao;
+    private final GroupsDao groupsDao;
+    private final PeopleDao peopleDao;
+    private final OrganizationsDao organizationsDao;
+    private final GroupMembershipsDao dao;
 
     public GroupMembershipsResource(GroupsDao groupsDao, PeopleDao peopleDao, OrganizationsDao organizationsDao, GroupMembershipsDao dao) {
         this.groupsDao = groupsDao;

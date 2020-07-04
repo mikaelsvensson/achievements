@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 public class CsvDataSource implements PeopleDataSource {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public CsvDataSource(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

@@ -164,7 +164,7 @@ public abstract class AbstractResource {
                     .collect(Collectors.toMap(
                             AchievementStepProgress::getPerson,
                             AchievementStepProgress::getValue,
-                            (u, u2) -> u + u2));
+                            Integer::sum));
 
             if (stepCount > 0) {
                 final var progressSummary = new OrganizationAchievementSummaryDTO.ProgressSummaryDTO();

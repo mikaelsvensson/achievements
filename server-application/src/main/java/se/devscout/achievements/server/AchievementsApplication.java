@@ -12,7 +12,6 @@ import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
@@ -53,17 +52,13 @@ import se.devscout.achievements.server.resources.exceptionhandling.ValidationExc
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
 import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.core.Response;
-import java.sql.Connection;
 import java.util.EnumSet;
 import java.util.List;
 
 public class AchievementsApplication extends Application<AchievementsApplicationConfiguration> {
-    private final HibernateBundle<AchievementsApplicationConfiguration> hibernate = new HibernateBundle<AchievementsApplicationConfiguration>(
+    private final HibernateBundle<AchievementsApplicationConfiguration> hibernate = new HibernateBundle<>(
             Organization.class,
             Person.class,
             Group.class,
@@ -207,18 +202,15 @@ public class AchievementsApplication extends Application<AchievementsApplication
                 .addFilter("RateLimiter", servletRequestRateLimiter)
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/api/*");
 
-        environment.jersey().register(new DynamicFeature() {
-            @Override
-            public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-                if (resourceInfo.getResourceMethod().isAnnotationPresent(RateLimited.class)) {
-                    final var annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
+        environment.jersey().register((DynamicFeature) (resourceInfo, context) -> {
+            if (resourceInfo.getResourceMethod().isAnnotationPresent(RateLimited.class)) {
+                final var annotation = resourceInfo.getResourceMethod().getAnnotation(RateLimited.class);
 
-                    final var rateLimiter = new RateLimiter(
-                            annotation.requestsPerMinute(),
-                            annotation.burstLimit());
+                final var rateLimiter1 = new RateLimiter(
+                        annotation.requestsPerMinute(),
+                        annotation.burstLimit());
 
-                    context.register(new ResourceRequestRateLimiter(rateLimiter));
-                }
+                context.register(new ResourceRequestRateLimiter(rateLimiter1));
             }
         });
     }

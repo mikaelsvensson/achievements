@@ -6,7 +6,6 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
 import se.devscout.achievements.server.data.model.Person;
@@ -16,18 +15,16 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Path("achievements")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementsResource extends AbstractResource {
-    private AchievementsDao dao;
-    private AchievementStepProgressDao progressDao;
+    private final AchievementsDao dao;
+    private final AchievementStepProgressDao progressDao;
     private final AuditingDao auditingDao;
     private final PeopleDao peopleDao;
 

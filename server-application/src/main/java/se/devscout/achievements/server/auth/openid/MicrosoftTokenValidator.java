@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.auth.openid;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.CredentialsValidator;

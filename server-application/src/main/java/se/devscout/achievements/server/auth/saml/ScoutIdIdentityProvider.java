@@ -19,13 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class ScoutIdIdentityProvider implements IdentityProvider {
 
@@ -116,7 +112,7 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
             if (errors.isEmpty()) {
                 return Response.ok(metadata).type(MediaType.APPLICATION_XML_TYPE.withCharset("UTF-8")).build();
             } else {
-                throw new IdentityProviderException(errors.stream().collect(Collectors.joining(", ")));
+                throw new IdentityProviderException(String.join(", ", errors));
             }
         } catch (Exception e) {
             throw new IdentityProviderException("SAML metadata exception.", e);
@@ -147,7 +143,7 @@ public class ScoutIdIdentityProvider implements IdentityProvider {
     }
 
     private static Properties loadProperties(String resourceName) {
-        try (var stream = Resources.asByteSource(Resources.getResource(resourceName)).openBufferedStream();) {
+        try (var stream = Resources.asByteSource(Resources.getResource(resourceName)).openBufferedStream()) {
             final var properties = new Properties();
             properties.load(stream);
             return properties;

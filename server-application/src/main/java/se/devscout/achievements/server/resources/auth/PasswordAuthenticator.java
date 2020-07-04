@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.resources.auth;
 
 import com.google.common.collect.Sets;
-import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.hibernate.UnitOfWork;
@@ -9,11 +8,9 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.Roles;
-import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
 
 import java.util.Collections;
@@ -30,7 +27,7 @@ public class PasswordAuthenticator implements Authenticator<BasicCredentials, Us
 
     @Override
     @UnitOfWork
-    public Optional<User> authenticate(BasicCredentials basicCredentials) throws AuthenticationException {
+    public Optional<User> authenticate(BasicCredentials basicCredentials) {
         try {
             final var credentials = credentialsDao.get(CredentialsType.PASSWORD, basicCredentials.getUsername());
             final var validator = new PasswordValidator(credentials.getData());

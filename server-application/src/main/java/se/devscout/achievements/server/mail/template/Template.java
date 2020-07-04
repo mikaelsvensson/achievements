@@ -6,7 +6,6 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Map;
 

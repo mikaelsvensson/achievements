@@ -3,13 +3,13 @@ package se.devscout.achievements.server.auth;
 import se.devscout.achievements.server.data.model.CredentialsType;
 
 public class ValidationResult {
-    private String userEmail;
-    private String userId;
-    private boolean isValid;
+    private final String userEmail;
+    private final String userId;
+    private final boolean isValid;
 
     public static final ValidationResult INVALID = new ValidationResult(null, null, false, null, new byte[0]);
-    private byte[] credentialsData;
-    private CredentialsType credentialsType;
+    private final byte[] credentialsData;
+    private final CredentialsType credentialsType;
     private String callbackState;
 
     public ValidationResult(String userEmail, String userId, boolean isValid, CredentialsType credentialsType, byte[] credentialsData) {

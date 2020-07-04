@@ -16,7 +16,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,9 +24,9 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class GroupsResource extends AbstractResource {
-    private GroupsDao dao;
-    private OrganizationsDao organizationsDao;
-    private ObjectMapper objectMapper;
+    private final GroupsDao dao;
+    private final OrganizationsDao organizationsDao;
+    private final ObjectMapper objectMapper;
 
     public GroupsResource(GroupsDao dao, OrganizationsDao organizationsDao, AchievementsDao achievementsDao, ObjectMapper objectMapper) {
         this.dao = dao;

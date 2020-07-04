@@ -5,10 +5,8 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.ProgressDTO;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementStep;
 import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
-import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -22,10 +20,10 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementStepProgressResource extends AbstractResource {
-    private AchievementStepsDao stepsDao;
-    private AchievementsDao achievementDao;
-    private PeopleDao peopleDao;
-    private AchievementStepProgressDao dao;
+    private final AchievementStepsDao stepsDao;
+    private final AchievementsDao achievementDao;
+    private final PeopleDao peopleDao;
+    private final AchievementStepProgressDao dao;
 
     public AchievementStepProgressResource(AchievementStepsDao stepsDao, AchievementsDao achievementDao, PeopleDao peopleDao, AchievementStepProgressDao dao) {
         this.stepsDao = stepsDao;

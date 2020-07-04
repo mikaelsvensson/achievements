@@ -7,8 +7,6 @@ import se.devscout.achievements.server.api.OrganizationBaseDTO;
 import se.devscout.achievements.server.api.OrganizationDTO;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.Achievement;
-import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
 import se.devscout.achievements.server.resources.auth.User;
 
@@ -16,7 +14,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,9 +21,9 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrganizationsResource extends AbstractResource {
-    private OrganizationsDao dao;
-    private AchievementsDao achievementsDao;
-    private PeopleDao peopleDao;
+    private final OrganizationsDao dao;
+    private final AchievementsDao achievementsDao;
+    private final PeopleDao peopleDao;
 //    private AuthResourceUtil authResourceUtil;
 
     public OrganizationsResource(OrganizationsDao dao, AchievementsDao achievementsDao,/*, AuthResourceUtil authResourceUtil*/PeopleDao peopleDao) {

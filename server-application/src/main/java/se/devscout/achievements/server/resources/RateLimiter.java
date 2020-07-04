@@ -12,7 +12,7 @@ public class RateLimiter {
 
     private static class Record {
         private long earliestNextRequest;
-        private long backoff;
+        private final long backoff;
         private long burstLimit;
 
         Record(long earliestNextRequest, long backoff, long burstLimit) {

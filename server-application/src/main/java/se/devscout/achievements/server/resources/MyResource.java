@@ -8,12 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import se.devscout.achievements.server.I18n;
 import se.devscout.achievements.server.RateLimited;
 import se.devscout.achievements.server.api.*;
-import se.devscout.achievements.server.auth.ValidationResult;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.auth.password.SecretGenerator;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.*;
+import se.devscout.achievements.server.data.model.CredentialsProperties;
+import se.devscout.achievements.server.data.model.CredentialsType;
+import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.filter.audit.Audited;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
@@ -200,10 +201,7 @@ public class MyResource extends AbstractAuthResource {
                         person.getEmail(),
                         i18n.get("sendResetPasswordLink.subject"),
                         template.render(link));
-            } catch (DaoException e) {
-                // TODO: Fix default catch clause
-                e.printStackTrace();
-            } catch (EmailSenderException e) {
+            } catch (DaoException | EmailSenderException e) {
                 // TODO: Fix default catch clause
                 e.printStackTrace();
             }

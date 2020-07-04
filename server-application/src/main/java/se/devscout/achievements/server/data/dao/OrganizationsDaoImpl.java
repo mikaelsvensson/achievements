@@ -6,14 +6,12 @@ import se.devscout.achievements.server.data.model.Organization;
 import se.devscout.achievements.server.data.model.OrganizationProperties;
 
 import javax.persistence.EntityExistsException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.UUID;
 
 public class OrganizationsDaoImpl extends DaoImpl<Organization, UUID> implements OrganizationsDao {
 
-    private Long maxOrganizationCount;
+    private final Long maxOrganizationCount;
 
     public OrganizationsDaoImpl(SessionFactory sessionFactory, Long maxOrganizationCount) {
         super(sessionFactory);

@@ -28,7 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,14 +40,14 @@ public class ExternalIdpResource extends AbstractAuthResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalIdpResource.class);
     private final Map<String, IdentityProvider> identityProviders;
     //TODO: Two utility classes for dealing with tokens seems a bit much, doesn't it?
-    private JwtSignUpTokenService callbackStateTokenService;
-    private CredentialsDao credentialsDao;
-    private PeopleDao peopleDao;
-    private OrganizationsDao organizationsDao;
-    private URI guiApplicationHost;
-    private URI serverApplicationHost;
-    private EmailSender emailSender;
-    private I18n i18n;
+    private final JwtSignUpTokenService callbackStateTokenService;
+    private final CredentialsDao credentialsDao;
+    private final PeopleDao peopleDao;
+    private final OrganizationsDao organizationsDao;
+    private final URI guiApplicationHost;
+    private final URI serverApplicationHost;
+    private final EmailSender emailSender;
+    private final I18n i18n;
 
     public ExternalIdpResource(Map<String, IdentityProvider> identityProviders,
                                CredentialsDao credentialsDao,

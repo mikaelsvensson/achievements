@@ -14,12 +14,10 @@ import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
 import se.devscout.achievements.dataimporter.SlugGenerator;
 import se.devscout.achievements.server.api.AchievementDTO;
-import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.dao.DaoException;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.model.Achievement;
 import se.devscout.achievements.server.data.model.AchievementProperties;
 import se.devscout.achievements.server.data.model.AchievementStepProperties;
 import se.devscout.achievements.server.resources.UuidString;
@@ -28,16 +26,17 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ImportScouternaBadgesTask extends DatabaseTask {
 
     private static final SlugGenerator slugGenerator = new SlugGenerator();
-    private static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-    private static ObjectReader yamlReader = mapper.readerFor(AchievementDTO.class);
+    private static final ObjectReader yamlReader = mapper.readerFor(AchievementDTO.class);
 
     private static int i;
 
@@ -53,7 +52,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
     }
 
     @Override
-    protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) throws Exception {
+    protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) {
         var reflections = new Reflections("achievements.scouterna_se", new ResourcesScanner());
         var fileNames = reflections.getResources(Pattern.compile(".*\\.yaml"));
         for (var fileName : fileNames) {
@@ -106,7 +105,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
         if (violations.isEmpty()) {
             try {
                 final var existing = achievementsDao.find(dto.name).stream().filter(a -> a.getName().equalsIgnoreCase(dto.name)).findFirst();
-                if (!existing.isPresent()) {
+                if (existing.isEmpty()) {
                     final var achievement = achievementsDao.create(properties);
                     dto.id = new UuidString(achievement.getId()).getValue();
                     if (dto.steps != null) {
@@ -137,7 +136,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
                 e.printStackTrace(output);
             }
         } else {
-            output.println("Skipped badge because of " + violations.stream().map(violation -> violation.getMessage()).collect(Collectors.joining(", ")));
+            output.println("Skipped badge because of " + violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(", ")));
         }
 
         output.println("Saving " + dto.slug + " as " + dto.id);

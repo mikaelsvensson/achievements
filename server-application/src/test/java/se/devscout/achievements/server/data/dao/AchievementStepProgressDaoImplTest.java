@@ -66,13 +66,9 @@ public class AchievementStepProgressDaoImplTest {
         final var step1 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Get the bread")));
         final var step2 = database.inTransaction(() -> stepsDao.create(achievement, new AchievementStepProperties("Spread butter on it")));
         database.inTransaction(() -> {
-            try {
-                dao.set(step1, person, new AchievementStepProgressProperties(true, "Note 1"));
-                dao.set(step1, person2, new AchievementStepProgressProperties(true, "Note 2"));
-                dao.set(step2, person2, new AchievementStepProgressProperties(true, "Note 3"));
-            } catch (ObjectNotFoundException e) {
-                fail();
-            }
+            dao.set(step1, person, new AchievementStepProgressProperties(true, "Note 1"));
+            dao.set(step1, person2, new AchievementStepProgressProperties(true, "Note 2"));
+            dao.set(step2, person2, new AchievementStepProgressProperties(true, "Note 3"));
         });
 
         final var progressList = dao.get(achievement);
@@ -108,11 +104,7 @@ public class AchievementStepProgressDaoImplTest {
     @Test
     public void setAndUnset_happyPath() throws Exception {
         database.inTransaction(() -> {
-            try {
-                dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "The Note"));
-            } catch (ObjectNotFoundException e) {
-                fail();
-            }
+            dao.set(achievementStep, person, new AchievementStepProgressProperties(true, "The Note"));
         });
         database.inTransaction(() -> {
             try {

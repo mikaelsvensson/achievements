@@ -9,7 +9,6 @@ import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
 import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
-import se.devscout.achievements.server.data.model.Person;
 import se.devscout.achievements.server.resources.AbstractResource;
 
 import java.util.Collections;
@@ -17,7 +16,7 @@ import java.util.UUID;
 
 public class AbstractAuthResource extends AbstractResource {
     private final JwtSignInTokenService signInTokenService;
-    private CredentialsDao credentialsDao;
+    private final CredentialsDao credentialsDao;
 
     public AbstractAuthResource(JwtSignInTokenService signInTokenService, CredentialsDao credentialsDao) {
         this.signInTokenService = signInTokenService;

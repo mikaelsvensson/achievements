@@ -1,7 +1,6 @@
 package se.devscout.achievements.server;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -12,13 +11,13 @@ import java.io.IOException;
  */
 class JerseyParameterFixFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
 
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        ((HttpServletRequest) request).getParameterMap(); // Workaround for bug.
+        request.getParameterMap(); // Workaround for bug.
         chain.doFilter(request, response);
     }
 

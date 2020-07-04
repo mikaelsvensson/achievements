@@ -1,7 +1,5 @@
 package se.devscout.achievements.server.auth.jwt;
 
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.time.Duration;

@@ -16,14 +16,12 @@ public class HttpAuditTask extends DatabaseTask {
     }
 
     @Override
-    protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) throws Exception {
+    protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) {
         // TODO: Make number of records to return configurable
-        auditingDao.readLatest(10).forEach(record -> {
-            output.printf("%-30s%-10s%-5s%s%n",
-                    record.getDateTime(),
-                    record.getHttpMethod(),
-                    record.getResponseCode(),
-                    record.getUser().getName());
-        });
+        auditingDao.readLatest(10).forEach(record -> output.printf("%-30s%-10s%-5s%s%n",
+                record.getDateTime(),
+                record.getHttpMethod(),
+                record.getResponseCode(),
+                record.getUser().getName()));
     }
 }

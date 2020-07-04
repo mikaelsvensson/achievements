@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.resources.auth;
 
 import com.google.common.collect.Sets;
-import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.hibernate.UnitOfWork;
 import org.glassfish.jersey.internal.util.Base64;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
 
 import java.util.Collections;
@@ -28,7 +26,7 @@ public class OnetimePasswordAuthenticator implements Authenticator<String, User>
 
     @Override
     @UnitOfWork
-    public Optional<User> authenticate(String password) throws AuthenticationException {
+    public Optional<User> authenticate(String password) {
         try {
             final var credentials = credentialsDao.get(CredentialsType.ONETIME_PASSWORD, Base64.decodeAsString(password));
             final var role = credentials.getPerson().getRole();

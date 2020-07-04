@@ -17,7 +17,7 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class StatsResource extends AbstractResource {
-    private OrganizationsDao dao;
+    private final OrganizationsDao dao;
 
     public StatsResource(OrganizationsDao dao) {
         this.dao = dao;

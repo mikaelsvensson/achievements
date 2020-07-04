@@ -10,7 +10,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import java.net.URI;
 
 public class CallbackResourceExceptionMapper implements ExceptionMapper<ExternalIdpCallbackException> {
-    private URI guiApplicationHost;
+    private final URI guiApplicationHost;
 
     public CallbackResourceExceptionMapper(URI guiApplicationHost) {
         this.guiApplicationHost = guiApplicationHost;

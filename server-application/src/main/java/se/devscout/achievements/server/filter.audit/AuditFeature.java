@@ -7,14 +7,13 @@ import se.devscout.achievements.server.data.dao.AuditingDao;
 import javax.ws.rs.container.DynamicFeature;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
-import java.lang.reflect.Method;
 
 public class AuditFeature implements DynamicFeature {
     static final String REQUEST_CONTEXT_PROPERTY_NAME = "AuditFeature.payloadStream";
 
     private final AuditingDao auditingDao;
 
-    private HibernateBundle hibernate;
+    private final HibernateBundle hibernate;
 
     public AuditFeature(AuditingDao auditingDao, HibernateBundle hibernate) {
         this.auditingDao = auditingDao;

@@ -28,7 +28,7 @@ public class AchievementStepProgressDaoImpl extends AbstractDAO<AchievementStepP
     }
 
     @Override
-    public AchievementStepProgress set(AchievementStep achievementStep, Person person, AchievementStepProgressProperties properties) throws ObjectNotFoundException {
+    public AchievementStepProgress set(AchievementStep achievementStep, Person person, AchievementStepProgressProperties properties) {
         try {
             final var progress = get(achievementStep, person);
             progress.setNote(properties.getNote());

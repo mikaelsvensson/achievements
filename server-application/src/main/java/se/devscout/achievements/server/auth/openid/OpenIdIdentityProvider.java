@@ -2,12 +2,10 @@ package se.devscout.achievements.server.auth.openid;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
-//import org.glassfish.jersey.logging.LoggingFeature;
 import se.devscout.achievements.server.auth.CredentialsValidator;
 import se.devscout.achievements.server.auth.IdentityProvider;
 import se.devscout.achievements.server.auth.IdentityProviderException;
@@ -23,6 +21,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.Base64;
+
+//import org.glassfish.jersey.logging.LoggingFeature;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 
@@ -34,12 +34,12 @@ public class OpenIdIdentityProvider implements IdentityProvider {
 //            Level.INFO,
 //            LoggingFeature.Verbosity.PAYLOAD_TEXT,
 //            10_000);
-    private String tokenEndpoint;
-    private String authEndpoint;
-    private String clientId;
-    private String clientSecret;
-    private Client httpClient;
-    private CredentialsValidator tokenValidator;
+    private final String tokenEndpoint;
+    private final String authEndpoint;
+    private final String clientId;
+    private final String clientSecret;
+    private final Client httpClient;
+    private final CredentialsValidator tokenValidator;
     private final URI serverApplicationHost;
 
     public OpenIdIdentityProvider(String authEndpoint, String clientId, String clientSecret, String tokenEndpoint, CredentialsValidator tokenValidator, URI serverApplicationHost) {

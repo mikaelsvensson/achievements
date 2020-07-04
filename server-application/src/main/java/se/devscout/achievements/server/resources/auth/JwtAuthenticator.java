@@ -1,10 +1,8 @@
 package se.devscout.achievements.server.resources.auth;
 
-import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.devscout.achievements.server.auth.jwt.JwtSignInToken;
 import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenExpiredException;
 import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
@@ -21,7 +19,7 @@ public class JwtAuthenticator implements Authenticator<String, User> {
     }
 
     @Override
-    public Optional<User> authenticate(String token) throws AuthenticationException {
+    public Optional<User> authenticate(String token) {
         try {
             final var jwt = jwtTokenService.decode(token);
             final var user = new User(

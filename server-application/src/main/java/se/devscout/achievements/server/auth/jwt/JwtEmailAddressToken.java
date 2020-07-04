@@ -1,7 +1,7 @@
 package se.devscout.achievements.server.auth.jwt;
 
 public class JwtEmailAddressToken {
-    private String email;
+    private final String email;
 
     public JwtEmailAddressToken(String email) {
         this.email = email;

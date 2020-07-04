@@ -15,7 +15,6 @@ import se.devscout.achievements.server.auth.jwt.JwtTokenServiceException;
 import se.devscout.achievements.server.auth.password.PasswordValidator;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
 import se.devscout.achievements.server.data.dao.ObjectNotFoundException;
-import se.devscout.achievements.server.data.model.Credentials;
 import se.devscout.achievements.server.data.model.CredentialsType;
 import se.devscout.achievements.server.mail.EmailSender;
 import se.devscout.achievements.server.mail.EmailSenderException;
@@ -33,10 +32,10 @@ public class EmailIdentityProvider implements IdentityProvider {
     private final JwtEmailAddressTokenService jwtEmailAddressTokenService;
     private final SigninTemplate template = new SigninTemplate();
     private final I18n i18n;
-    private EmailSender emailSender;
+    private final EmailSender emailSender;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailIdentityProvider.class);
-    private URI guiApplicationHost;
+    private final URI guiApplicationHost;
     private final CredentialsDao credentialsDao;
 
     public EmailIdentityProvider(JwtTokenService jwtTokenService, EmailSender emailSender, URI guiApplicationHost, CredentialsDao credentialsDao) throws IOException {

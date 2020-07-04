@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public class User implements Principal {
     //    private String personName;
-    private int personId;
+    private final int personId;
     private final UUID credentialsId;
-    private Set<String> roles;
-    private CredentialsType credentialsTypeUsed;
+    private final Set<String> roles;
+    private final CredentialsType credentialsTypeUsed;
 
     public User(int personId, UUID credentialsId, String personName, Set<String> roles, CredentialsType credentialsTypeUsed) {
         this.personId = personId;

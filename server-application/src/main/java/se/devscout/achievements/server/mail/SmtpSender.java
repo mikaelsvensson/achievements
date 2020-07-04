@@ -12,7 +12,7 @@ public class SmtpSender implements EmailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpSender.class);
     private RateLimiter rateLimiter;
 
-    private SmtpSenderConfiguration configuration;
+    private final SmtpSenderConfiguration configuration;
 
     public SmtpSender(SmtpSenderConfiguration configuration) {
         this.configuration = configuration;

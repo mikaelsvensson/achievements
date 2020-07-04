@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMultimap;
 import io.dropwizard.servlets.tasks.Task;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.context.internal.ManagedSessionContext;
 
 import java.io.PrintWriter;
@@ -18,10 +17,9 @@ public abstract class DatabaseTask extends Task {
     }
 
     @Override
-    public final void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) throws Exception {
+    public final void execute(ImmutableMultimap<String, String> parameters, PrintWriter output) {
 
-        var session = sessionFactory.openSession();
-        try {
+        try (var session = sessionFactory.openSession()) {
             ManagedSessionContext.bind(session);
             var transaction = session.beginTransaction();
             try {
@@ -34,7 +32,6 @@ public abstract class DatabaseTask extends Task {
                 throw new RuntimeException(e);
             }
         } finally {
-            session.close();
             ManagedSessionContext.unbind(sessionFactory);
         }
         output.flush();

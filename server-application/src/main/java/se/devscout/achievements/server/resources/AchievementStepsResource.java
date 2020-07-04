@@ -17,13 +17,10 @@ import se.devscout.achievements.server.resources.auth.User;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,8 +28,8 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementStepsResource extends AbstractResource {
-    private AchievementStepsDao dao;
-    private AchievementsDao achievementsDao;
+    private final AchievementStepsDao dao;
+    private final AchievementsDao achievementsDao;
 
     public AchievementStepsResource(AchievementStepsDao dao, AchievementsDao achievementsDao) {
         this.dao = dao;
@@ -75,7 +72,7 @@ public class AchievementStepsResource extends AbstractResource {
             final var validator = Validation.buildDefaultValidatorFactory().getValidator();
             final var violations = validator.validate(properties);
             if (!violations.isEmpty()) {
-                throw new BadRequestException(violations.stream().map(v -> v.getMessage()).collect(Collectors.joining()));
+                throw new BadRequestException(violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining()));
             }
 
             var achievement = getAchievement(achievementId.getUUID());

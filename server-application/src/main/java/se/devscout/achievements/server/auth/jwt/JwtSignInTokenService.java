@@ -1,6 +1,5 @@
 package se.devscout.achievements.server.auth.jwt;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -8,7 +7,6 @@ import com.google.common.collect.Sets;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.UUID;
 
 public class JwtSignInTokenService {

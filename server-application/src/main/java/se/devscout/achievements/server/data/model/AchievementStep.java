@@ -21,7 +21,7 @@ public class AchievementStep extends AchievementStepProperties {
     private Achievement achievement;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "step")
-    private List<AchievementStepProgress> progressList = new ArrayList<>();
+    private final List<AchievementStepProgress> progressList = new ArrayList<>();
 
     public Integer getId() {
         return id;

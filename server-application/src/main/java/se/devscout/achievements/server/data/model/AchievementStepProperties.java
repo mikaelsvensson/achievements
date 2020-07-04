@@ -1,13 +1,11 @@
 package se.devscout.achievements.server.data.model;
 
-import com.google.common.base.MoreObjects;
 import org.apache.commons.lang3.ObjectUtils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.AssertTrue;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 @MappedSuperclass
 public class AchievementStepProperties {

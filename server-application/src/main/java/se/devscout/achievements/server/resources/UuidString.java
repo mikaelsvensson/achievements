@@ -8,11 +8,11 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class UuidString {
-    private static BaseEncoding ENCODING = BaseEncoding.base32().omitPadding();
+    private static final BaseEncoding ENCODING = BaseEncoding.base32().omitPadding();
 
-    private String value;
+    private final String value;
 
-    private UUID uuid;
+    private final UUID uuid;
 
     public UuidString(String value) {
         this.value = value;
