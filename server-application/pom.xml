@@ -52,11 +52,6 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-assets</artifactId>
-            <version>${dropwizard.version}</version>
-        </dependency>
-        <dependency>
             <!-- dropwizard-forms used for file uploads -->
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-forms</artifactId>
@@ -230,40 +225,7 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>../gui-application/build</directory>
-                <targetPath>assets</targetPath>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.4.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <environmentVariables>
-                                <API_HOST>${apiHostName}</API_HOST>
-                            </environmentVariables>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build:production</argument>
-                                <argument>--prefix=../gui-application/</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

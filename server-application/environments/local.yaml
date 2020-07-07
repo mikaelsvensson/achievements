@@ -19,7 +19,7 @@ database:
   properties:
     hibernate.hbm2ddl.auto: create-drop
     hibernate.archive.autodetection: class, hbm
-    hibernate.show_sql: true
+    hibernate.show_sql: false
 
 authentication:
   googleClientId: YOUR_CLIENT_ID_HERE

@@ -1,3 +1,7 @@
 /gui-application/node_modules/
 /gui-application/build/
 /heroku-configure.sh
+/.idea/
+/server-application/target/
+/server-api/target/
+/data-importer/target/

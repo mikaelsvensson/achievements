@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.*;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.chained.ChainedAuthFilter;
@@ -274,7 +273,6 @@ public class AchievementsApplication extends Application<AchievementsApplication
     @Override
     public void initialize(Bootstrap<AchievementsApplicationConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
-        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
         bootstrap.addBundle(new MigrationsBundle<AchievementsApplicationConfiguration>() {
             @Override
             public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {

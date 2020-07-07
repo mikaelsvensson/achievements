@@ -19,9 +19,10 @@ database:
   user: achievements_app
   password: password
   properties:
+    hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate.hbm2ddl.auto: none
     hibernate.archive.autodetection: class, hbm
-    hibernate.show_sql: true
+    hibernate.show_sql: false
 
 authentication:
   googleClientId: YOUR_CLIENT_ID_HERE
