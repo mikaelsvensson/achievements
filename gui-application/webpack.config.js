@@ -6,7 +6,7 @@ var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
     inject: 'body'
 });
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: __dirname + '/src/index.jsx',
     module: {
         rules: [
@@ -41,13 +41,27 @@ module.exports = {
         ]
     },
     output: {
-        filename: 'app.js',
+        filename: argv.mode == 'production' ? '[name].[chunkhash].js' : '[name].[hash].js',
+        chunkFilename: argv.mode == 'production' ? '[name].[chunkhash].js' : '[name].[hash].js',
         path: __dirname + '/build'
     },
     node: {
         __dirname: true,
         fs: 'empty'
     },
+     optimization: {
+         runtimeChunk: 'single',
+         splitChunks: {
+             cacheGroups: {
+                 vendor: {
+                     test: /[\\/]node_modules[\\/]/,
+                     name: 'vendors',
+                     chunks: 'all',
+                     enforce: true
+                 }
+             }
+         }
+     },
     plugins: [
         HtmlWebpackPluginConfig,
         new webpack.DefinePlugin({
@@ -57,4 +71,4 @@ module.exports = {
             }
         })
     ]
-};
+});
