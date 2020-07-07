@@ -9,20 +9,20 @@ var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 module.exports = {
     entry: __dirname + '/src/index.jsx',
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.jsx$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader'
+                use: {loader: 'babel-loader'}
             },
             {
                 test: /\.handlebars$/,
                 exclude: /node_modules/,
-                loader: 'handlebars-loader'
+                use: {loader: 'handlebars-loader'}
             },
             {
                 test: /\.(eot|woff|woff2|svg|ttf)([\?]?.*)$/,
-                loader: "file-loader"
+                use: {loader: "file-loader"}
             },
             {
                 test: /\.css$/,
