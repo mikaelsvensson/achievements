@@ -7,7 +7,7 @@
         {{> ../_breadcrumbs.handlebars}}
 
         <div class="tile is-ancestor">
-            <div class="tile is-parent is-6">
+            <div class="tile is-parent is-4">
                 <div class="tile is-child box">
                     <h2 class="subtitle">Sammanfattning av märken</h2>
                     <div id="achievements-summary"></div>
@@ -17,7 +17,21 @@
                     </p>
                 </div>
             </div>
-            <div class="tile is-parent is-6">
+            <div class="tile is-parent is-4">
+                <div class="tile is-child box">
+                    <h2 class="subtitle">Administration</h2>
+                    <p>
+                        <a href="#karer/{{orgId}}/importera">Importera personer och patruller</a>
+                    </p>
+                    <p>
+                        <a href="#karer/{{orgId}}/personer">Hantera personer</a>
+                    </p>
+                    <p>
+                        <a href="#karer/{{orgId}}/patruller">Hantera patruller</a>
+                    </p>
+                </div>
+            </div>
+            <div class="tile is-parent is-4">
                 <div class="tile is-child box">
                     <h2 class="subtitle">Tips för att bjuda in användare</h2>
                     <div class="content">
@@ -37,83 +51,7 @@
                 </div>
             </div>
         </div>
-        <div class="tile is-ancestor">
-            <div class="tile is-parent is-6">
-                <div class="tile is-child notification">
-                    <h2 class="subtitle">Patruller</h2>
 
-                    <div id="organization-groups-list"></div>
-
-                    <form>
-                        <div class="field has-addons">
-                            <div class="control">
-                                <input class="input" type="text" name="name" placeholder="Namn"/></div>
-                            <div class="control">
-                                <a class="button is-info create-group-button">
-                                    Lägg till
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-            <!--
-                        <div class="tile is-parent is-4">
-                            <div class="tile is-child notification">
-                                <h2 class="subtitle">Kåren</h2>
-
-                                <form>
-                                    <div class="field">
-                                        <label class="label">Namn</label>
-                                        <div class="control">
-                                            <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="control">
-                                        <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
-                                        <button class="button is-primary is-outlined" type="button">Ta bort</button>
-                                    </div>
-
-                                    <div class="errors"/>
-
-                                </form>
-                            </div>
-                        </div>
-            -->
-            <div class="tile is-parent is-6">
-                <div class="tile is-child notification">
-                    <h2 class="subtitle">Personer</h2>
-
-                    <div id="organization-people-list-config"></div>
-
-                    <div id="organization-people-list"></div>
-
-                    <form>
-                        <div class="field has-addons">
-                            <div class="control">
-                                <input class="input" type="text" name="name" placeholder="Namn"/></div>
-                            <div class="control">
-                                <a class="button is-info create-person-button">
-                                    Lägg till
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-
-                    <div class="content is-small">
-                        <br>
-                        <p>
-                            <a href="#karer/{{orgId}}/personer/importera" aria-current="page">
-                                Importera medlemsförteckning
-                            </a>
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 {{> ../_footer.handlebars}}

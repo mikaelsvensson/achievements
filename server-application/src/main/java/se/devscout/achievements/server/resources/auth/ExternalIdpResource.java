@@ -237,7 +237,7 @@ public class ExternalIdpResource extends AbstractAuthResource {
             final var body = new WelcomeOrganizationTemplate().render(
                     guiUri("marken"),
                     guiUri("karer/" + UuidString.toString(orgId)),
-                    guiUri("karer/" + UuidString.toString(orgId) + "/personer/importera"),
+                    guiUri("karer/" + UuidString.toString(orgId) + "/importera"),
                     guiUri("karer/" + UuidString.toString(orgId)),
                     guiUri("om"));
 

@@ -1,0 +1,39 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Personer i <strong>{{name}}</strong>
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+        <div id="organization-people-list-config"></div>
+
+        <div id="organization-people-list"></div>
+
+        <article class="notification">
+            <form>
+                <h2 class="subtitle">Lägg till en ny person</h2>
+                <div class="field has-addons">
+                    <div class="control">
+                        <input class="input" type="text" name="name" placeholder="Namn"/>
+                    </div>
+                    <div class="control">
+                        <a class="button is-info create-person-button">
+                            Lägg till
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </article>
+
+        <article class="message is-info">
+            <div class="message-body">
+                Tips:
+                <a href="#karer/{{orgId}}/importera" aria-current="page">
+                    Importera er medlemsförteckning</a>
+                och slipp knappa in person för person.
+            </div>
+        </article>
+    </div>
+</section>
+{{> ../_footer.handlebars}}

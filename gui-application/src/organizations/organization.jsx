@@ -3,9 +3,6 @@ import {get, getUserOrganization, isLoggedIn, post, put} from "../util/api.jsx";
 import {getFormData, updateView} from "../util/view.jsx";
 
 const templateOrganization = require("./organization.handlebars");
-const templateOrganizationPeopleList = require("./organizations.people-list.handlebars");
-const templateOrganizationPeopleListConfig = require("./organizations.people-list-config.handlebars");
-const templateOrganizationGroupsList = require("./organizations.groups-list.handlebars");
 const templateOrganizationSummaryList = require("./organization.summary.result.handlebars");
 const templateLoading = require("../loading.handlebars");
 const templateAchievementsResult = require("../achievements/achievements.result.handlebars");
@@ -42,31 +39,6 @@ export function renderOrganization(appPathParams) {
         updateView(templateOrganization(responseData));
 
         const $app = $('#app');
-        $app.find('.create-person-button').click(function (e) {
-            const button = $(this);
-            const form = button.closest('form');
-            post('/api/organizations/' + appPathParams[0].key + '/people', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                get('/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
-                    updateView(templateOrganizationPeopleList({
-                        people: responseData,
-                        orgId: appPathParams[0].key
-                    }), $('#organization-people-list'));
-                });
-            }, button);
-        });
-
-        $app.find('.create-group-button').click(function (e) {
-            const button = $(this);
-            const form = button.closest('form');
-            post('/api/organizations/' + appPathParams[0].key + '/groups', getFormData(form), function (responseData, responseStatus, jqXHR) {
-                get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
-                    updateView(templateOrganizationPeopleList({
-                        groups: responseData,
-                        orgId: appPathParams[0].key
-                    }), $('#organization-groups-list'));
-                });
-            }, button);
-        });
 
         $('#organization-save-button').click(function (e) {
             const button = $(this);
@@ -92,43 +64,6 @@ export function renderOrganization(appPathParams) {
         // TODO: Perhaps populate form using any of the solutions on https://stackoverflow.com/questions/9807426/use-jquery-to-re-populate-form-with-json-data or https://stackoverflow.com/questions/7298364/using-jquery-and-json-to-populate-forms instead?
         $.each(responseData, function (key, value) {
             $('#' + key).val(value);
-        });
-
-        /*
-                get('/api/organizations/' + appPathParams[0].key + "/people", function (responseData, responseStatus, jqXHR) {
-                    updateView(templateOrganizationPeopleList({
-                        people: responseData.sort(function (a, b) {
-                            return a.name ? a.name.localeCompare(b.name) : 0;
-                        }),
-                        orgId: appPathParams[0].key
-                    }), $('#organization-people-list'));
-                });
-        */
-
-        get('/api/organizations/' + appPathParams[0].key + "/groups", function (responseData, responseStatus, jqXHR) {
-            const groups = responseData.sort(function (grp1, grp2) {
-                return grp1.name ? grp1.name.localeCompare(grp2.name) : 0;
-            });
-            updateView(templateOrganizationGroupsList({
-                groups: groups,
-                orgId: appPathParams[0].key
-            }), $('#organization-groups-list'));
-
-            updateView(templateOrganizationPeopleListConfig({
-                groups: groups
-            }), $('#organization-people-list-config'));
-
-            $('#app').find('#organization-people-list-filter-group').change(function (e) {
-                const selectedGroupId = $(this).val();
-                get('/api/organizations/' + appPathParams[0].key + "/people?group=" + selectedGroupId, function (responseData, responseStatus, jqXHR) {
-                    updateView(templateOrganizationPeopleList({
-                        people: responseData.sort(function (a, b) {
-                            return a.name ? a.name.localeCompare(b.name) : 0;
-                        }),
-                        orgId: appPathParams[0].key
-                    }), $('#organization-people-list'));
-                });
-            });
         });
 
         get('/api/organizations/' + appPathParams[0].key + "/achievement-summary", function (responseData, responseStatus, jqXHR) {

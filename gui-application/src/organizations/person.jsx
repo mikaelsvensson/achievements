@@ -16,6 +16,7 @@ export function renderPerson(appPathParams) {
             {label: "Hem", url: '#/'},
             // {label: "Kårer", url: '#karer'},
             {label: responseData.organization.name, url: '#karer/' + appPathParams[0].key},
+            {label: 'Personer', url: '#karer/' + appPathParams[0].key + '/personer'},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();

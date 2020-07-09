@@ -1,0 +1,64 @@
+<section class="section">
+    <div class="container">
+        <h1 class="title">
+            Patruller i <strong>{{name}}</strong>
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+        <div id="organization-groups-list"></div>
+
+        <article class="notification">
+            <form>
+                <h2 class="subtitle">Lägg till en ny patrull</h2>
+                <div class="field has-addons">
+                    <div class="control">
+                        <input class="input" type="text" name="name" placeholder="Namn"/>
+                    </div>
+                    <div class="control">
+                        <a class="button is-info create-group-button">
+                            Lägg till
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </article>
+
+        <article class="message is-info">
+            <div class="message-body">
+                Tips:
+                <a href="#karer/{{orgId}}/importera" aria-current="page">
+                    Importera er medlemsförteckning</a>
+                och slipp knappa in patrullerna själv.
+            </div>
+        </article>
+
+    </div>
+    <!--
+                <div class="tile is-parent is-4">
+                    <div class="tile is-child notification">
+                        <h2 class="subtitle">Kåren</h2>
+
+                        <form>
+                            <div class="field">
+                                <label class="label">Namn</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="name" name="name" placeholder="Namn"/>
+                                </div>
+                            </div>
+
+                            <div class="control">
+                                <button class="button is-primary" type="button" id="organization-save-button">Spara</button>
+                                <button class="button is-primary is-outlined" type="button">Ta bort</button>
+                            </div>
+
+                            <div class="errors"/>
+
+                        </form>
+                    </div>
+                </div>
+    -->
+
+
+</section>
+{{> ../_footer.handlebars}}

@@ -14,6 +14,7 @@ export function renderGroup(appPathParams) {
             {label: "Hem", url: '#/'},
             // {label: "Kårer", url: '#karer'},
             {label: responseData.organization.name, url: '#karer/' + appPathParams[0].key},
+            {label: 'Patruller', url: '#karer/' + appPathParams[0].key + '/patruller'},
             {label: responseData.name}
         ];
         responseData.isLoggedIn = isLoggedIn();
