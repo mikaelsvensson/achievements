@@ -5,6 +5,7 @@ var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
     filename: 'index.html',
     inject: 'body'
 });
+var FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 
 module.exports = (env, argv) => ({
     entry: __dirname + '/src/index.jsx',
@@ -64,6 +65,26 @@ module.exports = (env, argv) => ({
      },
     plugins: [
         HtmlWebpackPluginConfig,
+        new FaviconsWebpackPlugin({
+            logo: './src/assets/logo.png',
+            mode: 'webapp', // optional can be 'webapp' or 'light' - 'webapp' by default
+            devMode: 'light', // optional can be 'webapp' or 'light' - 'light' by default
+            inject: true,
+            cache: true,
+            prefix: '/',
+            favicons: {
+              appName: 'achievements',
+              appDescription: 'Mina Märken',
+              developerName: 'Mikael Svensson',
+              developerURL: null, // prevent retrieving from the nearest package.json
+              background: '#ffffff',
+              theme_color: '#003C69',
+              icons: {
+                coast: false,
+                yandex: false
+              }
+            }
+        }),
         new webpack.DefinePlugin({
             "process.env": {
                 CUSTOMER_SUPPORT_EMAIL: JSON.stringify(process.env.CUSTOMER_SUPPORT_EMAIL),
