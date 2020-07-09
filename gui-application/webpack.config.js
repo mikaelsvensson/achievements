@@ -71,7 +71,7 @@ module.exports = (env, argv) => ({
             devMode: 'light', // optional can be 'webapp' or 'light' - 'light' by default
             inject: true,
             cache: true,
-            prefix: '/',
+            prefix: './',
             favicons: {
               appName: 'achievements',
               appDescription: 'Mina Märken',
