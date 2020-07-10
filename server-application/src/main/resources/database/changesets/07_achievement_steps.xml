@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="07_achievement_steps" author="mikael">
+        <createTable tableName="achievement_steps">
+            <column name="id" type="integer" autoIncrement="true"></column>
+            <column name="description" type="varchar(1000)"></column>
+            <column name="prerequisiteachievement_id" type="BINARY(16)"></column>
+            <column name="achievement_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="achievement_steps"
+                       constraintName="pk_achievement_steps"/>
+        <addForeignKeyConstraint baseTableName="achievement_steps"
+                                 baseColumnNames="achievement_id"
+                                 constraintName="fk_achievementsteps_achievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="achievement_steps"
+                                 baseColumnNames="prerequisiteachievement_id"
+                                 constraintName="fk_achievementsteps_prerequisiteachievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

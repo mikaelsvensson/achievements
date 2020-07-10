@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="03_person_attributes" author="mikael">
+        <createTable tableName="person_attributes">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="key" type="varchar(30)"></column>
+            <column name="value" type="varchar(100)"></column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="person_attributes"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_personattributes_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

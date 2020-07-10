@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="06_achievement_tags" author="mikael">
+        <createTable tableName="achievement_tags">
+            <column name="achivement_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tag" type="varchar(50)"></column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="achievement_tags"
+                                 baseColumnNames="achivement_id"
+                                 constraintName="fk_achievementtags_achievement"
+                                 referencedTableName="achievements"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="05_achievements" author="mikael">
+        <createTable tableName="achievements">
+            <column name="id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(10000)"></column>
+            <column name="image" type="binary(5000)"></column>
+            <column name="name" type="varchar(100)">
+                <constraints unique="true" uniqueConstraintName="idx_achievements_name"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="achievements"
+                       constraintName="pk_achievements"/>
+    </changeSet>
+</databaseChangeLog>

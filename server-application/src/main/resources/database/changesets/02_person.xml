@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="02_person" author="mikael">
+        <createTable tableName="person">
+            <column name="id" type="integer" autoIncrement="true"></column>
+            <column name="email" type="varchar(100)"></column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"
+                             unique="true" uniqueConstraintName="idx_person_name"/>
+            </column>
+            <column name="role" type="varchar(100)" defaultValue="reader">
+                <constraints nullable="false"/>
+            </column>
+            <column name="organization_id" type="BINARY(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="custom_identifier" type="varchar(100)"></column>
+        </createTable>
+        <addPrimaryKey columnNames="id"
+                       tableName="person"
+                       constraintName="pk_person"/>
+        <addForeignKeyConstraint baseTableName="person"
+                                 baseColumnNames="organization_id"
+                                 constraintName="fk_person_organization"
+                                 referencedTableName="organization"
+                                 referencedColumnNames="id"/>
+        <addUniqueConstraint tableName="person"
+                             columnNames="organization_id,custom_identifier"
+                             constraintName="idx_person_customid"/>
+        <createIndex tableName="person"
+                     indexName="idx_person_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

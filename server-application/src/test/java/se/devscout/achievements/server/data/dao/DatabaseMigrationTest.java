@@ -1,7 +1,6 @@
 package se.devscout.achievements.server.data.dao;
 
 import com.google.common.io.Resources;
-import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.ManagedDataSource;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import liquibase.Liquibase;
@@ -16,6 +15,7 @@ import se.devscout.achievements.server.AchievementsApplication;
 import se.devscout.achievements.server.AchievementsApplicationConfiguration;
 import se.devscout.achievements.server.TestUtil;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +49,7 @@ public class DatabaseMigrationTest {
      * Verifies that all database migrations can be rolled back (according to the migrations.xml file).
      */
     @Test
-    public void DatabaseMigration_CanBeRolledBack_HappyPath() throws Exception {
+    public void DatabaseMigration_CanBeRolledBack() throws Exception {
         try (var connection = ds.getConnection()) {
             initMigrator(connection);
         }
@@ -71,7 +71,50 @@ public class DatabaseMigrationTest {
     }
 
     @Test
-    public void DatabaseMigration_ValidMigrations_HappyPath() throws Exception {
+    public void DatabaseMigration_CorrectFilenames() throws Exception {
+        try (var connection = ds.getConnection()) {
+            initMigrator(connection);
+        }
+
+        var allChangeSets = migrator.getDatabaseChangeLog().getChangeSets();
+
+        assertTrue("Filename must match changeSet id",
+                allChangeSets.stream()
+                        .allMatch(cs -> cs.getChangeLog().getPhysicalFilePath().endsWith("/" + cs.getId() + ".xml")));
+    }
+
+    @Test
+    public void DatabaseMigration_CorrectLogicalFilePath() throws Exception {
+        try (var connection = ds.getConnection()) {
+            initMigrator(connection);
+        }
+
+        var allChangeSets = migrator.getDatabaseChangeLog().getChangeSets();
+
+        assertTrue("Logical file path must be 'migrations.xml' for legacy reasons",
+                allChangeSets.stream()
+                        .flatMap(changeSet -> changeSet.getChangeLog().getChangeSets().stream())
+                        .allMatch(cs -> cs.getFilePath().equals("migrations.xml")));
+    }
+
+    @Test
+    public void DatabaseMigration_CorrectId() throws Exception {
+        try (var connection = ds.getConnection()) {
+            initMigrator(connection);
+        }
+
+        var allChangeSets = migrator.getDatabaseChangeLog().getChangeSets();
+
+        assertTrue("changeSet ids must start with filename",
+                allChangeSets.stream()
+                        .flatMap(changeSet -> changeSet.getChangeLog().getChangeSets().stream())
+                        .allMatch(cs -> cs.getId().startsWith(
+                                new File(cs.getChangeLog().getPhysicalFilePath()).getName().replace(".xml", ""))
+                        ));
+    }
+
+    @Test
+    public void DatabaseMigration_ValidMigrations() throws Exception {
         try (var connection = ds.getConnection()) {
             initMigrator(connection);
             migrator.update("");

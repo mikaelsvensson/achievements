@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="08_achievement_step_progress" author="mikael">
+        <createTable tableName="achievement_step_progress">
+            <column name="person_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="varchar(255)"></column>
+        </createTable>
+        <addPrimaryKey columnNames="person_id,step_id"
+                       tableName="achievement_step_progress"
+                       constraintName="pk_achievement_step_progress"/>
+        <addForeignKeyConstraint baseTableName="achievement_step_progress"
+                                 baseColumnNames="person_id"
+                                 constraintName="fk_achievementstepprogress_person"
+                                 referencedTableName="person"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="achievement_step_progress"
+                                 baseColumnNames="step_id"
+                                 constraintName="fk_achievementstepprogress_achievementsteps"
+                                 referencedTableName="achievement_steps"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
