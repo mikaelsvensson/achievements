@@ -43,7 +43,13 @@ public class AbstractAuthResource extends AbstractResource {
 
     protected AuthTokenDTO generateTokenResponse(Credentials credentials) {
         final var person = credentials.getPerson();
-        final var roles = Sets.union(Collections.singleton(person.getRole()), Roles.IMPLICIT_ROLES.getOrDefault(person.getRole(), Collections.emptySet()));
+        final var role = person.getRole();
+        final var roles = Sets.union(
+                // Self:
+                Collections.singleton(role),
+                // Implied roles:
+                Roles.IMPLICIT_ROLES.getOrDefault(role, Collections.emptySet())
+        );
         return new AuthTokenDTO(signInTokenService.encode(
                 new JwtSignInToken(
                         person.getName(),
