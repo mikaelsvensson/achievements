@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="14_person_name_not_unique" author="mikael">
+
+        <dropUniqueConstraint tableName="person" constraintName="idx_person_name"/>
+
+        <rollback>
+            <addUniqueConstraint tableName="person" columnNames="name" constraintName="idx_person_name" />
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
