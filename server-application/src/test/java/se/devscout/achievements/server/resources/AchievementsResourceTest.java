@@ -112,7 +112,7 @@ public class AchievementsResourceTest {
         doThrow(new NotFoundException()).when(dao).delete(any(UUID.class));
         final var response = resources
                 .target("/achievements/id")
-                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .register(AUTH_FEATURE_ADMIN)
                 .request()
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -126,7 +126,7 @@ public class AchievementsResourceTest {
         when(dao.read(eq(uuid))).thenReturn(achievement);
         final var response = resources
                 .target("/achievements/" + UuidString.toString(uuid))
-                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .register(AUTH_FEATURE_ADMIN)
                 .request()
                 .delete();
         assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
@@ -140,7 +140,7 @@ public class AchievementsResourceTest {
         when(dao.create(any(AchievementProperties.class))).thenReturn(achievement);
         final var response = resources
                 .target("/achievements")
-                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .register(AUTH_FEATURE_ADMIN)
                 .request()
                 .post(Entity.json(new AchievementDTO()));
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);

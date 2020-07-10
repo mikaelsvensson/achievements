@@ -15,8 +15,7 @@ import se.devscout.achievements.server.data.model.Person;
 
 import java.util.stream.IntStream;
 
-import static se.devscout.achievements.server.MockUtil.USERNAME_EDITOR;
-import static se.devscout.achievements.server.MockUtil.USERNAME_READER;
+import static se.devscout.achievements.server.MockUtil.*;
 
 public class MockAchievementsApplication extends AchievementsApplication {
 
@@ -35,6 +34,7 @@ public class MockAchievementsApplication extends AchievementsApplication {
 
                 addUser("Alice Reader", USERNAME_READER, "password", "one-time-password-1", org, session, Roles.READER);
                 addUser("Alice Editor", USERNAME_EDITOR, "password", "one-time-password-2", org, session, Roles.EDITOR);
+                addUser("Alice Admin", USERNAME_ADMIN, "password", "one-time-password-3", org, session, Roles.ADMIN);
 
                 // We create a bunch of one-time passwords here so that each test for the one-time password feature
                 // can use its own password. Tests cannot share credentials since one-time credentials are

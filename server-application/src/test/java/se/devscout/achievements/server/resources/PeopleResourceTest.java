@@ -546,7 +546,7 @@ public class PeopleResourceTest {
                 .target("/organizations/" + UuidString.toString(org.getId()) + "/people/" + expectedPerson.getId())
                 .register(MockUtil.AUTH_FEATURE_EDITOR)
                 .request()
-                .put(Entity.json(new PersonDTO(null, "Alicia", "admin")));
+                .put(Entity.json(new PersonDTO(null, "Alicia", Roles.ADMIN)));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
@@ -969,6 +969,34 @@ public class PeopleResourceTest {
         assertThat(response2.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
         verify(dao, never()).create(eq(org), any(PersonProperties.class));
+        verify(dao, never()).update(anyInt(), any(PersonProperties.class));
+        verify(dao, never()).delete(anyInt());
+    }
+
+    @Test
+    public void batchUpdate_csv_privilegeEscalation_expectBadRequest() throws Exception {
+        // Some mocking which maybe should be moved to MockUtil
+        final var editorPerson = credentialsDao.get(CredentialsType.PASSWORD, USERNAME_EDITOR).getPerson();
+        final var editorOrganization = editorPerson.getOrganization();
+        when(organizationsDao.read(eq(editorOrganization.getId()))).thenReturn(editorOrganization);
+
+        //SUT: Batch update using unauthorized role
+        final var alice = mockPerson(editorOrganization, "Alice");
+        when(dao.read(eq(editorOrganization), eq("alice"))).thenReturn(alice);
+
+        final var response1 = resources
+                .target("/organizations/" + UuidString.toString(editorOrganization.getId()) + "/people")
+                .register(MockUtil.AUTH_FEATURE_EDITOR)
+                .request()
+                .put(Entity.entity("" +
+                        "name,email,custom_identifier,id,role\n" +
+                        "Alice,alice@example.com,alice,," + Roles.ADMIN,
+                        "text/csv"
+                ));
+
+        assertThat(response1.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+
+        verify(dao, never()).create(eq(editorOrganization), any(PersonProperties.class));
         verify(dao, never()).update(anyInt(), any(PersonProperties.class));
         verify(dao, never()).delete(anyInt());
     }

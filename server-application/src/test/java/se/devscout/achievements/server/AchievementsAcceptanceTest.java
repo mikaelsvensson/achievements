@@ -28,7 +28,7 @@ public class AchievementsAcceptanceTest {
     public void createAchievement_happyPath() {
         var client = RULE.client();
 
-        var response = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var response = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 1", Collections.emptyList())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -44,12 +44,12 @@ public class AchievementsAcceptanceTest {
     public void createAchievementWithSteps_happyPath() {
         var client = RULE.client();
 
-        var response = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var response = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Collections.emptyList())));
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        var responseStep = TestUtil.request(client, response.getLocation() + "/steps")
+        var responseStep = TestUtil.request(client, response.getLocation() + "/steps", MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementStepDTO("Get yourself a Rubik's cube")));
 
         assertThat(responseStep.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -62,21 +62,21 @@ public class AchievementsAcceptanceTest {
     public void createAchievementWithReference_happyPath() {
         var client = RULE.client();
 
-        var responseA = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var responseA = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementDTO("Learn to ride bicycle", Collections.emptyList())));
         assertThat(responseA.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
         final var achievementBicycleId = StringUtils.substringAfter(responseA.getLocation().toString(), "/achievements/");
 
-        var responseB = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var responseB = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementDTO("Learn to ride a motorcycle", Collections.emptyList())));
         assertThat(responseB.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        var responseStep1 = TestUtil.request(client, responseB.getLocation() + "/steps")
+        var responseStep1 = TestUtil.request(client, responseB.getLocation() + "/steps", MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(AchievementStepDTO.withPrerequisite(achievementBicycleId)));
         assertThat(responseStep1.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        var responseStep2 = TestUtil.request(client, responseB.getLocation() + "/steps")
+        var responseStep2 = TestUtil.request(client, responseB.getLocation() + "/steps", MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementStepDTO("Learn traffic rules for highways")));
         assertThat(responseStep2.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 

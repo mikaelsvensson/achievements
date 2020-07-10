@@ -263,6 +263,7 @@ public class PeopleResource extends AbstractResource {
         List<UpsertPersonResultDTO> result = new ArrayList<>();
         var organization = getOrganization(organizationUUID);
         for (var dto : people) {
+            checkRoleEscalation(dto, user);
             try {
                 Person person;
                 final var newProperties = map(dto, PersonProperties.class);

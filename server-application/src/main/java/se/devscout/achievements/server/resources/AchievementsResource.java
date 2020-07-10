@@ -153,7 +153,7 @@ public class AchievementsResource extends AbstractResource {
     }
 
     @POST
-    @RolesAllowed(Roles.EDITOR)
+    @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     public Response create(AchievementDTO input, @Auth User user) {
         try {
@@ -169,7 +169,7 @@ public class AchievementsResource extends AbstractResource {
     }
 
     @DELETE
-    @RolesAllowed(Roles.EDITOR)
+    @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     @Path("{achievementId}")
     public Response delete(@PathParam("achievementId") UuidString id, @Auth User user) {

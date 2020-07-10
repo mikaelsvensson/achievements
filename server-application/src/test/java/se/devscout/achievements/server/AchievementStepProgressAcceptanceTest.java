@@ -44,25 +44,25 @@ public class AchievementStepProgressAcceptanceTest {
     public static void setupAchievement() {
         var client = createClient();
 
-        var responseAch = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()))
+        var responseAch = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Collections.emptyList())));
 
         assertThat(responseAch.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         var achievementDto = responseAch.readEntity(AchievementDTO.class);
 
-        var responseStep = TestUtil.request(client, responseAch.getLocation() + "/steps")
+        var responseStep = TestUtil.request(client, responseAch.getLocation() + "/steps", MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new AchievementStepDTO("Get yourself a Rubik's cube")));
 
         assertThat(responseStep.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         var stepDto = responseStep.readEntity(AchievementStepDTO.class);
         assertThat(stepDto.description).isEqualTo("Get yourself a Rubik's cube");
 
-        var responseOrg = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()))
+        var responseOrg = TestUtil.request(client, String.format("http://localhost:%d/api/organizations", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new OrganizationDTO(null, "Name")));
 
         assertThat(responseOrg.getStatus()).isEqualTo(HttpStatus.CREATED_201);
 
-        final var responsePerson = TestUtil.request(client, responseOrg.getLocation() + "/people")
+        final var responsePerson = TestUtil.request(client, responseOrg.getLocation() + "/people", MockUtil.AUTH_FEATURE_ADMIN)
                 .post(Entity.json(new PersonDTO(null, "Alice")));
 
         assertThat(responsePerson.getStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -210,27 +210,34 @@ public class AchievementStepProgressAcceptanceTest {
     public void setProgressAndTryToDeleteAchievement_expectFailure() {
         var client = createClient();
 
-        var setResponse = TestUtil.request(client,
+        var setResponse = TestUtil.request(
+                client,
                 progressEndpoint(personId, achievementId, stepId)
         ).post(Entity.json(new ProgressDTO(true, AchievementStepProgressProperties.PROGRESS_COMPLETED, "Finally completed")));
         assertThat(setResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        var deleteAchievementResponse = TestUtil.request(client,
-                String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
+        var deleteAchievementResponse = TestUtil.request(
+                client,
+                String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId),
+                MockUtil.AUTH_FEATURE_ADMIN
         ).delete();
         assertThat(deleteAchievementResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 
-        var getAchievementResponse = TestUtil.request(client,
+        var getAchievementResponse = TestUtil.request(
+                client,
                 String.format("http://localhost:%d/api/achievements/%s", RULE.getLocalPort(), achievementId)
         ).get();
         assertThat(getAchievementResponse.getStatus()).isEqualTo(HttpStatus.OK_200);
 
-        var deleteStepResponse = TestUtil.request(client,
-                String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
+        var deleteStepResponse = TestUtil.request(
+                client,
+                String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId),
+                MockUtil.AUTH_FEATURE_ADMIN
         ).delete();
         assertThat(deleteStepResponse.getStatus()).isEqualTo(HttpStatus.CONFLICT_409);
 
-        var getStepResponse = TestUtil.request(client,
+        var getStepResponse = TestUtil.request(
+                client,
                 String.format("http://localhost:%d/api/achievements/%s/steps/%s", RULE.getLocalPort(), achievementId, stepId)
         ).get();
         assertThat(getStepResponse.getStatus()).isEqualTo(HttpStatus.OK_200);

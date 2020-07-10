@@ -85,6 +85,10 @@ public class TestUtil {
         return request(client, URI.create(location));
     }
 
+    static Invocation.Builder request(Client client, String location, HttpAuthenticationFeature auth) {
+        return request(client, URI.create(location), auth);
+    }
+
     static Invocation.Builder request(Client client, URI location) {
         return request(client, location, MockUtil.AUTH_FEATURE_EDITOR);
     }

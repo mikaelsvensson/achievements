@@ -20,8 +20,10 @@ public class MockUtil {
 
     public static final String USERNAME_EDITOR = "username_editor";
     public static final String USERNAME_READER = "username_reader";
+    public static final String USERNAME_ADMIN = "username_admin";
     public static final HttpAuthenticationFeature AUTH_FEATURE_EDITOR = HttpAuthenticationFeature.basic(USERNAME_EDITOR, "password");
     public static final HttpAuthenticationFeature AUTH_FEATURE_READER = HttpAuthenticationFeature.basic(USERNAME_READER, "password");
+    public static final HttpAuthenticationFeature AUTH_FEATURE_ADMIN = HttpAuthenticationFeature.basic(USERNAME_ADMIN, "password");
 
     public static Organization mockOrganization(String name) {
         final var uuid = UUID.randomUUID();
@@ -123,6 +125,14 @@ public class MockUtil {
             final var person = mockPerson(organization, "Alice Editor", "alice_editor", Roles.EDITOR);
             final var credentials = mockCredentials(person, USERNAME_EDITOR);
             when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_EDITOR))).thenReturn(credentials);
+            when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
+        }
+
+        {
+            final var organization = mockOrganization("Acme Inc.");
+            final var person = mockPerson(organization, "Alice Admin", "alice_admin", Roles.ADMIN);
+            final var credentials = mockCredentials(person, USERNAME_ADMIN);
+            when(credentialsDao.get(eq(CredentialsType.PASSWORD), eq(USERNAME_ADMIN))).thenReturn(credentials);
             when(credentialsDao.read(eq(credentials.getId()))).thenReturn(credentials);
         }
     }

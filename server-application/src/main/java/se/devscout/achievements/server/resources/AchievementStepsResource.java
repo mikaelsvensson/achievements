@@ -58,7 +58,7 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     @POST
-    @RolesAllowed(Roles.EDITOR)
+    @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     public Response create(@PathParam("achievementId") UuidString achievementId,
                            @Auth User user,
@@ -75,7 +75,7 @@ public class AchievementStepsResource extends AbstractResource {
                 throw new BadRequestException(violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining()));
             }
 
-            var achievement = getAchievement(achievementId.getUUID());
+            final var achievement = getAchievement(achievementId.getUUID());
             final var person = dao.create(achievement, properties);
             final var location = uriInfo.getRequestUriBuilder().path(person.getId().toString()).build();
             return Response
@@ -90,17 +90,15 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     private Achievement getAchievement(UUID achievementId) {
-        Achievement achievement = null;
         try {
-            achievement = achievementsDao.read(achievementId);
+            return achievementsDao.read(achievementId);
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
-        return achievement;
     }
 
     @DELETE
-    @RolesAllowed(Roles.EDITOR)
+    @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     @Path("{stepId}")
     public Response delete(@PathParam("achievementId") UuidString achievementId,
@@ -128,7 +126,7 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     private void verifyParent(UUID achievementId, AchievementStep person) {
-        var achievement = getAchievement(achievementId);
+        final var achievement = getAchievement(achievementId);
         if (!person.getAchievement().getId().equals(achievement.getId())) {
             throw new NotFoundException();
         }
