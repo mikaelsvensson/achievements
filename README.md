@@ -94,6 +94,18 @@ Step 3: Start the GUI
 
     $ npm run start
 
+## Create administrator (by promoting regular user)
+
+Invoke the `add-admin` task on the "admin interface":
+
+    curl -X POST "http://localhost:9001/tasks/add-admin?org=Admins&user=admin%40example.com"
+    
+The sample command will create a new user called `admin@example.com` and add it
+to the organization `Admins` (which will be created if missing).
+
+Note that the command needs to be run on the server itself, you cannot invoke
+the command remotely. You need SSH access to the server. 
+
 ## Deploy to Heroku
 
 ### Before you can deploy
