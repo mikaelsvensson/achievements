@@ -6,17 +6,17 @@ import io.dropwizard.hibernate.UnitOfWork;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
-import se.devscout.achievements.server.data.model.AchievementProperties;
-import se.devscout.achievements.server.data.model.AchievementStepProgressProperties;
-import se.devscout.achievements.server.data.model.Person;
+import se.devscout.achievements.server.data.htmlprovider.DatabaseCachedHtmlProvider;
+import se.devscout.achievements.server.data.importer.badges.BadgeImporter;
+import se.devscout.achievements.server.data.importer.badges.BadgeImporterException;
+import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.auth.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("achievements")
@@ -24,12 +24,20 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class AchievementsResource extends AbstractResource {
     private final AchievementsDao dao;
+    private final AchievementStepsDao stepsDao;
     private final AchievementStepProgressDao progressDao;
     private final AuditingDao auditingDao;
     private final PeopleDao peopleDao;
+    private final BadgeImporter badgeImporter;
 
-    public AchievementsResource(AchievementsDao dao, AchievementStepProgressDao progressDao, AuditingDao auditingDao, PeopleDao peopleDao) {
+    public AchievementsResource(AchievementsDao dao,
+                                AchievementStepsDao stepsDao,
+                                AchievementStepProgressDao progressDao,
+                                AuditingDao auditingDao,
+                                PeopleDao peopleDao,
+                                CachedHtmlDao cachedHtmlDao) {
         this.dao = dao;
+        this.stepsDao = stepsDao;
         this.progressDao = progressDao;
         this.auditingDao = auditingDao;
         this.peopleDao = peopleDao;
@@ -158,12 +166,15 @@ public class AchievementsResource extends AbstractResource {
     public Response create(AchievementDTO input, @Auth User user) {
         try {
             final var achievement = dao.create(map(input, AchievementProperties.class));
+
+            updateSteps(input, achievement);
+
             final var location = uriInfo.getRequestUriBuilder().path(UuidString.toString(achievement.getId())).build();
             return Response
                     .created(location)
                     .entity(map(achievement, AchievementDTO.class))
                     .build();
-        } catch (DaoException e) {
+        } catch (DaoException | ObjectNotFoundException e) {
             return Response.serverError().build();
         }
     }
@@ -181,6 +192,52 @@ public class AchievementsResource extends AbstractResource {
         } catch (ObjectNotFoundException e) {
             throw new NotFoundException();
         }
+    }
+
+    @PUT
+    @RolesAllowed(Roles.ADMIN)
+    @UnitOfWork
+    @Path("{achievementId}")
+    public AchievementDTO update(@PathParam("achievementId") UuidString id, AchievementDTO input, @Auth User user) {
+        try {
+            verifyNotInProgress(id);
+
+            final var achievement = dao.read(id.getUUID());
+
+            dao.update(id.getUUID(), map(input, AchievementProperties.class));
+
+            updateSteps(input, achievement);
+
+            return map(achievement, AchievementDTO.class);
+        } catch (ObjectNotFoundException e) {
+            throw new NotFoundException();
+        } catch (DaoException e) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+    private void updateSteps(AchievementDTO input, Achievement achievement) throws ObjectNotFoundException, DaoException {
+        // Remove steps not present in input data
+        final var existingSteps = achievement.getSteps();
+        final var inputSteps = Optional.ofNullable(input.steps).orElse(Collections.emptyList());
+        final var desiredStepIds = inputSteps.stream().filter(step -> step.id != null && step.id > 0).map(step -> step.id).collect(Collectors.toSet());
+        final var removedStepIds = existingSteps.stream().map(AchievementStep::getId).filter(stepId -> !desiredStepIds.contains(stepId)).collect(Collectors.toSet());
+        for (Integer removedStepId : removedStepIds) {
+            stepsDao.delete(removedStepId);
+        }
+
+        final var newStepList = new ArrayList<AchievementStep>();
+        for (AchievementStepDTO step : inputSteps) {
+            if (step.id != null && step.id > 0) {
+                // Update existing step
+                newStepList.add(stepsDao.update(step.id, map(step, AchievementStepProperties.class)));
+            } else {
+                // Create new step
+                newStepList.add(stepsDao.create(achievement, map(step, AchievementStepProperties.class)));
+            }
+        }
+        achievement.getSteps().clear();
+        achievement.getSteps().addAll(newStepList);
     }
 
     private void verifyNotInProgress(UuidString id) throws ObjectNotFoundException {

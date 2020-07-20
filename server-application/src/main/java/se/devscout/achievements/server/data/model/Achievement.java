@@ -38,6 +38,7 @@ public class Achievement extends AchievementProperties {
     private UUID id;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "achievement")
+    @OrderColumn(name = "sort_order")
     private List<AchievementStep> steps = new ArrayList<>();
 
     @ManyToMany(mappedBy = "awards")

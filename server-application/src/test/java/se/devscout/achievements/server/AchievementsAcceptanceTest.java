@@ -9,10 +9,9 @@ import org.junit.Test;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.api.AchievementStepDTO;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +40,7 @@ public class AchievementsAcceptanceTest {
     }
 
     @Test
-    public void createAchievementWithSteps_happyPath() {
+    public void createAchievementAndSteps_happyPath() {
         var client = RULE.client();
 
         var response = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
@@ -56,6 +55,71 @@ public class AchievementsAcceptanceTest {
 
         final var stepDto = responseStep.readEntity(AchievementStepDTO.class);
         assertThat(stepDto.description).isEqualTo("Get yourself a Rubik's cube");
+    }
+
+    @Test
+    public void createAndUpdateAchievementWithSteps_happyPath() {
+        var client = RULE.client();
+
+        var createResp = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
+                .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Arrays.asList(
+                        new AchievementStepDTO("Get yourself a Rubik's cube"),
+                        new AchievementStepDTO("Solve it"),
+                        new AchievementStepDTO("Be smug about it")
+                ))));
+
+        assertThat(createResp.getStatus()).isEqualTo(HttpStatus.CREATED_201);
+        final var createdObj = createResp.readEntity(AchievementDTO.class);
+
+        assertThat(createdObj.id).isNotNull();
+        assertThat(createdObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(createdObj.steps).hasSize(3);
+        assertThat(createdObj.steps.get(0).description).isEqualTo("Get yourself a Rubik's cube");
+        assertThat(createdObj.steps.get(1).description).isEqualTo("Solve it");
+        assertThat(createdObj.steps.get(2).description).isEqualTo("Be smug about it");
+
+        final var readResp = TestUtil.request(client, createResp.getLocation()).get();
+        final var readObj = readResp.readEntity(AchievementDTO.class);
+
+        assertThat(readObj.id).isNotNull();
+        assertThat(readObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(readObj.steps).hasSize(3);
+        assertThat(readObj.steps.get(0).id).isGreaterThan(0);
+        assertThat(readObj.steps.get(0).description).isEqualTo("Get yourself a Rubik's cube");
+        assertThat(readObj.steps.get(1).id).isGreaterThan(0);
+        assertThat(readObj.steps.get(1).description).isEqualTo("Solve it");
+        assertThat(readObj.steps.get(2).id).isGreaterThan(0);
+        assertThat(readObj.steps.get(2).description).isEqualTo("Be smug about it");
+
+        final var highestIdBefore = readObj.steps.stream().map(step -> step.id).max(Integer::compareTo).orElseThrow();
+        final var solveItStepId = readObj.steps.get(1).id;
+
+        // Change description of existing step (should trigger UPDATE)
+        readObj.steps.get(1).description = "Solve it, if you can.";
+        // Remove the existing "smug" step (should trigger DELETE)
+        readObj.steps.remove(2);
+        // Add new step to the middle of the list
+        readObj.steps.add(1, new AchievementStepDTO("Read instructions online"));
+
+        var updateResp = TestUtil.request(client, createResp.getLocation(), MockUtil.AUTH_FEATURE_ADMIN)
+                .put(Entity.json(readObj));
+
+        assertThat(updateResp.getStatus()).isEqualTo(HttpStatus.OK_200);
+        final var updatedObj = updateResp.readEntity(AchievementDTO.class);
+
+        assertThat(updatedObj.id).isNotNull();
+        assertThat(updatedObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(updatedObj.steps).hasSize(3);
+        // First step is unchanged
+        assertThat(updatedObj.steps.get(0).id).isEqualTo(readObj.steps.get(0).id);
+        assertThat(updatedObj.steps.get(0).description).isEqualTo("Get yourself a Rubik's cube");
+        // Second step is new (with id greater than of any previous step)
+        assertThat(updatedObj.steps.get(1).id).isGreaterThan(highestIdBefore);
+        assertThat(updatedObj.steps.get(1).description).isEqualTo("Read instructions online");
+        // Third step is updated
+        assertThat(updatedObj.steps.get(2).id).isEqualTo(solveItStepId);
+        assertThat(updatedObj.steps.get(2).description).isEqualTo("Solve it, if you can.");
+        // ...and the be-slug-about-it step has been deleted.
     }
 
     @Test

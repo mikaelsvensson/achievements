@@ -126,7 +126,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.getObjectMapper().configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
         environment.jersey().register(new OrganizationsResource(organizationsDao, achievementsDao, peopleDao));
-        environment.jersey().register(new AchievementsResource(achievementsDao, progressDao, auditingDao, peopleDao));
+        environment.jersey().register(new AchievementsResource(achievementsDao, achievementStepsDao, progressDao, auditingDao, peopleDao, cachedHtmlDao));
         environment.jersey().register(new AchievementStepsResource(achievementStepsDao, achievementsDao));
         environment.jersey().register(new AchievementStepProgressResource(achievementStepsDao, achievementsDao, peopleDao, progressDao));
         environment.jersey().register(new PeopleResource(peopleDao, organizationsDao, achievementsDao, environment.getObjectMapper(), groupsDao, membershipsDao, config.getGuiApplicationHost(), emailSender, i18n));
