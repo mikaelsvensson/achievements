@@ -62,7 +62,7 @@ public class AchievementsAcceptanceTest {
         var client = RULE.client();
 
         var createResp = TestUtil.request(client, String.format("http://localhost:%d/api/achievements", RULE.getLocalPort()), MockUtil.AUTH_FEATURE_ADMIN)
-                .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 2", Arrays.asList(
+                .post(Entity.json(new AchievementDTO("Solve A Rubik's Cube 3", Arrays.asList(
                         new AchievementStepDTO("Get yourself a Rubik's cube"),
                         new AchievementStepDTO("Solve it"),
                         new AchievementStepDTO("Be smug about it")
@@ -72,7 +72,7 @@ public class AchievementsAcceptanceTest {
         final var createdObj = createResp.readEntity(AchievementDTO.class);
 
         assertThat(createdObj.id).isNotNull();
-        assertThat(createdObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(createdObj.name).isEqualTo("Solve A Rubik's Cube 3");
         assertThat(createdObj.steps).hasSize(3);
         assertThat(createdObj.steps.get(0).description).isEqualTo("Get yourself a Rubik's cube");
         assertThat(createdObj.steps.get(1).description).isEqualTo("Solve it");
@@ -82,7 +82,7 @@ public class AchievementsAcceptanceTest {
         final var readObj = readResp.readEntity(AchievementDTO.class);
 
         assertThat(readObj.id).isNotNull();
-        assertThat(readObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(readObj.name).isEqualTo("Solve A Rubik's Cube 3");
         assertThat(readObj.steps).hasSize(3);
         assertThat(readObj.steps.get(0).id).isGreaterThan(0);
         assertThat(readObj.steps.get(0).description).isEqualTo("Get yourself a Rubik's cube");
@@ -108,7 +108,7 @@ public class AchievementsAcceptanceTest {
         final var updatedObj = updateResp.readEntity(AchievementDTO.class);
 
         assertThat(updatedObj.id).isNotNull();
-        assertThat(updatedObj.name).isEqualTo("Solve A Rubik's Cube 2");
+        assertThat(updatedObj.name).isEqualTo("Solve A Rubik's Cube 3");
         assertThat(updatedObj.steps).hasSize(3);
         // First step is unchanged
         assertThat(updatedObj.steps.get(0).id).isEqualTo(readObj.steps.get(0).id);
