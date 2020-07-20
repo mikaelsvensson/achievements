@@ -179,6 +179,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.admin().addTask(new ImportScouternaBadgesTask(sessionFactory, achievementsDao, achievementStepsDao));
         environment.admin().addTask(new HttpAuditTask(sessionFactory, auditingDao));
         environment.admin().addTask(new AddAdminUserTask(sessionFactory, organizationsDao, peopleDao, credentialsDao));
+        environment.admin().addTask(new ReadScouternaSeBadgesTask(sessionFactory, achievementsDao, cachedHtmlDao));
     }
 
     private void initJerseyParameterFix(Environment environment) {

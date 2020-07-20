@@ -19,7 +19,6 @@ import se.devscout.achievements.server.data.model.*;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -31,15 +30,17 @@ import static se.devscout.achievements.server.MockUtil.*;
 public class AchievementsResourceTest {
 
     private final AchievementsDao dao = mock(AchievementsDao.class);
+    private final AchievementStepsDao stepsDao = mock(AchievementStepsDao.class);
     private final AchievementStepProgressDao progressDao = mock(AchievementStepProgressDao.class);
     private final AuditingDao auditingDao = mock(AuditingDao.class);
 
     private final CredentialsDao credentialsDao = mock(CredentialsDao.class);
     private final PeopleDao peopleDao = mock(PeopleDao.class);
+    private final CachedHtmlDao cachedHtmlDao = mock(CachedHtmlDao.class);
 
     @Rule
     public final ResourceTestRule resources = TestUtil.resourceTestRule(credentialsDao)
-            .addResource(new AchievementsResource(dao, progressDao, auditingDao, peopleDao))
+            .addResource(new AchievementsResource(dao, stepsDao, progressDao, auditingDao, peopleDao, cachedHtmlDao))
             .build();
 
     @Before

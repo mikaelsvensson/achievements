@@ -41,6 +41,7 @@ public class AchievementsResource extends AbstractResource {
         this.progressDao = progressDao;
         this.auditingDao = auditingDao;
         this.peopleDao = peopleDao;
+        this.badgeImporter = new BadgeImporter(new DatabaseCachedHtmlProvider(cachedHtmlDao));
     }
 
     @GET
@@ -245,6 +246,36 @@ public class AchievementsResource extends AbstractResource {
         final var isInProgressForOnePerson = achievement.getSteps().stream().flatMap(step -> step.getProgressList().stream()).anyMatch(AchievementStepProgressProperties::isCompleted);
         if (isInProgressForOnePerson) {
             throw new ClientErrorException(Response.Status.CONFLICT);
+        }
+    }
+
+    @GET
+    @RolesAllowed(Roles.ADMIN)
+    @UnitOfWork
+    @Path("scouterna-se-badges")
+    public Response readScouternaSeBadges(@Auth User user) {
+        try {
+            final var parsedAchievements = badgeImporter.get();
+            final var storedAchievements = dao.readAll().stream().map(o -> map(o, AchievementDTO.class)).collect(Collectors.toList());
+
+            final var list = parsedAchievements.stream()
+                    .map(parsedAchievement -> new ScouternaSeBadgeDTO(
+                            parsedAchievement,
+                            storedAchievements.stream()
+                                    .filter(sa -> sa.slug.equals(parsedAchievement.slug))
+                                    .findFirst()
+                                    .orElse(null)))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            list.addAll(storedAchievements.stream()
+                    .filter(sa -> list.stream()
+                            .noneMatch(pa -> pa.fromScouternaSe.slug.equals(sa.slug)))
+                    .map(sa -> new ScouternaSeBadgeDTO(null, sa))
+                    .collect(Collectors.toList()));
+
+            return Response.ok(list).build();
+        } catch (BadgeImporterException e) {
+            return Response.serverError().build();
         }
     }
 }
