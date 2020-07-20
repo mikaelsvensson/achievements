@@ -64,6 +64,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
             AchievementStep.class,
             AchievementStepProgress.class,
             HttpAuditRecord.class,
+            CachedHttpResponse.class,
             StepProgressAuditRecord.class
     ) {
         public DataSourceFactory getDataSourceFactory(AchievementsApplicationConfiguration configuration) {
@@ -89,6 +90,7 @@ public class AchievementsApplication extends Application<AchievementsApplication
         final PeopleDao peopleDao = new PeopleDaoImpl(sessionFactory);
         final GroupsDao groupsDao = new GroupsDaoImpl(sessionFactory);
         final AuditingDao auditingDao = new AuditingDaoImpl(sessionFactory);
+        final CachedHtmlDao cachedHtmlDao = new CachedHtmlDaoImpl(sessionFactory);
         final GroupMembershipsDao membershipsDao = new GroupMembershipsDaoImpl(sessionFactory);
         final var credentialsDao = getCredentialsDao(sessionFactory);
 

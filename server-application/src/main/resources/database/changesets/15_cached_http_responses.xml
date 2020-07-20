@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet logicalFilePath="migrations.xml" id="15_cached_http_responses" author="mikael">
+
+        <createTable tableName="cached_http_responses">
+            <column name="resource_uri" type="varchar(2048)">
+                <constraints nullable="false" />
+            </column>
+            <column name="raw_html" type="varchar(1000000)"/>
+            <column name="timestamp" type="datetime"/>
+        </createTable>
+
+        <addPrimaryKey columnNames="resource_uri"
+                       tableName="cached_http_responses"
+                       constraintName="pk_cachedhttpresponses"/>
+    </changeSet>
+</databaseChangeLog>
