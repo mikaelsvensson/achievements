@@ -222,6 +222,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Jsoup is used to parse HTML from www.scouterna.se -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.12.1</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -8,8 +8,8 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.junit.Before;
 import org.junit.Test;
-import se.devscout.achievements.dataimporter.SlugGenerator;
 import se.devscout.achievements.server.api.PersonDTO;
+import se.devscout.achievements.server.data.SlugGenerator;
 
 import java.io.*;
 import java.util.List;

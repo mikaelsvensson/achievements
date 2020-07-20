@@ -1,4 +1,4 @@
-package se.devscout.achievements.dataimporter;
+package se.devscout.achievements.server.data;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

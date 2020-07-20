@@ -12,7 +12,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
-import se.devscout.achievements.dataimporter.SlugGenerator;
+import se.devscout.achievements.server.data.SlugGenerator;
 import se.devscout.achievements.server.api.AchievementDTO;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;

@@ -4,7 +4,8 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Sets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import se.devscout.achievements.dataimporter.Importer;
+import se.devscout.achievements.server.data.importer.badges.BadgeImporter;
+import se.devscout.achievements.server.data.htmlprovider.FileCachedHtmlProvider;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
 import se.devscout.achievements.server.data.dao.AchievementsDao;
 import se.devscout.achievements.server.data.model.AchievementProperties;
@@ -28,7 +29,7 @@ public class ImportScoutBadgesTask extends DatabaseTask {
 
     @Override
     protected void execute(ImmutableMultimap<String, String> parameters, PrintWriter output, Session session) throws Exception {
-        final var importer = new Importer();
+        final var importer = new BadgeImporter(new FileCachedHtmlProvider());
         final var list = importer.get();
         for (var dto : list) {
             final var properties = new AchievementProperties();

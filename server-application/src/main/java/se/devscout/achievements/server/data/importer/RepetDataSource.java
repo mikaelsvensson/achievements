@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import se.devscout.achievements.dataimporter.SlugGenerator;
+import se.devscout.achievements.server.data.SlugGenerator;
 import se.devscout.achievements.server.api.GroupBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.Roles;

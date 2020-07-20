@@ -1,4 +1,4 @@
-package se.devscout.achievements.dataimporter;
+package se.devscout.achievements.server.data;
 
 import org.junit.Test;
 
@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SlugGeneratorTest {
 
-    private SlugGenerator generator = new SlugGenerator();
+    private final SlugGenerator generator = new SlugGenerator();
 
     @Test
     public void toSlug_accented() {
