@@ -9,7 +9,6 @@ import org.apache.commons.io.input.BoundedInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import se.devscout.achievements.server.api.PersonDTO;
-import se.devscout.achievements.server.data.SlugGenerator;
 
 import java.io.*;
 import java.util.List;
@@ -19,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepetDataSourceTest {
 
-    private final SlugGenerator slugGenerator = new SlugGenerator();
     private RepetDataSource dataSource;
 
     @Before

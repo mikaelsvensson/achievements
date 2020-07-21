@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 public class ImportScouternaBadgesTask extends DatabaseTask {
 
-    private static final SlugGenerator slugGenerator = new SlugGenerator();
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     private static final ObjectReader yamlReader = mapper.readerFor(AchievementDTO.class);
@@ -62,7 +61,7 @@ public class ImportScouternaBadgesTask extends DatabaseTask {
         final var achievements = fileNames.stream().map(ImportScouternaBadgesTask::toAchievement)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        achievements.forEach(a -> a.slug = slugGenerator.toSlug(a.name));
+        achievements.forEach(a -> a.slug = SlugGenerator.toSlug(a.name));
         achievements.stream().map(a -> a.name).forEach(output::println);
 
         for (var achievement : achievements) {

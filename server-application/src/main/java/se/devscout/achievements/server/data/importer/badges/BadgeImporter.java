@@ -140,7 +140,7 @@ public class BadgeImporter {
 
         dto.image = URI.create(article.select("p[class*=marke-image] > img").attr("src"));
 
-        dto.slug = new SlugGenerator().toSlug(dto.name);
+        dto.slug = SlugGenerator.toSlug(dto.name);
 
         return dto;
     }

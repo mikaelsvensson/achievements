@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import org.modelmapper.internal.util.Objects;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
@@ -272,6 +273,8 @@ public class AchievementsResource extends AbstractResource {
                             .noneMatch(pa -> pa.fromScouternaSe.slug.equals(sa.slug)))
                     .map(sa -> new ScouternaSeBadgeDTO(null, sa))
                     .collect(Collectors.toList()));
+
+            list.sort(Comparator.comparing(scouternaSeBadgeDTO -> Objects.firstNonNull(scouternaSeBadgeDTO.fromScouternaSe, scouternaSeBadgeDTO.fromDatabase), (o1, o2) -> Objects.firstNonNull(o1.name, "").compareTo(o2.name)));
 
             return Response.ok(list).build();
         } catch (BadgeImporterException e) {

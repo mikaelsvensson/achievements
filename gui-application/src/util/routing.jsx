@@ -22,6 +22,7 @@ import {renderMyPassword, renderPasswordForgotten} from "../my/password.jsx";
 import {renderOrganizationSignup} from "../organizations/organization.signup.jsx";
 import {renderOrganizationAchievements} from "../organizations/organization.achievements.jsx";
 import {renderAbout} from "../about.jsx";
+import {renderImportScouternaSe} from "../admin/import-scouterna-se.jsx";
 
 export function navigateTo(appPath) {
     window.location.hash = '#' + appPath;
@@ -67,6 +68,7 @@ function renderRoute(appPath) {
         'signin/check-mail-box': renderSigninWaitForEmail,
         'signin/*': renderRedirect,
         'om': renderAbout,
+        'admin/importera': renderImportScouternaSe,
         '': renderMain
     };
 

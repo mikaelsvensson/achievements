@@ -20,6 +20,14 @@
                         när du loggar in med din e-postadress.
                     </p>
                     {{/getting_started.is_password_credential_created}}
+                    {{#isAdmin}}
+                    <div class="box">
+                        <h2 class="subtitle">Systemadministration</h2>
+                        <p>
+                            <a href="#admin/importera">Synka information om märken från www.scouterna.se</a>
+                        </p>
+                    </div>
+                    {{/isAdmin}}
                 </div>
             </div>
             <div class="column">

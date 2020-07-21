@@ -7,10 +7,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import se.devscout.achievements.server.data.SlugGenerator;
 import se.devscout.achievements.server.api.GroupBaseDTO;
 import se.devscout.achievements.server.api.PersonDTO;
 import se.devscout.achievements.server.auth.Roles;
+import se.devscout.achievements.server.data.SlugGenerator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,7 +23,6 @@ import java.util.List;
 public class RepetDataSource implements PeopleDataSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RepetDataSource.class);
-    private final SlugGenerator slugGenerator = new SlugGenerator();
     private DocumentBuilder documentBuilder;
 
     public RepetDataSource() throws ParserConfigurationException {
@@ -119,7 +118,7 @@ public class RepetDataSource implements PeopleDataSource {
     }
 
     private String toCustomIdentifier(String text) {
-        return slugGenerator.toSlug(text);
+        return SlugGenerator.toSlug(text);
     }
 
     private Document readXml(Reader reader) throws PeopleDataSourceException {

@@ -52,6 +52,7 @@ public class DtoMapper {
                 var entity = (Achievement) src;
                 var dto = (AchievementBaseDTO) dest;
                 dto.id = UuidString.toString(entity.getId());
+                dto.slug = entity.getName() != null ? SlugGenerator.toSlug(entity.getName()) : null;
             }
             if (src instanceof Achievement && dest instanceof AchievementDTO) {
                 mapAchievementExtras((Achievement) src, (AchievementDTO) dest);

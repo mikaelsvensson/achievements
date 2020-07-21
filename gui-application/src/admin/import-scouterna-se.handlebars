@@ -1,0 +1,66 @@
+<section class="section">
+    <se class="container is-fluid">
+        <h1 class="title">
+            Importera märken från Scouterna
+        </h1>
+
+        {{> ../_breadcrumbs.handlebars}}
+
+            {{#if .}}
+                {{#each .}}
+
+                    <section class="section">
+                    <div class="tile is-ancestor">
+                        <div class="tile is-6">
+                            <article class="tile is-child">
+                                <h1 class="title">{{fromScouternaSe.name}}</h1>
+
+                                <p>
+                                    <strong>Etiketter</strong>
+                                    <br>
+                                    {{#each fromScouternaSe.tags}}
+                                        <span class="tag is-light">{{.}}</span>
+                                    {{/each}}
+                                </p>
+                                <p>
+                                    <strong>Bild</strong>
+                                </p>
+                                {{#if fromScouternaSe.image}}
+                                    <figure class="image is-64x64">
+                                        <img src="{{fromScouternaSe.image}}" alt="Image">
+                                    </figure>
+                                {{/if}}
+                                <div class="content">
+                                <p>
+                                    <strong>Beskrivning</strong>
+                                </p>
+                                {{{fromScouternaSe.descriptionHtml}}}
+
+                                <p>
+                                    <strong>Delmoment</strong>
+                                </p>
+                                <ul>
+                                    {{#each fromScouternaSe.steps}}
+                                        <li>{{description}}</li>
+                                    {{/each}}
+                                </ul>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="tile is-6">
+                            <div class="container">
+                                <div>
+{{> ./_import-scouterna-se.form.handlebars}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </section>
+
+                {{/each}}
+            {{else}}
+                <p>Tyvärr, vi hittade inget som passade.</p>
+            {{/if}}
+    </div>
+</section>
+{{> ../_footer.handlebars}}

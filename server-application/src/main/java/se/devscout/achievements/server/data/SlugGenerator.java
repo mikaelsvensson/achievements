@@ -9,7 +9,7 @@ public class SlugGenerator {
     public static final Pattern LATIN_CHARACTER = Pattern.compile("LATIN (SMALL|CAPITAL) LETTER (.)");
     public static final Pattern MULTI_WHITE_SPACE = Pattern.compile("[\\s\\n]+");
 
-    public String toSlug(String text) {
+    public static String toSlug(String text) {
         text = text.trim();
         text = MULTI_WHITE_SPACE.matcher(text).replaceAll("-");
         StringBuilder sb = new StringBuilder();

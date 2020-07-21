@@ -1,0 +1,64 @@
+<p>
+    {{#if isNew}}
+        <br><span class="tag is-warning">Saknas i databasen</span>
+    {{/if}}
+    {{#if isOld}}
+        <br><span class="tag is-danger">Borttagen på scouterna.se</span>
+    {{/if}}
+    {{#if isInBoth}}
+        <br><span class="tag is-notice">Finns i båda</span>
+    {{/if}}
+</p>
+<form action="" data-achievement-id="{{id}}">
+    <div class="field">
+        <label class="label">Namn</label>
+        <div class="control">
+            <input class="input field-name" type="text" value="{{inputs.name}}">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Etiketter</label>
+        <div class="control">
+            <input class="input field-tags" type="text" value="{{inputs.tags}}">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Bild</label>
+        <div class="control">
+            <input class="input field-image" type="text" value="{{inputs.image}}">
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">Beskrivning</label>
+        <div class="control">
+            <textarea class="textarea field-description" rows="10">{{{inputs.description}}}</textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Delmoment</label>
+        <div class="control">
+            <textarea class="textarea field-steps" rows="10">{{inputs.steps}}</textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="control">
+            {{#if isNew}}
+                <button class="button import-upsert-achievement" type="button">
+                    Skapa
+                </button>
+            {{/if}}
+            {{#if isInBoth}}
+                <button class="button import-upsert-achievement" type="button">
+                    Uppdatera
+                </button>
+            {{/if}}
+            {{#if isOld}}
+                <button class="button is-danger import-delete-achievement" type="button">
+                    Radera
+                </button>
+            {{/if}}
+        </div>
+    </div>
+</form>
