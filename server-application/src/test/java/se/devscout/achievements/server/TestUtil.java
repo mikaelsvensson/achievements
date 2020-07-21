@@ -1,6 +1,5 @@
 package se.devscout.achievements.server;
 
-import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -12,6 +11,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import se.devscout.achievements.server.auth.jwt.JwtSignInTokenService;
 import se.devscout.achievements.server.auth.jwt.JwtTokenService;
 import se.devscout.achievements.server.data.dao.AuditingDao;
 import se.devscout.achievements.server.data.dao.CredentialsDao;
@@ -21,7 +21,6 @@ import se.devscout.achievements.server.resources.auth.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.UUID;
 
@@ -49,7 +48,7 @@ public class TestUtil {
         final var authFeature = AchievementsApplication.createAuthFeature(
                 hibernateBundle,
                 credentialsDao,
-                mock(JwtTokenService.class)
+                new JwtSignInTokenService(mock(JwtTokenService.class))
         );
         return ResourceTestRule.builder()
                 .setClientConfigurator(clientConfig -> clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, followRedirects))

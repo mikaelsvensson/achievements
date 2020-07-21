@@ -7,18 +7,25 @@ import com.google.common.collect.Sets;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.UUID;
 
 public class JwtSignInTokenService {
 
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String EMAIL = "email";
-    private final static Duration TOKEN_VALIDITY_DURATION = Duration.ofMinutes(15);
+    public static final Duration DEFUALT_TOKEN_VALIDITY_DURATION = Duration.ofMinutes(15);
 
     private final JwtTokenService jwtTokenService;
+    private final Duration tokenValidityDuration;
 
     public JwtSignInTokenService(JwtTokenService jwtTokenService) {
-        this.jwtTokenService = jwtTokenService;
+        this(jwtTokenService, DEFUALT_TOKEN_VALIDITY_DURATION);
+    }
+
+    public JwtSignInTokenService(JwtTokenService jwtTokenService, Duration tokenValidityDuration) {
+        this.jwtTokenService = Objects.requireNonNull(jwtTokenService);
+        this.tokenValidityDuration = Objects.requireNonNullElse(tokenValidityDuration, DEFUALT_TOKEN_VALIDITY_DURATION);
     }
 
     public String encode(JwtSignInToken token) {
@@ -28,7 +35,7 @@ public class JwtSignInTokenService {
                 "organization", new UuidString(token.getOrganizationId()).getValue(),
                 "roles", Joiner.on(' ').join(token.getRoles()));
 
-        return jwtTokenService.encode(token.getPersonName(), claims, TOKEN_VALIDITY_DURATION);
+        return jwtTokenService.encode(token.getPersonName(), claims, tokenValidityDuration);
     }
 
     public JwtSignInToken decode(String token) throws JwtTokenServiceException {

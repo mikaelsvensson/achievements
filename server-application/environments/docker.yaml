@@ -30,6 +30,7 @@ authentication:
   microsoftClientId: YOUR_CLIENT_ID_HERE
   microsoftClientSecret: YOUR_CLIENT_SECRET_HERE
   jwtSigningSecret: QiIRLaJPGlOt53wvcs7UOboftTl0ViqCdlzCUbYE
+  jwtValidityDuration: PT4H
 
 smtp:
   # Sample configuration in case you want to send your mails using Gmail

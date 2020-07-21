@@ -8,6 +8,7 @@ import se.devscout.achievements.server.mail.SmtpSenderConfiguration;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.time.Duration;
 
 public class AchievementsApplicationConfiguration extends Configuration {
     private Long maxOrganizationCount;
@@ -97,6 +98,7 @@ public class AchievementsApplicationConfiguration extends Configuration {
         private String microsoftClientId;
         private String microsoftClientSecret;
         private String jwtSigningSecret;
+        private Duration jwtValidityDuration;
 
 
         public String getGoogleClientId() {
@@ -137,6 +139,14 @@ public class AchievementsApplicationConfiguration extends Configuration {
 
         public void setMicrosoftClientSecret(String microsoftClientSecret) {
             this.microsoftClientSecret = microsoftClientSecret;
+        }
+
+        public Duration getJwtValidityDuration() {
+            return jwtValidityDuration;
+        }
+
+        public void setJwtValidityDuration(Duration jwtValidityDuration) {
+            this.jwtValidityDuration = jwtValidityDuration;
         }
     }
 

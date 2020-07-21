@@ -36,7 +36,7 @@ authentication:
   microsoftClientId: ${MICROSOFT_CLIENT_ID}
   microsoftClientSecret: ${MICROSOFT_CLIENT_SECRET}
   jwtSigningSecret: ${JWT_SIGNING_SECRET:-kQCTd0ypLpoFbRt8vTSaHp37kPsKMdh1wzDiuJUa}
-
+  jwtValidityDuration: PT60M
 
 smtp:
   host: ${SMTP_HOST}

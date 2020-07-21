@@ -99,10 +99,10 @@ public class AchievementsApplication extends Application<AchievementsApplication
         environment.jersey().register(JerseyViolationExceptionMapper.class);
 
         final JwtTokenService jwtTokenService = new JwtTokenServiceImpl(config.getAuthentication().getJwtSigningSecret());
-        final var signInTokenService = new JwtSignInTokenService(jwtTokenService);
+        final var signInTokenService = new JwtSignInTokenService(jwtTokenService, config.getAuthentication().getJwtValidityDuration());
         final var signUpTokenService = new JwtSignUpTokenService(jwtTokenService);
 
-        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, jwtTokenService));
+        environment.jersey().register(createAuthFeature(hibernate, credentialsDao, signInTokenService));
 
         initFilterCorsHeaders(environment);
 
@@ -219,11 +219,11 @@ public class AchievementsApplication extends Application<AchievementsApplication
         return new CredentialsDaoImpl(sessionFactory);
     }
 
-    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtTokenService jwtTokenService) {
+    public static AuthDynamicFeature createAuthFeature(HibernateBundle<AchievementsApplicationConfiguration> hibernate, CredentialsDao credentialsDao, JwtSignInTokenService signInTokenService) {
 
         var tokenAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(PasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
         var onetimePasswordAuthenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(OnetimePasswordAuthenticator.class, CredentialsDao.class, credentialsDao);
-        final var jwtAuthenticator = new JwtAuthenticator(new JwtSignInTokenService(jwtTokenService));
+        final var jwtAuthenticator = new JwtAuthenticator(signInTokenService);
 
         final Authorizer<User> authorizer = (user, role) -> user.getRoles().contains(role);
 
