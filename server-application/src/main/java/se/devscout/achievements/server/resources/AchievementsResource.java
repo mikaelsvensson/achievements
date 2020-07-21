@@ -299,6 +299,11 @@ public class AchievementsResource extends AbstractResource {
                 dto.description,
                 dto.image.toString(),
                 dto.tags.stream().sorted().collect(Collectors.joining(", ")),
-                dto.steps.stream().map(step -> "- " + step.description).collect(Collectors.joining("\n"))).replace("\n\n", "\n");
+                Optional.ofNullable(dto.steps)
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .map(step -> "- " + step.description)
+                        .collect(Collectors.joining("\n"))
+        ).replace("\n\n", "\n");
     }
 }

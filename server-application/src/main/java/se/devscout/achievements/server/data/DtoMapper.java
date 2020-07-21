@@ -91,7 +91,7 @@ public class DtoMapper {
     private void mapAchievementStepExtras(AchievementStep src, AchievementStepDTO dest) {
         if (src == null) {
             // TODO: Fix this hack. Why is src null?
-            LOGGER.info("mapAchievementStepExtras get bad data. Parameter src is null.");
+            LOGGER.info("Bad data in mapAchievementStepExtras. Parameter src is null.");
             return;
         }
         if (src.getPrerequisiteAchievement() != null) {
@@ -102,7 +102,13 @@ public class DtoMapper {
     private void mapAchievementExtras(Achievement src, AchievementDTO dest) {
         for (var i = 0; i < src.getSteps().size(); i++) {
             var step = src.getSteps().get(i);
-            mapAchievementStepExtras(step, dest.steps.get(i));
+            if (step != null && dest.steps.size() > i) {
+                // TODO: Fix this hack. Why is step sometimes null?
+                mapAchievementStepExtras(step, dest.steps.get(i));
+                return;
+            } else {
+                LOGGER.info("Bad data in mapAchievementExtras. Variable step is null for achievement " + src.getName() + ".");
+            }
         }
     }
 
