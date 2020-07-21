@@ -1,4 +1,4 @@
-maxOrganizationCount: 10
+maxOrganizationCount: 100
 serverApplicationHost: ${BASE_URI_SERVER:-http://localhost:8080}
 guiApplicationHost: ${BASE_URI_GUI:-http://localhost:8080}
 
@@ -63,5 +63,5 @@ logging:
           threshold: WARN
 
 rateLimiting:
-  requestsPerMinute: 150
-  burstLimit: 15
+  requestsPerMinute: 300
+  burstLimit: 30
