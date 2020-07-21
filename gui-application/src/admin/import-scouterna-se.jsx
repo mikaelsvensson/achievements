@@ -48,6 +48,17 @@ export function renderImportScouternaSe(appPathParams) {
             achievement.isInBoth = achievement.fromScouternaSe != null && achievement.fromDatabase != null
             var sourceData = achievement.isNew ? achievement.fromScouternaSe : achievement.fromDatabase
             Object.assign(achievement, achievementDtoToFormTemplateData(sourceData))
+
+            if (achievement.diffs) {
+                achievement.diffHtml = achievement.diffs
+                    .map(diff => diff.change === 'ADDED'
+                        ? `<ins>${diff.text}</ins>`
+                        : (diff.change === 'REMOVED'
+                            ? `<del>${diff.text}</del>`
+                            : diff.text))
+                    .join('')
+                    .replace(/\n/g, '<br>')
+            }
         });
 
         updateView(templateImportScouternaSe(responseData));

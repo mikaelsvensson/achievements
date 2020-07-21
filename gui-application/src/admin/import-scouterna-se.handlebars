@@ -11,7 +11,7 @@
 
                     <section class="section">
                     <div class="tile is-ancestor">
-                        <div class="tile is-6">
+                        <div class="tile is-4">
                             <article class="tile is-child">
                                 <h1 class="title">{{fromScouternaSe.name}}</h1>
 
@@ -47,7 +47,14 @@
                                 </div>
                             </article>
                         </div>
-                        <div class="tile is-6">
+                        <div class="tile is-4 is-parent">
+                            {{#if diffHtml}}
+                                <article class="diff notification">
+                                    {{{diffHtml}}}
+                                </article>
+                            {{/if}}
+                        </div>
+                        <div class="tile is-4">
                             <div class="container">
                                 <div>
 {{> ./_import-scouterna-se.form.handlebars}}

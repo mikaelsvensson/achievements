@@ -116,3 +116,14 @@ h2.subtitle {
 .message-header {
   background-color: $primary;
 }
+
+.diff {
+    ins {
+        color: $success;
+        background-color: $success-light;
+    }
+    del {
+        color: $danger;
+        background-color: $danger-light;
+    }
+}

@@ -12,6 +12,7 @@ import se.devscout.achievements.server.data.importer.badges.BadgeImporter;
 import se.devscout.achievements.server.data.importer.badges.BadgeImporterException;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.auth.User;
+import se.devscout.achievements.server.util.diff.Diff;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -274,11 +275,30 @@ public class AchievementsResource extends AbstractResource {
                     .map(sa -> new ScouternaSeBadgeDTO(null, sa))
                     .collect(Collectors.toList()));
 
-            list.sort(Comparator.comparing(scouternaSeBadgeDTO -> Objects.firstNonNull(scouternaSeBadgeDTO.fromScouternaSe, scouternaSeBadgeDTO.fromDatabase), (o1, o2) -> Objects.firstNonNull(o1.name, "").compareTo(o2.name)));
+            list.sort(Comparator.comparing(
+                    dto -> Objects.firstNonNull(dto.fromScouternaSe, dto.fromDatabase),
+                    (dto1, sto2) -> Objects.firstNonNull(dto1.name, "").compareTo(sto2.name)));
+
+            // Calculate diff between text from www.scouterna.se and text stored in database
+            list.stream()
+                    // Only calculate diff for achievements which exist on "both sides"
+                    .filter(dto -> dto.fromScouternaSe != null && dto.fromDatabase != null)
+                    .forEach(dto -> {
+                        dto.diffs = Diff.diff(asPlainText(dto.fromScouternaSe), asPlainText(dto.fromDatabase));
+                    });
 
             return Response.ok(list).build();
         } catch (BadgeImporterException e) {
             return Response.serverError().build();
         }
+    }
+
+    private String asPlainText(AchievementDTO dto) {
+        return String.join("\n",
+                dto.name,
+                dto.description,
+                dto.image.toString(),
+                dto.tags.stream().sorted().collect(Collectors.joining(", ")),
+                dto.steps.stream().map(step -> "- " + step.description).collect(Collectors.joining("\n"))).replace("\n\n", "\n");
     }
 }
