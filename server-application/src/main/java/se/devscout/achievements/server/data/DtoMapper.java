@@ -3,23 +3,21 @@ package se.devscout.achievements.server.data;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.*;
-import se.devscout.achievements.server.data.dao.PeopleDao;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.io.IOException;
-import java.util.*;
 import java.util.stream.Collectors;
 
 public class DtoMapper {
     final ModelMapper toDtoMapper;
     final ModelMapper fromDtoMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DtoMapper.class);
 
     public DtoMapper() {
         toDtoMapper = new ModelMapper();
@@ -91,6 +89,11 @@ public class DtoMapper {
     }
 
     private void mapAchievementStepExtras(AchievementStep src, AchievementStepDTO dest) {
+        if (src == null) {
+            // TODO: Fix this hack. Why is src null?
+            LOGGER.info("mapAchievementStepExtras get bad data. Parameter src is null.");
+            return;
+        }
         if (src.getPrerequisiteAchievement() != null) {
             dest.prerequisite_achievement = UuidString.toString(src.getPrerequisiteAchievement().getId());
         }
