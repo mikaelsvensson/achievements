@@ -302,7 +302,7 @@ public class AchievementsResource extends AbstractResource {
                 Optional.ofNullable(dto.steps)
                         .orElse(Collections.emptyList())
                         .stream()
-                        .filter(java.util.Objects::nonNull)
+                        .filter(java.util.Objects::nonNull) // TODO: Fix this hack. Why is step sometimes null?
                         .map(step -> "- " + step.description)
                         .collect(Collectors.joining("\n"))
         ).replace("\n\n", "\n");
