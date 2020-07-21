@@ -98,7 +98,7 @@ public class AchievementStepsDaoImplTest {
     public void getByParent_happyPath() throws Exception {
         var achievement2 = achievementsDao.create(new AchievementProperties("Buy Ingredients"));
         var step1Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties(achievement2))).getId();
-        var step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instrucions on package"))).getId();
+        var step2Id = database.inTransaction(() -> dao.create(achievement, new AchievementStepProperties("Follow instructions on package"))).getId();
 
         final var actual = database.inTransaction(() -> dao.getByParent(achievement));
 
@@ -109,7 +109,7 @@ public class AchievementStepsDaoImplTest {
         assertThat(actual.get(0).getPrerequisiteAchievement()).isNotNull();
 
         assertThat(actual.get(1).getId()).isEqualTo(step2Id);
-        assertThat(actual.get(1).getDescription()).isEqualTo("Follow instrucions on package");
+        assertThat(actual.get(1).getDescription()).isEqualTo("Follow instructions on package");
         assertThat(actual.get(1).getPrerequisiteAchievement()).isNull();
     }
 

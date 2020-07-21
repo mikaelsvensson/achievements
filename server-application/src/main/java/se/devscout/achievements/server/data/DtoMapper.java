@@ -5,19 +5,17 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.data.model.*;
 import se.devscout.achievements.server.resources.UuidString;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DtoMapper {
     final ModelMapper toDtoMapper;
     final ModelMapper fromDtoMapper;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DtoMapper.class);
 
     public DtoMapper() {
         toDtoMapper = new ModelMapper();
@@ -77,6 +75,7 @@ public class DtoMapper {
             return null;
         }
     }
+
     private void mapAuditExtras(StepProgressAuditRecord src, StepProgressRequestLogRecordDTO dest) {
         dest.user = map(src.getUser(), PersonBaseDTO.class);
         dest.person = map(src.getPerson(), PersonBaseDTO.class);
@@ -89,11 +88,6 @@ public class DtoMapper {
     }
 
     private void mapAchievementStepExtras(AchievementStep src, AchievementStepDTO dest) {
-        if (src == null) {
-            // TODO: Fix this hack. Why is src null?
-            LOGGER.info("Bad data in mapAchievementStepExtras. Parameter src is null.");
-            return;
-        }
         if (src.getPrerequisiteAchievement() != null) {
             dest.prerequisite_achievement = UuidString.toString(src.getPrerequisiteAchievement().getId());
         }
@@ -102,14 +96,12 @@ public class DtoMapper {
     private void mapAchievementExtras(Achievement src, AchievementDTO dest) {
         for (var i = 0; i < src.getSteps().size(); i++) {
             var step = src.getSteps().get(i);
-            if (step != null && dest.steps.size() > i) {
-                // TODO: Fix this hack. Why is step sometimes null?
+            if (step != null) {
                 mapAchievementStepExtras(step, dest.steps.get(i));
-                return;
-            } else {
-                LOGGER.info("Bad data in mapAchievementExtras. Variable step is null for achievement " + src.getName() + ".");
             }
         }
+        // We need to remove null values from "steps list" since 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list
+        dest.steps = dest.steps.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private void mapPersonExtras(PersonDTO src, PersonProperties dest) {

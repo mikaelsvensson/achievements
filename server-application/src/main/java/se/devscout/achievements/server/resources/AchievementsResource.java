@@ -3,7 +3,6 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
-import org.modelmapper.internal.util.Objects;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
@@ -223,8 +222,16 @@ public class AchievementsResource extends AbstractResource {
         // Remove steps not present in input data
         final var existingSteps = achievement.getSteps();
         final var inputSteps = Optional.ofNullable(input.steps).orElse(Collections.emptyList());
-        final var desiredStepIds = inputSteps.stream().filter(step -> step.id != null && step.id > 0).map(step -> step.id).collect(Collectors.toSet());
-        final var removedStepIds = existingSteps.stream().map(AchievementStep::getId).filter(stepId -> !desiredStepIds.contains(stepId)).collect(Collectors.toSet());
+        final var desiredStepIds = inputSteps.stream()
+                .filter(Objects::nonNull) // Ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
+                .filter(step -> step.id != null && step.id > 0)
+                .map(step -> step.id)
+                .collect(Collectors.toSet());
+        final var removedStepIds = existingSteps.stream()
+                .filter(Objects::nonNull) // Ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
+                .map(AchievementStep::getId)
+                .filter(stepId -> !desiredStepIds.contains(stepId))
+                .collect(Collectors.toSet());
         for (Integer removedStepId : removedStepIds) {
             stepsDao.delete(removedStepId);
         }
@@ -239,13 +246,16 @@ public class AchievementsResource extends AbstractResource {
                 newStepList.add(stepsDao.create(achievement, map(step, AchievementStepProperties.class)));
             }
         }
-        achievement.getSteps().clear();
-        achievement.getSteps().addAll(newStepList);
+        existingSteps.clear();
+        existingSteps.addAll(newStepList);
     }
 
     private void verifyNotInProgress(UuidString id) throws ObjectNotFoundException {
         final var achievement = dao.read(id.getUUID());
-        final var isInProgressForOnePerson = achievement.getSteps().stream().flatMap(step -> step.getProgressList().stream()).anyMatch(AchievementStepProgressProperties::isCompleted);
+        final var isInProgressForOnePerson = achievement.getSteps().stream()
+                .filter(Objects::nonNull) // Ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
+                .flatMap(step -> step.getProgressList().stream())
+                .anyMatch(AchievementStepProgressProperties::isCompleted);
         if (isInProgressForOnePerson) {
             throw new ClientErrorException(Response.Status.CONFLICT);
         }
@@ -276,8 +286,8 @@ public class AchievementsResource extends AbstractResource {
                     .collect(Collectors.toList()));
 
             list.sort(Comparator.comparing(
-                    dto -> Objects.firstNonNull(dto.fromScouternaSe, dto.fromDatabase),
-                    (dto1, sto2) -> Objects.firstNonNull(dto1.name, "").compareTo(sto2.name)));
+                    dto -> Objects.requireNonNullElse(dto.fromScouternaSe, dto.fromDatabase),
+                    (dto1, sto2) -> Objects.requireNonNullElse(dto1.name, "").compareTo(sto2.name)));
 
             // Calculate diff between text from www.scouterna.se and text stored in database
             list.stream()
@@ -302,7 +312,7 @@ public class AchievementsResource extends AbstractResource {
                 Optional.ofNullable(dto.steps)
                         .orElse(Collections.emptyList())
                         .stream()
-                        .filter(java.util.Objects::nonNull) // TODO: Fix this hack. Why is step sometimes null?
+                        .filter(java.util.Objects::nonNull) // Ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
                         .map(step -> "- " + step.description)
                         .collect(Collectors.joining("\n"))
         ).replace("\n\n", "\n");

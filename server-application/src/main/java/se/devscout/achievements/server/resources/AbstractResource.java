@@ -51,8 +51,12 @@ public abstract class AbstractResource {
         }
         final var summary = new OrganizationAchievementSummaryDTO();
         for (var achievement : achievements) {
-            final var stepCount = achievement.getSteps().size();
+            final var stepCount = achievement.getSteps().stream()
+                    // We need to ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
+                    .filter(Objects::nonNull)
+                    .count();
             final var progressSumByPerson = achievement.getSteps().stream()
+                    .filter(Objects::nonNull) // We need to ignore null values from "steps list". Migration 17_achievement_steps_order_default_values.xml bootstraps the sort_order column in a way which causes Hibernate to add a lot of null values to the list.
                     .flatMap(achievementStep -> achievementStep.getProgressList().stream())
                     .filter(progress -> progress.getPerson().getOrganization().equals(organization))
                     .filter(progress -> personFilter == null || progress.getPerson().equals(personFilter))

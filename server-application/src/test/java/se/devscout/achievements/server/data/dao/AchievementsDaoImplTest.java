@@ -8,7 +8,6 @@ import org.junit.Test;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.model.*;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
