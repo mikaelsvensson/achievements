@@ -294,7 +294,7 @@ public class AchievementsResource extends AbstractResource {
                     // Only calculate diff for achievements which exist on "both sides"
                     .filter(dto -> dto.fromScouternaSe != null && dto.fromDatabase != null)
                     .forEach(dto -> {
-                        dto.diffs = Diff.diff(asPlainText(dto.fromScouternaSe), asPlainText(dto.fromDatabase));
+                        dto.diffs = Diff.diff(asPlainText(dto.fromDatabase), asPlainText(dto.fromScouternaSe));
                     });
 
             return Response.ok(list).build();
@@ -306,9 +306,9 @@ public class AchievementsResource extends AbstractResource {
     private String asPlainText(AchievementDTO dto) {
         return String.join("\n",
                 dto.name,
-                dto.description,
-                dto.image.toString(),
                 dto.tags.stream().sorted().collect(Collectors.joining(", ")),
+                dto.image.toString(),
+                dto.description,
                 Optional.ofNullable(dto.steps)
                         .orElse(Collections.emptyList())
                         .stream()
