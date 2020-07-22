@@ -11,16 +11,20 @@ import se.devscout.achievements.server.data.htmlprovider.HtmlProvider;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BadgeImporter {
 
-    public static final String URL = "http://www.scouterna.se/ledascouting/leda-scouting/intressemarken/";
+    public static final List<String> URLS = Arrays.asList(
+            "http://www.scouterna.se/ledascouting/leda-scouting/intressemarken/",
+            "http://www.scouterna.se/ledascouting/leda-scouting/spararscout/",
+            "http://www.scouterna.se/ledascouting/leda-scouting/upptackarscout/",
+            "http://www.scouterna.se/ledascouting/leda-scouting/aventyrarscout/",
+            "http://www.scouterna.se/ledascouting/leda-scouting/utmanarscout/"
+    );
 
     public static final ImmutableMap<String, List<String>> AUTOMATIC_TAGS = ImmutableMap.<String, List<String>>builder()
             .put("spårarscout", Collections.singletonList("spårare"))
@@ -31,6 +35,13 @@ public class BadgeImporter {
             .put("spårarscout och uppåt", Arrays.asList("spårare", "upptäckare", "äventyrare", "utmanare", "rover"))
             .put("upptäckarscout och uppåt", Arrays.asList("upptäckare", "äventyrare", "utmanare", "rover"))
             .put("äventyrarscout och uppåt", Arrays.asList("äventyrare", "utmanare", "rover"))
+            .build();
+
+    public static final ImmutableMap<String, String> CSS_CLASS_TAGS = ImmutableMap.<String, String>builder()
+            .put("type-marke-bevis", "bevismärke")
+            .put("type-marke-deltagande", "deltagandemärke")
+            .put("type-marke-intresse", "intressemärke")
+            .put("type-marke-tillhorighet", "tillhörighetsmärke")
             .build();
 
     public static final Pattern COMMA_OR_PERIOD = Pattern.compile("[,.]");
@@ -61,17 +72,24 @@ public class BadgeImporter {
         }
     }
 
-    public List<AchievementDTO> get() throws BadgeImporterException {
-        try {
-            return Jsoup
-                    .parse(htmlProvider.get(URI.create(URL)))
-                    .select("article[class*=marke-intresse]")
-                    .stream()
-                    .map(this::parseArticle)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new BadgeImporterException("Could not process URL", e);
+    public Collection<AchievementDTO> get() throws BadgeImporterException {
+        final var allBadges = new ArrayList<AchievementDTO>();
+
+        for (String url : URLS) {
+            try {
+                Jsoup.parse(htmlProvider.get(URI.create(url)))
+                        .select("article[class*=marke-]")
+                        .stream()
+                        .map(this::parseArticle)
+                        .forEach(allBadges::add);
+            } catch (IOException e) {
+                throw new BadgeImporterException("Could not process URL " + url, e);
+            }
         }
+        return allBadges.stream()
+                // Remove duplicates, using a Map, by always picking first badge when two have the same slug (simplified name).
+                .collect(Collectors.toMap(dto -> dto.slug, dto -> dto, (dto1, dto2) -> dto1))
+                .values();
     }
 
     private AchievementDTO parseArticle(Element article) {
@@ -84,9 +102,11 @@ public class BadgeImporter {
                 .replace(" I det ingår att:", "\n## steps\n")
                 .replace(" Kriterier ", "\n## steps\n")
                 .replace(" Målspår ", "\n## tags\n")
+                .replace(" Målspår: ", "\n## tags\n")
                 .replace(" Åldersgrupp ", "\n## tags\n")
                 .replace(" Inledning ", "\n## description\n")
                 .replace(" Innehåll ", "\n## description\n")
+                .replace(" Innehåll: ", "\n## description\n")
                 .replace(": ", ":\n")
                 .transform(s -> {
                     final var abbreviations = Arrays.asList(" t.ex.", " ex.", " m.fl.");
@@ -125,13 +145,27 @@ public class BadgeImporter {
                 .collect(Collectors.toList());
 
         dto.tags = Stream
-                .concat(
+                .of(
+                        // Stream of tags extracted from "tags part":
                         COMMA_OR_PERIOD.splitAsStream(tagsText.toString()),
-                        AUTOMATIC_TAGS.entrySet().stream().flatMap(entry ->
-                                dto.description.toLowerCase().contains(entry.getKey())
-                                        ? entry.getValue().stream()
-                                        : Stream.empty())
+
+                        // String of tags based on certain keywords found in description text:
+                        AUTOMATIC_TAGS.entrySet()
+                                .stream()
+                                .flatMap(entry ->
+                                        dto.description.toLowerCase().contains(entry.getKey())
+                                                ? entry.getValue().stream()
+                                                : Stream.empty()),
+
+                        // Stream with one or zero tags based on the CSS classes of the <article> element containing badge data:
+                        CSS_CLASS_TAGS.entrySet()
+                                .stream()
+                                .filter(entry -> article.classNames().contains(entry.getKey()))
+                                .findFirst()
+                                .stream()
+                                .map(Map.Entry::getValue)
                 )
+                .flatMap(stream -> stream) // <-- Hack to merge the multiple streams above into one.
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .filter(s -> !s.isBlank())
