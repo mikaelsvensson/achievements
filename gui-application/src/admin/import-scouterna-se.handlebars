@@ -5,11 +5,17 @@
         </h1>
 
         {{> ../_breadcrumbs.handlebars}}
+            <p>Filtrera listan genom att klicka på en etikett:</p>
+            <div class="tags are-small">
+                {{#each tags}}
+                    <span class="tag achievement-tag is-light" data-key="{{key}}">{{label}}</span>
+                {{/each}}
+            </div>
 
-            {{#if .}}
-                {{#each .}}
+            {{#if achievements}}
+                {{#each achievements}}
 
-                    <section class="section">
+                    <section class="section section-achievement {{tagKeysCssClasses}}">
                     <div class="tile is-ancestor">
                         <div class="tile is-4">
                             <article class="tile is-child">

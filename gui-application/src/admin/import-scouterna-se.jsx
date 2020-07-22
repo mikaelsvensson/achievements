@@ -36,16 +36,44 @@ function createSaveChangeResponseHandler($target) {
 export function renderImportScouternaSe(appPathParams) {
     updateView(templateLoading());
     get('/api/achievements/scouterna-se-badges', function (responseData, responseStatus, jqXHR) {
+        var allTags = {
+            __isNew: '__ Nya',
+            __isOld: '__ Gamla',
+            __isInBoth: '__ Existerande',
+            __diffs: '__ Existerande m. ändr.'
+        }
         responseData.forEach(function (achievement) {
+            var achievementTagKeys = []
             if (achievement.fromScouternaSe) {
                 achievement.fromScouternaSe.tagsHtml = (achievement.fromScouternaSe.tags || []).join(', ')
                 if (achievement.fromScouternaSe.description) {
                     achievement.fromScouternaSe.descriptionHtml = markdown2html(achievement.fromScouternaSe.description.replace(/\n/g, "\n\n").trim());
                 }
+
+                (achievement.fromScouternaSe.tags || []).forEach(tag => {
+                    var key = 'achievement-tag-' + tag.replace(/[^a-z]/g, '')
+                    achievementTagKeys.push(key)
+                    allTags[key] = tag
+                })
+            }
+            if (achievement.fromDatabase) {
+                (achievement.fromDatabase.tags || []).forEach(tag => {
+                    var key = 'achievement-tag-' + tag.replace(/[^a-z]/g, '')
+                    achievementTagKeys.push(key)
+                    allTags[key] = tag
+                })
             }
             achievement.isNew = achievement.fromScouternaSe != null && achievement.fromDatabase == null
             achievement.isOld = achievement.fromScouternaSe == null && achievement.fromDatabase != null
             achievement.isInBoth = achievement.fromScouternaSe != null && achievement.fromDatabase != null
+            achievementTagKeys.push(
+                achievement.isNew
+                    ? '__isNew'
+                    : (achievement.isOld
+                        ? '__isOld'
+                        : (achievement.isInBoth
+                            ? '__isInBoth'
+                            : '')))
             var sourceData = achievement.isNew ? achievement.fromScouternaSe : achievement.fromDatabase
             Object.assign(achievement, achievementDtoToFormTemplateData(sourceData))
 
@@ -58,10 +86,36 @@ export function renderImportScouternaSe(appPathParams) {
                             : diff.text))
                     .join('')
                     .replace(/\n/g, '<br>')
+                achievementTagKeys.push('__diffs')
             }
+            achievement.tagKeysCssClasses = achievementTagKeys.join(' ')
         });
 
-        updateView(templateImportScouternaSe(responseData));
+        updateView(templateImportScouternaSe({
+            achievements: responseData,
+            tags: Object
+                .keys(allTags)
+                .filter(key => key !== 'achievement-tag-')
+                .map(key => ({
+                    key: key,
+                    label: allTags[key]
+                }))
+                .sort((a, b) => a.label.localeCompare(b.label))
+        }));
+
+        $('div.tags span.tag.achievement-tag').click(function () {
+            var $this = $(this)
+            var key = $this.data('key')
+            if ($this.hasClass('is-dark')) {
+                $('section.section-achievement').show()
+                $this.removeClass('is-dark')
+            } else {
+                $('section.section-achievement').hide()
+                $('section.section-achievement.' + key).show()
+                $('span.tag.achievement-tag').removeClass('is-dark')
+                $this.addClass('is-dark')
+            }
+        })
 
         $("button.import-upsert-achievement").click(function () {
             var $button = $(this)
