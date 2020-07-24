@@ -99,12 +99,13 @@ export function unsetAuth(googleApiAuth2) {
     }
 }
 
-export function post(url, dataObject, onSuccess, button) {
+export function post(url, dataObject, onSuccess, button, extraHeaders = {}) {
     $.ajax({
         url: API_HOST + url,
         type: "POST",
         data: JSON.stringify(dataObject),
         dataType: "json",
+        headers: extraHeaders,
         contentType: "application/json; charset=utf-8",
         beforeSend: createBeforeSendHandler(button)
     })
@@ -127,8 +128,8 @@ export function remove(url, dataObject, onSuccess, button) {
         .fail(createOnFailHandler(`Kan inte ta bort ${url}.`));
 }
 
-export function put(url, dataObject, onSuccess, button) {
-    internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, button);
+export function put(url, dataObject, onSuccess, button, extraHeaders = {}) {
+    internalPut(url, 'application/json; charset=utf-8', JSON.stringify(dataObject), onSuccess, button, extraHeaders);
 }
 
 export function postFormData(url, data, onSuccess, button) {
@@ -147,13 +148,14 @@ export function postFormData(url, data, onSuccess, button) {
         .fail(createOnFailHandler(`Kan inte skapa ${url}.`));
 }
 
-function internalPut(url, contentType, data, onSuccess, button) {
+function internalPut(url, contentType, data, onSuccess, button, extraHeaders = {}) {
     $.ajax({
         url: API_HOST + url,
         type: "PUT",
         data: data,
         dataType: "json",
         contentType: contentType,
+        headers: extraHeaders,
         beforeSend: createBeforeSendHandler(button)
     })
         .done(onSuccess)

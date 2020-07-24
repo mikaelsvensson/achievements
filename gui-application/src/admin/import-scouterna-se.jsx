@@ -147,11 +147,20 @@ export function renderImportScouternaSe(appPathParams) {
             }
 
             if (id) {
-                put('/api/achievements/' + id, payload, createSaveChangeResponseHandler($form.parent()), $button);
+                put('/api/achievements/' + id,
+                    payload,
+                    createSaveChangeResponseHandler($form.parent()),
+                    $button,
+                    {
+                        'Achievements-InProgressCheck': 'SKIP'
+                    });
             } else {
-                post('/api/achievements/' + id, payload, createSaveChangeResponseHandler($form.parent()), $button);
-            }
-        })
+                post('/api/achievements/' + id,
+                    payload,
+                    createSaveChangeResponseHandler($form.parent()),
+                    $button);
+                }
+            })
         $("button.import-delete-achievement").click(function () {
             var $button = $(this)
             var $form = $button.closest("form")

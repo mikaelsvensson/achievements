@@ -65,6 +65,12 @@
                                 <div>
 {{> ./_import-scouterna-se.form.handlebars}}
                                 </div>
+                                {{#if affected_people_count}}
+                                    <div class="tags has-addons" style="margin-top: 1rem">
+                                        <span class="tag is-warning">OBS: Ändra med försiktighet</span>
+                                        <span class="tag is-warning is-light">{{affected_people_count}} personer har tagit, eller håller på att ta, märket.</span>
+                                    </div>
+                                {{/if}}
                             </div>
                         </div>
                     </div>

@@ -49,11 +49,15 @@ import se.devscout.achievements.server.resources.exceptionhandling.ValidationExc
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.ws.rs.container.DynamicFeature;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.util.EnumSet;
 import java.util.List;
 
 public class AchievementsApplication extends Application<AchievementsApplicationConfiguration> {
+
+    public static final String HEADER_IN_PROGRESS_CHECK = "Achievements-InProgressCheck";
+
     private final HibernateBundle<AchievementsApplicationConfiguration> hibernate = new HibernateBundle<>(
             Organization.class,
             Person.class,
@@ -262,7 +266,12 @@ public class AchievementsApplication extends Application<AchievementsApplication
         filter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, env.getApplicationContext().getContextPath() + "*");
         filter.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,PUT,POST,DELETE,OPTIONS");
         filter.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
-        filter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "Origin, Content-Type, Accept, Authorization");
+        filter.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, String.join(", ",
+                "Origin",
+                HttpHeaders.CONTENT_TYPE,
+                HttpHeaders.ACCEPT,
+                HttpHeaders.AUTHORIZATION,
+                HEADER_IN_PROGRESS_CHECK));
         filter.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
     }
 

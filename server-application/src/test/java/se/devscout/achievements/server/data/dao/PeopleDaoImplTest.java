@@ -128,6 +128,8 @@ public class PeopleDaoImplTest {
         });
         database.inTransaction(() -> progressDao.set(achievement1Step2, personAliceWithProgress, new AchievementStepProgressProperties(false, "Still eating the egg")));
 
+        database.getSessionFactory().getCurrentSession().clear(); // TODO: Figure out of we need this hack because of missing "production code" or if the test setup is somehow incorrect.
+
         database.inTransaction(() -> {
             try {
                 dao.delete(personAliceWithProgress.getId());

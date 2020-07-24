@@ -23,6 +23,9 @@ public class AchievementStep extends AchievementStepProperties {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "step")
     private final List<AchievementStepProgress> progressList = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "step")
+    private final List<StepProgressAuditRecord> auditRecords = new ArrayList<>();
+
     public Integer getId() {
         return id;
     }
@@ -41,5 +44,9 @@ public class AchievementStep extends AchievementStepProperties {
 
     public List<AchievementStepProgress> getProgressList() {
         return progressList;
+    }
+
+    public List<StepProgressAuditRecord> getAuditRecords() {
+        return auditRecords;
     }
 }

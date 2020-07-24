@@ -40,13 +40,15 @@ public class ReadScouternaSeBadgesTask extends DatabaseTask {
                             storedAchievements.stream()
                                     .filter(sa -> sa.slug.equals(parsedAchievement.slug))
                                     .findFirst()
-                                    .orElse(null)))
+                                    .orElse(null),
+                            null,
+                            0))
                     .collect(Collectors.toCollection(ArrayList::new));
 
             list.addAll(storedAchievements.stream()
                     .filter(sa -> list.stream()
                             .noneMatch(pa -> pa.fromScouternaSe.slug.equals(sa.slug)))
-                    .map(sa -> new ScouternaSeBadgeDTO(null, sa))
+                    .map(sa -> new ScouternaSeBadgeDTO(null, sa, null, 0))
                     .collect(Collectors.toList()));
 
             output.printf("%d badges%n", list.size());

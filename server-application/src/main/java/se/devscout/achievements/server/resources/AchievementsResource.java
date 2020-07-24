@@ -3,6 +3,7 @@ package se.devscout.achievements.server.resources;
 import com.google.common.base.Strings;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.AchievementsApplication;
 import se.devscout.achievements.server.api.*;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.*;
@@ -185,9 +186,13 @@ public class AchievementsResource extends AbstractResource {
     @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     @Path("{achievementId}")
-    public Response delete(@PathParam("achievementId") UuidString id, @Auth User user) {
+    public Response delete(@PathParam("achievementId") UuidString id,
+                           @Auth User user,
+                           @HeaderParam(AchievementsApplication.HEADER_IN_PROGRESS_CHECK) InProgressCheck inProgressCheck) {
         try {
-            verifyNotInProgress(id);
+            if (inProgressCheck != InProgressCheck.SKIP) {
+                verifyNotInProgress(id);
+            }
 
             dao.delete(id.getUUID());
             return Response.noContent().build();
@@ -200,9 +205,14 @@ public class AchievementsResource extends AbstractResource {
     @RolesAllowed(Roles.ADMIN)
     @UnitOfWork
     @Path("{achievementId}")
-    public AchievementDTO update(@PathParam("achievementId") UuidString id, AchievementDTO input, @Auth User user) {
+    public AchievementDTO update(@PathParam("achievementId") UuidString id,
+                                 AchievementDTO input,
+                                 @Auth User user,
+                                 @HeaderParam(AchievementsApplication.HEADER_IN_PROGRESS_CHECK) InProgressCheck inProgressCheck) {
         try {
-            verifyNotInProgress(id);
+            if (inProgressCheck != InProgressCheck.SKIP) {
+                verifyNotInProgress(id);
+            }
 
             final var achievement = dao.read(id.getUUID());
 
@@ -276,13 +286,15 @@ public class AchievementsResource extends AbstractResource {
                             storedAchievements.stream()
                                     .filter(sa -> sa.slug.equals(parsedAchievement.slug))
                                     .findFirst()
-                                    .orElse(null)))
+                                    .orElse(null),
+                            null,
+                            0))
                     .collect(Collectors.toCollection(ArrayList::new));
 
             list.addAll(storedAchievements.stream()
                     .filter(sa -> list.stream()
                             .noneMatch(pa -> pa.fromScouternaSe.slug.equals(sa.slug)))
-                    .map(sa -> new ScouternaSeBadgeDTO(null, sa))
+                    .map(sa -> new ScouternaSeBadgeDTO(null, sa, null, 0))
                     .collect(Collectors.toList()));
 
             list.sort(Comparator.comparing(
@@ -295,6 +307,21 @@ public class AchievementsResource extends AbstractResource {
                     .filter(dto -> dto.fromScouternaSe != null && dto.fromDatabase != null)
                     .forEach(dto -> {
                         dto.diffs = Diff.diff(asPlainText(dto.fromDatabase), asPlainText(dto.fromScouternaSe));
+                    });
+
+            list.stream()
+                    .filter(dto -> dto.fromDatabase != null)
+                    .forEach(dto -> {
+                        try {
+                            // Similar, but not identical, to se.devscout.achievements.server.resources.AchievementStepsResource.verifyNotInProgress
+                            dto.affected_people_count = progressDao.get(dao.read(UuidString.toUUID(dto.fromDatabase.id))).stream()
+                                    .filter(AchievementStepProgressProperties::isCompleted)
+                                    .map(p -> p.getPerson().getId())
+                                    .distinct()
+                                    .count();
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     });
 
             return Response.ok(list).build();

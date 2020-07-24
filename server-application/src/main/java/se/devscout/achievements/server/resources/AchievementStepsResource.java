@@ -2,6 +2,7 @@ package se.devscout.achievements.server.resources;
 
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
+import se.devscout.achievements.server.AchievementsApplication;
 import se.devscout.achievements.server.api.AchievementStepDTO;
 import se.devscout.achievements.server.auth.Roles;
 import se.devscout.achievements.server.data.dao.AchievementStepsDao;
@@ -103,13 +104,16 @@ public class AchievementStepsResource extends AbstractResource {
     @Path("{stepId}")
     public Response delete(@PathParam("achievementId") UuidString achievementId,
                            @PathParam("stepId") Integer id,
-                           @Auth User user) {
+                           @Auth User user,
+                           @HeaderParam(AchievementsApplication.HEADER_IN_PROGRESS_CHECK) InProgressCheck inProgressCheck) {
         try {
             final var step = dao.read(id);
 
             verifyParent(achievementId.getUUID(), step);
 
-            verifyNotInProgress(step);
+            if (inProgressCheck != InProgressCheck.SKIP) {
+                verifyNotInProgress(step);
+            }
 
             dao.delete(id);
             return Response.noContent().build();
@@ -119,7 +123,9 @@ public class AchievementStepsResource extends AbstractResource {
     }
 
     private void verifyNotInProgress(AchievementStep step) {
-        final var isInProgressForOnePerson = step.getProgressList().stream().anyMatch(AchievementStepProgressProperties::isCompleted);
+        // Similar, but not identical, to what's in se.devscout.achievements.server.resources.AchievementsResource.readScouternaSeBadges
+        final var isInProgressForOnePerson = step.getProgressList().stream()
+                .anyMatch(AchievementStepProgressProperties::isCompleted);
         if (isInProgressForOnePerson) {
             throw new ClientErrorException(Response.Status.CONFLICT);
         }
