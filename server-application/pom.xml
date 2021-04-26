@@ -146,7 +146,7 @@
             <!-- includes TeeInputStream -->
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>2.7</version>
         </dependency>
 
         <!-- XML API no longer included in JRE 10. Needs to explicitly included. -->
