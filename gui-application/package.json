@@ -18,7 +18,7 @@
     "jquery": ">=3.4.0",
     "jwt-decode": "^2.2.0",
     "@mdi/font": "^2.8.94",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "remarkable": "^1.7.1",
     "sass-loader": "^6.0.6",
     "color-hash": "^1.0.3"
